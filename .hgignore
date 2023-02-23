@@ -1,0 +1,27 @@
+syntax: glob
+
+*.pyd*
+*.pyc
+*~
+*temp
+
+*.swp
+*.swo
+\#*\#
+**/.vscode/*
+
+doc/_build/*
+doc/**generated/*
+doc/**.zip
+
+*.ipynb_checkpoints*
+*Untitled*.ipynb
+*.egg-info/*
+
+build/*
+dist/*.tar.gz
+dist*
+.tox/*
+.coverage/*
+.pytest_cache/*
+.mypy_cache/*
