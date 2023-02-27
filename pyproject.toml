@@ -3,7 +3,7 @@ name = "fluidsimfoam"
 version = "0.1.0"
 description = "Python framework for OpenFOAM"
 authors = ["pierre.augier <pierre.augier@univ-grenoble-alpes.fr>"]
-license = "BSD License"
+license = "BSD-3-Clause"
 readme = "README.md"
 
 [tool.poetry.dependencies]
