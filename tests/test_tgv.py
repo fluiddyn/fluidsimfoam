@@ -4,6 +4,8 @@ from fluidsimfoam_tgv import Simul
 def test_init_simul():
     params = Simul.create_default_params()
 
+    params.output.sub_directory = "tests_fluidsimfoam/tgv"
+
     sim = Simul(params)
 
     assert all(
