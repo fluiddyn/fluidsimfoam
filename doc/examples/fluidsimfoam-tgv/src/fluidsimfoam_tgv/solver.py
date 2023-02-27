@@ -1,5 +1,7 @@
 from fluidsim_core.info import InfoSolverCore
-from fluidsim_core.solver import SimulCore
+
+from fluidsimfoam.solvers.base import SimulFoam
+
 
 class InfoSolverTGV(InfoSolverCore):
     """Contain the information on a :class:`fluidsimfoam_tgv.solver.Simul`
@@ -17,7 +19,7 @@ class InfoSolverTGV(InfoSolverCore):
         # self.classes.Output.class_name = "OutputTGV"
 
 
-class SimulTGV(SimulCore):
+class SimulTGV(SimulFoam):
     """A solver which compiles and runs using a Snakefile."""
 
     InfoSolver = InfoSolverTGV
