@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "fluidsimfoam"
+version = "0.1.0"
+description = "Python framework for OpenFOAM"
+authors = ["pierre.augier <pierre.augier@univ-grenoble-alpes.fr>"]
+license = "BSD-3-Clause"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fluidsim-core = "^0.7.2"
+inflection = "^0.5.1"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.2.1"
+fluidsimfoam-tgv = { path = "./doc/examples/fluidsimfoam-tgv/", develop = true }
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+flake8 = "^6.0.0"
+isort = "^5.12.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.setuptools_scm]
+write_to = "src/snek5000/_version.py"
+
+[tool.isort]
+known_first_party = ["fluiddyn", "fluidsim_core", "fluidsimfoam"]
+# multi_line_output = 3
+profile = "black"
+line_length = 82
