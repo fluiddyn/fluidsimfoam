@@ -1,9 +1,8 @@
-from fluidsim_core.info import InfoSolverCore
-
+from fluidsimfoam.info import InfoSolver
 from fluidsimfoam.solvers.base import SimulFoam
 
 
-class InfoSolverTGV(InfoSolverCore):
+class InfoSolverTGV(InfoSolver):
     """Contain the information on a :class:`fluidsimfoam_tgv.solver.Simul`
     instance.
 
@@ -15,8 +14,8 @@ class InfoSolverTGV(InfoSolverCore):
         self.class_name = "Simul"
         self.short_name = "tgv"
 
-        # self.classes.Output.module_name = "fluidsimfoam_tgv.output"
-        # self.classes.Output.class_name = "OutputTGV"
+        self.classes.Output.module_name = "fluidsimfoam_tgv.output"
+        self.classes.Output.class_name = "OutputTGV"
 
 
 class SimulTGV(SimulFoam):

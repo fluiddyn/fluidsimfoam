@@ -3,9 +3,7 @@ from pathlib import Path
 from inflection import underscore
 
 from fluiddyn.util import mpi  # noqa: F401
-
 from fluidsim_core.solver import SimulCore
-
 from fluidsimfoam.log import logger
 
 
@@ -25,12 +23,14 @@ class SimulFoam(SimulCore):
         # initialize objects
         for cls_name, Class in dict_classes.items():
             # only initialize if Class is not the Simul class
-            if not isinstance(self, Class):
-                obj_name = underscore(cls_name)
-                setattr(self, obj_name, Class(self))
-                self._objects_to_print += "{:28s}{}\n".format(
-                    f"sim.{obj_name}: ", Class
-                )
+            if isinstance(self, Class):
+                continue
+
+            obj_name = underscore(cls_name)
+            setattr(self, obj_name, Class(self))
+            self._objects_to_print += "{:28s}{}\n".format(
+                f"sim.{obj_name}: ", Class
+            )
 
         if "Output" in dict_classes:
             if not params.NEW_DIR_RESULTS:
