@@ -24,17 +24,20 @@ class Output(OutputCore):
         # iteratively call _complete_info_solver of the above classes
         info_solver.classes.Output.complete_with_classes()
 
+    @classmethod
+    def _set_info_solver_classes(cls, classes):
+        """Set the the classes for info_solver.classes.Output"""
+        pass
+
     @staticmethod
     def _complete_params_with_default(params, info_solver):
         """This static method is used to complete the *params* container."""
 
         # Bare minimum
         params._set_attribs(dict(NEW_DIR_RESULTS=True, short_name_type_run="run"))
-        attribs = {
-            "HAS_TO_SAVE": True,
-            "sub_directory": "",
-        }
-        params._set_child("output", attribs=attribs)
+        params._set_child(
+            "output", attribs={"HAS_TO_SAVE": True, "sub_directory": ""}
+        )
         params.output._set_doc(
             textwrap.dedent(
                 """
@@ -51,11 +54,6 @@ class Output(OutputCore):
         dict_classes = info_solver.classes.Output.import_classes()
         iter_complete_params(params, info_solver, dict_classes.values())
 
-    @classmethod
-    def _set_info_solver_classes(cls, classes):
-        """Set the the classes for info_solver.classes.Output"""
-        pass
-
     def __init__(self, sim=None, params=None):
         self.sim = sim
         try:
@@ -70,7 +68,6 @@ class Output(OutputCore):
         if sim:
             # self.oper = sim.oper
             self.params = sim.params.output
-            # Same as package name __name__
             super().__init__(sim)
         elif params:
             # At least initialize params
@@ -85,19 +82,21 @@ class Output(OutputCore):
             # initialize objects
             dict_classes = sim.info.solver.classes.Output.import_classes()
             for cls_name, Class in dict_classes.items():
-                # only initialize if Class is not the Output class
-                if not isinstance(self, Class):
-                    obj_name = underscore(cls_name)
-                    setattr(self, obj_name, Class(self))
-                    self.sim._objects_to_print += "{:28s}{}\n".format(
-                        f"sim.output.{obj_name}: ", Class
-                    )
+                if isinstance(self, Class):
+                    continue
+                obj_name = underscore(cls_name)
+                setattr(self, obj_name, Class(self))
+                self.sim._objects_to_print += "{:28s}{}\n".format(
+                    f"sim.output.{obj_name}: ", Class
+                )
+
+    @classmethod
+    def get_path_solver_package(cls):
+        """Get the path towards the solver package."""
+        return Path(inspect.getmodule(cls).__file__).parent
 
     def post_init(self):
-        """Logs info on instantiated classes and finally :meth:`copy` all
-        source code to simulation directory
-
-        """
+        """Logs info on instantiated classes"""
 
         if mpi.rank == 0:
             print(f"path_run: {self.path_run}")
@@ -108,15 +107,10 @@ class Output(OutputCore):
 
         logger.info(self.sim._objects_to_print)
 
-        # Write source files to compile the simulation
+        # Write input files of the simulation
         if (
             mpi.rank == 0
             and self._has_to_save
             and self.sim.params.NEW_DIR_RESULTS
         ):
             ...
-
-    @classmethod
-    def get_path_solver_package(cls):
-        """Get the path towards the solver package."""
-        return Path(inspect.getmodule(cls).__file__).parent
