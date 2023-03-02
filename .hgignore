@@ -27,3 +27,9 @@ dist*
 .mypy_cache/*
 
 src/fluidsimfoam/_version.py
+
+tests/pure_openfoam_cases/*/*.*
+tests/pure_openfoam_cases/*/constant/polyMesh
+tests/pure_openfoam_cases/*/dynamicCode
+tests/pure_openfoam_cases/*/postProcessing
+
