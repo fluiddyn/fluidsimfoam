@@ -16,15 +16,5 @@ FoamFile
 
 simulationType  laminar;
 
-/*
-RAS
-{
-    RASModel        kOmega;
-
-    turbulence      on;
-
-    printCoeffs     on;
-}
-*/
 
 // ************************************************************************* //

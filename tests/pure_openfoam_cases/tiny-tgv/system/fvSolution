@@ -46,9 +46,6 @@ PISO
 {
     nCorrectors     2;
     nNonOrthogonalCorrectors 1;
-
-    //pRefCell        0;
-    //pRefValue       0;
     pRefPoint       (0 0 0);
     pRefValue       0;
 }

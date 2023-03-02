@@ -14,7 +14,6 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-//convertToMeters 6.28318530718;
 scale   6.28318530718;
 
 vertices        
@@ -31,7 +30,6 @@ vertices
 
 blocks          
 (
-    //hex (0 1 2 3 4 5 6 7) (80  80  1) simpleGrading (1 1 1)
     hex (0 1 2 3 4 5 6 7) (40  40  40) simpleGrading (1 1 1)
 );
 

@@ -16,7 +16,6 @@ FoamFile
 
 dimensions      [0 2 -2 0 0 0 0];
 
-//internalField   uniform 0;
 internalField   #codeStream
 {
         codeInclude
@@ -37,21 +36,17 @@ internalField   #codeStream
         #{
             const IOdictionary& d = static_cast<const IOdictionary&>(dict);
             const fvMesh& mesh = refCast<const fvMesh>(d.db());
-            //scalarField p_0(mesh.nCells(), 0.);
-            //forAll(p_0, i)
             scalarField p(mesh.nCells(), 0.);
             forAll(p, i)
             {  
                 const scalar x = mesh.C()[i][0];
                 const scalar y = mesh.C()[i][1];
                 const scalar z = mesh.C()[i][2];
-                //p_0[i]=-0.25*(Foam::cos(2*x) + Foam::cos(2*y));
                 p[i]=-0.0625*(Foam::cos(2*x) + Foam::cos(2*y))*Foam::cos(2*z+2);
             }
-            //p_0.writeEntry("",os);
             p.writeEntry("",os);
         #};
-    };
+};
 
 
 boundaryField
