@@ -25,7 +25,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.setuptools_scm]
-write_to = "src/snek5000/_version.py"
+write_to = "src/fluidsimfoam/_version.py"
 
 [tool.isort]
 known_first_party = ["fluiddyn", "fluidsim_core", "fluidsimfoam"]

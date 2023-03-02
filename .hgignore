@@ -25,3 +25,5 @@ dist*
 .coverage/*
 .pytest_cache/*
 .mypy_cache/*
+
+src/fluidsimfoam/_version.py
