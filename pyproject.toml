@@ -10,6 +10,7 @@ readme = "README.md"
 python = "^3.9"
 fluidsim-core = "^0.7.2"
 inflection = "^0.5.1"
+fluiddyn = "^0.5.2"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.2.1"

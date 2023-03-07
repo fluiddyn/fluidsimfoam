@@ -12,10 +12,8 @@ class SimulFoam(SimulCore):
 
     @classmethod
     def _complete_params_with_default(cls, params):
-        params._set_child("fv_solutions", attribs={})
-        params.fv_solutions._set_doc("""TODO""")
-        params.fv_solutions._set_child("solvers")
-        params.fv_solutions.solvers._set_doc("""TODO""")
+        params._set_child("fv_solutions", attribs={}, doc="""TODO""")
+        params.fv_solutions._set_child("solvers", doc="""TODO""")
         params.fv_solutions.solvers._set_child("p", attribs={"solver": "PCG"})
 
     def __init__(self, params):
