@@ -15,7 +15,6 @@ from types import ModuleType
 
 from fluidsim_core import loader
 
-
 available_solvers = partial(
     loader.available_solvers, entrypoint_grp="fluidsimfoam.solvers"
 )
