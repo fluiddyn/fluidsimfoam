@@ -1,5 +1,7 @@
 # Fluidsimfoam
 
+<!-- badges -->
+
 Python framework for [OpenFOAM]
 
 Fluidsimfoam is a Python package which **will** allow one to write [Fluidsim]
