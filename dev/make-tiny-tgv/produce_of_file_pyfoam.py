@@ -35,8 +35,9 @@ template = Template(template_text)
 # Render the template with the fvSolution_data
 output = template.render(fvSolution_data)
 
+output_path = here / "tmp_fvSolution"
 # Write the rendered template to fvSolution2 to compare with fvSolution
-with open("system/fvSolution2", "w") as f:
+with open(output_path, "w") as f:
     f.write(output)
 
 print(f"{output_path} was generated successfully!")

@@ -51,7 +51,7 @@ fvSolution_data = {
 output = template.render(fvSolution_data)
 
 # Define the path where the output file will be saved
-output_path = str(here) + "/system/fvSolution"
+output_path = here / "tmp_fvSolution"
 
 # Write the rendered template to fvSolution file
 with open(output_path, "w") as f:
