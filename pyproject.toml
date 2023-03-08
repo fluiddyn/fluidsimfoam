@@ -29,7 +29,7 @@ sphinx-copybutton = "^0.5.1"
 pydata-sphinx-theme = "^0.13.1"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core", "setuptools_scm[toml]>=6.2"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.setuptools_scm]
