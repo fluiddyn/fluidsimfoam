@@ -312,15 +312,15 @@ importlib-metadata = {version = ">=3.6.0", markers = "python_version < \"3.10\""
 
 [[package]]
 name = "fluidsimfoam-tgv"
-version = "0.0.0"
-description = "Taylor-Green vortex"
+version = "0.0.1"
+description = "Taylor-Green vortex simulations with fluidsimfoam"
 category = "dev"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8"
 develop = true
 
 [package.dependencies]
-fluidsimfoam = ">=0.1.0"
+fluidsimfoam = ">=0.0.1"
 
 [package.source]
 type = "directory"

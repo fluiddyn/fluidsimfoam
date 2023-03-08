@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fluidsimfoam"
-version = "0.1.0"
+version = "0.0.1"
 description = "Python framework for OpenFOAM"
 authors = ["pierre.augier <pierre.augier@univ-grenoble-alpes.fr>"]
 license = "BSD-3-Clause"
@@ -21,7 +21,6 @@ black = "^23.1.0"
 flake8 = "^6.0.0"
 isort = "^5.12.0"
 
-
 [tool.poetry.group.doc.dependencies]
 myst-nb = "^0.17.1"
 sphinx-inline-tabs = "^2022.1.2b11"
@@ -29,11 +28,8 @@ sphinx-copybutton = "^0.5.1"
 pydata-sphinx-theme = "^0.13.1"
 
 [build-system]
-requires = ["poetry-core", "setuptools_scm[toml]>=6.2"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.setuptools_scm]
-write_to = "src/fluidsimfoam/_version.py"
 
 [tool.isort]
 known_first_party = ["fluiddyn", "fluidsim_core", "fluidsimfoam"]

@@ -1,0 +1,23 @@
+[build-system]
+requires = [
+    "setuptools>=49.5.0",
+    "wheel",
+    ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fluidsimfoam-tgv"
+authors = [
+    {name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr"},
+]
+description = "Taylor-Green vortex simulations with fluidsimfoam"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "BSD-3-Clause"}
+version = "0.0.1"
+dependencies = [
+    "fluidsimfoam >= 0.0.1",
+]
+
+[project.entry-points."fluidsimfoam.solvers"]
+tgv = "fluidsimfoam_tgv.solver"
