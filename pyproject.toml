@@ -15,6 +15,7 @@ fluiddyn = "^0.5.2"
 [tool.poetry.group.test.dependencies]
 pytest = "^7.2.1"
 fluidsimfoam-tgv = { path = "./doc/examples/fluidsimfoam-tgv/", develop = true }
+pytest-mock = "^3.10.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"
@@ -26,6 +27,10 @@ myst-nb = "^0.17.1"
 sphinx-inline-tabs = "^2022.1.2b11"
 sphinx-copybutton = "^0.5.1"
 pydata-sphinx-theme = "^0.13.1"
+
+[tool.poetry.scripts]
+fluidsimfoam-info = 'fluidsimfoam.util.console:print_versions'
+fluidsimfoam-ipy-load = 'fluidsimfoam.util.console:start_ipython_load_sim'
 
 [build-system]
 requires = ["poetry-core"]
