@@ -28,7 +28,7 @@ fvSolution_data["piso"] = dict(piso)
 
 
 # Load the template
-template_text = open("templates/fvSolution.j2").read()
+template_text = open("templates/fvSolution.jinja").read()
 template = Template(template_text)
 
 

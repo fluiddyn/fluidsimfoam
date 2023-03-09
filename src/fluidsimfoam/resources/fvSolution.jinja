@@ -7,17 +7,16 @@
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
-    version     {{ version }};
-    format      {{ format }};
-    class       {{ class }};
-    location    "{{ location }}";
-    object      {{ object }};
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 solvers
-{
-    {% for solver_name, solver_settings in solvers.items() %}
+{   {% for solver_name in data.solvers._tag_children %}{% set solver_settings =  data.solvers[solver_name] %}
     {{ solver_name }}
     {
         solver          {{ solver_settings.solver }};
@@ -30,10 +29,11 @@ solvers
 
 PISO
 {
-    nCorrectors     {{ piso.nCorrectors }};
-    nNonOrthogonalCorrectors {{ piso.nNonOrthogonalCorrectors }};
-    pRefPoint       {{ piso.pRefPoint }};
-    pRefValue       {{ piso.pRefValue }};
+    nCorrectors     {{ data.piso.nCorrectors }};
+    nNonOrthogonalCorrectors {{ data.piso.nNonOrthogonalCorrectors }};
+    pRefPoint       {{ data.piso.pRefPoint }};
+    pRefValue       {{ data.piso.pRefValue }};
 }
+
 
 // ************************************************************************* //

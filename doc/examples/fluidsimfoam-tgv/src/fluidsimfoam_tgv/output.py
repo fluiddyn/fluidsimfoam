@@ -1,5 +1,6 @@
 from fluidsimfoam.output import Output
+from fluidsimfoam.resources import get_base_template
 
 
 class OutputTGV(Output):
-    pass
+    template_fv_solution = get_base_template("fvSolution.jinja")

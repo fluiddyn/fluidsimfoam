@@ -5,7 +5,7 @@ from jinja2 import Template
 # Find the current path
 here = Path(__file__).absolute().parent
 
-fvSolution_temp_path = str(here) + "/templates/fvSolution.j2"
+fvSolution_temp_path = str(here) + "/templates/fvSolution.jinja"
 # Load the template
 with open(fvSolution_temp_path) as template_text:
     template = Template(template_text.read())

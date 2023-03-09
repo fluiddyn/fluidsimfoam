@@ -15,7 +15,7 @@ def test_init_simul():
 
     params.output.sub_directory = "tests_fluidsimfoam/tgv"
 
-    params.fv_solutions.solvers.p.solver = "PCG"
+    params.fv_solution.solvers.p.solver = "PCG"
 
     sim = Simul(params)
 

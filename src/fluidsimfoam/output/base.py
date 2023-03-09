@@ -113,4 +113,25 @@ class Output(OutputCore):
             and self._has_to_save
             and self.sim.params.NEW_DIR_RESULTS
         ):
-            ...
+            self.post_init_create_additional_source_files()
+
+    def post_init_create_additional_source_files(self):
+        """Create the files from their template"""
+        for name in ("fv_solution",):
+            try:
+                template = getattr(self, f"template_{name}")
+            except AttributeError:
+                pass
+            else:
+                if template is not None:
+                    getattr(self, f"write_{name}")(template)
+
+    def write_fv_solution(self, template):
+        output = template.render(data=self.sim.params.fv_solution)
+
+        (self.sim.path_run / "system").mkdir()
+
+        output_path = self.sim.path_run / "system/fvSolution"
+
+        with open(output_path, "w") as file:
+            file.write(output)

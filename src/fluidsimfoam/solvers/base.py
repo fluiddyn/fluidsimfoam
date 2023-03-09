@@ -12,9 +12,36 @@ class SimulFoam(SimulCore):
 
     @classmethod
     def _complete_params_with_default(cls, params):
-        params._set_child("fv_solutions", attribs={}, doc="""TODO""")
-        params.fv_solutions._set_child("solvers", doc="""TODO""")
-        params.fv_solutions.solvers._set_child("p", attribs={"solver": "PCG"})
+        params._set_child("fv_solution", doc="""TODO""")
+        params.fv_solution._set_child("solvers", doc="""TODO""")
+        attribs = {
+            "solver": "PCG",
+            "preconditioner": "DIC",
+            "tolerance": 1e-06,
+            "relTol": 0.01,
+        }
+
+        params.fv_solution.solvers._set_child("p", attribs=attribs)
+        params.fv_solution.solvers._set_child("pFinal", attribs=attribs)
+        params.fv_solution.solvers.pFinal.relTol = 0
+        params.fv_solution.solvers._set_child(
+            "U",
+            attribs={
+                "solver": "PBiCGStab",
+                "preconditioner": "DILU",
+                "tolerance": 1e-08,
+                "relTol": 0,
+            },
+        )
+        params.fv_solution._set_child(
+            "piso",
+            attribs={
+                "nCorrectors": 2,
+                "nNonOrthogonalCorrectors": 1,
+                "pRefPoint": "(0 0 0)",
+                "pRefValue": 0,
+            },
+        )
 
     def __init__(self, params):
         super().__init__(params)
