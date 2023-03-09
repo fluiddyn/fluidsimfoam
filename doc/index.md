@@ -23,6 +23,7 @@ nice figures/movies.
 :maxdepth: 1
 
 intro
+tutorials
 ```
 
 ```{toctree}
