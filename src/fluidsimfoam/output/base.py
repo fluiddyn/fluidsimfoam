@@ -120,7 +120,16 @@ class Output(OutputCore):
         (self.sim.path_run / "system").mkdir()
         (self.sim.path_run / "0").mkdir()
         (self.sim.path_run / "constant").mkdir()
-        for name in ("fv_solution", "fv_schemes", "control_dict", "block_mesh_dict", "transport_properties", "turbulence_properties", "p", "u"):
+        for name in (
+            "fv_solution",
+            "fv_schemes",
+            "control_dict",
+            "block_mesh_dict",
+            "transport_properties",
+            "turbulence_properties",
+            "p",
+            "u",
+        ):
             try:
                 template = getattr(self, f"template_{name}")
             except AttributeError:
@@ -146,7 +155,7 @@ class Output(OutputCore):
 
         with open(output_path, "w") as file:
             file.write(output)
-    
+
     def write_control_dict(self, template):
         output = template.render(data=self.sim.params.control_dict)
 
@@ -154,7 +163,7 @@ class Output(OutputCore):
 
         with open(output_path, "w") as file:
             file.write(output)
-    
+
     def write_block_mesh_dict(self, template):
         output = template.render(data=self.sim.params.block_mesh_dict)
 
@@ -162,7 +171,7 @@ class Output(OutputCore):
 
         with open(output_path, "w") as file:
             file.write(output)
-    
+
     def write_transport_properties(self, template):
         output = template.render(data=self.sim.params.transport_properties)
 
@@ -170,7 +179,7 @@ class Output(OutputCore):
 
         with open(output_path, "w") as file:
             file.write(output)
-    
+
     def write_turbulence_properties(self, template):
         output = template.render(data=self.sim.params.turbulence_properties)
 
@@ -178,7 +187,7 @@ class Output(OutputCore):
 
         with open(output_path, "w") as file:
             file.write(output)
-    
+
     def write_p(self, template):
         output = template.render(data=self.sim.params.p)
 
@@ -186,7 +195,7 @@ class Output(OutputCore):
 
         with open(output_path, "w") as file:
             file.write(output)
-    
+
     def write_u(self, template):
         output = template.render(data=self.sim.params.u)
 
