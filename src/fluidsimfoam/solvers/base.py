@@ -13,7 +13,7 @@ class SimulFoam(SimulCore):
     @classmethod
     def _complete_params_with_default(cls, params):
         params._set_child("fv_solution", doc="""TODO""")
-        params.fv_solution._set_child("solvers", doc="""TODO""")
+        solvers = params.fv_solution._set_child("solvers", doc="""TODO""")
         attribs = {
             "solver": "PCG",
             "preconditioner": "DIC",
@@ -21,10 +21,10 @@ class SimulFoam(SimulCore):
             "relTol": 0.01,
         }
 
-        params.fv_solution.solvers._set_child("p", attribs=attribs)
-        params.fv_solution.solvers._set_child("pFinal", attribs=attribs)
-        params.fv_solution.solvers.pFinal.relTol = 0
-        params.fv_solution.solvers._set_child(
+        solvers._set_child("p", attribs=attribs)
+        solvers._set_child("pFinal", attribs=attribs)
+        solvers.pFinal.relTol = 0
+        solvers._set_child(
             "U",
             attribs={
                 "solver": "PBiCGStab",
@@ -42,35 +42,22 @@ class SimulFoam(SimulCore):
                 "pRefValue": 0,
             },
         )
-        # fvSchememes parameters
-        params._set_child("fv_schemes", doc="""TODO""")
-        params.fv_schemes._set_child(
-            "ddtSchemes", attribs={"default": "backward"}
-        )
-        params.fv_schemes._set_child(
-            "gradSchemes", attribs={"default": "leastSquares"}
-        )
-        params.fv_schemes._set_child("divSchemes", attribs={"default": "none"})
-        params.fv_schemes._set_child(
+        fv_schemes = params._set_child("fv_schemes", doc="""TODO""")
+        fv_schemes._set_child("ddtSchemes", attribs={"default": "backward"})
+        fv_schemes._set_child("gradSchemes", attribs={"default": "leastSquares"})
+        fv_schemes._set_child("divSchemes", attribs={"default": "none"})
+        fv_schemes._set_child(
             "laplacianSchemes", attribs={"default": "Gauss linear corrected"}
         )
-        params.fv_schemes._set_child(
+        fv_schemes._set_child(
             "interpolationSchemes", attribs={"default": "linear"}
         )
-        params.fv_schemes._set_child(
-            "snGradSchemes", attribs={"default": "corrected"}
-        )
-        # controlDict parameters
         params._set_child("control_dict", doc="""TODO""")
-        # blockMeshDict parameters
         params._set_child("block_mesh_dict", doc="""TODO""")
-        # transportProperties parameters
+        fv_schemes._set_child("snGradSchemes", attribs={"default": "corrected"})
         params._set_child("transport_properties", doc="""TODO""")
-        # turbulenceProperties parameters
         params._set_child("turbulence_properties", doc="""TODO""")
-        # p parameters
         params._set_child("p", doc="""TODO""")
-        # U parameters
         params._set_child("u", doc="""TODO""")
 
     def __init__(self, params):
