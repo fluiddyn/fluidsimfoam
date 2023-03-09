@@ -11,41 +11,40 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      fvSolution;
+    object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-solvers
+ddtSchemes
 {
-    p
-    {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-06;
-        relTol          0.01;
-    }
-    pFinal
-    {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-06;
-        relTol          0;
-    }
-    U
-    {
-        solver          PBiCGStab;
-        preconditioner  DILU;
-        tolerance       1e-08;
-        relTol          0;
-    }
+    default         {{data.ddtSchemes.default}};
 }
 
-PISO
+gradSchemes
 {
-    nCorrectors     2;
-    nNonOrthogonalCorrectors 1;
-    pRefPoint       (0 0 0);
-    pRefValue       0;
+    default         {{data.gradSchemes.default}};
+}
+
+divSchemes
+{
+    default         {{data.divSchemes.default}};
+    div(phi,U)      Gauss linear;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         {{data.laplacianSchemes.default}};
+}
+
+interpolationSchemes
+{
+    default         {{data.interpolationSchemes.default}};
+}
+
+snGradSchemes
+{
+    default         {{data.snGradSchemes.default}};
 }
 
 // ************************************************************************* //

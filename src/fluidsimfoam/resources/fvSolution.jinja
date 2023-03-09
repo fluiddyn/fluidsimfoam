@@ -16,36 +16,22 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 solvers
-{
-    p
+{{'{'}}{% for solver_name in data.solvers._tag_children %}{% set solver_settings =  data.solvers[solver_name] %}
+    {{ solver_name }}
     {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-06;
-        relTol          0.01;
-    }
-    pFinal
-    {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-06;
-        relTol          0;
-    }
-    U
-    {
-        solver          PBiCGStab;
-        preconditioner  DILU;
-        tolerance       1e-08;
-        relTol          0;
-    }
+        solver          {{ solver_settings.solver }};
+        preconditioner  {{ solver_settings.preconditioner }};
+        tolerance       {{ solver_settings.tolerance }};
+        relTol          {{ solver_settings.relTol }};
+    }{% endfor %}
 }
 
 PISO
 {
-    nCorrectors     2;
-    nNonOrthogonalCorrectors 1;
-    pRefPoint       (0 0 0);
-    pRefValue       0;
+    nCorrectors     {{ data.piso.nCorrectors }};
+    nNonOrthogonalCorrectors {{ data.piso.nNonOrthogonalCorrectors }};
+    pRefPoint       {{ data.piso.pRefPoint }};
+    pRefValue       {{ data.piso.pRefValue }};
 }
 
 // ************************************************************************* //

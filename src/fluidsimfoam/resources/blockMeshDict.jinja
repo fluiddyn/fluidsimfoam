@@ -1,0 +1,108 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   6.28318530718;
+
+vertices        
+(
+    (0 0 0)
+    (1 0 0)
+    (1 1 0)
+    (0 1 0)
+    (0 0 1)
+    (1 0 1)
+    (1 1 1)
+    (0 1 1)
+);
+
+blocks          
+(
+    hex (0 1 2 3 4 5 6 7) (40  40  40) simpleGrading (1 1 1)
+);
+
+edges           
+(
+);
+
+boundary
+(
+
+    upperBoundary 
+    {
+        type cyclic;
+        neighbourPatch lowerBoundary;
+        faces
+        (
+            (3 7 6 2)
+        );
+    }
+
+    lowerBoundary
+    {
+        type cyclic;
+        neighbourPatch upperBoundary;
+        faces
+        (
+            (1 5 4 0)
+        );
+     }
+     
+    leftBoundary
+    {
+        type cyclic;
+        neighbourPatch rightBoundary;
+        faces
+        (
+            (0 4 7 3)
+        );
+    }
+
+    rightBoundary
+    {
+         type cyclic;
+         neighbourPatch leftBoundary;
+         faces
+         (
+            (2 6 5 1)
+         );
+    }
+
+    frontBoundary
+    {
+        type cyclic;
+        neighbourPatch backBoundary;
+        faces
+        (
+            (4 5 6 7)
+        );
+    }
+    
+    backBoundary 
+    {
+        type cyclic;
+        neighbourPatch frontBoundary;
+        faces
+        (
+            (0 3 2 1)
+        );
+    }
+);
+
+mergePatchPairs 
+(
+);
+
+// ************************************************************************* //

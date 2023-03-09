@@ -113,4 +113,93 @@ class Output(OutputCore):
             and self._has_to_save
             and self.sim.params.NEW_DIR_RESULTS
         ):
-            ...
+            self.post_init_create_additional_source_files()
+
+    def post_init_create_additional_source_files(self):
+        """Create the files from their template"""
+        (self.sim.path_run / "system").mkdir()
+        (self.sim.path_run / "0").mkdir()
+        (self.sim.path_run / "constant").mkdir()
+        for name in (
+            "fv_solution",
+            "fv_schemes",
+            "control_dict",
+            "block_mesh_dict",
+            "transport_properties",
+            "turbulence_properties",
+            "p",
+            "u",
+        ):
+            try:
+                template = getattr(self, f"template_{name}")
+            except AttributeError:
+                pass
+            else:
+                if template is not None:
+                    getattr(self, f"write_{name}")(template)
+
+    def write_fv_solution(self, template):
+        output = template.render(data=self.sim.params.fv_solution)
+
+        assert output.endswith("\n")
+
+        output_path = self.sim.path_run / "system/fvSolution"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+
+    def write_fv_schemes(self, template):
+        output = template.render(data=self.sim.params.fv_schemes)
+
+        output_path = self.sim.path_run / "system/fvSchemes"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+
+    def write_control_dict(self, template):
+        output = template.render(data=self.sim.params.control_dict)
+
+        output_path = self.sim.path_run / "system/controlDict"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+
+    def write_block_mesh_dict(self, template):
+        output = template.render(data=self.sim.params.block_mesh_dict)
+
+        output_path = self.sim.path_run / "system/blockMeshDict"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+
+    def write_transport_properties(self, template):
+        output = template.render(data=self.sim.params.transport_properties)
+
+        output_path = self.sim.path_run / "constant/transportProperties"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+
+    def write_turbulence_properties(self, template):
+        output = template.render(data=self.sim.params.turbulence_properties)
+
+        output_path = self.sim.path_run / "constant/turbulenceProperties"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+
+    def write_p(self, template):
+        output = template.render(data=self.sim.params.p)
+
+        output_path = self.sim.path_run / "0/p"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+
+    def write_u(self, template):
+        output = template.render(data=self.sim.params.u)
+
+        output_path = self.sim.path_run / "0/U"
+
+        with open(output_path, "w") as file:
+            file.write(output)
