@@ -117,7 +117,8 @@ class Output(OutputCore):
 
     def post_init_create_additional_source_files(self):
         """Create the files from their template"""
-        for name in ("fv_solution",):
+        (self.sim.path_run / "system").mkdir()
+        for name in ("fv_solution", "fv_schemes"):
             try:
                 template = getattr(self, f"template_{name}")
             except AttributeError:
@@ -131,9 +132,15 @@ class Output(OutputCore):
 
         assert output.endswith("\n")
 
-        (self.sim.path_run / "system").mkdir()
-
         output_path = self.sim.path_run / "system/fvSolution"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+
+    def write_fv_schemes(self, template):
+        output = template.render(data=self.sim.params.fv_schemes)
+
+        output_path = self.sim.path_run / "system/fvSchemes"
 
         with open(output_path, "w") as file:
             file.write(output)

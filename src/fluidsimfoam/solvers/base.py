@@ -42,6 +42,24 @@ class SimulFoam(SimulCore):
                 "pRefValue": 0,
             },
         )
+        # fvSchememes parameters
+        params._set_child("fv_schemes", doc="""TODO""")
+        params.fv_schemes._set_child(
+            "ddtSchemes", attribs={"default": "backward"}
+        )
+        params.fv_schemes._set_child(
+            "gradSchemes", attribs={"default": "leastSquares"}
+        )
+        params.fv_schemes._set_child("divSchemes", attribs={"default": "none"})
+        params.fv_schemes._set_child(
+            "laplacianSchemes", attribs={"default": "Gauss linear corrected"}
+        )
+        params.fv_schemes._set_child(
+            "interpolationSchemes", attribs={"default": "linear"}
+        )
+        params.fv_schemes._set_child(
+            "snGradSchemes", attribs={"default": "corrected"}
+        )
 
     def __init__(self, params):
         super().__init__(params)
