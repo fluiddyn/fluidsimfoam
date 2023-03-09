@@ -1,5 +1,4 @@
 import importlib.metadata
-from pathlib import Path
 
 from fluidsim_core.params import Parameters
 
