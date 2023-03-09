@@ -64,6 +64,14 @@ class SimulFoam(SimulCore):
         params._set_child("control_dict", doc="""TODO""")
         # blockMeshDict parameters
         params._set_child("block_mesh_dict", doc="""TODO""")
+        # transportProperties parameters
+        params._set_child("transport_properties", doc="""TODO""")
+        # turbulenceProperties parameters
+        params._set_child("turbulence_properties", doc="""TODO""")
+        # p parameters
+        params._set_child("p", doc="""TODO""")
+        # U parameters
+        params._set_child("u", doc="""TODO""")
 
     def __init__(self, params):
         super().__init__(params)

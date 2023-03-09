@@ -25,9 +25,32 @@ def test_init_simul():
     sim2 = load(sim.path_run)
 
     assert sim2.path_run == sim.path_run
+
     for name in ("fvSolution", "fvSchemes", "controlDict", "blockMeshDict"):
         path_produced = sim.path_run / "system" / name
         path_manual = path_tiny / "system" / name
+
+        text_manual = path_manual.read_text()
+        assert path_produced.exists()
+
+        text_produced = path_produced.read_text()
+
+        assert text_manual == text_produced
+    
+    for name in ("transportProperties", "turbulenceProperties"): 
+        path_produced = sim.path_run / "constant" / name
+        path_manual = path_tiny / "constant" / name
+
+        text_manual = path_manual.read_text()
+        assert path_produced.exists()
+
+        text_produced = path_produced.read_text()
+
+        assert text_manual == text_produced
+    
+    for name in ("p", "U"): 
+        path_produced = sim.path_run / "0" / name
+        path_manual = path_tiny / "0" / name
 
         text_manual = path_manual.read_text()
         assert path_produced.exists()

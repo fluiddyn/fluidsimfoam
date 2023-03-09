@@ -118,9 +118,9 @@ class Output(OutputCore):
     def post_init_create_additional_source_files(self):
         """Create the files from their template"""
         (self.sim.path_run / "system").mkdir()
-        # (self.sim.path_run / "0").mkdir()
-        # (self.sim.path_run / "constant").mkdir()
-        for name in ("fv_solution", "fv_schemes", "control_dict", "block_mesh_dict"):
+        (self.sim.path_run / "0").mkdir()
+        (self.sim.path_run / "constant").mkdir()
+        for name in ("fv_solution", "fv_schemes", "control_dict", "block_mesh_dict", "transport_properties", "turbulence_properties", "p", "u"):
             try:
                 template = getattr(self, f"template_{name}")
             except AttributeError:
@@ -159,6 +159,38 @@ class Output(OutputCore):
         output = template.render(data=self.sim.params.block_mesh_dict)
 
         output_path = self.sim.path_run / "system/blockMeshDict"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+    
+    def write_transport_properties(self, template):
+        output = template.render(data=self.sim.params.transport_properties)
+
+        output_path = self.sim.path_run / "constant/transportProperties"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+    
+    def write_turbulence_properties(self, template):
+        output = template.render(data=self.sim.params.turbulence_properties)
+
+        output_path = self.sim.path_run / "constant/turbulenceProperties"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+    
+    def write_p(self, template):
+        output = template.render(data=self.sim.params.p)
+
+        output_path = self.sim.path_run / "0/p"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+    
+    def write_u(self, template):
+        output = template.render(data=self.sim.params.u)
+
+        output_path = self.sim.path_run / "0/U"
 
         with open(output_path, "w") as file:
             file.write(output)
