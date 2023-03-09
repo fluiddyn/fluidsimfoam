@@ -7,6 +7,7 @@ class BaseTemplates:
         return jinja2.Environment(
             loader=jinja2.PackageLoader("fluidsimfoam", "resources"),
             undefined=jinja2.StrictUndefined,
+            keep_trailing_newline=True,
         )
 
     def get_base_template(self, name):

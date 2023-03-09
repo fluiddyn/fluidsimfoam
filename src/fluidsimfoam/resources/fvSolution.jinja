@@ -16,15 +16,14 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 solvers
-{   {% for solver_name in data.solvers._tag_children %}{% set solver_settings =  data.solvers[solver_name] %}
+{{'{'}}{% for solver_name in data.solvers._tag_children %}{% set solver_settings =  data.solvers[solver_name] %}
     {{ solver_name }}
     {
         solver          {{ solver_settings.solver }};
         preconditioner  {{ solver_settings.preconditioner }};
         tolerance       {{ solver_settings.tolerance }};
         relTol          {{ solver_settings.relTol }};
-    }
-    {% endfor %}
+    }{% endfor %}
 }
 
 PISO
@@ -34,6 +33,5 @@ PISO
     pRefPoint       {{ data.piso.pRefPoint }};
     pRefValue       {{ data.piso.pRefValue }};
 }
-
 
 // ************************************************************************* //

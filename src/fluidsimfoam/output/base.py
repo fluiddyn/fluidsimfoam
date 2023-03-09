@@ -129,6 +129,8 @@ class Output(OutputCore):
     def write_fv_solution(self, template):
         output = template.render(data=self.sim.params.fv_solution)
 
+        assert output.endswith("\n")
+
         (self.sim.path_run / "system").mkdir()
 
         output_path = self.sim.path_run / "system/fvSolution"
