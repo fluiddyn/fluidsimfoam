@@ -8,12 +8,16 @@ Solver framework
    kth
 
 """
+
 import importlib
 from functools import partial
 from pkgutil import ModuleInfo
 from types import ModuleType
 
 from fluidsim_core import loader
+from fluidsim_core.info import InfoSolverCore
+
+from ..log import logger
 
 available_solvers = partial(
     loader.available_solvers, entrypoint_grp="fluidsimfoam.solvers"
@@ -78,3 +82,31 @@ def get_solver_package(name_solver):
         return module
     else:
         return module.rpartition(".")[0]
+
+
+def get_solver_short_name(path_dir):
+    """Detects short name of the solver from ``info_solver.xml`` if present or
+    the path.
+
+    Parameters
+    ----------
+    path_dir: path-like
+        Path to a simulation directory
+
+    Returns
+    -------
+    short_name: str
+
+    """
+    info_solver_xml = path_dir / "info_solver.xml"
+    if info_solver_xml.exists():
+        info_solver = InfoSolverCore(path_file=info_solver_xml)
+        short_name = info_solver.short_name
+    else:
+        logger.warning(
+            f"The {info_solver_xml} file is missing! "
+            "Attempting to guess solver from the directory name."
+        )
+        short_name = path_dir.absolute().name.split("_")[0]
+
+    return short_name
