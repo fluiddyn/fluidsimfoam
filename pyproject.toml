@@ -11,6 +11,8 @@ python = "^3.9"
 fluidsim-core = "^0.7.2"
 inflection = "^0.5.1"
 fluiddyn = "^0.5.2"
+ipython = "^8.11.0"
+pandas = "^1.5.3"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.2.1"
