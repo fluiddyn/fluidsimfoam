@@ -118,7 +118,9 @@ class Output(OutputCore):
     def post_init_create_additional_source_files(self):
         """Create the files from their template"""
         (self.sim.path_run / "system").mkdir()
-        for name in ("fv_solution", "fv_schemes"):
+        # (self.sim.path_run / "0").mkdir()
+        # (self.sim.path_run / "constant").mkdir()
+        for name in ("fv_solution", "fv_schemes", "control_dict", "block_mesh_dict"):
             try:
                 template = getattr(self, f"template_{name}")
             except AttributeError:
@@ -141,6 +143,22 @@ class Output(OutputCore):
         output = template.render(data=self.sim.params.fv_schemes)
 
         output_path = self.sim.path_run / "system/fvSchemes"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+    
+    def write_control_dict(self, template):
+        output = template.render(data=self.sim.params.control_dict)
+
+        output_path = self.sim.path_run / "system/controlDict"
+
+        with open(output_path, "w") as file:
+            file.write(output)
+    
+    def write_block_mesh_dict(self, template):
+        output = template.render(data=self.sim.params.block_mesh_dict)
+
+        output_path = self.sim.path_run / "system/blockMeshDict"
 
         with open(output_path, "w") as file:
             file.write(output)

@@ -60,6 +60,10 @@ class SimulFoam(SimulCore):
         params.fv_schemes._set_child(
             "snGradSchemes", attribs={"default": "corrected"}
         )
+        # controlDict parameters
+        params._set_child("control_dict", doc="""TODO""")
+        # blockMeshDict parameters
+        params._set_child("block_mesh_dict", doc="""TODO""")
 
     def __init__(self, params):
         super().__init__(params)
