@@ -27,12 +27,11 @@ for path_dir in tutorials_dir.rglob("*"):
 
     nb_examples += 1
     for path_file in path_dir.rglob("*"):
-        if any(name in path_file.name for name in ignore_files):
+        if path_file.is_dir() or any(
+            name in path_file.name for name in ignore_files
+        ):
             continue
-        # path_file = str(path_file.relative_to(path_dir))
-        path_file = str(
-            path_file.parent.name + "/" + path_file.relative_to(path_dir).name
-        )
+        path_file = str(path_file.relative_to(path_dir))
         if path_file not in input_files:
             input_files[path_file] = 1
         else:
