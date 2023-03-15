@@ -1,12 +1,23 @@
 # OpenFOAM Input Files in Tutorials
 
-OpenFOAM input files are typically text files that contain configuration and setup parameters for various OpenFOAM utilities and solvers. These input files are organized into a directory structure that corresponds to the simulation case being run. The input files for a tutorial can usually be found in the tutorial's directory, under subdirectories named system, constant, and 0.
+OpenFOAM input files are typically text files that contain configuration and setup
+parameters for various OpenFOAM utilities and solvers. These input files are organized
+into a directory structure that corresponds to the simulation case being run. The input
+files for a tutorial can usually be found in the tutorial's directory, under
+subdirectories named system, constant, and 0.
 
-The system directory typically contains files that define the numerical schemes and solvers used by the solver, as well as the simulation control parameters, such as: fvSolution, fvSchemes, controlDict and blockMeshDict. The constant directory typically contains files that define the physical properties of the fluid being simulated, such as its density and viscosity related to laminar and turbulent cases. Finally, the 0 directory typically contains files that define the initial conditions for the simulation, such as the initial velocity and pressure fields.
+The system directory typically contains files that define the numerical schemes and
+solvers used by the solver, as well as the simulation control parameters, such as:
+fvSolution, fvSchemes, controlDict and blockMeshDict. The constant directory typically
+contains files that define the physical properties of the fluid being simulated, such as
+its density and viscosity related to laminar and turbulent cases. Finally, the 0
+directory typically contains files that define the initial conditions for the
+simulation, such as the initial velocity and pressure fields.
 
 ## Results
 
-The following information is the result of a python script which looped over OpenFOAM tutorials (version: 2112):
+The following information is the result of a python script which looped over OpenFOAM
+tutorials (version: 2112):
 
 ```
 nb_examples = 481
