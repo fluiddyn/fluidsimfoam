@@ -1,8 +1,7 @@
 # Fluidsimfoam solver for DNS of Taylor-Green Vortices (TGV)
 
-This [Fluidsimfoam] solver demonstrates how to write a solver for the
-Taylor-Green Vortices (TGV) flow. Something completely different than a high
-speed train...
+This [Fluidsimfoam] solver demonstrates how to write a solver for the Taylor-Green
+Vortices (TGV) flow. Something completely different than a high speed train...
 
 ## Install
 
