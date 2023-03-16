@@ -1,8 +1,9 @@
-from lark import Lark, Transformer
+from lark import Lark, Transformer, Token
 
-json_grammar = r"""
+grammar = r"""
     ?value: CNAME
-          | dict
+          | dict_assignment
+          | list
           | file
           | assignment
           | string
@@ -10,12 +11,15 @@ json_grammar = r"""
           | C_COMMENT
           | SIGNED_NUMBER      -> number
     string : ESCAPED_STRING
-    vector : "(" value value value ")"
-    keyword : CNAME | value
-    dataentry : CNAME | value | vector | string
-    assignment : [(keyword dataentry ";" NEWLINE)*]
-    dict : [(CNAME NEWLINE "{" NEWLINE [assignment (assignment)*] "}" NEWLINE)*]
-    file : [(dict assignment)*]
+    keyword : CNAME
+    dataentry : CNAME | value | list | string
+    assignment : keyword dataentry ";" NEWLINE
+    dict_assignment : CNAME NEWLINE "{" NEWLINE [assignment (assignment)*] "}" NEWLINE
+
+    list: "(" (value|NEWLINE)* ")"
+    list_assignment: CNAME NEWLINE list ";" NEWLINE
+
+    file : [(dict_assignment | assignment | list_assignment)*]
     CPP_COMMENT: /\/\/[^\n]*/ NEWLINE
     C_COMMENT: "/*" /(.|\n)*?/ "*/" NEWLINE
 
@@ -32,27 +36,31 @@ json_grammar = r"""
     """
 
 
-class TreeToJson(Transformer):
-    def string(self, s):
-        (s,) = s
-        return s[1:-1]
-
+class OFTransformer(Transformer):
     def number(self, n):
         (n,) = n
-        return float(n)
+        n = str(n)
+        try:
+            return int(n)
+        except ValueError:
+            return float(n)
 
-    list = list
-    pair = tuple
-    dict = dict
+    def list(self, items):
+        return [
+            item
+            for item in items
+            if not (isinstance(item, Token) and item.type == "NEWLINE")
+        ]
 
-    null = lambda self, _: None
-    true = lambda self, _: True
-    false = lambda self, _: False
+    def CNAME(self, token):
+        return token.value
 
 
-json_parser = Lark(json_grammar, start="value", lexer="basic")
+parser = Lark(grammar, start="value", lexer="basic")
 
-with open("turbulenceProperties", "r") as f:
-    tree = json_parser.parse(f.read())
+with open("turbulenceProperties", "r") as file:
+    tree = parser.parse(file.read())
+
+tree = OFTransformer().transform(tree)
 
 print(tree.pretty())
