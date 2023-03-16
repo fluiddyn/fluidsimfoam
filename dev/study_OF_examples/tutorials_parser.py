@@ -3,6 +3,7 @@ from lark import Lark, Transformer
 json_grammar = r"""
     ?value: CNAME
           | dict
+          | file
           | assignment
           | string
           | CPP_COMMENT
@@ -12,10 +13,9 @@ json_grammar = r"""
     vector : "(" value value value ")"
     keyword : CNAME | value
     dataentry : CNAME | value | vector | string
-    assignment : keyword dataentry ";" NEWLINE
-    multi_assignment : [assignment (assignment)*]
-    dict : CNAME NEWLINE "{" NEWLINE [assignment (assignment)*] "}" NEWLINE
-
+    assignment : [(keyword dataentry ";" NEWLINE)*]
+    dict : [(CNAME NEWLINE "{" NEWLINE [assignment (assignment)*] "}" NEWLINE)*]
+    file : [(dict assignment)*]
     CPP_COMMENT: /\/\/[^\n]*/ NEWLINE
     C_COMMENT: "/*" /(.|\n)*?/ "*/" NEWLINE
 
@@ -36,6 +36,7 @@ class TreeToJson(Transformer):
     def string(self, s):
         (s,) = s
         return s[1:-1]
+
     def number(self, n):
         (n,) = n
         return float(n)
@@ -48,7 +49,8 @@ class TreeToJson(Transformer):
     true = lambda self, _: True
     false = lambda self, _: False
 
-json_parser = Lark(json_grammar, start='value', lexer='basic')
+
+json_parser = Lark(json_grammar, start="value", lexer="basic")
 
 with open("turbulenceProperties", "r") as f:
     tree = json_parser.parse(f.read())
