@@ -1,4 +1,3 @@
-
 class Node:
     pass
 
@@ -6,4 +5,4 @@ class Node:
 class OFInputFile(Node):
     def __init__(self, info, children):
         self.info = info
-        self.children = dict(children)
+        self.children = children
