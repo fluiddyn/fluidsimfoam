@@ -5,11 +5,10 @@ from .ast import OFInputFile
 grammar = r"""
         ?value: CNAME
             | dict_assignment
-            | nested_dict
             | list
             | list_assignment
             | file
-            | assignment
+            | var_assignment
             | string
             | CPP_COMMENT
             | C_COMMENT
@@ -17,14 +16,14 @@ grammar = r"""
         string : ESCAPED_STRING
         keyword : CNAME
         dataentry : CNAME | value | list | string
-        assignment : [NEWLINE] keyword dataentry ";" NEWLINE
-        dict_assignment : [NEWLINE] CNAME NEWLINE "{" NEWLINE [assignment (assignment)*] "}" NEWLINE
-        nested_dict : [NEWLINE] CNAME NEWLINE "{" NEWLINE (dict_assignment)* "}" NEWLINE
         list : "(" (value|NEWLINE)* ")"
-        nested_list : [NEWLINE] CNAME NEWLINE "(" [(list|NEWLINE)*] ")" ";" [NEWLINE]
-        list_assignment : [NEWLINE] CNAME NEWLINE "(" [(list|NEWLINE)*] ")" ";" [NEWLINE]
 
-        file : [(dict_assignment | nested_dict | assignment | list_assignment)*]
+        list_assignment : [NEWLINE] CNAME NEWLINE "(" [(list|NEWLINE)*] ")" ";" [NEWLINE]
+        var_assignment : [NEWLINE] keyword dataentry ";" NEWLINE
+        dict_assignment : [NEWLINE] CNAME NEWLINE "{" NEWLINE [assignment (assignment)*] "}" NEWLINE
+
+        assignment : var_assignment | dict_assignment | list_assignment
+        file : [(assignment)*]
         CPP_COMMENT: /\/\/[^\n]*/ NEWLINE
         C_COMMENT: "/*" /(.|\n)*?/ "*/" NEWLINE
 
