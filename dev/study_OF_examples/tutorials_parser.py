@@ -3,6 +3,7 @@ from lark import Lark, Transformer, Token
 grammar = r"""
     ?value: CNAME
           | dict_assignment
+          | nested_dict
           | list
           | file
           | assignment
@@ -15,11 +16,11 @@ grammar = r"""
     dataentry : CNAME | value | list | string
     assignment : keyword dataentry ";" NEWLINE
     dict_assignment : CNAME NEWLINE "{" NEWLINE [assignment (assignment)*] "}" NEWLINE
-
+    nested_dict : CNAME NEWLINE "{" NEWLINE (dict_assignment)* "}" NEWLINE
     list: "(" (value|NEWLINE)* ")"
     list_assignment: CNAME NEWLINE list ";" NEWLINE
 
-    file : [(dict_assignment | assignment | list_assignment)*]
+    file : [(dict_assignment | nested_dict | assignment | list_assignment)*]
     CPP_COMMENT: /\/\/[^\n]*/ NEWLINE
     C_COMMENT: "/*" /(.|\n)*?/ "*/" NEWLINE
 
