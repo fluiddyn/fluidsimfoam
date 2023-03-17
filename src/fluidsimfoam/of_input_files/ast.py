@@ -1,4 +1,2 @@
-
-
-class OFInputFile():
+class OFInputFile:
     pass

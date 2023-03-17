@@ -1,6 +1,5 @@
 def parse():
-
-    from lark import Lark, Transformer, Token
+    from lark import Lark, Token, Transformer
 
     grammar = r"""
         ?value: CNAME
@@ -37,5 +36,3 @@ def parse():
         %import common.NEWLINE
         %import common.CNAME
         """
-
-    
