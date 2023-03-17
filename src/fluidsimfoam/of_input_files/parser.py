@@ -1,43 +1,12 @@
+from pathlib import Path
+
 from lark import Lark, Token, Transformer
 
 from .ast import OFInputFile
 
-grammar = r"""
-        ?value: CNAME
-            | dict_assignment
-            | list
-            | list_assignment
-            | file
-            | var_assignment
-            | string
-            | CPP_COMMENT
-            | C_COMMENT
-            | SIGNED_NUMBER      -> number
-        string : ESCAPED_STRING
-        keyword : CNAME
-        dataentry : CNAME | value | list | string
-        list : "(" (value|NEWLINE)* ")"
+here = Path(__file__).absolute().parent
 
-        list_assignment : [NEWLINE] CNAME NEWLINE "(" [(list|NEWLINE)*] ")" ";" [NEWLINE]
-        var_assignment : [NEWLINE] keyword dataentry ";" NEWLINE
-        dict_assignment : [NEWLINE] CNAME NEWLINE "{" NEWLINE [assignment (assignment)*] "}" NEWLINE
-
-        assignment : var_assignment | dict_assignment | list_assignment
-        file : [(assignment)*]
-        CPP_COMMENT: /\/\/[^\n]*/ NEWLINE
-        C_COMMENT: "/*" /(.|\n)*?/ "*/" NEWLINE
-
-        %ignore /[\n\f\r]+/
-        %ignore CPP_COMMENT
-        %ignore C_COMMENT
-        %import common.SIGNED_NUMBER
-        %import common.ESCAPED_STRING
-        %import common.NUMBER
-        %import common.WS
-        %ignore WS
-        %import common.NEWLINE
-        %import common.CNAME
-        """
+grammar = (here / "grammar.lark").read_text()
 
 parser = Lark(grammar, start="value", lexer="basic")
 
