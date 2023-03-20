@@ -94,3 +94,14 @@ class OFTransformer(Transformer):
         nodes = [node for node in nodes if node is not None]
         name = nodes.pop(0)
         return Assignment(name, nodes[-1])
+
+    def directive(self, nodes):
+        return nodes[0]
+
+    def macro(self, nodes):
+        return nodes[0]
+
+    def directive_assignment(self, nodes):
+        nodes = [node for node in nodes if node is not None]
+        name = nodes.pop(0)
+        return Assignment(name, nodes[0])

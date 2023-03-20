@@ -76,8 +76,36 @@ def test_file():
     assert tree.children == {"a": 1, "b": 2}
 
 
+def test_directive():
+    text = """
+        FoamFile
+        {
+            version     2.0;
+            format      ascii;
+            class       volScalarField;
+            object      p;
+        }
+
+        #include "initialConditions"
+    """
+    tree = parse(text)
+
+
 def test_macro():
-    ...
+    text = """
+        FoamFile
+        {
+            version     2.0;
+            format      ascii;
+            class       volScalarField;
+            object      p;
+        }
+
+        type fixedValue;
+        value $internalField;
+    """
+    tree = parse(text)
+    assert tree.children == {"type": "fixedValue", "value": "internalField"}
 
 
 def test_dimension_set():

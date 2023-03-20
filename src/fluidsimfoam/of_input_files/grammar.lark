@@ -6,13 +6,18 @@
     | var_assignment
     | dimension_set
     | dimension_assignment
+    | macro
+    | directive
+    | directive_assignment
     | string
     | CPP_COMMENT
     | C_COMMENT
     | SIGNED_NUMBER      -> number
 string : ESCAPED_STRING
 keyword : CNAME
-dataentry : CNAME | value | list | string
+directive: "#" keyword
+macro : "$" keyword
+dataentry : CNAME | value | list | string | macro
 list : "(" (value|NEWLINE)* ")"
 dimension_set : "[" (value|NEWLINE)* "]"
 
@@ -20,8 +25,9 @@ list_assignment : [NEWLINE] CNAME NEWLINE "(" [(list|NEWLINE)*] ")" ";" [NEWLINE
 var_assignment : [NEWLINE] keyword dataentry ";" NEWLINE
 dict_assignment : [NEWLINE] CNAME NEWLINE "{" NEWLINE [assignment (assignment)*] "}" NEWLINE
 dimension_assignment : [NEWLINE] keyword dimension_set dataentry ";" [NEWLINE]
+directive_assignment : [NEWLINE] directive dataentry [";"] [NEWLINE]
 
-assignment : var_assignment | dict_assignment | list_assignment | dimension_assignment
+assignment : var_assignment | dict_assignment | list_assignment | dimension_assignment | directive_assignment
 file : [(assignment)*]
 CPP_COMMENT: /\/\/[^\n]*/ NEWLINE
 C_COMMENT: "/*" /(.|\n)*?/ "*/" NEWLINE
