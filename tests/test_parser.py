@@ -81,7 +81,30 @@ def test_macro():
 
 
 def test_dimension_set():
-    ...
+    text = """
+        FoamFile
+        {
+            version     2.0;
+            format      ascii;
+            class       dictionary;
+            location    "constant";
+            object      transportProperties;
+        }
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+        transportModel  Newtonian;
+        nu             [ 0 2 -1 0 0 0 0 ] 0.000625;
+    """
+    tree = parse(text)
+
+    assert tree.info == {
+        "version": 2.0,
+        "format": "ascii",
+        "class": "dictionary",
+        "location": "constant",
+        "object": "transportProperties",
+    }
+    assert tree.children == {"transportModel": "Newtonian", "nu": 0.000625}
 
 
 def test_assign_with_dimension_set():

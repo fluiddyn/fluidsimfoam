@@ -82,3 +82,15 @@ class OFTransformer(Transformer):
 
     def string(self, nodes):
         return nodes[0]
+
+    def dimension_set(self, items):
+        return [
+            item
+            for item in items
+            if not (isinstance(item, Token) and item.type == "NEWLINE")
+        ]
+
+    def dimension_assignment(self, nodes):
+        nodes = [node for node in nodes if node is not None]
+        name = nodes.pop(0)
+        return Assignment(name, nodes[-1])
