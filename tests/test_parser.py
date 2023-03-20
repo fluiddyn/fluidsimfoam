@@ -13,6 +13,18 @@ def test_list_simple():
     tree = parse(text)
 
 
+def test_var_multiple():
+    text = """
+        laplacianSchemes
+        {
+            default         Gauss linear corrected;
+        }
+    """
+    tree = parse(text)
+    assert isinstance(tree.value, dict)
+    assert tree.value["default"] == "Gauss linear corrected"
+
+
 def test_dict_simple():
     text = """
         my_dict
@@ -89,6 +101,7 @@ def test_directive():
         #include "initialConditions"
     """
     tree = parse(text)
+    assert tree.children == {"include": "initialConditions"}
 
 
 def test_macro():
@@ -121,7 +134,8 @@ def test_dimension_set():
         // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
         transportModel  Newtonian;
-        nu             [ 0 2 -1 0 0 0 0 ] 0.000625;
+        nu             nu [ 0 2 -1 0 0 0 0 ] 1e-06;    // for comment test
+        Cvm             Cvm [ 0 0 0 0 0 ] 0;                // Virtual/Added Mass coefficient
     """
     tree = parse(text)
 
@@ -132,7 +146,7 @@ def test_dimension_set():
         "location": "constant",
         "object": "transportProperties",
     }
-    assert tree.children == {"transportModel": "Newtonian", "nu": 0.000625}
+    assert tree.children == {"transportModel": "Newtonian", "nu": 1e-06, "Cvm": 0}
 
 
 def test_assign_with_dimension_set():

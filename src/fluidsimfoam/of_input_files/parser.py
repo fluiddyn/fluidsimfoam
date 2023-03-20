@@ -63,7 +63,11 @@ class OFTransformer(Transformer):
     def var_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
         name = nodes.pop(0)
-        return Assignment(name, nodes[0])
+        if len(nodes) == 1:
+            value = nodes[0]
+        else:
+            value = " ".join(nodes)
+        return Assignment(name, value)
 
     def assignment(self, nodes):
         return nodes[0]
