@@ -8,6 +8,8 @@ build:
     post_create_environment:
       - pip install poetry
       - poetry config virtualenvs.create false
+      # see https://github.com/pydata/pydata-sphinx-theme/issues/1253
+      - poetry config installer.modern-installation false
     post_install:
       - poetry install --with doc
 

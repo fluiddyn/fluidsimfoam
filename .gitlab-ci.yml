@@ -26,6 +26,8 @@ pytest:
   stage: test
   script:
     - pip install poetry
+    # see https://github.com/pydata/pydata-sphinx-theme/issues/1253
+    - poetry config installer.modern-installation false
     - poetry install --without dev
     - poetry run pytest tests
 
@@ -34,6 +36,8 @@ pages:
   script:
     - apt-get update && apt-get install -y rsync
     - pip install poetry
+    # see https://github.com/pydata/pydata-sphinx-theme/issues/1253
+    - poetry config installer.modern-installation false
     - poetry install --without dev
     - poetry run sphinx-build -b html -d doc/_build/doctrees doc doc/_build/html
     - mkdir -p public/$CI_COMMIT_REF_NAME
