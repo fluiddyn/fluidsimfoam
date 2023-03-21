@@ -9,6 +9,10 @@ from fluiddyn.util import mpi
 from fluidsim_core.output import OutputCore
 from fluidsim_core.params import iter_complete_params
 from fluidsimfoam.log import logger
+from fluidsimfoam.of_input_files.generators import (
+    InputFiles,
+    OFInputFileGenerator,
+)
 from fluidsimfoam.solvers import get_solver_package
 
 
@@ -26,8 +30,14 @@ class Output(OutputCore):
 
     @classmethod
     def _set_info_solver_classes(cls, classes):
-        """Set the the classes for info_solver.classes.Output"""
-        pass
+        """Set the classes for info_solver.classes.Output"""
+        classes._set_child(
+            "BlockMesh",
+            attribs={
+                "module_name": "fluidsimfoam.of_input_files.generators",
+                "class_name": "BlockMeshGeneratorTemplate",
+            },
+        )
 
     @staticmethod
     def _complete_params_with_default(params, info_solver):
@@ -79,15 +89,24 @@ class Output(OutputCore):
             )
 
         if sim:
+            self.input_files = InputFiles()
             # initialize objects
             dict_classes = sim.info.solver.classes.Output.import_classes()
             for cls_name, Class in dict_classes.items():
                 if isinstance(self, Class):
                     continue
                 obj_name = underscore(cls_name)
-                setattr(self, obj_name, Class(self))
+
+                if issubclass(Class, OFInputFileGenerator):
+                    obj_containing = self.input_files
+                    str_obj_containing = "output.input_files"
+                else:
+                    obj_containing = self
+                    str_obj_containing = "output"
+
+                setattr(obj_containing, obj_name, Class(self))
                 self.sim._objects_to_print += "{:28s}{}\n".format(
-                    f"sim.output.{obj_name}: ", Class
+                    f"sim.{str_obj_containing}.{obj_name}: ", Class
                 )
 
     @classmethod
@@ -124,7 +143,6 @@ class Output(OutputCore):
             "fv_solution",
             "fv_schemes",
             "control_dict",
-            "block_mesh_dict",
             "transport_properties",
             "turbulence_properties",
             "p",
@@ -137,6 +155,9 @@ class Output(OutputCore):
             else:
                 if template is not None:
                     getattr(self, f"write_{name}")(template)
+
+        for file_generator in vars(self.input_files).values():
+            file_generator.generate_file()
 
     def write_fv_solution(self, template):
         output = template.render(data=self.sim.params.fv_solution)
@@ -160,14 +181,6 @@ class Output(OutputCore):
         output = template.render(data=self.sim.params.control_dict)
 
         output_path = self.sim.path_run / "system/controlDict"
-
-        with open(output_path, "w") as file:
-            file.write(output)
-
-    def write_block_mesh_dict(self, template):
-        output = template.render(data=self.sim.params.block_mesh_dict)
-
-        output_path = self.sim.path_run / "system/blockMeshDict"
 
         with open(output_path, "w") as file:
             file.write(output)
