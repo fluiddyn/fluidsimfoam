@@ -1,4 +1,38 @@
-from fluidsimfoam.of_input_files import parse
+from pathlib import Path
+from textwrap import dedent
+
+from fluidsimfoam.of_input_files import dump, parse
+from fluidsimfoam.of_input_files.ast import OFInputFile, VariableAssignment
+
+here = Path(__file__).absolute().parent
+
+
+def base_test(text):
+    tree = parse(text)
+    # dump_text = dump(tree)
+    # assert repr(tree) == """..."""
+    # assert dedent(text.replace("\n", "")) == dedent(dump_text)
+    return tree
+
+
+def test_var_simple():
+    tree = base_test(
+        """
+        a  b;
+    """
+    )
+    assert isinstance(tree, VariableAssignment)
+    assert tree.name == "a"
+    assert tree.value == "b"
+
+
+def test_var_multiple():
+    tree = base_test(
+        """
+        a  b;
+        c  d;
+    """
+    )
 
 
 def test_list_simple():
@@ -11,6 +45,25 @@ def test_list_simple():
         );
     """
     tree = parse(text)
+
+
+def test_dict_with_var_simple():
+    tree = base_test(
+        """
+        FoamFile
+        {
+            version     2.0;
+            format      ascii;
+            class       dictionary;
+            object      blockMeshDict;
+        }
+        a  b;
+        c  d;
+    """
+    )
+
+    assert isinstance(tree, OFInputFile)
+    assert tree.children["a"] == "b"
 
 
 def test_var_multiple():
@@ -113,12 +166,11 @@ def test_macro():
             class       volScalarField;
             object      p;
         }
-
-        type fixedValue;
-        value $internalField;
+        
+        relTol          $p;
     """
     tree = parse(text)
-    assert tree.children == {"type": "fixedValue", "value": "internalField"}
+    assert tree.children == {"relTol": "p"}
 
 
 def test_dimension_set():
@@ -151,3 +203,7 @@ def test_dimension_set():
 
 def test_assign_with_dimension_set():
     ...
+
+
+# # def test_reading_file():
+# #     path_to_file = here / "pure_openfoam_cases/tiny-tgv"

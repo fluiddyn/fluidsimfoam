@@ -2,7 +2,6 @@
     | dict_assignment
     | list
     | list_assignment
-    | file
     | var_assignment
     | dimension_set
     | dimension_assignment
@@ -13,6 +12,7 @@
     | CPP_COMMENT
     | C_COMMENT
     | SIGNED_NUMBER      -> number
+    | file
 string : ESCAPED_STRING
 keyword : CNAME
 directive: "#" keyword

@@ -4,7 +4,7 @@ from pprint import pprint
 
 from lark import Lark, Token, Transformer
 
-from .ast import OFInputFile
+from .ast import OFInputFile, VariableAssignment
 
 here = Path(__file__).absolute().parent
 
@@ -16,6 +16,10 @@ parser = Lark(grammar, start="value", lexer="basic")
 def parse(text):
     tree = parser.parse(text)
     return OFTransformer().transform(tree)
+
+
+def dump(tree):
+    NotImplementedError()
 
 
 def filter_no_newlines(items):
@@ -48,11 +52,17 @@ class OFTransformer(Transformer):
         return token.value
 
     def file(self, nodes):
+        print(f"in file: ", nodes)
+
+        # raise BaseException()
+
         foamfile_assignment = nodes.pop(0)
         if foamfile_assignment.name != "FoamFile":
             raise ValueError
-        d = {node.name: node.value for node in nodes}
-        return OFInputFile(foamfile_assignment.value, d)
+
+        return OFInputFile(
+            foamfile_assignment.value, {node.name: node.value for node in nodes}
+        )
 
     def keyword(self, nodes):
         return nodes[0]
@@ -67,7 +77,14 @@ class OFTransformer(Transformer):
             value = nodes[0]
         else:
             value = " ".join(nodes)
-        return Assignment(name, value)
+        return VariableAssignment(name, value)
+
+    def multi_var(self, nodes):
+        d = {
+            self.var_assignment(node).name: self.var_assignment(node).value
+            for node in nodes
+        }
+        return d
 
     def assignment(self, nodes):
         return nodes[0]
@@ -78,8 +95,7 @@ class OFTransformer(Transformer):
     def dict_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
         name = nodes.pop(0)
-        d = {node.name: node.value for node in nodes}
-        return Assignment(name, d)
+        return Assignment(name, {node.name: node.value for node in nodes})
 
     def ESCAPED_STRING(self, token):
         return token.value[1:-1]
@@ -105,7 +121,24 @@ class OFTransformer(Transformer):
     def macro(self, nodes):
         return nodes[0]
 
+    def macro_assignment(self, nodes):
+        name = nodes.pop(0)
+        return Assignment(name, nodes[0])
+
     def directive_assignment(self, nodes):
+        nodes = [node for node in nodes if node is not None]
+        name = nodes.pop(0)
+        return Assignment(name, nodes[0])
+
+    def block(self, nodes):
+        return nodes[0]
+
+    def blocks_assignment(self, nodes):
+        nodes = [node for node in nodes if node is not None]
+        name = nodes.pop(0)
+        return Assignment(name, nodes[0])
+
+    def boundary_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
         name = nodes.pop(0)
         return Assignment(name, nodes[0])
