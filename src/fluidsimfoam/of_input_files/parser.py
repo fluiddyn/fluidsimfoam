@@ -4,7 +4,7 @@ from pprint import pprint
 
 from lark import Lark, Token, Transformer
 
-from .ast import OFInputFile, VariableAssignment
+from .ast import OFInputFile, Value, VariableAssignment
 
 here = Path(__file__).absolute().parent
 
@@ -119,8 +119,9 @@ class OFTransformer(Transformer):
         nodes = [node for node in nodes if node is not None]
         name = nodes.pop(0)
         if len(nodes) == 3:
-            nodes.pop(0)
-        return Assignment(name, nodes)
+            return Assignment(name, Value(nodes[-1], nodes[0], nodes[-2]))
+        else:
+            return Assignment(name, Value(nodes[-1], dimension=nodes[-2]))
 
     def directive(self, nodes):
         return nodes[0]

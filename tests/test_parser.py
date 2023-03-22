@@ -2,7 +2,7 @@ from pathlib import Path
 from textwrap import dedent
 
 from fluidsimfoam.of_input_files import dump, parse
-from fluidsimfoam.of_input_files.ast import OFInputFile, VariableAssignment
+from fluidsimfoam.of_input_files.ast import OFInputFile, Value, VariableAssignment
 
 here = Path(__file__).absolute().parent
 
@@ -206,7 +206,7 @@ def test_dimension_set():
 
         transportModel  Newtonian;
         nu             nu [ 0 2 -1 0 0 0 0 ] 1e-06;    // for comment test
-        Cvm             Cvm [ 0 0 0 0 0 ] 0;                // Virtual/Added Mass coefficient
+        Cvm            Cvm [ 0 0 0 0 0 0 0 ] 0;        // Virtual/Added Mass coefficient
     """
     tree = parse(text)
 
@@ -217,7 +217,9 @@ def test_dimension_set():
         "location": "constant",
         "object": "transportProperties",
     }
-    assert tree.children["nu"] == [[0, 2, -1, 0, 0, 0, 0], 1e-06]
+    assert tree.children["nu"] == Value(
+        1e-06, name="nu", dimension=[0, 2, -1, 0, 0, 0, 0]
+    )
 
 
 def test_reading_one_file():
