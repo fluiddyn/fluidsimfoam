@@ -206,7 +206,7 @@ def test_dimension_set():
 
         transportModel  Newtonian;
         nu             nu [ 0 2 -1 0 0 0 0 ] 1e-06;    // for comment test
-        Cvm            Cvm [ 0 0 0 0 0 0 0 ] 0;        // Virtual/Added Mass coefficient
+        Cvm            [ 0 0 0 0 0 0 0 ] 0;        // Virtual/Added Mass coefficient
     """
     tree = parse(text)
 

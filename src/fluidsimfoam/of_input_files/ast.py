@@ -45,7 +45,6 @@ class Value(Node):
             symbols = ["kg", "m", "s", "K", "kmol", "A", "cd"]
 
             if len(dimension) != len(symbols):
-                raise BaseException()
                 raise ValueError("len(dimension) != len(symbols)")
 
             numerator = []
@@ -72,5 +71,50 @@ class Value(Node):
 
         self.dimension = s_dim
 
-    # def __repr__(self):
-    #     ...
+    def __repr__(self):
+        if self.dimension is not None:
+            return f'Value({self.value}, name="{self.name}", dimension="{self.dimension}")'
+        else:
+            return f'Value({self.value}, name="{self.name}")'
+
+    def dump(self):
+        if self.dimension is not None:
+            numerator = self.dimension.split("/")[0]
+            denominator = self.dimension.split("/")[1]
+            symbols = ["kg", "m", "s", "K", "kmol", "A", "cd"]
+            dim = [0, 0, 0, 0, 0, 0, 0]
+
+            for i, symb in enumerate(symbols):
+                s = symb + "^"
+                if s in numerator:
+                    a = numerator.find(s)
+                    dim[i] = int(numerator[a + len(symb) + 1])
+                    numerator = numerator.replace(
+                        s + numerator[a + len(symb) + 1], ""
+                    )
+
+                if s in denominator:
+                    a = denominator.find(s)
+                    dim[i] = -int(denominator[a + len(symb) + 1])
+                    denominator = denominator.replace(
+                        s + denominator[a + len(symb) + 1], ""
+                    )
+
+            for i, symb in reversed(list(enumerate(symbols))):
+                if symb in numerator:
+                    a = numerator.find(symb)
+                    dim[i] = 1
+                    numerator = numerator.replace(symb, "")
+
+                if symb in denominator:
+                    a = denominator.find(symb)
+                    dim[i] = -1
+                    denominator = denominator.replace(symb, "")
+
+            dim = str(dim).replace(",", "")
+            dim = dim.replace("[", "[ ")
+            dim = dim.replace("]", " ]")
+
+            return f"{self.name} {dim} {self.value};"
+        else:
+            return f"{self.name} {self.value};"
