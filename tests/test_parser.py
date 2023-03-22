@@ -216,5 +216,12 @@ def test_assign_with_dimension_set():
     ...
 
 
-# # def test_reading_file():
-# #     path_to_file = here / "pure_openfoam_cases/tiny-tgv"
+def test_reading_one_file():
+    path_to_file = here / "pure_openfoam_cases/tiny-tgv/system/fvSolution"
+    with open(path_to_file, "r") as file:
+        text = file.read()
+    
+    tree = parse(text)
+    assert tree.info["object"] == "fvSolution"
+    assert tree.children["solvers"]["U"]["solver"] == "PBiCGStab"
+    assert tree.children["PISO"]["pRefPoint"] == [0, 0, 0]
