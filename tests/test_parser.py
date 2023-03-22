@@ -94,6 +94,14 @@ def test_dict_simple():
 
 def test_dict_nested():
     text = """
+        FoamFile
+        {
+            version     2.0;
+            format      ascii;
+            class       volScalarField;
+            object      p;
+        }
+
         my_nested_dict
         {
             p
@@ -114,6 +122,9 @@ def test_dict_nested():
         }
     """
     tree = parse(text)
+    assert tree.info["format"] == "ascii"
+    assert tree.children["my_nested_dict"]["p"]["solver"] == "PCG"
+    assert tree.children["my_nested_dict"]["U"]["tolerance"] == 1e-05
 
 
 def test_file():
