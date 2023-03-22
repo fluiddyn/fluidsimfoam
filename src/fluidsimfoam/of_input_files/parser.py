@@ -113,7 +113,9 @@ class OFTransformer(Transformer):
     def dimension_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
         name = nodes.pop(0)
-        return Assignment(name, nodes[-1])
+        if len(nodes) == 3:
+            nodes.pop(0)
+        return Assignment(name, nodes)
 
     def directive(self, nodes):
         return nodes[0]

@@ -198,7 +198,7 @@ def test_dimension_set():
         "location": "constant",
         "object": "transportProperties",
     }
-    assert tree.children == {"transportModel": "Newtonian", "nu": 1e-06, "Cvm": 0}
+    assert tree.children["nu"] == [[0, 2, -1, 0, 0, 0, 0], 1e-06]
 
 
 def test_assign_with_dimension_set():
