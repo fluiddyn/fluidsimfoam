@@ -97,6 +97,11 @@ class OFTransformer(Transformer):
         name = nodes.pop(0)
         return Assignment(name, {node.name: node.value for node in nodes})
 
+    def list_assignment(self, nodes):
+        nodes = filter_no_newlines(nodes)
+        name = nodes.pop(0)
+        return Assignment(name, nodes)
+
     def ESCAPED_STRING(self, token):
         return token.value[1:-1]
 

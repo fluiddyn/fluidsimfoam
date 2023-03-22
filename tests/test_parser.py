@@ -37,14 +37,22 @@ def test_var_multiple():
 
 def test_list_simple():
     text = """
+        FoamFile
+        {
+            version     2.0;
+            format      ascii;
+            class       dictionary;
+            object      blockMeshDict;
+        }
+
         faces
         (
-            (1 5 4 0)
             (1 5 4 0)
             (1 5 4 0)
         );
     """
     tree = parse(text)
+    assert tree.children["faces"] == [[1, 5, 4, 0], [1, 5, 4, 0]]
 
 
 def test_dict_with_var_simple():
@@ -212,16 +220,23 @@ def test_dimension_set():
     assert tree.children["nu"] == [[0, 2, -1, 0, 0, 0, 0], 1e-06]
 
 
-def test_assign_with_dimension_set():
-    ...
-
-
 def test_reading_one_file():
     path_to_file = here / "pure_openfoam_cases/tiny-tgv/system/fvSolution"
     with open(path_to_file, "r") as file:
         text = file.read()
-    
+
     tree = parse(text)
     assert tree.info["object"] == "fvSolution"
     assert tree.children["solvers"]["U"]["solver"] == "PBiCGStab"
     assert tree.children["PISO"]["pRefPoint"] == [0, 0, 0]
+
+
+# def test_loop_directory():
+#     path_dirs = here / "pure_openfoam_cases/tiny-tgv/system"
+
+#     for path_dir in path_dirs.rglob("*"):
+
+#         with open(path_dir, "r") as file:
+#             text = file.read()
+
+#         tree = parse(text)
