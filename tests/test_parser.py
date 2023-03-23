@@ -74,6 +74,9 @@ def test_file_simple():
             class       dictionary;
             object      blockMeshDict;
         }
+
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
         a  b;
         c  d;
     """,
@@ -113,8 +116,7 @@ def test_dict_simple():
     assert isinstance(my_dict, Dict)
     assert my_dict["version"] == 2.0
     assert my_dict["format"] == "ascii"
-    # TODO: uncomment
-    # assert my_dict["location"] == '"system"'
+    assert my_dict["location"] == '"system"'
 
 
 def test_dict_nested():
@@ -188,7 +190,7 @@ def test_directive():
         #include "initialConditions"
     """
     )
-    assert tree.children == {"include": "initialConditions"}
+    assert tree.children == {"include": '"initialConditions"'}
 
 
 def test_macro():
@@ -211,22 +213,11 @@ def test_macro():
 def test_dimension_set():
     tree = base_test(
         """
-        FoamFile
-        {
-            version     2.0;
-            format      ascii;
-            class       dictionary;
-            location    "constant";
-            object      transportProperties;
-        }
-        // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
         transportModel  Newtonian;
         nu             nu [ 0 2 -1 0 0 0 0 ] 1e-06;    // for comment test
         Cvm            [ 0 0 0 0 0 0 0 ] 0;        // Virtual/Added Mass coefficient
     """
     )
-
     assert tree.children["nu"] == Value(
         1e-06, name="nu", dimension=[0, 2, -1, 0, 0, 0, 0]
     )

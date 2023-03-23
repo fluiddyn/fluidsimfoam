@@ -97,7 +97,7 @@ class OFTransformer(Transformer):
         return Assignment(name, List(nodes))
 
     def ESCAPED_STRING(self, token):
-        return token.value[1:-1]
+        return token.value
 
     def string(self, nodes):
         return nodes[0]
@@ -117,9 +117,6 @@ class OFTransformer(Transformer):
         else:
             return Assignment(name, Value(nodes[-1], dimension=nodes[-2]))
 
-    def directive(self, nodes):
-        return nodes[0]
-
     def macro(self, nodes):
         return nodes[0]
 
@@ -127,20 +124,10 @@ class OFTransformer(Transformer):
         name = nodes.pop(0)
         return Assignment(name, nodes[0])
 
-    def directive_assignment(self, nodes):
-        nodes = [node for node in nodes if node is not None]
-        name = nodes.pop(0)
-        return Assignment(name, nodes[0])
-
-    def block(self, nodes):
+    def directive(self, nodes):
         return nodes[0]
 
-    def blocks_assignment(self, nodes):
-        nodes = [node for node in nodes if node is not None]
-        name = nodes.pop(0)
-        return Assignment(name, nodes[0])
-
-    def boundary_assignment(self, nodes):
+    def directive_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
         name = nodes.pop(0)
         return Assignment(name, nodes[0])
