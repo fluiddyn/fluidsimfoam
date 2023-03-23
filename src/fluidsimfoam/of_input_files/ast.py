@@ -131,6 +131,17 @@ class Value(Node):
             return f"{self.value};"
 
 
+class DimensionSet(list, Node):
+    def __init__(self, of_units):
+        if len(of_units) != len(symbols):
+            raise ValueError("len(dimension) != len(symbols)")
+
+        if not all(isinstance(elem, int) for elem in of_units):
+            raise ValueError("Bad {of_units = }")
+
+        super().__init__(of_units)
+
+
 class Dict(dict, Node):
     def __init__(self, data, name=None):
         self._name = name

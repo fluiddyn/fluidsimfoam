@@ -4,7 +4,15 @@ from pprint import pprint
 
 from lark import Lark, Token, Transformer
 
-from .ast import Assignment, Dict, List, OFInputFile, Value, VariableAssignment
+from .ast import (
+    Assignment,
+    Dict,
+    DimensionSet,
+    List,
+    OFInputFile,
+    Value,
+    VariableAssignment,
+)
 
 here = Path(__file__).absolute().parent
 
@@ -103,11 +111,13 @@ class OFTransformer(Transformer):
         return nodes[0]
 
     def dimension_set(self, items):
-        return [
-            item
-            for item in items
-            if not (isinstance(item, Token) and item.type == "NEWLINE")
-        ]
+        return DimensionSet(
+            [
+                item
+                for item in items
+                if not (isinstance(item, Token) and item.type == "NEWLINE")
+            ]
+        )
 
     def dimension_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]

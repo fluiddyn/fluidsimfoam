@@ -5,6 +5,7 @@ from fluidsimfoam.of_input_files import dump, parse
 from fluidsimfoam.of_input_files.ast import (
     Assignment,
     Dict,
+    DimensionSet,
     OFInputFile,
     Value,
     VariableAssignment,
@@ -213,14 +214,16 @@ def test_macro():
 def test_dimension_set():
     tree = base_test(
         """
+        dimension       [0 2 -1 0 0 0 0];
         transportModel  Newtonian;
-        nu             nu [ 0 2 -1 0 0 0 0 ] 1e-06;    // for comment test
-        Cvm            [ 0 0 0 0 0 0 0 ] 0;        // Virtual/Added Mass coefficient
+        nu              nu [0 2 -1 0 0 0 0] 1e-06;  // for comment test
+        Cvm             [0 0 0 0 0 0 0] 0;  // Virtual/Added Mass coefficient
     """
     )
     assert tree.children["nu"] == Value(
         1e-06, name="nu", dimension=[0, 2, -1, 0, 0, 0, 0]
     )
+    assert isinstance(tree.children["dimension"], DimensionSet)
 
 
 def test_reading_one_file():
