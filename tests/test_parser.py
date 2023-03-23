@@ -29,12 +29,11 @@ def base_test(text, representation=None, cls=None, check_dump=False):
 def test_var_simple():
     tree = base_test(
         """
-        a  b;
+        a b;
     """,
         cls=VariableAssignment,
+        check_dump=True,
     )
-    assert tree.name == "a"
-    assert tree.value == "b"
 
 
 def test_var_multiple():
@@ -47,7 +46,6 @@ def test_var_multiple():
         cls=OFInputFile,
         check_dump=True,
     )
-    tree.children["a"] = "b"
 
 
 def test_list_simple():
@@ -83,7 +81,7 @@ def test_file_simple():
     """,
         cls=OFInputFile,
     )
-    assert tree.children["a"] == "b"
+    assert tree.info["version"] == 2.0
 
 
 def test_var_value_with_space():
@@ -165,7 +163,7 @@ def test_file():
     """,
         cls=OFInputFile,
         # TODO: fixme
-        check_dump=False,
+        check_dump=True,
     )
 
     assert tree.info == {

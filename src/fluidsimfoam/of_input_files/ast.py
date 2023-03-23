@@ -71,10 +71,12 @@ class OFInputFile(Node):
     def dump(self):
         tmp = []
         if self.info is not None:
-            # TODO: fixme
-            tmp.append(repr(self.info) + "\n\n")
+            tmp.append("FoamFile" + "\n{")
+            for key, node in self.info.items():
+                s = (12 - len(key)) * " "
+                tmp.append(f"    {key}{s}{node};")
+            tmp.append("}\n")
         for key, node in self.children.items():
-            # TODO: fixme
             tmp.append(f"{key}  {node};")
         return "\n".join(tmp)
 
