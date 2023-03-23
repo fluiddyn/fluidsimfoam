@@ -129,3 +129,19 @@ class Value(Node):
             return f"[{dimension_dumped}] {self.value};"
         else:
             return f"{self.value};"
+
+
+class Dict(dict, Node):
+    def __init__(self, data, name=None):
+        self._name = name
+        super().__init__(**data)
+
+    def get_name(self):
+        return self._name
+
+    def __repr__(self):
+        return super().__repr__()
+
+
+class List(list, Node):
+    """Represents an OpenFoam list"""

@@ -4,6 +4,7 @@ from textwrap import dedent
 from fluidsimfoam.of_input_files import dump, parse
 from fluidsimfoam.of_input_files.ast import (
     Assignment,
+    Dict,
     OFInputFile,
     Value,
     VariableAssignment,
@@ -109,7 +110,7 @@ def test_dict_simple():
     )
     my_dict = tree.value
     # TODO: fixme
-    assert isinstance(my_dict, dict)
+    assert isinstance(my_dict, Dict)
     assert my_dict["version"] == 2.0
     assert my_dict["format"] == "ascii"
     # TODO: uncomment

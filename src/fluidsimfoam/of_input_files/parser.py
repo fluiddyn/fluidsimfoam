@@ -4,7 +4,7 @@ from pprint import pprint
 
 from lark import Lark, Token, Transformer
 
-from .ast import Assignment, OFInputFile, Value, VariableAssignment
+from .ast import Assignment, Dict, List, OFInputFile, Value, VariableAssignment
 
 here = Path(__file__).absolute().parent
 
@@ -36,11 +36,13 @@ class OFTransformer(Transformer):
             return float(n)
 
     def list(self, items):
-        return [
-            item
-            for item in items
-            if not (isinstance(item, Token) and item.type == "NEWLINE")
-        ]
+        return List(
+            [
+                item
+                for item in items
+                if not (isinstance(item, Token) and item.type == "NEWLINE")
+            ]
+        )
 
     def CNAME(self, token):
         return token.value
@@ -85,12 +87,14 @@ class OFTransformer(Transformer):
     def dict_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
         name = nodes.pop(0)
-        return Assignment(name, {node.name: node.value for node in nodes})
+        return Assignment(
+            name, Dict(data={node.name: node.value for node in nodes}, name=name)
+        )
 
     def list_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
         name = nodes.pop(0)
-        return Assignment(name, nodes)
+        return Assignment(name, List(nodes))
 
     def ESCAPED_STRING(self, token):
         return token.value[1:-1]
