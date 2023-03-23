@@ -62,19 +62,30 @@ class OFInputFile(Node):
         self.children = children
 
     def __repr__(self):
-        s = super().__repr__()
-        return s
+        tmp = ["InputFile(\n"]
+        if self.info is not None:
+            tmp.append(f"info={self.info},\n")
+        tmp.append(f"children={self.children}\n)")
+        return "".join(tmp)
 
     def dump(self):
-        s = ""
-        return s
+        tmp = []
+        if self.info is not None:
+            # TODO: fixme
+            tmp.append(repr(self.info) + "\n\n")
+        for key, node in self.children.items():
+            # TODO: fixme
+            tmp.append(f"{key}  {node};")
+        return "\n".join(tmp)
 
 
-class VariableAssignment(Node):
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
+@dataclass
+class Assignment:
+    name: str
+    value: object
 
+
+class VariableAssignment(Assignment):
     def __repr__(self):
         s = super().__repr__()
         return s

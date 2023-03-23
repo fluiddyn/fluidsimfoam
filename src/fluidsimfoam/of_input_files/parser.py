@@ -4,7 +4,7 @@ from pprint import pprint
 
 from lark import Lark, Token, Transformer
 
-from .ast import OFInputFile, Value, VariableAssignment
+from .ast import Assignment, OFInputFile, Value, VariableAssignment
 
 here = Path(__file__).absolute().parent
 
@@ -19,17 +19,11 @@ def parse(text):
 
 
 def dump(tree):
-    NotImplementedError()
+    return tree.dump()
 
 
 def filter_no_newlines(items):
     return [item for item in items if item is not None]
-
-
-@dataclass
-class Assignment:
-    name: str
-    value: object
 
 
 class OFTransformer(Transformer):
@@ -52,17 +46,13 @@ class OFTransformer(Transformer):
         return token.value
 
     def file(self, nodes):
-        print(f"in file: ", nodes)
-
-        # raise BaseException()
-
-        foamfile_assignment = nodes.pop(0)
-        if foamfile_assignment.name != "FoamFile":
-            raise ValueError
-
-        return OFInputFile(
-            foamfile_assignment.value, {node.name: node.value for node in nodes}
-        )
+        first_assignment = nodes[0]
+        if first_assignment.name == "FoamFile":
+            info_dict = first_assignment.value
+            nodes = nodes[1:]
+        else:
+            info_dict = None
+        return OFInputFile(info_dict, {node.name: node.value for node in nodes})
 
     def keyword(self, nodes):
         return nodes[0]

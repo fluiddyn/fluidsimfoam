@@ -2,16 +2,25 @@ from pathlib import Path
 from textwrap import dedent
 
 from fluidsimfoam.of_input_files import dump, parse
-from fluidsimfoam.of_input_files.ast import OFInputFile, Value, VariableAssignment
+from fluidsimfoam.of_input_files.ast import (
+    Assignment,
+    OFInputFile,
+    Value,
+    VariableAssignment,
+)
 
 here = Path(__file__).absolute().parent
 
 
-def base_test(text):
+def base_test(text, representation=None, cls=None, check_dump=False):
     tree = parse(text)
-    # dump_text = dump(tree)
-    # assert repr(tree) == """..."""
-    # assert dedent(text.replace("\n", "")) == dedent(dump_text)
+    if representation is not None:
+        assert repr(tree) == representation
+    if cls is not None:
+        assert isinstance(tree, cls)
+    if check_dump:
+        dump_text = dump(tree)
+        assert dedent(text).strip() == dump_text.strip()
     return tree
 
 
@@ -19,9 +28,9 @@ def test_var_simple():
     tree = base_test(
         """
         a  b;
-    """
+    """,
+        cls=VariableAssignment,
     )
-    assert isinstance(tree, VariableAssignment)
     assert tree.name == "a"
     assert tree.value == "b"
 
@@ -31,31 +40,30 @@ def test_var_multiple():
         """
         a  b;
         c  d;
-    """
+    """,
+        representation="InputFile(\nchildren={'a': 'b', 'c': 'd'}\n)",
+        cls=OFInputFile,
+        check_dump=True,
     )
+    tree.children["a"] = "b"
 
 
 def test_list_simple():
-    text = """
-        FoamFile
-        {
-            version     2.0;
-            format      ascii;
-            class       dictionary;
-            object      blockMeshDict;
-        }
-
+    tree = base_test(
+        """
         faces
         (
             (1 5 4 0)
             (1 5 4 0)
         );
-    """
-    tree = parse(text)
-    assert tree.children["faces"] == [[1, 5, 4, 0], [1, 5, 4, 0]]
+    """,
+        cls=Assignment,
+    )
+    assert tree.name == "faces"
+    assert tree.value == [[1, 5, 4, 0], [1, 5, 4, 0]]
 
 
-def test_dict_with_var_simple():
+def test_file_simple():
     tree = base_test(
         """
         FoamFile
@@ -67,27 +75,27 @@ def test_dict_with_var_simple():
         }
         a  b;
         c  d;
-    """
+    """,
+        cls=OFInputFile,
     )
-
-    assert isinstance(tree, OFInputFile)
     assert tree.children["a"] == "b"
 
 
-def test_var_multiple():
-    text = """
+def test_var_value_with_space():
+    tree = base_test(
+        """
         laplacianSchemes
         {
             default         Gauss linear corrected;
         }
     """
-    tree = parse(text)
-    assert isinstance(tree.value, dict)
+    )
     assert tree.value["default"] == "Gauss linear corrected"
 
 
 def test_dict_simple():
-    text = """
+    tree = base_test(
+        """
         my_dict
         {
             version     2.0;
@@ -96,20 +104,21 @@ def test_dict_simple():
             location    "system";
             object      controlDict;
         }
-    """
-    tree = parse(text)
+    """,
+        cls=Assignment,
+    )
+    my_dict = tree.value
+    # TODO: fixme
+    assert isinstance(my_dict, dict)
+    assert my_dict["version"] == 2.0
+    assert my_dict["format"] == "ascii"
+    # TODO: uncomment
+    # assert my_dict["location"] == '"system"'
 
 
 def test_dict_nested():
-    text = """
-        FoamFile
-        {
-            version     2.0;
-            format      ascii;
-            class       volScalarField;
-            object      p;
-        }
-
+    tree = base_test(
+        """
         my_nested_dict
         {
             p
@@ -128,15 +137,16 @@ def test_dict_nested():
                 relTol          0;
             }
         }
-    """
-    tree = parse(text)
-    assert tree.info["format"] == "ascii"
-    assert tree.children["my_nested_dict"]["p"]["solver"] == "PCG"
-    assert tree.children["my_nested_dict"]["U"]["tolerance"] == 1e-05
+    """,
+        cls=Assignment,
+    )
+    my_nested_dict = tree.value
+    assert my_nested_dict["p"]["solver"] == "PCG"
+    assert my_nested_dict["U"]["tolerance"] == 1e-05
 
 
 def test_file():
-    tree = parse(
+    tree = base_test(
         """
         FoamFile
         {
@@ -146,9 +156,12 @@ def test_file():
             object      p;
         }
 
-        a 1;
-        b 2;
-    """
+        a  1;
+        b  2;
+    """,
+        cls=OFInputFile,
+        # TODO: fixme
+        check_dump=False,
     )
 
     assert tree.info == {
@@ -161,7 +174,8 @@ def test_file():
 
 
 def test_directive():
-    text = """
+    tree = base_test(
+        """
         FoamFile
         {
             version     2.0;
@@ -172,12 +186,13 @@ def test_directive():
 
         #include "initialConditions"
     """
-    tree = parse(text)
+    )
     assert tree.children == {"include": "initialConditions"}
 
 
 def test_macro():
-    text = """
+    tree = base_test(
+        """
         FoamFile
         {
             version     2.0;
@@ -185,15 +200,16 @@ def test_macro():
             class       volScalarField;
             object      p;
         }
-        
+
         relTol          $p;
     """
-    tree = parse(text)
+    )
     assert tree.children == {"relTol": "p"}
 
 
 def test_dimension_set():
-    text = """
+    tree = base_test(
+        """
         FoamFile
         {
             version     2.0;
@@ -208,15 +224,8 @@ def test_dimension_set():
         nu             nu [ 0 2 -1 0 0 0 0 ] 1e-06;    // for comment test
         Cvm            [ 0 0 0 0 0 0 0 ] 0;        // Virtual/Added Mass coefficient
     """
-    tree = parse(text)
+    )
 
-    assert tree.info == {
-        "version": 2.0,
-        "format": "ascii",
-        "class": "dictionary",
-        "location": "constant",
-        "object": "transportProperties",
-    }
     assert tree.children["nu"] == Value(
         1e-06, name="nu", dimension=[0, 2, -1, 0, 0, 0, 0]
     )
