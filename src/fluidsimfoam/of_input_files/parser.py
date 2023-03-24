@@ -123,9 +123,9 @@ class OFTransformer(Transformer):
         nodes = [node for node in nodes if node is not None]
         name = nodes.pop(0)
         if len(nodes) == 3:
-            return Assignment(name, Value(nodes[-1], nodes[0], nodes[-2]))
+            return Assignment(name, Value(nodes[-1], name, nodes[-2]))
         else:
-            return Assignment(name, Value(nodes[-1], dimension=nodes[-2]))
+            return Assignment(name, Value(nodes[-1], name, dimension=nodes[-2]))
 
     def macro(self, nodes):
         return nodes[0]

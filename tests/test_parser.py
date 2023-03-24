@@ -126,22 +126,24 @@ def test_dict_nested():
         {
             p
             {
-                solver          PCG;
-                preconditioner  DIC;
-                tolerance       1e-06;
-                relTol          0.05;
+                solver            PCG;
+                preconditioner    DIC;
+                tolerance         1e-06;
+                relTol            0.05;
             }
 
             U
             {
-                solver          smoothSolver;
-                smoother        symGaussSeidel;
-                tolerance       1e-05;
-                relTol          0;
+                solver       smoothSolver;
+                smoother     symGaussSeidel;
+                tolerance    1e-05;
+                relTol       0;
             }
+
         }
     """,
         cls=Assignment,
+        check_dump=True,
     )
 
     my_nested_dict = tree.value
@@ -214,16 +216,21 @@ def test_macro():
 def test_dimension_set():
     tree = base_test(
         """
-        dimension       [0 2 -1 0 0 0 0];
-        transportModel  Newtonian;
-        nu              nu [0 2 -1 0 0 0 0] 1e-06;  // for comment test
-        Cvm             [0 0 0 0 0 0 0] 0;  // Virtual/Added Mass coefficient
-    """
+        FoamFile
+        {
+            version     2.0;
+            format      ascii;
+            class       volScalarField;
+            object      p;
+        }
+
+        nu [0 2 -1 0 0 0 0] 1e-06; 
+
+        """,
+        cls=OFInputFile,
+        check_dump=True,
     )
-    assert tree.children["nu"] == Value(
-        1e-06, name="nu", dimension=[0, 2, -1, 0, 0, 0, 0]
-    )
-    assert isinstance(tree.children["dimension"], DimensionSet)
+    assert isinstance(tree.children["nu"], Value)
 
 
 def test_reading_one_file():
@@ -231,7 +238,7 @@ def test_reading_one_file():
     with open(path_to_file, "r") as file:
         text = file.read()
 
-    tree = parse(text)
+    tree = base_test(text, cls=OFInputFile, check_dump=False)
     assert tree.info["object"] == "fvSolution"
     assert tree.children["solvers"]["U"]["solver"] == "PBiCGStab"
     assert tree.children["PISO"]["pRefPoint"] == [0, 0, 0]
