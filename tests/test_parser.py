@@ -143,6 +143,7 @@ def test_dict_nested():
     """,
         cls=Assignment,
     )
+
     my_nested_dict = tree.value
     assert my_nested_dict["p"]["solver"] == "PCG"
     assert my_nested_dict["U"]["tolerance"] == 1e-05

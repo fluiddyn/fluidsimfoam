@@ -89,11 +89,11 @@ class Assignment:
     name: str
     value: object
 
-    def dump(self):
+    def dump(self, indent=0):
         if hasattr(self.value, "dump"):
-            return self.value.dump()
+            return self.value.dump(indent)
         else:
-            return f"{self.name}  {self.value};"
+            return indent * " " + f"{self.name}  {self.value};"
 
 
 class VariableAssignment(Assignment):
@@ -128,7 +128,7 @@ class Value(Node):
         else:
             return f"Value({self.value})"
 
-    def dump(self):
+    def dump(self, indent=0):
         if self.dimension is not None:
             dimension_list = str2of_units(self.dimension)
             dimension_dumped = " ".join(str(number) for number in dimension_list)
@@ -164,20 +164,21 @@ class Dict(dict, Node):
     def __repr__(self):
         return super().__repr__()
 
-    def dump(self):
+    def dump(self, indent=0):
         tmp = []
+        indentation = indent * " "
         if self._name is not None:
-            tmp.append(self._name + "\n{")
+            tmp.append(indentation + self._name + f"\n{indentation}" + "{")
         max_length = max(len(key) for key in self)
         default_space = 4
         num_spaces = max_length + default_space
         for key, node in self.items():
             if hasattr(node, "dump"):
-                tmp.append(node.dump())
+                tmp.append(node.dump(indent + 4))
             else:
                 s = (num_spaces - len(key)) * " "
-                tmp.append(f"    {key}{s}{node};")
-        tmp.append("}\n")
+                tmp.append(indentation + f"    {key}{s}{node};")
+        tmp.append(indentation + "}\n")
         return "\n".join(tmp)
 
 
