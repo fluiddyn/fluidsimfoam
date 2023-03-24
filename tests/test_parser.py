@@ -109,6 +109,7 @@ def test_dict_simple():
         }
     """,
         cls=Assignment,
+        check_dump=True,
     )
     my_dict = tree.value
     # TODO: fixme

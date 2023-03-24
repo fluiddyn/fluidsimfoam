@@ -77,7 +77,10 @@ class OFInputFile(Node):
                 tmp.append(f"    {key}{s}{node};")
             tmp.append("}\n")
         for key, node in self.children.items():
-            tmp.append(f"{key}  {node};")
+            if hasattr(node, "dump"):
+                tmp.append(node.dump())
+            else:
+                tmp.append(f"{key}  {node};")
         return "\n".join(tmp)
 
 
@@ -85,6 +88,12 @@ class OFInputFile(Node):
 class Assignment:
     name: str
     value: object
+
+    def dump(self):
+        if hasattr(self.value, "dump"):
+            return self.value.dump()
+        else:
+            return f"{self.name}  {self.value};"
 
 
 class VariableAssignment(Assignment):
@@ -154,6 +163,22 @@ class Dict(dict, Node):
 
     def __repr__(self):
         return super().__repr__()
+
+    def dump(self):
+        tmp = []
+        if self._name is not None:
+            tmp.append(self._name + "\n{")
+        max_length = max(len(key) for key in self)
+        default_space = 4
+        num_spaces = max_length + default_space
+        for key, node in self.items():
+            if hasattr(node, "dump"):
+                tmp.append(node.dump())
+            else:
+                s = (num_spaces - len(key)) * " "
+                tmp.append(f"    {key}{s}{node};")
+        tmp.append("}\n")
+        return "\n".join(tmp)
 
 
 class List(list, Node):
