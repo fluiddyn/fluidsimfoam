@@ -79,6 +79,8 @@ class OFInputFile(Node):
         for key, node in self.children.items():
             if hasattr(node, "dump"):
                 tmp.append(node.dump())
+            elif hasattr(node, "dump_without_assignment"):
+                tmp.append(f"{key}  {node.dump_without_assignment()};")
             else:
                 tmp.append(f"{key}  {node};")
         return "\n".join(tmp)
@@ -128,16 +130,16 @@ class Value(Node):
         else:
             return f"Value({self.value})"
 
-    def dump(self, indent=0):
+    def dump_without_assignment(self, indent=0):
         if self.dimension is not None:
             dimension_list = str2of_units(self.dimension)
             dimension_dumped = " ".join(str(number) for number in dimension_list)
         if self.dimension is not None and self.name is not None:
-            return f"{self.name} [{dimension_dumped}] {self.value};"
+            return f"{self.name} [{dimension_dumped}] {self.value}"
         elif self.dimension is None and self.name is not None:
-            return f"{self.name} {self.value};"
+            return f"{self.name} {self.value}"
         elif self.dimension is not None and self.name is None:
-            return f"[{dimension_dumped}] {self.value};"
+            return f"[{dimension_dumped}] {self.value}"
         else:
             return f"{self.value};"
 
@@ -151,6 +153,12 @@ class DimensionSet(list, Node):
             raise ValueError("Bad {of_units = }")
 
         super().__init__(of_units)
+
+    def __repr__(self):
+        return of_units2str(self)
+
+    def dump_without_assignment(self, indent=0):
+        return "[" + " ".join(str(number) for number in self) + "]"
 
 
 class Dict(dict, Node):
@@ -184,3 +192,33 @@ class Dict(dict, Node):
 
 class List(list, Node):
     """Represents an OpenFoam list"""
+
+    def __init__(self, value=None, name=None):
+        self._name = name
+        self.value = value
+
+    def get_name(self):
+        return self._name
+
+    def __repr__(self):
+        return super().__repr__()
+
+    def dump(self, indent=0):
+        tmp = []
+        indentation = indent * " "
+        if self._name is not None and self.value is not None:
+            tmp.append(indentation + self._name + f"\n{indentation}" + "(")
+            for item in self.value:
+                if hasattr(item, "dump"):
+                    tmp.append(item.dump(indent + 4))
+                else:
+                    tmp.append(indentation + f"    {item}")
+            tmp.append(indentation + ");\n")
+        elif self._name is None and self.value is not None:
+            tmp.append(indentation + "(")
+            for item in self.value:
+                tmp.append(f"{item}")
+            tmp.append(")")
+
+        return "\n".join(tmp)
+        raise BaseException()

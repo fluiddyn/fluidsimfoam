@@ -71,13 +71,36 @@ class OFTransformer(Transformer):
         return nodes[0]
 
     def var_assignment(self, nodes):
-        nodes = [node for node in nodes if node is not None]
-        name = nodes.pop(0)
-        if len(nodes) == 1:
-            value = nodes[0]
-        else:
-            value = " ".join(nodes)
-        return VariableAssignment(name, value)
+        try:
+            nodes = [node for node in nodes if node is not None]
+            dimension_set = None
+            name_in_value = None
+            name = nodes.pop(0)
+            if len(nodes) == 1:
+                value = nodes[0]
+            else:
+                try:
+                    index_dimension = [
+                        isinstance(elem, DimensionSet) for elem in nodes
+                    ].index(True)
+                    dimension_set = nodes.pop(index_dimension)
+
+                    if len(nodes) == 2:
+                        name_in_value, value = nodes
+
+                    elif len(nodes) == 1:
+                        value = nodes[0]
+                    else:
+                        raise NotImplementedError()
+                    value = Value(
+                        value, name=name_in_value, dimension=dimension_set
+                    )
+                except ValueError:
+                    value = " ".join(nodes)
+
+            return VariableAssignment(name, value)
+        except Exception as err:
+            raise BaseException()
 
     def multi_var(self, nodes):
         d = {
@@ -122,10 +145,11 @@ class OFTransformer(Transformer):
     def dimension_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
         name = nodes.pop(0)
+
         if len(nodes) == 3:
-            return Assignment(name, Value(nodes[-1], name, nodes[-2]))
-        else:
-            return Assignment(name, Value(nodes[-1], name, dimension=nodes[-2]))
+            return Assignment(name, Value(nodes[-1], nodes[0], nodes[-2]))
+        elif len(nodes) == 2:
+            return Assignment(name, Value(nodes[-1], dimension=nodes[-2]))
 
     def macro(self, nodes):
         return nodes[0]
