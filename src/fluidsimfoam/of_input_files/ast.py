@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from textwrap import dedent
 
 symbols = ["kg", "m", "s", "K", "kmol", "A", "cd"]
 
@@ -231,30 +232,19 @@ class List(list, Node):
             return indentation + "(" + " ".join(tmp) + ")"
 
 
-class Code(dict, Node):
-    def __init__(self, data, name=None):
-        self._name = name
-        super().__init__(**data)
-
-    def get_name(self):
-        return self._name
+class Code(Node):
+    def __init__(self, name, code):
+        self.name = name
+        self.code = dedent(code)
 
     def __repr__(self):
-        return super().__repr__()
+        return f'Code(name={self.name}, code="{self.code[:10]}[...]")'
 
     def dump(self, indent=0):
         tmp = []
         indentation = indent * " "
-        if self._name is not None:
-            tmp.append(indentation + self._name + f"\n{indentation}" + "#{")
-        max_length = max(len(key) for key in self)
-        default_space = 4
-        num_spaces = max_length + default_space
-        for key, node in self.items():
-            if hasattr(node, "dump"):
-                tmp.append(node.dump(indent + 4))
-            else:
-                s = (num_spaces - len(key)) * " "
-                tmp.append(indentation + f"    {key}{s}{node};")
+        tmp.append(indentation + self.name + f"\n{indentation}" + "#{")
+        for line in self.code.split("\n"):
+            tmp.append(indentation + 4 * " " + line)
         tmp.append(indentation + "#};\n")
         return "\n".join(tmp)

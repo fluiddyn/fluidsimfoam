@@ -121,6 +121,12 @@ class OFTransformer(Transformer):
     def dict_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
         name = nodes.pop(0)
+
+        # TODO: fix this code (related to #codeStream)
+        directive = None
+        if isinstance(nodes[0], str) and nodes[0].startswith("#"):
+            directive = nodes.pop(0)
+
         for node in nodes:
             if isinstance(node.value, List):
                 node.value._name = node.name
@@ -179,8 +185,10 @@ class OFTransformer(Transformer):
 
     def code(self, nodes):
         nodes = filter_no_newlines(nodes)
-        name = nodes.pop(0)
-        # raise BaseException()
-        return Assignment(
-            name, Code(data={node.name: node.value for node in nodes}, name=name)
-        )
+        if len(nodes) != 2:
+            raise NotImplementedError
+        name, code = nodes
+        code = str(code)
+        code = code.split("\n", 1)[-1]
+        code = code.rsplit("\n", 1)[0]
+        return Assignment(name, Code(name, code))

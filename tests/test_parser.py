@@ -142,6 +142,22 @@ def test_dict_simple():
     assert my_dict["location"] == '"system"'
 
 
+@pytest.mark.xfail
+def test_dict_strange_keys():
+    """As in fvSchemes"""
+    tree = base_test(
+        """
+        divSchemes
+        {
+            default         none;
+            div(phi,U)      Gauss linear;
+            div((nuEff*dev2(T(grad(U))))) Gauss linear;
+        }
+    """,
+        check_dump_parse=True,
+    )
+
+
 def test_dict_nested():
     tree = base_test(
         """
@@ -264,15 +280,55 @@ def test_directive():
     )
 
 
-def test_simple_code_stream():
+def test_code():
     base_test(
-        """
-        code
+        r"""
+        code_name
         #{
-            #include    "initialConditions";
+            -I$(LIB_SRC)/finiteVolume/lnInclude \
+            -I$(LIB_SRC)/meshTools/lnInclude
         #};
     """,
         check_dump=True,
+        check_dump_parse=True,
+    )
+
+
+def test_code_stream():
+    tree = base_test(
+        r"""
+        internalField  #codeStream
+        {
+            codeInclude
+            #{
+                #include "fvCFD.H"
+            #};
+            codeOptions
+            #{
+                -I$(LIB_SRC)/finiteVolume/lnInclude \
+                -I$(LIB_SRC)/meshTools/lnInclude
+            #};
+            codeLibs
+            #{
+                -lmeshTools \
+                -lfiniteVolume
+            #};
+            code
+            #{
+                const IOdictionary& d = static_cast<const IOdictionary&>(dict);
+                const fvMesh& mesh = refCast<const fvMesh>(d.db());
+                scalarField p(mesh.nCells(), 0.);
+                forAll(p, i)
+                {
+                    const scalar x = mesh.C()[i][0];
+                    const scalar y = mesh.C()[i][1];
+                    const scalar z = mesh.C()[i][2];
+                    p[i]=-0.0625*(Foam::cos(2*x) + Foam::cos(2*y))*Foam::cos(2*z+2);
+                }
+                p.writeEntry("",os);
+            #};
+        };
+""",
         check_dump_parse=True,
     )
 
@@ -329,7 +385,7 @@ paths_tiny_tgv = {
 }
 
 
-# @pytest.mark.xfail
+@pytest.mark.xfail
 @pytest.mark.parametrize("path_name", paths_tiny_tgv)
 def test_tiny_tgv(path_name):
     path = paths_tiny_tgv[path_name]

@@ -25,11 +25,11 @@ dimension_set : "[" (value|NEWLINE)* "]"
 directive_assignment : [NEWLINE] directive dataentry [";"] [NEWLINE]
 list_assignment : [NEWLINE] CNAME NEWLINE list ";" [NEWLINE]
 var_assignment : [NEWLINE] keyword dataentry (dataentry)* ";" NEWLINE
-dict_assignment : [NEWLINE] CNAME NEWLINE "{" NEWLINE [assignment (assignment)*] "}" NEWLINE
-code : [NEWLINE] CNAME NEWLINE "#" "{" NEWLINE [(assignment|NEWLINE|directive_assignment)*] "#" "}" ";" NEWLINE
+dict_assignment : [NEWLINE] CNAME [directive] NEWLINE "{" NEWLINE [assignment (assignment)*] "}" [";"] NEWLINE
+code : [NEWLINE] CNAME NEWLINE /#{[\S\s]*#};/ NEWLINE
 dimension_assignment : [NEWLINE] keyword [keyword] dimension_set dataentry ";" [NEWLINE]
 
-assignment : var_assignment | dict_assignment | list_assignment | dimension_assignment | directive_assignment
+assignment : code | var_assignment | dict_assignment | list_assignment | dimension_assignment | directive_assignment
 file : assignment (assignment)*
 CPP_COMMENT: /\/\/[^\n]*/ NEWLINE
 C_COMMENT: "/*" /(.|\n)*?/ "*/" NEWLINE
