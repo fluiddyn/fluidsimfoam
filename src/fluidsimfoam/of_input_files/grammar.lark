@@ -23,7 +23,7 @@ list : "(" (value|NEWLINE)* ")"
 dimension_set : "[" (value|NEWLINE)* "]"
 
 directive_assignment : [NEWLINE] directive dataentry [";"] [NEWLINE]
-list_assignment : [NEWLINE] CNAME NEWLINE "(" [(list|NEWLINE)*] ")" ";" [NEWLINE]
+list_assignment : [NEWLINE] CNAME NEWLINE list ";" [NEWLINE]
 var_assignment : [NEWLINE] keyword dataentry (dataentry)* ";" NEWLINE
 dict_assignment : [NEWLINE] CNAME NEWLINE "{" NEWLINE [assignment (assignment)*] "}" NEWLINE
 code : [NEWLINE] CNAME NEWLINE "#" "{" NEWLINE [(assignment|NEWLINE|directive_assignment)*] "#" "}" ";" NEWLINE

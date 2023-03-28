@@ -213,11 +213,13 @@ class List(list, Node):
         indentation = indent * " "
         if self._name is not None:
             tmp.append("\n" + indentation + self._name + f"\n{indentation}" + "(")
+            tmp1 = []
             for item in self:
                 if hasattr(item, "dump"):
-                    tmp.append(item.dump(indent + 4))
+                    tmp1.append(item.dump())
                 else:
-                    tmp.append(indentation + f"    {item}")
+                    tmp1.append(repr(item))
+            tmp.append(indentation + 4 * " " + " ".join(tmp1))
             tmp.append(indentation + ");\n")
             return "\n".join(tmp)
         elif self._name is None:

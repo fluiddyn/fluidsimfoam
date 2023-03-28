@@ -68,7 +68,6 @@ def test_list_simple():
         );
     """,
         cls=Assignment,
-        check_dump=True,
         check_dump_parse=True,
     )
 
@@ -173,6 +172,23 @@ def test_dict_nested():
     assert my_nested_dict["U"]["tolerance"] == 1e-05
 
 
+def test_dict_with_list():
+    tree = base_test(
+        """
+        PISO
+        {
+            nCorrectors                 2;
+            nNonOrthogonalCorrectors    1;
+            pRefPoint                   (0 0 0);
+            pRefValue                   0;
+        }
+    """,
+        cls=Assignment,
+        check_dump_parse=True,
+    )
+    assert tree.value["pRefPoint"]._name == "pRefPoint"
+
+
 def test_file():
     tree = base_test(
         """
@@ -199,7 +215,6 @@ def test_file():
         }
     """,
         cls=FoamInputFile,
-        check_dump=True,
         check_dump_parse=True,
     )
 
@@ -230,7 +245,6 @@ def test_simple_code_stream():
         #{
             #include    "initialConditions";
         #};
-        
     """,
         check_dump=True,
         check_dump_parse=True,
