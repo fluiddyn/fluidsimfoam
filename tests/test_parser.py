@@ -1,6 +1,8 @@
 from pathlib import Path
 from textwrap import dedent
 
+import pytest
+
 from fluidsimfoam.of_input_files import dump, parse
 from fluidsimfoam.of_input_files.ast import (
     Assignment,
@@ -217,10 +219,11 @@ def test_file():
         cls=FoamInputFile,
         check_dump_parse=True,
     )
+    assert tree.children["my_dict"]["a"] == 1
 
 
 def test_directive():
-    tree = base_test(
+    base_test(
         """
         FoamFile
         {
@@ -239,7 +242,7 @@ def test_directive():
 
 
 def test_simple_code_stream():
-    tree = base_test(
+    base_test(
         """
         code
         #{
@@ -283,8 +286,11 @@ def test_dimension_set():
     assert isinstance(tree.children["dimension"], DimensionSet)
 
 
+path_tiny_tgv = here / "pure_openfoam_cases/tiny-tgv"
+
+
 def test_reading_one_file():
-    path_to_file = here / "pure_openfoam_cases/tiny-tgv/system/fvSolution"
+    path_to_file = path_tiny_tgv / "system/fvSolution"
     with open(path_to_file, "r") as file:
         text = file.read()
 
@@ -293,12 +299,16 @@ def test_reading_one_file():
     assert tree.children["solvers"]["U"]["solver"] == "PBiCGStab"
 
 
-# def test_loop_directory():
-#     path_dirs = here / "pure_openfoam_cases/tiny-tgv/system"
+paths_tiny_tgv = {
+    path.name: path
+    for path in path_tiny_tgv.rglob("*")
+    if path.is_file() and "README" not in path.name
+}
 
-#     for path_dir in path_dirs.rglob("*"):
 
-#         with open(path_dir, "r") as file:
-#             text = file.read()
-
-#         tree = parse(text)
+@pytest.mark.xfail
+@pytest.mark.parametrize("path_name", paths_tiny_tgv)
+def test_tiny_tgv(path_name):
+    path = paths_tiny_tgv[path_name]
+    text = path.read_text()
+    tree = parse(text)
