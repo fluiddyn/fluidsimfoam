@@ -113,6 +113,7 @@ def test_var_value_with_space():
     """,
         check_dump_parse=True,
     )
+    assert tree.value["default"] == "Gauss linear corrected"
 
 
 def test_dict_simple():
@@ -131,6 +132,12 @@ def test_dict_simple():
         check_dump=True,
         check_dump_parse=True,
     )
+
+    my_dict = tree.value
+    assert isinstance(my_dict, Dict)
+    assert my_dict["version"] == 2.0
+    assert my_dict["format"] == "ascii"
+    assert my_dict["location"] == '"system"'
 
 
 def test_dict_nested():
@@ -160,6 +167,10 @@ def test_dict_nested():
         check_dump=True,
         check_dump_parse=True,
     )
+
+    my_nested_dict = tree.value
+    assert my_nested_dict["p"]["solver"] == "PCG"
+    assert my_nested_dict["U"]["tolerance"] == 1e-05
 
 
 def test_file():
@@ -254,6 +265,8 @@ def test_dimension_set():
         check_dump=True,
         check_dump_parse=True,
     )
+    assert isinstance(tree.children["nu"], Value)
+    assert isinstance(tree.children["dimension"], DimensionSet)
 
 
 def test_reading_one_file():
@@ -262,6 +275,8 @@ def test_reading_one_file():
         text = file.read()
 
     tree = base_test(text, cls=FoamInputFile, check_dump=False)
+    assert tree.info["object"] == "fvSolution"
+    assert tree.children["solvers"]["U"]["solver"] == "PBiCGStab"
 
 
 # def test_loop_directory():
