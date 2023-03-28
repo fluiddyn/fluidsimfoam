@@ -6,6 +6,7 @@ from lark import Lark, Token, Transformer
 
 from .ast import (
     Assignment,
+    Code,
     Dict,
     DimensionSet,
     FoamInputFile,
@@ -153,6 +154,7 @@ class OFTransformer(Transformer):
             return Assignment(name, Value(nodes[-1], dimension=nodes[-2]))
 
     def macro(self, nodes):
+        nodes[0] = "$" + nodes[0]
         return nodes[0]
 
     def macro_assignment(self, nodes):
@@ -160,9 +162,18 @@ class OFTransformer(Transformer):
         return Assignment(name, nodes[0])
 
     def directive(self, nodes):
+        nodes[0] = "#" + nodes[0]
         return nodes[0]
 
     def directive_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
         name = nodes.pop(0)
         return Assignment(name, nodes[0])
+
+    def code(self, nodes):
+        nodes = filter_no_newlines(nodes)
+        name = nodes.pop(0)
+        # raise BaseException()
+        return Assignment(
+            name, Code(data={node.name: node.value for node in nodes}, name=name)
+        )

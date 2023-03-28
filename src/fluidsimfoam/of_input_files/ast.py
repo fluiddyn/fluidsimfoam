@@ -53,7 +53,10 @@ def foam_units2str(of_units):
 
 
 class Node:
-    pass
+    def __eq__(self, other):
+        if type(other) is type(self):
+            return self.__dict__ == other.__dict__
+        return False
 
 
 class FoamInputFile(Node):
@@ -225,3 +228,32 @@ class List(list, Node):
                     tmp.append(f"{item}")
             # tmp.append(")\n")
             return indentation + "(" + " ".join(tmp) + ")\n"
+
+
+class Code(dict, Node):
+    def __init__(self, data, name=None):
+        self._name = name
+        super().__init__(**data)
+
+    def get_name(self):
+        return self._name
+
+    def __repr__(self):
+        return super().__repr__()
+
+    def dump(self, indent=0):
+        tmp = []
+        indentation = indent * " "
+        if self._name is not None:
+            tmp.append(indentation + self._name + f"\n{indentation}" + "#{")
+        max_length = max(len(key) for key in self)
+        default_space = 4
+        num_spaces = max_length + default_space
+        for key, node in self.items():
+            if hasattr(node, "dump"):
+                tmp.append(node.dump(indent + 4))
+            else:
+                s = (num_spaces - len(key)) * " "
+                tmp.append(indentation + f"    {key}{s}{node};")
+        tmp.append(indentation + "#};\n")
+        return "\n".join(tmp)

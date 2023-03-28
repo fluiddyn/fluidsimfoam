@@ -15,7 +15,9 @@ from fluidsimfoam.of_input_files.ast import (
 here = Path(__file__).absolute().parent
 
 
-def base_test(text, representation=None, cls=None, check_dump=False):
+def base_test(
+    text, representation=None, cls=None, check_dump=False, check_dump_parse=False
+):
     tree = parse(text)
     if isinstance(tree, FoamInputFile):
         assert all(
@@ -28,6 +30,9 @@ def base_test(text, representation=None, cls=None, check_dump=False):
     if check_dump:
         dump_text = dump(tree)
         assert dedent(text).strip() == dump_text.strip()
+    if check_dump_parse:
+        assert tree == parse(dump(tree))
+
     return tree
 
 
@@ -64,6 +69,7 @@ def test_list_simple():
     """,
         cls=Assignment,
         check_dump=True,
+        check_dump_parse=True,
     )
     assert tree.name == "faces"
     # assert tree.value == [[1, 5, 4, 0], [1, 5, 4, 0]]
@@ -97,7 +103,8 @@ def test_var_value_with_space():
         {
             default         Gauss linear corrected;
         }
-    """
+    """,
+        check_dump_parse=True,
     )
     assert tree.value["default"] == "Gauss linear corrected"
 
@@ -116,6 +123,7 @@ def test_dict_simple():
     """,
         cls=Assignment,
         check_dump=True,
+        check_dump_parse=True,
     )
     my_dict = tree.value
     # TODO: fixme
@@ -150,6 +158,7 @@ def test_dict_nested():
     """,
         cls=Assignment,
         check_dump=True,
+        check_dump_parse=True,
     )
 
     my_nested_dict = tree.value
@@ -184,6 +193,7 @@ def test_file():
     """,
         cls=FoamInputFile,
         check_dump=True,
+        check_dump_parse=True,
     )
 
     assert tree.info == {
@@ -205,10 +215,26 @@ def test_directive():
             object      p;
         }
 
-        #include "initialConditions"
-    """
+        #include  "initialConditions";
+    """,
+        cls=FoamInputFile,
+        check_dump=True,
+        check_dump_parse=True,
     )
-    assert tree.children == {"include": '"initialConditions"'}
+
+
+def test_simple_code_stream():
+    tree = base_test(
+        """
+        code
+        #{
+            #include    "initialConditions";
+        #};
+        
+    """,
+        check_dump=True,
+        check_dump_parse=True,
+    )
 
 
 def test_macro():
@@ -222,10 +248,10 @@ def test_macro():
             object      p;
         }
 
-        relTol          $p;
-    """
+        relTol  $p;
+    """,
+        check_dump=True,
     )
-    assert tree.children == {"relTol": "p"}
 
 
 def test_dimension_set():
@@ -237,6 +263,7 @@ def test_dimension_set():
         """,
         cls=FoamInputFile,
         check_dump=True,
+        check_dump_parse=True,
     )
     assert isinstance(tree.children["nu"], Value)
     assert isinstance(tree.children["dimension"], DimensionSet)
