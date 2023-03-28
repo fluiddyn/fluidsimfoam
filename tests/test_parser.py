@@ -118,19 +118,20 @@ def test_var_value_with_space():
 
 
 def test_dict_simple():
+    # we add a space on purpose...
+    space = " "
     tree = base_test(
-        """
-        my_dict
-        {
+        f"""
+        my_dict{space}
+        {{
             version     2.0;
             format      ascii;
             class       dictionary;
             location    "system";
             object      controlDict;
-        }
+        }}
     """,
         cls=Assignment,
-        check_dump=True,
         check_dump_parse=True,
     )
 
@@ -189,6 +190,28 @@ def test_dict_with_list():
         check_dump_parse=True,
     )
     assert tree.value["pRefPoint"]._name == "pRefPoint"
+
+
+def test_list_with_dict():
+    base_test(
+        """
+    boundary
+    (
+
+    upperBoundary
+    {
+        type cyclic;
+        neighbourPatch lowerBoundary;
+        faces
+        (
+            (3 7 6 2)
+        );
+    }
+    );
+    """,
+        cls=Assignment,
+        check_dump_parse=True,
+    )
 
 
 def test_file():
@@ -306,7 +329,7 @@ paths_tiny_tgv = {
 }
 
 
-@pytest.mark.xfail
+# @pytest.mark.xfail
 @pytest.mark.parametrize("path_name", paths_tiny_tgv)
 def test_tiny_tgv(path_name):
     path = paths_tiny_tgv[path_name]

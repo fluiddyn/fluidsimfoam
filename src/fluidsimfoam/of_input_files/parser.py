@@ -23,6 +23,7 @@ lark_parser = Lark(grammar, start="value", lexer="basic")
 
 
 def parse(text):
+    text = "\n".join(line.rstrip() for line in text.split("\n"))
     tree = lark_parser.parse(text)
     return OFTransformer().transform(tree)
 
