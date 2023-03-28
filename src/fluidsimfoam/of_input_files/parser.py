@@ -8,8 +8,8 @@ from .ast import (
     Assignment,
     Dict,
     DimensionSet,
+    FoamInputFile,
     List,
-    OFInputFile,
     Value,
     VariableAssignment,
 )
@@ -18,11 +18,11 @@ here = Path(__file__).absolute().parent
 
 grammar = (here / "grammar.lark").read_text()
 
-parser = Lark(grammar, start="value", lexer="basic")
+lark_parser = Lark(grammar, start="value", lexer="basic")
 
 
 def parse(text):
-    tree = parser.parse(text)
+    tree = lark_parser.parse(text)
     return OFTransformer().transform(tree)
 
 
@@ -63,7 +63,7 @@ class OFTransformer(Transformer):
             nodes = nodes[1:]
         else:
             info_dict = None
-        return OFInputFile(info_dict, {node.name: node.value for node in nodes})
+        return FoamInputFile(info_dict, {node.name: node.value for node in nodes})
 
     def keyword(self, nodes):
         return nodes[0]

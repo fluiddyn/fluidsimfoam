@@ -1,6 +1,6 @@
 import pytest
 
-from fluidsimfoam.of_input_files.ast import Value, of_units2str, str2of_units
+from fluidsimfoam.of_input_files.ast import Value, foam_units2str, str2foam_units
 
 
 def test_value():
@@ -18,13 +18,13 @@ def test_value():
 
 
 def test_of_units2str():
-    assert of_units2str([0, 2, -1, 0, 0, 0, 0]) == "m^2/s"
-    assert of_units2str([-1, 2, -1, 0, 0, 0, 0]) == "1/kg.m^2/s"
+    assert foam_units2str([0, 2, -1, 0, 0, 0, 0]) == "m^2/s"
+    assert foam_units2str([-1, 2, -1, 0, 0, 0, 0]) == "1/kg.m^2/s"
 
 
 def test_str2of_units():
-    assert str2of_units("m^2/s") == [0, 2, -1, 0, 0, 0, 0]
-    assert str2of_units("1/kg.m^2/s") == [-1, 2, -1, 0, 0, 0, 0]
+    assert str2foam_units("m^2/s") == [0, 2, -1, 0, 0, 0, 0]
+    assert str2foam_units("1/kg.m^2/s") == [-1, 2, -1, 0, 0, 0, 0]
 
 
 @pytest.mark.parametrize(
@@ -32,4 +32,4 @@ def test_str2of_units():
     ([0, 0, 0, 0, 0, 0, 0], [2, 2, -1, 0, 0, 0, 0], [-1, 2, -1, 3, 1, -2, -1]),
 )
 def test_convert_unit_format(of_units):
-    assert str2of_units(of_units2str(of_units)) == of_units
+    assert str2foam_units(foam_units2str(of_units)) == of_units

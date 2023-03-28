@@ -6,8 +6,8 @@ from fluidsimfoam.of_input_files.ast import (
     Assignment,
     Dict,
     DimensionSet,
+    FoamInputFile,
     Node,
-    OFInputFile,
     Value,
     VariableAssignment,
 )
@@ -17,7 +17,7 @@ here = Path(__file__).absolute().parent
 
 def base_test(text, representation=None, cls=None, check_dump=False):
     tree = parse(text)
-    if isinstance(tree, OFInputFile):
+    if isinstance(tree, FoamInputFile):
         assert all(
             isinstance(obj, (Node, str, int, float)) for obj in tree.children
         )
@@ -48,7 +48,7 @@ def test_var_multiple():
         c  d;
     """,
         representation="InputFile(\nchildren={'a': 'b', 'c': 'd'}\n)",
-        cls=OFInputFile,
+        cls=FoamInputFile,
         check_dump=True,
     )
 
@@ -85,7 +85,7 @@ def test_file_simple():
         a  b;
         c  d;
     """,
-        cls=OFInputFile,
+        cls=FoamInputFile,
     )
     assert tree.info["version"] == 2.0
 
@@ -182,7 +182,7 @@ def test_file():
             a    1;
         }
     """,
-        cls=OFInputFile,
+        cls=FoamInputFile,
         check_dump=True,
     )
 
@@ -235,7 +235,7 @@ def test_dimension_set():
         nu  [0 2 -1 0 0 0 0] 1e-05;
         nu1  nu [0 2 -1 0 0 0 0] 1e-06;
         """,
-        cls=OFInputFile,
+        cls=FoamInputFile,
         check_dump=True,
     )
     assert isinstance(tree.children["nu"], Value)
@@ -247,7 +247,7 @@ def test_reading_one_file():
     with open(path_to_file, "r") as file:
         text = file.read()
 
-    tree = base_test(text, cls=OFInputFile, check_dump=False)
+    tree = base_test(text, cls=FoamInputFile, check_dump=False)
     assert tree.info["object"] == "fvSolution"
     assert tree.children["solvers"]["U"]["solver"] == "PBiCGStab"
     # assert tree.children["PISO"]["pRefPoint"] == [0, 0, 0]

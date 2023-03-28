@@ -4,7 +4,7 @@ from dataclasses import dataclass
 symbols = ["kg", "m", "s", "K", "kmol", "A", "cd"]
 
 
-def str2of_units(units):
+def str2foam_units(units):
     result = [0] * 7
     sign = 1
     while units:
@@ -32,7 +32,7 @@ def str2of_units(units):
     return result
 
 
-def of_units2str(of_units):
+def foam_units2str(of_units):
     if len(of_units) != len(symbols):
         raise ValueError("len(of_units) != len(symbols)")
     result = []
@@ -56,7 +56,7 @@ class Node:
     pass
 
 
-class OFInputFile(Node):
+class FoamInputFile(Node):
     def __init__(self, info, children):
         self.info = info
         self.children = children
@@ -117,7 +117,7 @@ class Value(Node):
         if isinstance(dimension, (list, tuple)):
             if len(dimension) != len(symbols):
                 raise ValueError("len(dimension) != len(symbols)")
-            dimension = of_units2str(dimension)
+            dimension = foam_units2str(dimension)
         self.dimension = dimension
 
     def __repr__(self):
@@ -132,7 +132,7 @@ class Value(Node):
 
     def dump_without_assignment(self, indent=0):
         if self.dimension is not None:
-            dimension_list = str2of_units(self.dimension)
+            dimension_list = str2foam_units(self.dimension)
             dimension_dumped = " ".join(str(number) for number in dimension_list)
         if self.dimension is not None and self.name is not None:
             return f"{self.name} [{dimension_dumped}] {self.value}"
@@ -155,7 +155,7 @@ class DimensionSet(list, Node):
         super().__init__(of_units)
 
     def __repr__(self):
-        return of_units2str(self)
+        return foam_units2str(self)
 
     def dump_without_assignment(self, indent=0):
         return "[" + " ".join(str(number) for number in self) + "]"
