@@ -25,7 +25,7 @@ lark_parser = Lark(grammar, start="value", lexer="basic")
 def parse(text):
     text = "\n".join(line.rstrip() for line in text.split("\n"))
     tree = lark_parser.parse(text)
-    return OFTransformer().transform(tree)
+    return FoamTransformer().transform(tree)
 
 
 def dump(tree):
@@ -36,7 +36,7 @@ def filter_no_newlines(items):
     return [item for item in items if item is not None]
 
 
-class OFTransformer(Transformer):
+class FoamTransformer(Transformer):
     def number(self, n):
         (n,) = n
         n = str(n)

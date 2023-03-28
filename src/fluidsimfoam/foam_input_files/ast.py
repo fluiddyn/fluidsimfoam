@@ -33,11 +33,11 @@ def str2foam_units(units):
     return result
 
 
-def foam_units2str(of_units):
-    if len(of_units) != len(symbols):
-        raise ValueError("len(of_units) != len(symbols)")
+def foam_units2str(foam_units):
+    if len(foam_units) != len(symbols):
+        raise ValueError("len(foam_units) != len(symbols)")
     result = []
-    for symbol, exponent in zip(symbols, of_units):
+    for symbol, exponent in zip(symbols, foam_units):
         if exponent == 0:
             continue
         operator = "." if exponent > 0 else "/"
@@ -151,14 +151,14 @@ class Value(Node):
 
 
 class DimensionSet(list, Node):
-    def __init__(self, of_units):
-        if len(of_units) != len(symbols):
+    def __init__(self, foam_units):
+        if len(foam_units) != len(symbols):
             raise ValueError("len(dimension) != len(symbols)")
 
-        if not all(isinstance(elem, int) for elem in of_units):
-            raise ValueError("Bad {of_units = }")
+        if not all(isinstance(elem, int) for elem in foam_units):
+            raise ValueError("Bad {foam_units = }")
 
-        super().__init__(of_units)
+        super().__init__(foam_units)
 
     def __repr__(self):
         return foam_units2str(self)

@@ -3,8 +3,8 @@ from textwrap import dedent
 
 import pytest
 
-from fluidsimfoam.of_input_files import dump, parse
-from fluidsimfoam.of_input_files.ast import (
+from fluidsimfoam.foam_input_files import dump, parse
+from fluidsimfoam.foam_input_files.ast import (
     Assignment,
     Dict,
     DimensionSet,
