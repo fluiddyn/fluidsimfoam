@@ -106,9 +106,11 @@ class VariableAssignment(Assignment):
         s = super().__repr__()
         return s
 
-    def dump(self):
-        s = str(self.name) + " " + str(self.value) + ";"
-        return s
+    def dump(self, indent=0):
+        if hasattr(self.value, "dump"):
+            return indent * " " + f"{self.name}  {self.value.dump(indent)};"
+        else:
+            return indent * " " + f"{self.name}  {self.value};"
 
 
 @dataclass
@@ -210,24 +212,21 @@ class List(list, Node):
         tmp = []
         indentation = indent * " "
         if self._name is not None:
-            tmp.append(
-                "\n" + indentation + self._name + f"\n{indentation}" + "(\n"
-            )
+            tmp.append("\n" + indentation + self._name + f"\n{indentation}" + "(")
             for item in self:
                 if hasattr(item, "dump"):
                     tmp.append(item.dump(indent + 4))
                 else:
                     tmp.append(indentation + f"    {item}")
             tmp.append(indentation + ");\n")
-            return "".join(tmp)
+            return "\n".join(tmp)
         elif self._name is None:
             for item in self:
                 if hasattr(item, "dump"):
                     tmp.append(item.dump(indent + 4))
                 else:
                     tmp.append(f"{item}")
-            # tmp.append(")\n")
-            return indentation + "(" + " ".join(tmp) + ")\n"
+            return indentation + "(" + " ".join(tmp) + ")"
 
 
 class Code(dict, Node):
