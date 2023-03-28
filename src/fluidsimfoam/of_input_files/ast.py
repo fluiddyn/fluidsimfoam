@@ -193,9 +193,9 @@ class Dict(dict, Node):
 class List(list, Node):
     """Represents an OpenFoam list"""
 
-    def __init__(self, value=None, name=None):
+    def __init__(self, iterable=None, name=None):
         self._name = name
-        self.value = value
+        super().__init__(iterable)
 
     def get_name(self):
         return self._name
@@ -206,19 +206,22 @@ class List(list, Node):
     def dump(self, indent=0):
         tmp = []
         indentation = indent * " "
-        if self._name is not None and self.value is not None:
-            tmp.append(indentation + self._name + f"\n{indentation}" + "(")
-            for item in self.value:
+        if self._name is not None:
+            tmp.append(
+                "\n" + indentation + self._name + f"\n{indentation}" + "(\n"
+            )
+            for item in self:
                 if hasattr(item, "dump"):
                     tmp.append(item.dump(indent + 4))
                 else:
                     tmp.append(indentation + f"    {item}")
             tmp.append(indentation + ");\n")
-        elif self._name is None and self.value is not None:
-            tmp.append(indentation + "(")
-            for item in self.value:
-                tmp.append(f"{item}")
-            tmp.append(")")
-
-        return "\n".join(tmp)
-        raise BaseException()
+            return "".join(tmp)
+        elif self._name is None:
+            for item in self:
+                if hasattr(item, "dump"):
+                    tmp.append(item.dump(indent + 4))
+                else:
+                    tmp.append(f"{item}")
+            # tmp.append(")\n")
+            return indentation + "(" + " ".join(tmp) + ")\n"

@@ -6,6 +6,7 @@ from fluidsimfoam.of_input_files.ast import (
     Assignment,
     Dict,
     DimensionSet,
+    Node,
     OFInputFile,
     Value,
     VariableAssignment,
@@ -16,6 +17,10 @@ here = Path(__file__).absolute().parent
 
 def base_test(text, representation=None, cls=None, check_dump=False):
     tree = parse(text)
+    if isinstance(tree, OFInputFile):
+        assert all(
+            isinstance(obj, (Node, str, int, float)) for obj in tree.children
+        )
     if representation is not None:
         assert repr(tree) == representation
     if cls is not None:
@@ -54,11 +59,11 @@ def test_list_simple():
         faces
         (
             (1 5 4 0)
-            (1 5 4 0)
+            (2 3 4 5)
         );
     """,
         cls=Assignment,
-        check_dump=False,
+        check_dump=True,
     )
     assert tree.name == "faces"
     # assert tree.value == [[1, 5, 4, 0], [1, 5, 4, 0]]
@@ -165,9 +170,19 @@ def test_file():
 
         a  1;
         b  2;
+
+        faces
+        (
+            (1 5 4 0)
+            (2 3 4 5)
+        );
+
+        my_dict
+        {
+            a    1;
+        }
     """,
         cls=OFInputFile,
-        # TODO: fixme
         check_dump=True,
     )
 
@@ -177,7 +192,6 @@ def test_file():
         "class": "volScalarField",
         "object": "p",
     }
-    assert tree.children == {"a": 1, "b": 2}
 
 
 def test_directive():
@@ -221,7 +235,7 @@ def test_dimension_set():
         nu  [0 2 -1 0 0 0 0] 1e-05;
         nu1  nu [0 2 -1 0 0 0 0] 1e-06;
         """,
-        # cls=OFInputFile,
+        cls=OFInputFile,
         check_dump=True,
     )
     assert isinstance(tree.children["nu"], Value)

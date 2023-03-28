@@ -49,6 +49,7 @@ class OFTransformer(Transformer):
                 item
                 for item in items
                 if not (isinstance(item, Token) and item.type == "NEWLINE")
+                and item is not None
             ]
         )
 
@@ -125,7 +126,7 @@ class OFTransformer(Transformer):
     def list_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
         name = nodes.pop(0)
-        return Assignment(name, List(nodes))
+        return Assignment(name, List(nodes, name=name))
 
     def ESCAPED_STRING(self, token):
         return token.value
