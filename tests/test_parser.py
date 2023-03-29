@@ -1,9 +1,8 @@
 from pathlib import Path
 from textwrap import dedent
 
-from lark.exceptions import LarkError
-
 import pytest
+from lark.exceptions import LarkError
 
 from fluidsimfoam.foam_input_files import dump, parse
 from fluidsimfoam.foam_input_files.ast import (
@@ -39,8 +38,6 @@ def base_test(
             assert tree == parse(dump(tree))
         except LarkError as err:
             raise RuntimeError from err
-
-
     return tree
 
 
@@ -232,6 +229,18 @@ def test_list_with_dict():
     );
     """,
         cls=Assignment,
+        check_dump_parse=True,
+    )
+
+
+def test_list_with_str():
+    base_test(
+        """
+        blocks
+        (
+            hex (0 1 2 3 4 5 6 7) (40  40  40) simpleGrading (1 1 1)
+        );
+    """,
         check_dump_parse=True,
     )
 

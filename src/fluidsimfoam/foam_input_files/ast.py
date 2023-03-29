@@ -93,6 +93,7 @@ class FoamInputFile(Node):
                 tmp.append(f"{key}  {node};")
         return "\n".join(tmp)
 
+
 @dataclass
 class Assignment:
     name: str
@@ -222,7 +223,7 @@ class List(list, Node):
                 if hasattr(item, "dump"):
                     tmp1.append(item.dump())
                 else:
-                    tmp1.append(repr(item))
+                    tmp1.append(str(item))
             tmp.append(indentation + 4 * " " + " ".join(tmp1))
             tmp.append(indentation + ");\n")
             return "\n".join(tmp)
@@ -231,7 +232,7 @@ class List(list, Node):
                 if hasattr(item, "dump"):
                     tmp.append(item.dump(indent + 4))
                 else:
-                    tmp.append(f"{item}")
+                    tmp.append(str(item))
             return indentation + "(" + " ".join(tmp) + ")"
 
 
