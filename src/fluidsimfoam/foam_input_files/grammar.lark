@@ -1,6 +1,6 @@
 ?value: _assignment | file
 
-EQKEY.1 : /div\(\S+\)/
+EQKEY.1 : /[a-z]+\(\S+\)/
 
 _key : EQKEY|CNAME
 directive: "#" CNAME
