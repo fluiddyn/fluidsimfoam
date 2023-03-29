@@ -36,14 +36,21 @@ def filter_no_newlines(items):
     return [item for item in items if item is not None]
 
 
+def _convert_to_number(number):
+    number = str(number)
+    try:
+        return int(number)
+    except ValueError:
+        return float(number)
+
+
 class FoamTransformer(Transformer):
-    def number(self, n):
-        (n,) = n
-        n = str(n)
-        try:
-            return int(n)
-        except ValueError:
-            return float(n)
+    def number(self, nodes):
+        (number,) = nodes
+        return _convert_to_number(number)
+
+    def SIGNED_NUMBER(self, token):
+        return _convert_to_number(token)
 
     def list(self, items):
         return List(
@@ -66,9 +73,6 @@ class FoamTransformer(Transformer):
         else:
             info_dict = None
         return FoamInputFile(info_dict, {node.name: node.value for node in nodes})
-
-    def keyword(self, nodes):
-        return nodes[0]
 
     def dataentry(self, nodes):
         return nodes[0]
@@ -144,9 +148,6 @@ class FoamTransformer(Transformer):
 
     def ESCAPED_STRING(self, token):
         return token.value
-
-    def string(self, nodes):
-        return nodes[0]
 
     def dimension_set(self, items):
         return DimensionSet(

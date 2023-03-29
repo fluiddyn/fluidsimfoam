@@ -142,11 +142,11 @@ def test_dict_simple():
     assert my_dict["location"] == '"system"'
 
 
-@pytest.mark.xfail
 def test_dict_strange_keys():
     """As in fvSchemes"""
     tree = base_test(
         """
+        div(phi,U)      Gauss linear;
         divSchemes
         {
             default         none;
@@ -387,8 +387,8 @@ paths_tiny_tgv = {
 
 @pytest.mark.parametrize("path_name", paths_tiny_tgv)
 def test_tiny_tgv(path_name, request):
-    if path_name == "fvSchemes":
-        request.applymarker(pytest.mark.xfail())
+    # if path_name == "fvSchemes":
+    #     request.applymarker(pytest.mark.xfail())
 
     path = paths_tiny_tgv[path_name]
     text = path.read_text()

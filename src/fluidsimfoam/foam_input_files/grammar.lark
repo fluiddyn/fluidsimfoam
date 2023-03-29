@@ -1,36 +1,38 @@
 ?value: CNAME
     | dict_assignment
+    | var_assignment
     | code
     | list
     | list_assignment
-    | var_assignment
     | dimension_set
     | dimension_assignment
     | macro
     | directive
     | directive_assignment
-    | string
+    | ESCAPED_STRING
     | CPP_COMMENT
     | C_COMMENT
     | SIGNED_NUMBER      -> number
     | file
-string : ESCAPED_STRING
-keyword : CNAME
-directive: "#" keyword
-macro : "$" keyword
-dataentry : CNAME | value | list | string | macro
-list : "(" (value|NEWLINE)* ")"
-dimension_set : "[" (value|NEWLINE)* "]"
+
+DIVKEY.1 : /div\(\S+\)/
+
+_key : DIVKEY|CNAME
+directive: "#" CNAME
+macro : "$" CNAME
+dimension_set : "[" (SIGNED_NUMBER)~7 "]"
+dataentry : CNAME | list | ESCAPED_STRING | macro | directive | SIGNED_NUMBER->number | dimension_set
+list : "(" (dataentry|NEWLINE|dict_assignment)* ")"
 
 directive_assignment : [NEWLINE] directive dataentry [";"] [NEWLINE]
 list_assignment : [NEWLINE] CNAME NEWLINE list ";" [NEWLINE]
-var_assignment : [NEWLINE] keyword dataentry (dataentry)* ";" NEWLINE
-dict_assignment : [NEWLINE] CNAME [directive] NEWLINE "{" NEWLINE [assignment (assignment)*] "}" [";"] NEWLINE
+var_assignment : [NEWLINE] _key (dataentry)+ ";" NEWLINE
+dict_assignment : [NEWLINE] CNAME [directive] NEWLINE "{" NEWLINE [(assignment)+] "}" [";"] NEWLINE
 code : [NEWLINE] CNAME NEWLINE /#{[\S\s]*#};/ NEWLINE
-dimension_assignment : [NEWLINE] keyword [keyword] dimension_set dataentry ";" [NEWLINE]
+dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set dataentry ";" [NEWLINE]
 
 assignment : code | var_assignment | dict_assignment | list_assignment | dimension_assignment | directive_assignment
-file : assignment (assignment)*
+file : (assignment)+
 CPP_COMMENT: /\/\/[^\n]*/ NEWLINE
 C_COMMENT: "/*" /(.|\n)*?/ "*/" NEWLINE
 
