@@ -1,38 +1,25 @@
-?value: CNAME
-    | dict_assignment
-    | var_assignment
-    | code
-    | list
-    | list_assignment
-    | dimension_set
-    | dimension_assignment
-    | macro
-    | directive
-    | directive_assignment
-    | ESCAPED_STRING
-    | CPP_COMMENT
-    | C_COMMENT
-    | SIGNED_NUMBER      -> number
-    | file
+?value: _assignment | file
 
-DIVKEY.1 : /div\(\S+\)/
+EQKEY.1 : /div\(\S+\)/
 
-_key : DIVKEY|CNAME
+_key : EQKEY|CNAME
 directive: "#" CNAME
 macro : "$" CNAME
 dimension_set : "[" (SIGNED_NUMBER)~7 "]"
-dataentry : CNAME | list | ESCAPED_STRING | macro | directive | SIGNED_NUMBER->number | dimension_set
-list : "(" (dataentry|NEWLINE|dict_assignment)* ")"
+_dataentry : CNAME | list | ESCAPED_STRING | macro | directive | SIGNED_NUMBER | dimension_set
+list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
 
-directive_assignment : [NEWLINE] directive dataentry [";"] [NEWLINE]
+directive_assignment : [NEWLINE] directive _dataentry [";"] [NEWLINE]
 list_assignment : [NEWLINE] CNAME NEWLINE list ";" [NEWLINE]
-var_assignment : [NEWLINE] _key (dataentry)+ ";" [NEWLINE]
-dict_assignment : [NEWLINE] CNAME [directive] NEWLINE "{" NEWLINE [(assignment)+] "}" [";"] NEWLINE
-code : [NEWLINE] CNAME NEWLINE /#{[\S\s]*#};/ NEWLINE
-dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set dataentry ";" [NEWLINE]
+var_assignment : [NEWLINE] _key (_dataentry)+ ";" [NEWLINE]
+dict_assignment : [NEWLINE] CNAME [directive] NEWLINE "{" NEWLINE [(_assignment)+] "}" [";"] NEWLINE
+code_assignment : [NEWLINE] CNAME NEWLINE /#{[\S\s]*#};/ NEWLINE
+dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" [NEWLINE]
+_assignment : var_assignment | dict_assignment | list_assignment
+              | dimension_assignment | directive_assignment | code_assignment
 
-assignment : code | var_assignment | dict_assignment | list_assignment | dimension_assignment | directive_assignment
-file : (assignment)+
+file : (_assignment)+
+
 CPP_COMMENT: /\/\/[^\n]*/ NEWLINE
 C_COMMENT: "/*" /(.|\n)*?/ "*/" NEWLINE
 
@@ -41,7 +28,6 @@ C_COMMENT: "/*" /(.|\n)*?/ "*/" NEWLINE
 %ignore C_COMMENT
 %import common.SIGNED_NUMBER
 %import common.ESCAPED_STRING
-%import common.NUMBER
 %import common.WS
 %ignore WS
 %import common.NEWLINE

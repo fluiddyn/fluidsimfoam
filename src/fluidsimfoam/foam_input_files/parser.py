@@ -1,6 +1,4 @@
-from dataclasses import dataclass
 from pathlib import Path
-from pprint import pprint
 
 from lark import Lark, Token, Transformer
 
@@ -45,12 +43,32 @@ def _convert_to_number(number):
 
 
 class FoamTransformer(Transformer):
-    def number(self, nodes):
-        (number,) = nodes
-        return _convert_to_number(number)
-
     def SIGNED_NUMBER(self, token):
         return _convert_to_number(token)
+
+    def CNAME(self, token):
+        return token.value
+
+    def NEWLINE(self, nodes):
+        return None
+
+    def ESCAPED_STRING(self, token):
+        return token.value
+
+    def dimension_set(self, items):
+        return DimensionSet(
+            [
+                item
+                for item in items
+                if not (isinstance(item, Token) and item.type == "NEWLINE")
+            ]
+        )
+
+    def macro(self, nodes):
+        return "$" + nodes[0]
+
+    def directive(self, nodes):
+        return "#" + nodes[0]
 
     def list(self, items):
         return List(
@@ -62,9 +80,6 @@ class FoamTransformer(Transformer):
             ]
         )
 
-    def CNAME(self, token):
-        return token.value
-
     def file(self, nodes):
         first_assignment = nodes[0]
         if first_assignment.name == "FoamFile":
@@ -74,59 +89,39 @@ class FoamTransformer(Transformer):
             info_dict = None
         return FoamInputFile(info_dict, {node.name: node.value for node in nodes})
 
-    def dataentry(self, nodes):
-        return nodes[0]
-
     def var_assignment(self, nodes):
-        try:
-            nodes = [node for node in nodes if node is not None]
-            dimension_set = None
-            name_in_value = None
-            name = nodes.pop(0)
-            if len(nodes) == 1:
-                value = nodes[0]
-            else:
-                try:
-                    index_dimension = [
-                        isinstance(elem, DimensionSet) for elem in nodes
-                    ].index(True)
-                    dimension_set = nodes.pop(index_dimension)
+        nodes = [node for node in nodes if node is not None]
+        dimension_set = None
+        name_in_value = None
+        name = nodes.pop(0)
+        if len(nodes) == 1:
+            value = nodes[0]
+        else:
+            try:
+                index_dimension = [
+                    isinstance(elem, DimensionSet) for elem in nodes
+                ].index(True)
+                dimension_set = nodes.pop(index_dimension)
 
-                    if len(nodes) == 2:
-                        name_in_value, value = nodes
+                if len(nodes) == 2:
+                    name_in_value, value = nodes
 
-                    elif len(nodes) == 1:
-                        value = nodes[0]
-                    else:
-                        raise NotImplementedError()
-                    value = Value(
-                        value, name=name_in_value, dimension=dimension_set
-                    )
-                except ValueError:
-                    value = " ".join(nodes)
+                elif len(nodes) == 1:
+                    value = nodes[0]
+                else:
+                    raise NotImplementedError()
+                value = Value(value, name=name_in_value, dimension=dimension_set)
+            except ValueError:
+                value = " ".join(nodes)
 
-            return VariableAssignment(name, value)
-        except Exception as err:
-            raise BaseException()
-
-    def multi_var(self, nodes):
-        d = {
-            self.var_assignment(node).name: self.var_assignment(node).value
-            for node in nodes
-        }
-        return d
-
-    def assignment(self, nodes):
-        return nodes[0]
-
-    def NEWLINE(self, nodes):
-        return None
+        return VariableAssignment(name, value)
 
     def dict_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
         name = nodes.pop(0)
 
         # TODO: fix this code (related to #codeStream)
+        # "directive" never used
         directive = None
         if isinstance(nodes[0], str) and nodes[0].startswith("#"):
             directive = nodes.pop(0)
@@ -146,18 +141,6 @@ class FoamTransformer(Transformer):
         the_list._name = name
         return Assignment(name, the_list)
 
-    def ESCAPED_STRING(self, token):
-        return token.value
-
-    def dimension_set(self, items):
-        return DimensionSet(
-            [
-                item
-                for item in items
-                if not (isinstance(item, Token) and item.type == "NEWLINE")
-            ]
-        )
-
     def dimension_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
         name = nodes.pop(0)
@@ -166,25 +149,19 @@ class FoamTransformer(Transformer):
             return Assignment(name, Value(nodes[-1], nodes[0], nodes[-2]))
         elif len(nodes) == 2:
             return Assignment(name, Value(nodes[-1], dimension=nodes[-2]))
-
-    def macro(self, nodes):
-        nodes[0] = "$" + nodes[0]
-        return nodes[0]
+        else:
+            raise RuntimeError()
 
     def macro_assignment(self, nodes):
         name = nodes.pop(0)
         return Assignment(name, nodes[0])
-
-    def directive(self, nodes):
-        nodes[0] = "#" + nodes[0]
-        return nodes[0]
 
     def directive_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
         name = nodes.pop(0)
         return Assignment(name, nodes[0])
 
-    def code(self, nodes):
+    def code_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
         if len(nodes) != 2:
             raise NotImplementedError
