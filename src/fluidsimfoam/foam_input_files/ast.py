@@ -186,7 +186,11 @@ class Dict(dict, Node):
         indentation = indent * " "
         if self._name is not None:
             tmp.append(indentation + self._name + f"\n{indentation}" + "{")
-        max_length = max(len(key) for key in self)
+        try:
+            max_length = max(len(key) for key in self)
+        except ValueError:
+            max_length = 0
+
         default_space = 4
         num_spaces = max_length + default_space
         for key, node in self.items():

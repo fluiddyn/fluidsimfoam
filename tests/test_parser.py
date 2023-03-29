@@ -365,6 +365,17 @@ def test_macro():
     )
 
 
+def test_empty_dict():
+    tree = base_test(
+        """
+        solvers
+        {
+        }
+    """,
+        check_dump=True,
+    )
+
+
 def test_dimension_set():
     tree = base_test(
         """
