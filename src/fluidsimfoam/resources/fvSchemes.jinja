@@ -14,7 +14,7 @@ FoamFile
     object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
+{% set data = params.fv_schemes %}
 ddtSchemes
 {
     default         {{data.ddtSchemes.default}};

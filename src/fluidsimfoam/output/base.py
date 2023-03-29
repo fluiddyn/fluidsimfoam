@@ -8,11 +8,17 @@ from fluiddyn.io import stdout_redirected
 from fluiddyn.util import mpi
 from fluidsim_core.output import OutputCore
 from fluidsim_core.params import iter_complete_params
+from fluidsimfoam.foam_input_files.generators import (
+    FoamInputFileGenerator,
+    InputFiles,
+)
 from fluidsimfoam.log import logger
 from fluidsimfoam.solvers import get_solver_package
 
 
 class Output(OutputCore):
+    do_use_blockmesh = False
+
     @classmethod
     def _complete_info_solver(cls, info_solver):
         """Complete the info_solver instance with child class details (module
@@ -26,8 +32,35 @@ class Output(OutputCore):
 
     @classmethod
     def _set_info_solver_classes(cls, classes):
-        """Set the the classes for info_solver.classes.Output"""
-        pass
+        """Set the classes for info_solver.classes.Output"""
+
+        module_name = "fluidsimfoam.foam_input_files.generators"
+
+        for class_name in (
+            "FvSolution",
+            "ControlDict",
+            "FvSchemes",
+            "TransportProperties",
+            "TurbulenceProperties",
+            "P",
+            "U",
+        ):
+            classes._set_child(
+                class_name,
+                attribs={
+                    "module_name": module_name,
+                    "class_name": class_name + "GeneratorTemplate",
+                },
+            )
+
+        if cls.do_use_blockmesh:
+            classes._set_child(
+                "BlockMesh",
+                attribs={
+                    "module_name": module_name,
+                    "class_name": "BlockMeshGeneratorTemplate",
+                },
+            )
 
     @staticmethod
     def _complete_params_with_default(params, info_solver):
@@ -79,15 +112,24 @@ class Output(OutputCore):
             )
 
         if sim:
+            self.input_files = InputFiles(self)
             # initialize objects
             dict_classes = sim.info.solver.classes.Output.import_classes()
             for cls_name, Class in dict_classes.items():
                 if isinstance(self, Class):
                     continue
                 obj_name = underscore(cls_name)
-                setattr(self, obj_name, Class(self))
+
+                if issubclass(Class, FoamInputFileGenerator):
+                    obj_containing = self.input_files
+                    str_obj_containing = "output.input_files"
+                else:
+                    obj_containing = self
+                    str_obj_containing = "output"
+
+                setattr(obj_containing, obj_name, Class(self))
                 self.sim._objects_to_print += "{:28s}{}\n".format(
-                    f"sim.output.{obj_name}: ", Class
+                    f"sim.{str_obj_containing}.{obj_name}: ", Class
                 )
 
     @classmethod
@@ -120,86 +162,7 @@ class Output(OutputCore):
         (self.sim.path_run / "system").mkdir()
         (self.sim.path_run / "0").mkdir()
         (self.sim.path_run / "constant").mkdir()
-        for name in (
-            "fv_solution",
-            "fv_schemes",
-            "control_dict",
-            "block_mesh_dict",
-            "transport_properties",
-            "turbulence_properties",
-            "p",
-            "u",
-        ):
-            try:
-                template = getattr(self, f"template_{name}")
-            except AttributeError:
-                pass
-            else:
-                if template is not None:
-                    getattr(self, f"write_{name}")(template)
 
-    def write_fv_solution(self, template):
-        output = template.render(data=self.sim.params.fv_solution)
-
-        assert output.endswith("\n")
-
-        output_path = self.sim.path_run / "system/fvSolution"
-
-        with open(output_path, "w") as file:
-            file.write(output)
-
-    def write_fv_schemes(self, template):
-        output = template.render(data=self.sim.params.fv_schemes)
-
-        output_path = self.sim.path_run / "system/fvSchemes"
-
-        with open(output_path, "w") as file:
-            file.write(output)
-
-    def write_control_dict(self, template):
-        output = template.render(data=self.sim.params.control_dict)
-
-        output_path = self.sim.path_run / "system/controlDict"
-
-        with open(output_path, "w") as file:
-            file.write(output)
-
-    def write_block_mesh_dict(self, template):
-        output = template.render(data=self.sim.params.block_mesh_dict)
-
-        output_path = self.sim.path_run / "system/blockMeshDict"
-
-        with open(output_path, "w") as file:
-            file.write(output)
-
-    def write_transport_properties(self, template):
-        output = template.render(data=self.sim.params.transport_properties)
-
-        output_path = self.sim.path_run / "constant/transportProperties"
-
-        with open(output_path, "w") as file:
-            file.write(output)
-
-    def write_turbulence_properties(self, template):
-        output = template.render(data=self.sim.params.turbulence_properties)
-
-        output_path = self.sim.path_run / "constant/turbulenceProperties"
-
-        with open(output_path, "w") as file:
-            file.write(output)
-
-    def write_p(self, template):
-        output = template.render(data=self.sim.params.p)
-
-        output_path = self.sim.path_run / "0/p"
-
-        with open(output_path, "w") as file:
-            file.write(output)
-
-    def write_u(self, template):
-        output = template.render(data=self.sim.params.u)
-
-        output_path = self.sim.path_run / "0/U"
-
-        with open(output_path, "w") as file:
-            file.write(output)
+        for file_generator in vars(self.input_files).values():
+            if hasattr(file_generator, "generate_file"):
+                file_generator.generate_file()
