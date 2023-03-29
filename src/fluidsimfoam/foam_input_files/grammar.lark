@@ -1,0 +1,34 @@
+?value: _assignment | file
+
+EQKEY.1 : /[a-z]+\(\S+\)/
+
+_key : EQKEY|CNAME
+directive: "#" CNAME
+macro : "$" CNAME
+dimension_set : "[" (SIGNED_NUMBER)~7 "]"
+_dataentry : CNAME | list | ESCAPED_STRING | macro | directive | SIGNED_NUMBER | dimension_set
+list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
+
+directive_assignment : [NEWLINE] directive _dataentry [";"] [NEWLINE]
+list_assignment : [NEWLINE] CNAME NEWLINE list ";" [NEWLINE]
+var_assignment : [NEWLINE] _key (_dataentry)+ ";" [NEWLINE]
+dict_assignment : [NEWLINE] CNAME [directive] NEWLINE "{" NEWLINE [(_assignment)+] "}" [";"] NEWLINE
+code_assignment : [NEWLINE] CNAME NEWLINE /#{[\S\s]*#};/ NEWLINE
+dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" [NEWLINE]
+_assignment : var_assignment | dict_assignment | list_assignment
+              | dimension_assignment | directive_assignment | code_assignment
+
+file : (_assignment)+
+
+CPP_COMMENT: /\/\/[^\n]*/ NEWLINE
+C_COMMENT: "/*" /(.|\n)*?/ "*/" NEWLINE
+
+%ignore /[\n\f\r]+/
+%ignore CPP_COMMENT
+%ignore C_COMMENT
+%import common.SIGNED_NUMBER
+%import common.ESCAPED_STRING
+%import common.WS
+%ignore WS
+%import common.NEWLINE
+%import common.CNAME
