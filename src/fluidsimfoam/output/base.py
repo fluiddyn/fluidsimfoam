@@ -9,7 +9,7 @@ from fluiddyn.util import mpi
 from fluidsim_core.output import OutputCore
 from fluidsim_core.params import iter_complete_params
 from fluidsimfoam.log import logger
-from fluidsimfoam.of_input_files.generators import (
+from fluidsimfoam.foam_input_files.generators import (
     InputFiles,
     OFInputFileGenerator,
 )
@@ -34,7 +34,7 @@ class Output(OutputCore):
         classes._set_child(
             "BlockMesh",
             attribs={
-                "module_name": "fluidsimfoam.of_input_files.generators",
+                "module_name": "fluidsimfoam.foam_input_files.generators",
                 "class_name": "BlockMeshGeneratorTemplate",
             },
         )
