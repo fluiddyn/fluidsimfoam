@@ -385,9 +385,11 @@ paths_tiny_tgv = {
 }
 
 
-@pytest.mark.xfail
 @pytest.mark.parametrize("path_name", paths_tiny_tgv)
-def test_tiny_tgv(path_name):
+def test_tiny_tgv(path_name, request):
+    if path_name == "fvSchemes":
+        request.applymarker(pytest.mark.xfail())
+
     path = paths_tiny_tgv[path_name]
     text = path.read_text()
     tree = parse(text)
