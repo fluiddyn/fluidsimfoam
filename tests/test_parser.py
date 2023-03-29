@@ -1,6 +1,8 @@
 from pathlib import Path
 from textwrap import dedent
 
+from lark.exceptions import LarkError
+
 import pytest
 
 from fluidsimfoam.foam_input_files import dump, parse
@@ -33,7 +35,11 @@ def base_test(
         dump_text = dump(tree)
         assert dedent(text).strip() == dump_text.strip()
     if check_dump_parse:
-        assert tree == parse(dump(tree))
+        try:
+            assert tree == parse(dump(tree))
+        except LarkError as err:
+            raise RuntimeError from err
+
 
     return tree
 
@@ -392,5 +398,4 @@ def test_tiny_tgv(path_name, request):
 
     path = paths_tiny_tgv[path_name]
     text = path.read_text()
-    tree = parse(text)
-
+    tree = base_test(text, check_dump_parse=True)
