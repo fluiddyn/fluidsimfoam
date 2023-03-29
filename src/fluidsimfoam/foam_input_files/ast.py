@@ -1,3 +1,4 @@
+import os
 import re
 from dataclasses import dataclass
 from textwrap import dedent
@@ -73,13 +74,32 @@ class FoamInputFile(Node):
         return "".join(tmp)
 
     def dump(self):
+        foam_version = os.environ["WM_PROJECT_VERSION"]
+        foamheader = f"""
+/*--------------------------------*- C++ -*----------------------------------*\\
+| =========                 |                                                 |
+| \\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\\    /   O peration     | Version:  {foam_version}                                 |
+|   \\\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+"""
+        mid_seperator = """
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+"""
+
+        end_seperator = """
+// ************************************************************************* //
+"""
         tmp = []
         if self.info is not None:
+            tmp.append(foamheader)
             tmp.append("FoamFile" + "\n{")
             for key, node in self.info.items():
                 s = (12 - len(key)) * " "
                 tmp.append(f"    {key}{s}{node};")
             tmp.append("}\n")
+            tmp.append(mid_seperator)
         for key, node in self.children.items():
             if hasattr(node, "dump"):
                 tmp.append(node.dump())
@@ -87,7 +107,7 @@ class FoamInputFile(Node):
                 tmp.append(f"{key}  {node.dump_without_assignment()};")
             else:
                 tmp.append(f"{key}  {node};")
-        return "\n".join(tmp)
+        return "\n".join(tmp) + end_seperator
 
 
 @dataclass
