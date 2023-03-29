@@ -8,11 +8,11 @@ from fluiddyn.io import stdout_redirected
 from fluiddyn.util import mpi
 from fluidsim_core.output import OutputCore
 from fluidsim_core.params import iter_complete_params
-from fluidsimfoam.log import logger
 from fluidsimfoam.foam_input_files.generators import (
+    FoamInputFileGenerator,
     InputFiles,
-    OFInputFileGenerator,
 )
+from fluidsimfoam.log import logger
 from fluidsimfoam.solvers import get_solver_package
 
 
@@ -89,7 +89,7 @@ class Output(OutputCore):
             )
 
         if sim:
-            self.input_files = InputFiles()
+            self.input_files = InputFiles(self)
             # initialize objects
             dict_classes = sim.info.solver.classes.Output.import_classes()
             for cls_name, Class in dict_classes.items():
@@ -97,7 +97,7 @@ class Output(OutputCore):
                     continue
                 obj_name = underscore(cls_name)
 
-                if issubclass(Class, OFInputFileGenerator):
+                if issubclass(Class, FoamInputFileGenerator):
                     obj_containing = self.input_files
                     str_obj_containing = "output.input_files"
                 else:
@@ -157,7 +157,8 @@ class Output(OutputCore):
                     getattr(self, f"write_{name}")(template)
 
         for file_generator in vars(self.input_files).values():
-            file_generator.generate_file()
+            if hasattr(file_generator, "generate_file"):
+                file_generator.generate_file()
 
     def write_fv_solution(self, template):
         output = template.render(data=self.sim.params.fv_solution)
