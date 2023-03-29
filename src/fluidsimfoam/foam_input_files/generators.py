@@ -50,7 +50,7 @@ class FileGeneratorTemplate(FoamInputFileGenerator):
     def generate_code(self):
         """Generate the code of the file from the Jinja template"""
         template = self.output.input_files.get_template(self.template_name)
-        return template.render(data=self.output.sim.params)
+        return template.render(params=self.output.sim.params)
 
 
 class BlockMeshGeneratorTemplate(FileGeneratorTemplate):
@@ -60,3 +60,38 @@ class BlockMeshGeneratorTemplate(FileGeneratorTemplate):
 
 class BlockMeshGeneratorPython(FoamInputFileGenerator):
     pass
+
+
+class FvSolutionGeneratorTemplate(FileGeneratorTemplate):
+    rel_path = "system/fvSolution"
+    template_name = "fvSolution.jinja"
+
+
+class ControlDictGeneratorTemplate(FileGeneratorTemplate):
+    rel_path = "system/controlDict"
+    template_name = "controlDict.jinja"
+
+
+class FvSchemesGeneratorTemplate(FileGeneratorTemplate):
+    rel_path = "system/fvSchemes"
+    template_name = "fvSchemes.jinja"
+
+
+class TransportPropertiesGeneratorTemplate(FileGeneratorTemplate):
+    rel_path = "constant/transportProperties"
+    template_name = "transportProperties.jinja"
+
+
+class TurbulencePropertiesGeneratorTemplate(FileGeneratorTemplate):
+    rel_path = "constant/turbulenceProperties"
+    template_name = "turbulenceProperties.jinja"
+
+
+class PGeneratorTemplate(FileGeneratorTemplate):
+    rel_path = "0/p"
+    template_name = "p.jinja"
+
+
+class UGeneratorTemplate(FileGeneratorTemplate):
+    rel_path = "0/U"
+    template_name = "U.jinja"

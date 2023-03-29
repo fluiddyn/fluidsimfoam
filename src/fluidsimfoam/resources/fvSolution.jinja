@@ -14,7 +14,7 @@ FoamFile
     object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
+{% set data = params.fv_solution %}
 solvers
 {{'{'}}{% for solver_name in data.solvers._tag_children %}{% set solver_settings =  data.solvers[solver_name] %}
     {{ solver_name }}
