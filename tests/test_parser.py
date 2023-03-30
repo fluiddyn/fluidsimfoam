@@ -417,6 +417,21 @@ def test_dict_strange_name():
     )
 
 
+def test_assignment_strange_name():
+    tree = base_test(
+        """
+        equations
+        {
+            // "(U|e|k|epsilon).*"  0.7;
+
+            // Demonstrate some ramping
+            "(U|e|k|epsilon).*" table ((0 0.4) (0.5 0.7));
+        }
+    """,
+        check_dump=False,
+    )
+
+
 def test_dimension_set():
     tree = base_test(
         """

@@ -112,7 +112,10 @@ class FoamTransformer(Transformer):
                     raise NotImplementedError()
                 value = Value(value, name=name_in_value, dimension=dimension_set)
             except ValueError:
-                value = " ".join(nodes)
+                if all([isinstance(elem, str) for elem in nodes]):
+                    value = " ".join(nodes)
+                else:
+                    value = nodes
 
         return VariableAssignment(name, value)
 
@@ -130,7 +133,6 @@ class FoamTransformer(Transformer):
             except AttributeError:
                 pass
 
-            # raise BaseException()
             if isinstance(nodes[0], str) and isinstance(nodes[1], str):
                 nodes.pop(0)
 
