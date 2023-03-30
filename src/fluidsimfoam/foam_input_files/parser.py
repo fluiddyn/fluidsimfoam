@@ -120,9 +120,7 @@ class FoamTransformer(Transformer):
         nodes = filter_no_newlines(nodes)
         name = nodes.pop(0)
         if len(nodes) == 0:
-            return Assignment(
-                name, Dict(data={ }, name=name)
-            )
+            return Assignment(name, Dict(data={}, name=name))
         else:
             # TODO: fix this code (related to #codeStream)
             # "directive" never used
@@ -134,7 +132,8 @@ class FoamTransformer(Transformer):
                 if isinstance(node.value, List):
                     node.value._name = node.name
             return Assignment(
-                name, Dict(data={node.name: node.value for node in nodes}, name=name)
+                name,
+                Dict(data={node.name: node.value for node in nodes}, name=name),
             )
 
     def list_assignment(self, nodes):

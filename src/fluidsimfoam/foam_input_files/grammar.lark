@@ -11,7 +11,7 @@ list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
 
 directive_assignment : [NEWLINE] directive _dataentry [";"] [NEWLINE]
 list_assignment : [NEWLINE] CNAME NEWLINE list ";" [NEWLINE]
-var_assignment : [NEWLINE] _key (_dataentry)+ ";" [NEWLINE]
+var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]
 dict_assignment : [NEWLINE] CNAME [directive] NEWLINE "{" NEWLINE [(_assignment)+] "}" [";"] NEWLINE
 code_assignment : [NEWLINE] CNAME NEWLINE /#{[\S\s]*#};/ NEWLINE
 dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" [NEWLINE]

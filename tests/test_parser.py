@@ -376,6 +376,18 @@ def test_empty_dict():
     )
 
 
+def test_without_assignment():
+    tree = base_test(
+        """
+        cache
+        {
+            grad(U);
+        }
+    """,
+        check_dump=True,
+    )
+
+
 def test_dimension_set():
     tree = base_test(
         """

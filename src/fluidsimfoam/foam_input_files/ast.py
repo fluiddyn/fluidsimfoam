@@ -197,7 +197,10 @@ class Dict(dict, Node):
             if hasattr(node, "dump"):
                 tmp.append(node.dump(indent + 4))
             else:
-                s = (num_spaces - len(key)) * " "
+                if node == "":
+                    s = ""
+                else:
+                    s = (num_spaces - len(key)) * " "
                 tmp.append(indentation + f"    {key}{s}{node};")
         tmp.append(indentation + "}\n")
         return "\n".join(tmp)
