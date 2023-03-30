@@ -395,7 +395,7 @@ def test_without_assignment():
     )
 
 
-def test_dict_strange_name():
+def test_strange_names():
     tree = base_test(
         """
         "(U|k|epsilon|R)Final"
@@ -405,13 +405,19 @@ def test_dict_strange_name():
             relTol       0;
         }
 
+        thermalPhaseChange:dmdtf 1.0;
+
         thermo:rho
         {
             solver            PCG;
-            preconditioner    DIC;
-            tolerance         0;
-            relTol            0;
         };
+
+        alpha.water
+        {
+            solver            PCG;
+        };
+
+
     """,
         check_dump_parse=True,
     )

@@ -2,10 +2,10 @@
 
 EQKEY.1 : /[a-z]+\(\S+\)/
 
-DICT_NAME_SEMICOLOM : CNAME ":" CNAME
-_dict_name: CNAME|ESCAPED_STRING|DICT_NAME_SEMICOLOM
+DOUBLE_NAME : CNAME (":"|".") CNAME
+_dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME
 
-_key : EQKEY|CNAME|macro|ESCAPED_STRING
+_key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
 directive: "#" CNAME
 macro : "$" CNAME
 dimension_set : "[" (SIGNED_NUMBER)~7 "]"
