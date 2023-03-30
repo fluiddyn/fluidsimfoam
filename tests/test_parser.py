@@ -360,6 +360,10 @@ def test_macro():
         }
 
         relTol  $p;
+        Phi
+        {
+            $p;
+        }
     """,
         check_dump=True,
     )
