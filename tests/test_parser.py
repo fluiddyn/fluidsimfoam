@@ -155,6 +155,7 @@ def test_dict_strange_keys():
             default         none;
             div(phi,U)      Gauss linear;
             div((nuEff*dev2(T(grad(U))))) Gauss linear;
+            ".*"           1;
         }
     """,
         check_dump_parse=True,

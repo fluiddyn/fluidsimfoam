@@ -2,7 +2,7 @@
 
 EQKEY.1 : /[a-z]+\(\S+\)/
 
-_key : EQKEY|CNAME|macro
+_key : EQKEY|CNAME|macro|ESCAPED_STRING
 directive: "#" CNAME
 macro : "$" CNAME
 dimension_set : "[" (SIGNED_NUMBER)~7 "]"
