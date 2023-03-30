@@ -392,6 +392,20 @@ def test_without_assignment():
     )
 
 
+def test_dict_strange_name():
+    tree = base_test(
+        """
+        "(U|k|epsilon|R)Final"
+        {
+            $U;
+            tolerance    1e-07;
+            relTol       0;
+        }
+    """,
+        check_dump=True,
+    )
+
+
 def test_dimension_set():
     tree = base_test(
         """
