@@ -31,7 +31,7 @@ for path_dir in tutorials_dir.rglob("*"):
         if path_file.name != "fvSolution":
             continue
 
-        print(path_file)
+        print(f"{nb_examples}: {path_file}")
         text = path_file.read_text()
 
         tree = parse(text)

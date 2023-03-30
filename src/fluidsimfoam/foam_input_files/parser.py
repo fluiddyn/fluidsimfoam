@@ -118,22 +118,36 @@ class FoamTransformer(Transformer):
 
     def dict_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
-        name = nodes.pop(0)
-        if len(nodes) == 0:
+        directive = None
+
+        if len(nodes) == 1:
+            name = nodes.pop(0)
             return Assignment(name, Dict(data={}, name=name))
         else:
+            try:
+                if isinstance(nodes[0], str) and nodes[1].startswith("#"):
+                    directive = nodes.pop(1)
+            except AttributeError:
+                pass
+
+            # raise BaseException()
+            if isinstance(nodes[0], str) and isinstance(nodes[1], str):
+                nodes.pop(0)
+
+            name = nodes.pop(0)
             # TODO: fix this code (related to #codeStream)
             # "directive" never used
-            directive = None
-            if isinstance(nodes[0], str) and nodes[0].startswith("#"):
-                directive = nodes.pop(0)
 
             for node in nodes:
                 if isinstance(node.value, List):
                     node.value._name = node.name
             return Assignment(
                 name,
-                Dict(data={node.name: node.value for node in nodes}, name=name),
+                Dict(
+                    data={node.name: node.value for node in nodes},
+                    name=name,
+                    directive=directive,
+                ),
             )
 
     def list_assignment(self, nodes):

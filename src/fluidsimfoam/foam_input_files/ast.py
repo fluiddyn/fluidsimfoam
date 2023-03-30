@@ -171,8 +171,9 @@ class DimensionSet(list, Node):
 
 
 class Dict(dict, Node):
-    def __init__(self, data, name=None):
+    def __init__(self, data, name=None, directive=None):
         self._name = name
+        self._directive = directive
         super().__init__(**data)
 
     def get_name(self):
@@ -185,7 +186,18 @@ class Dict(dict, Node):
         tmp = []
         indentation = indent * " "
         if self._name is not None:
-            tmp.append(indentation + self._name + f"\n{indentation}" + "{")
+            if self._directive is not None:
+                tmp.append(
+                    indentation
+                    + self._name
+                    + "  "
+                    + self._directive
+                    + f"\n{indentation}"
+                    + "{"
+                )
+            else:
+                tmp.append(indentation + self._name + f"\n{indentation}" + "{")
+
         try:
             max_length = max(len(key) for key in self)
         except ValueError:

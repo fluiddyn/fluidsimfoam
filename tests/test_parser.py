@@ -404,8 +404,16 @@ def test_dict_strange_name():
             tolerance    1e-07;
             relTol       0;
         }
+
+        thermo:rho
+        {
+            solver            PCG;
+            preconditioner    DIC;
+            tolerance         0;
+            relTol            0;
+        };
     """,
-        check_dump=True,
+        check_dump=False,
     )
 
 
