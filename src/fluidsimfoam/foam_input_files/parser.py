@@ -101,6 +101,19 @@ class FoamTransformer(Transformer):
                 index_dimension = [
                     isinstance(elem, DimensionSet) for elem in nodes
                 ].index(True)
+            except ValueError:
+                if all([isinstance(elem, str) for elem in nodes]):
+                    value = " ".join(nodes)
+                elif (
+                    len(nodes) == 2
+                    and isinstance(nodes[0], str)
+                    and isinstance(nodes[1], List)
+                ):
+                    value = nodes[1]
+                    value._name = nodes[0]
+                else:
+                    value = nodes
+            else:
                 dimension_set = nodes.pop(index_dimension)
 
                 if len(nodes) == 2:
@@ -111,12 +124,6 @@ class FoamTransformer(Transformer):
                 else:
                     raise NotImplementedError()
                 value = Value(value, name=name_in_value, dimension=dimension_set)
-            except ValueError:
-                if all([isinstance(elem, str) for elem in nodes]):
-                    value = " ".join(nodes)
-                else:
-                    value = nodes
-
         return VariableAssignment(name, value)
 
     def dict_assignment(self, nodes):
@@ -126,38 +133,42 @@ class FoamTransformer(Transformer):
         if len(nodes) == 1:
             name = nodes.pop(0)
             return Assignment(name, Dict(data={}, name=name))
-        else:
-            try:
-                if isinstance(nodes[0], str) and nodes[1].startswith("#"):
-                    directive = nodes.pop(1)
-            except AttributeError:
-                pass
 
-            if isinstance(nodes[0], str) and isinstance(nodes[1], str):
-                nodes.pop(0)
+        if isinstance(nodes[1], str) and nodes[1].startswith("#"):
+            # like #codeStream
+            directive = nodes.pop(1)
 
-            name = nodes.pop(0)
-            # TODO: fix this code (related to #codeStream)
-            # "directive" never used
+        name = nodes.pop(0)
 
-            for node in nodes:
-                if isinstance(node.value, List):
+        for node in nodes:
+            if isinstance(node.value, List):
+                if node.value._name is None:
                     node.value._name = node.name
-            return Assignment(
-                name,
-                Dict(
-                    data={node.name: node.value for node in nodes},
-                    name=name,
-                    directive=directive,
-                ),
-            )
+                elif isinstance(node.value._name, str):
+                    if node.value._name != node.name:
+                        node.value._name = node.name + " " + node.value._name
+                else:
+                    raise RuntimeError()
+        return Assignment(
+            name,
+            Dict(
+                data={node.name: node.value for node in nodes},
+                name=name,
+                directive=directive,
+            ),
+        )
 
     def list_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
-        if len(nodes) != 2:
+        if len(nodes) == 3:
+            name, subname, the_list = nodes
+            name_internal = name + " " + subname
+        elif len(nodes) == 2:
+            name, the_list = nodes
+            name_internal = name
+        else:
             raise NotImplementedError
-        name, the_list = nodes
-        the_list._name = name
+        the_list._name = name_internal
         return Assignment(name, the_list)
 
     def dimension_assignment(self, nodes):

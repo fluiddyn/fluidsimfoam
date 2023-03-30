@@ -2,6 +2,9 @@
 
 EQKEY.1 : /[a-z]+\(\S+\)/
 
+DICT_NAME_SEMICOLOM : CNAME ":" CNAME
+_dict_name: CNAME|ESCAPED_STRING|DICT_NAME_SEMICOLOM
+
 _key : EQKEY|CNAME|macro|ESCAPED_STRING
 directive: "#" CNAME
 macro : "$" CNAME
@@ -10,9 +13,9 @@ _dataentry : CNAME | list | ESCAPED_STRING | macro | directive | SIGNED_NUMBER |
 list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
 
 directive_assignment : [NEWLINE] directive _dataentry [";"] [NEWLINE]
-list_assignment : [NEWLINE] CNAME NEWLINE list ";" [NEWLINE]
+list_assignment : [NEWLINE] _key [CNAME] NEWLINE list ";" [NEWLINE]
 var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]
-dict_assignment : [NEWLINE] [CNAME ":"] (CNAME|ESCAPED_STRING) [directive] NEWLINE "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
+dict_assignment : [NEWLINE] _dict_name [directive] NEWLINE "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
 code_assignment : [NEWLINE] CNAME NEWLINE /#{[\S\s]*#};/ NEWLINE
 dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" [NEWLINE]
 _assignment : var_assignment | dict_assignment | list_assignment

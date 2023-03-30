@@ -413,7 +413,7 @@ def test_dict_strange_name():
             relTol            0;
         };
     """,
-        check_dump=False,
+        check_dump_parse=True,
     )
 
 
@@ -422,13 +422,13 @@ def test_assignment_strange_name():
         """
         equations
         {
-            // "(U|e|k|epsilon).*"  0.7;
+            "(U|e|k).*"  0.7;
 
             // Demonstrate some ramping
             "(U|e|k|epsilon).*" table ((0 0.4) (0.5 0.7));
         }
     """,
-        check_dump=False,
+        check_dump_parse=True,
     )
 
 
