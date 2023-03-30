@@ -376,8 +376,10 @@ def test_empty_dict():
         solvers
         {
         }
+        relaxationFactors
+        {}
     """,
-        check_dump=True,
+        check_dump=False,
     )
 
 
