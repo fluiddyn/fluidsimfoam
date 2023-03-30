@@ -186,17 +186,10 @@ class Dict(dict, Node):
         tmp = []
         indentation = indent * " "
         if self._name is not None:
+            line = indentation + self._name
             if self._directive is not None:
-                tmp.append(
-                    indentation
-                    + self._name
-                    + "  "
-                    + self._directive
-                    + f"\n{indentation}"
-                    + "{"
-                )
-            else:
-                tmp.append(indentation + self._name + f"\n{indentation}" + "{")
+                line += "  " + self._directive
+            tmp.append(line + f"\n{indentation}" + "{")
 
         try:
             max_length = max(len(key) for key in self)
