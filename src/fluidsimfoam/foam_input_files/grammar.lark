@@ -1,19 +1,21 @@
 ?value: _assignment | file
 
-EQKEY.1 : /[a-zA-Z]+\(\S+\)/
+EQKEY.2 : /[a-zA-Z]+\(\S+\)/
+EQKEY_SPACE.1 : /[a-zA-Z]+\([a-zA-Z0-9,\s=_]*\)/
+
 MACRO_TERM : /\${\S+}/
 DOUBLE_NAME.1 : /[a-zA-Z][a-zA-Z0-9]*[:.-][a-zA-Z0-9]+/
 
 _dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME
 
 _key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
-directive: "#" CNAME
+directive: /#[a-zA-Z]+/
 macro : "$" (CNAME|DOUBLE_NAME) | MACRO_TERM
 dimension_set : "[" (SIGNED_NUMBER)~7 "]"
 _dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | macro | directive | SIGNED_NUMBER | dimension_set
 list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
 
-directive_assignment : [NEWLINE] directive (_dataentry|EQKEY) [";"] [NEWLINE]
+directive_assignment : [NEWLINE] directive (_dataentry|EQKEY|EQKEY_SPACE) [";"] [NEWLINE]
 macro_assignment : [NEWLINE] macro [";"] [NEWLINE]
 list_assignment : [NEWLINE] _key [CNAME] NEWLINE list ";" [NEWLINE]
 var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]

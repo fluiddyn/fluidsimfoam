@@ -7,6 +7,7 @@ from .ast import (
     Code,
     Dict,
     DimensionSet,
+    Directive,
     FoamInputFile,
     List,
     Value,
@@ -74,7 +75,9 @@ class FoamTransformer(Transformer):
         return "$" + nodes[0]
 
     def directive(self, nodes):
-        return "#" + nodes[0]
+        if len(nodes) != 1:
+            raise RuntimeError
+        return nodes[0]
 
     def list(self, items):
         return List(
@@ -196,8 +199,11 @@ class FoamTransformer(Transformer):
 
     def directive_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
-        name = nodes.pop(0)
-        return Assignment(name, nodes[0])
+        if len(nodes) != 2:
+            raise NotImplementedError
+        directive, content = nodes
+        key = directive + " " + content
+        return Assignment(key, Directive(directive, content))
 
     def code_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)

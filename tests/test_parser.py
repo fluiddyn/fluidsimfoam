@@ -553,7 +553,9 @@ def test_directive_EQKEY():
         functions
         {
             #includeFunc components(U)
-            #includeFunc1 Qdot(region=gas)
+            #includeFunc Qdot(region=gas)
+            #includeFunc residuals(region = shell, p_rgh, U, h)
+            #includeFunc residuals(region = tube, p_rgh, U, h)
         }
         """,
         check_dump_parse=True,

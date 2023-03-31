@@ -274,3 +274,15 @@ class Code(Node):
             tmp.append(indentation + 4 * " " + line)
         tmp.append(indentation + "#};\n")
         return "\n".join(tmp)
+
+
+class Directive(Node):
+    def __init__(self, directive, content):
+        self.directive = directive
+        self.content = content
+
+    def __repr__(self):
+        return f"{self.directive}  {self.content}"
+
+    def dump(self, indent=0):
+        return indent * " " + f"{self.directive}  {self.content};"
