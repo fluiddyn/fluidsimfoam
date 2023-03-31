@@ -1,6 +1,6 @@
 ?value: _assignment | file
 
-EQKEY.1 : /[a-z]+\(\S+\)/
+EQKEY.1 : /[a-zA-Z]+\(\S+\)/
 MACRO_TERM : /\${\S+}/
 DOUBLE_NAME.1 : /[a-zA-Z][a-zA-Z0-9]*[:.-][a-zA-Z0-9]+/
 

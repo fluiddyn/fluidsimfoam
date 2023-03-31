@@ -553,6 +553,7 @@ def test_directive_EQKEY():
         functions
         {
             #includeFunc components(U)
+            #includeFunc1 Qdot(region=gas)
         }
         """,
         check_dump_parse=True,
