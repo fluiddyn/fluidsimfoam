@@ -530,3 +530,18 @@ def test_strange_dict_macro():
         """,
         check_dump_parse=True,
     )
+
+
+def test_double_value():
+    tree = base_test(
+        """
+        FoamFile
+        {
+            format      ascii;
+            class       dictionary;
+            location    "system";
+            object      controlDict.1st;
+        }
+        """,
+        check_dump_parse=True,
+    )
