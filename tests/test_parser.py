@@ -446,6 +446,11 @@ def test_dimension_set():
         dimension  [0 2 -1 0 0 0 0];
         nu  [0 2 -1 0 0 0 0] 1e-05;
         nu1  nu [0 2 -1 0 0 0 0] 1e-06;
+        SIMPLE
+        {
+            rhoMin  rhoMin [1 -3 0 0 0 0 0] 0.3;
+        }
+
         """,
         cls=FoamInputFile,
         check_dump=True,

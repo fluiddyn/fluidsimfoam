@@ -201,6 +201,8 @@ class Dict(dict, Node):
         for key, node in self.items():
             if hasattr(node, "dump"):
                 tmp.append(node.dump(indent + 4))
+            elif hasattr(node, "dump_without_assignment"):
+                tmp.append(f"    {key}  {node.dump_without_assignment()};")
             else:
                 if node == "":
                     s = ""

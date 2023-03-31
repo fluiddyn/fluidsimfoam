@@ -28,16 +28,7 @@ def is_example_dir(path):
     return (path / "constant").is_dir() and (path / "system").is_dir()
 
 
-bad_files = set(
-    [
-        "heatTransfer/chtMultiRegionFoam/coolingCylinder2D/system/fluid/fvSolution",
-        "heatTransfer/chtMultiRegionFoam/coolingSphere/templates/system/fluid/fvSolution",
-        "incompressible/pimpleFoam/laminar/movingCone/system/fvSolution",
-        "incompressible/pimpleFoam/laminar/contactAngleCavity/system/fvSolution",
-        "incompressible/pimpleFoam/laminar/contaminatedDroplet2D/system/fvSolution",
-        "incompressible/pimpleFoam/laminar/sloshing2D/system/fvSolution",
-    ]
-)
+bad_files = set([])
 
 errors = {"Empty file": 0, "parser error": 0, "wrong files": 0}
 
