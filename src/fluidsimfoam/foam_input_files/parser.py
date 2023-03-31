@@ -55,6 +55,9 @@ class FoamTransformer(Transformer):
     def ESCAPED_STRING(self, token):
         return token.value
 
+    def DOUBLE_NAME(self, token):
+        return token.value
+
     def dimension_set(self, items):
         return DimensionSet(
             [

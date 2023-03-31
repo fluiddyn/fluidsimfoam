@@ -1,8 +1,18 @@
+import sys
+
 from pathlib import Path
 
 from fluidsimfoam.foam_input_files import parse, dump
 
-tree = parse(Path("tmp_file").read_text())
 
-dumped = tree.dump()
+if len(sys.argv) == 2:
+    path = Path(sys.argv[-1])
+else:
+    path = Path("tmp_file")
+
+assert path.exists()
+
+tree = parse(path.read_text())
+
+dumped = dump(tree)
 assert tree == parse(dumped)

@@ -2,7 +2,7 @@
 
 EQKEY.1 : /[a-z]+\(\S+\)/
 
-DOUBLE_NAME : CNAME (":"|".") CNAME
+DOUBLE_NAME : CNAME (":"|"."|"-") CNAME
 _dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME
 
 _key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
