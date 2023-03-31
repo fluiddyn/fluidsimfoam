@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from pprint import pprint
 
@@ -6,6 +7,8 @@ import lark
 from rich.progress import track
 
 from fluidsimfoam.foam_input_files import dump, parse
+
+CHECK = "check" in sys.argv
 
 tutorials_dir = Path(os.environ["FOAM_TUTORIALS"])
 
@@ -28,7 +31,12 @@ def is_example_dir(path):
     return (path / "constant").is_dir() and (path / "system").is_dir()
 
 
-bad_files = set([])
+bad_files = set(
+    [
+        # semicolon missing
+        "heatTransfer/chtMultiRegionSimpleFoam/cpuCabinet/system/domain0/fvSolution"
+    ]
+)
 
 errors = {"Empty file": 0, "parser error": 0, "wrong files": 0}
 
@@ -62,7 +70,8 @@ for path_file in track(paths):
     text = path_file.read_text()
     try:
         tree = parse(text)
-        assert tree == parse(dump(tree))
+        if CHECK:
+            assert tree == parse(dump(tree))
     except lark.exceptions.LarkError:
         errors["parser error"] += 1
         issues.append(path_file)
