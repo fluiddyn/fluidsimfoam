@@ -545,3 +545,15 @@ def test_double_value():
         """,
         check_dump_parse=True,
     )
+
+
+def test_directive_EQKEY():
+    tree = base_test(
+        """
+        functions
+        {
+            #includeFunc components(U)
+        }
+        """,
+        check_dump_parse=True,
+    )
