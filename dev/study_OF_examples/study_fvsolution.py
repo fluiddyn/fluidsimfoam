@@ -35,6 +35,9 @@ bad_files = set(
     ]
 )
 
+content = {"Empty file": 0, "parser error": 0, "wrong files": 0}
+content_detailed = {"dictionary": 0}
+
 issues = []
 
 for path_dir in tutorials_dir.rglob("*"):
@@ -49,14 +52,34 @@ for path_dir in tutorials_dir.rglob("*"):
         path_rel = path_file.relative_to(tutorials_dir)
 
         if str(path_rel) in bad_files:
+            content["wrong files"] += 1
             continue
 
         text = path_file.read_text()
 
         try:
             tree = parse(text)
+            try:
+                if tree.info["class"] == "dictionary":
+                    content_detailed["dictionary"] += 1
+                for key in tree.children.keys():
+                    if key not in content:
+                        content[key] = 1
+                    else:
+                        content[key] += 1
+                    if isinstance(tree.children[key], dict):
+                        for key1 in tree.children[key].keys():
+                            if key1 not in content_detailed:
+                                content_detailed[key1] = 1
+                            else:
+                                content_detailed[key1] += 1
+
+            except AttributeError:
+                content["Empty file"] += 1
+                continue
             assert tree == parse(dump(tree))
         except lark.exceptions.LarkError:
+            content["parser error"] += 1
             print(f"Lark exception for file\n{path_file}")
             issues.append(path_file)
             continue
@@ -70,4 +93,15 @@ with open("tmp_issues.txt", "w") as file:
 
 print("Issues:\n" + txt_issues + "\n(saved in tmp_issues.txt)")
 
+
+sorted_content = sorted(content.items(), key=lambda item: item[1], reverse=True)
+sorted_content_dict = dict(sorted_content)
 print(f"{nb_examples = }")
+
+sorted_content_detailed = sorted(
+    content_detailed.items(), key=lambda item: item[1], reverse=True
+)
+sorted_content_detailed_dict = dict(sorted_content_detailed)
+
+pprint(sorted_content_dict, sort_dicts=False)
+pprint(sorted_content_detailed_dict, sort_dicts=False)
