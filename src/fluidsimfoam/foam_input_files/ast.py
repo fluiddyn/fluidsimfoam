@@ -223,6 +223,15 @@ class List(list, Node):
     def get_name(self):
         return self._name
 
+    def add_name(self, name):
+        if self._name is None:
+            self._name = name
+        elif isinstance(self._name, str):
+            if self._name != name:
+                self._name = name + " " + self._name
+        else:
+            raise RuntimeError()
+
     def __repr__(self):
         return super().__repr__()
 

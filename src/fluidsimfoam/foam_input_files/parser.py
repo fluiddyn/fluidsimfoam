@@ -93,6 +93,11 @@ class FoamTransformer(Transformer):
             nodes = nodes[1:]
         else:
             info_dict = None
+
+        for node in nodes:
+            if isinstance(node.value, List):
+                node.value.add_name(node.name)
+
         return FoamInputFile(info_dict, {node.name: node.value for node in nodes})
 
     def var_assignment(self, nodes):
@@ -148,13 +153,7 @@ class FoamTransformer(Transformer):
 
         for node in nodes:
             if isinstance(node.value, List):
-                if node.value._name is None:
-                    node.value._name = node.name
-                elif isinstance(node.value._name, str):
-                    if node.value._name != node.name:
-                        node.value._name = node.name + " " + node.value._name
-                else:
-                    raise RuntimeError()
+                node.value.add_name(node.name)
         return Assignment(
             name,
             Dict(
