@@ -203,9 +203,9 @@ class FoamTransformer(Transformer):
             raise NotImplementedError
         text = str(nodes[0])
         directive, content = text.split(" ", 1)
+        content = content.strip()
         if content and content[-1] == ";":
             content = content[:-1]
-        content = content.strip(" ")
         key = directive + " " + content
         return Assignment(key, Directive(directive, content))
 

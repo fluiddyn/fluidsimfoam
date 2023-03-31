@@ -14,7 +14,8 @@ dimension_set : "[" (SIGNED_NUMBER)~7 "]"
 _dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | macro | SIGNED_NUMBER | dimension_set
 list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
 
-directive_assignment : (/#[a-zA-Z]+\s+["a-zA-Z]+;?/ | /#[a-zA-Z]+\s+[a-zA-Z]+\n?[\s]*\([a-zA-Z\d,\s=_\n]*\);?/) [NEWLINE]
+directive_assignment.2 : (/#[a-zA-Z\d]+\s+[a-zA-Z]+\n?[\s]*\([a-zA-Z\d,\s=_\n]*\);?/ | /#[a-zA-Z\d]+\s+["a-zA-Z]+;?/) [NEWLINE]
+    | /#[a-zA-Z\d]+\s+[a-zA-Z]+\(.*\n/
 macro_assignment : [NEWLINE] macro [";"] [NEWLINE]
 list_assignment : [NEWLINE] _key [CNAME] NEWLINE list ";" [NEWLINE]
 var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]

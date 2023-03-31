@@ -90,7 +90,10 @@ class FoamInputFile(Node):
                 tmp.append(f"{key}  {node.dump_without_assignment()};")
             else:
                 tmp.append(f"{key}  {node};")
-        return "\n".join(tmp)
+        result = "\n".join(tmp)
+        if result[-1] != "\n":
+            result += "\n"
+        return result
 
 
 @dataclass
