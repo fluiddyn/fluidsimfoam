@@ -186,8 +186,11 @@ class FoamTransformer(Transformer):
             raise RuntimeError()
 
     def macro_assignment(self, nodes):
+        nodes = [node for node in nodes if node is not None]
+        if len(nodes) != 1:
+            raise NotImplementedError
         name = nodes.pop(0)
-        return Assignment(name, nodes[0])
+        return Assignment(name, "")
 
     def directive_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]

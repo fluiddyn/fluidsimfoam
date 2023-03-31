@@ -7,19 +7,20 @@ _dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME
 
 _key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
 directive: "#" CNAME
-macro : "$" CNAME
+macro : "$" (CNAME|DOUBLE_NAME)
 dimension_set : "[" (SIGNED_NUMBER)~7 "]"
 _dataentry : CNAME | list | ESCAPED_STRING | macro | directive | SIGNED_NUMBER | dimension_set
 list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
 
 directive_assignment : [NEWLINE] directive _dataentry [";"] [NEWLINE]
+macro_assignment : [NEWLINE] macro [";"] [NEWLINE]
 list_assignment : [NEWLINE] _key [CNAME] NEWLINE list ";" [NEWLINE]
 var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]
-dict_assignment : [NEWLINE] _dict_name [directive] NEWLINE "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
+dict_assignment : [NEWLINE] _dict_name [directive] [NEWLINE] "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
 code_assignment : [NEWLINE] CNAME NEWLINE /#{[\S\s]*#};/ NEWLINE
 dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" [NEWLINE]
 _assignment : var_assignment | dict_assignment | list_assignment
-              | dimension_assignment | directive_assignment | code_assignment
+              | dimension_assignment | directive_assignment | code_assignment | macro_assignment
 
 file : (_assignment)+
 

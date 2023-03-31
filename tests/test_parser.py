@@ -365,6 +365,8 @@ def test_macro():
         {
             $p;
         }
+
+        relaxationFactors  $relaxationFactors-SIMPLE;
     """,
         check_dump=True,
     )
@@ -498,7 +500,6 @@ def test_ugly_macro():
     )
 
 
-@pytest.mark.xfail
 def test_strange_dict_macro():
     tree = base_test(
         """
