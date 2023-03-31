@@ -5,7 +5,7 @@ from pprint import pprint
 import lark
 from rich.progress import track
 
-from fluidsimfoam.foam_input_files import parse, dump
+from fluidsimfoam.foam_input_files import dump, parse
 
 tutorials_dir = Path(os.environ["FOAM_TUTORIALS"])
 
@@ -33,6 +33,9 @@ bad_files = set(
         "heatTransfer/chtMultiRegionFoam/coolingCylinder2D/system/fluid/fvSolution",
         "heatTransfer/chtMultiRegionFoam/coolingSphere/templates/system/fluid/fvSolution",
         "incompressible/pimpleFoam/laminar/movingCone/system/fvSolution",
+        "incompressible/pimpleFoam/laminar/contactAngleCavity/system/fvSolution",
+        "incompressible/pimpleFoam/laminar/contaminatedDroplet2D/system/fvSolution",
+        "incompressible/pimpleFoam/laminar/sloshing2D/system/fvSolution",
     ]
 )
 

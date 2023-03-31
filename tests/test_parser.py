@@ -481,3 +481,28 @@ def test_tiny_tgv(path_name, request):
     path = paths_tiny_tgv[path_name]
     text = path.read_text()
     tree = base_test(text, check_dump_parse=True)
+
+
+@pytest.mark.xfail
+def test_ugly_macro():
+    tree = base_test(
+        """
+        relaxationFactors
+        {
+            ${_${FOAM_EXECUTABLE}};
+        }
+
+
+        """,
+        check_dump_parse=True,
+    )
+
+
+@pytest.mark.xfail
+def test_strange_dict_macro():
+    tree = base_test(
+        """
+        relaxationFactors { $relaxationFactors-SIMPLE }
+        """,
+        check_dump_parse=True,
+    )

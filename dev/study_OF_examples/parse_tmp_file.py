@@ -1,9 +1,7 @@
 import sys
-
 from pathlib import Path
 
-from fluidsimfoam.foam_input_files import parse, dump
-
+from fluidsimfoam.foam_input_files import dump, parse
 
 if len(sys.argv) == 2:
     path = Path(sys.argv[-1])
