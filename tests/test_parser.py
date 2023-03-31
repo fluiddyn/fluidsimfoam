@@ -504,6 +504,25 @@ def test_ugly_macro():
     )
 
 
+def test_new_list_types():
+    tree = base_test(
+        """
+        libs            (overset rigidBodyDynamics);
+
+        functions
+        {
+            minMax1
+            {
+                libs            (fieldFunctionObjects);
+                type            fieldMinMax;
+                fields          (U p);
+            }
+        }
+        """,
+        check_dump_parse=True,
+    )
+
+
 def test_strange_dict_macro():
     tree = base_test(
         """

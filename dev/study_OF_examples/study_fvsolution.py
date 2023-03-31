@@ -12,7 +12,10 @@ CHECK = "check" in sys.argv
 
 tutorials_dir = Path(os.environ["FOAM_TUTORIALS"])
 
-print(f"Parse all fvSolution files in {tutorials_dir}")
+# name_studied_file = "fvSolution"
+name_studied_file = "controlDict"
+
+print(f"Parse all {name_studied_file} files in {tutorials_dir}")
 
 input_files = {}
 
@@ -53,7 +56,7 @@ for path_dir in tutorials_dir.rglob("*"):
         continue
 
     for path_file in path_dir.rglob("*"):
-        if path_file.name != "fvSolution":
+        if path_file.name != name_studied_file:
             continue
 
         nb_examples += 1
