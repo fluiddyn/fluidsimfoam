@@ -1,13 +1,14 @@
 ?value: _assignment | file
 
 EQKEY.1 : /[a-z]+\(\S+\)/
+MACRO_TERM : /\${\S+}/
 
 DOUBLE_NAME : CNAME (":"|"."|"-") CNAME
 _dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME
 
 _key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
 directive: "#" CNAME
-macro : "$" (CNAME|DOUBLE_NAME)
+macro : "$" (CNAME|DOUBLE_NAME) | MACRO_TERM
 dimension_set : "[" (SIGNED_NUMBER)~7 "]"
 _dataentry : CNAME | list | ESCAPED_STRING | macro | directive | SIGNED_NUMBER | dimension_set
 list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"

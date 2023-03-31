@@ -485,7 +485,6 @@ def test_tiny_tgv(path_name, request):
     tree = base_test(text, check_dump_parse=True)
 
 
-@pytest.mark.xfail
 def test_ugly_macro():
     tree = base_test(
         """

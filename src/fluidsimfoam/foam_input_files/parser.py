@@ -58,6 +58,9 @@ class FoamTransformer(Transformer):
     def DOUBLE_NAME(self, token):
         return token.value
 
+    def MACRO_TERM(self, token):
+        return token.value[1:]
+
     def dimension_set(self, items):
         return DimensionSet(
             [
