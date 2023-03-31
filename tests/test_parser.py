@@ -283,15 +283,34 @@ def test_directive():
         FoamFile
         {
             version     2.0;
-            format      ascii;
-            class       volScalarField;
-            object      p;
         }
 
         #include  "initialConditions";
     """,
         cls=FoamInputFile,
         check_dump=True,
+        check_dump_parse=True,
+    )
+
+
+def test_directives_in_dict():
+    tree = base_test(
+        """
+        functions
+        {
+            #includeFunc components(U)
+            #includeFunc Qdot(region=gas)
+            #includeFunc residuals(region = shell, p_rgh, U, h)
+            #includeFunc residuals(region = tube, p_rgh, U, h)
+            #includeFunc patchAverage
+            (
+                funcName=cylinderT,
+                region=fluid,
+                patch=fluid_to_solid,
+                field=T
+            )
+        }
+        """,
         check_dump_parse=True,
     )
 
@@ -541,21 +560,6 @@ def test_double_value():
             class       dictionary;
             location    "system";
             object      controlDict.1st;
-        }
-        """,
-        check_dump_parse=True,
-    )
-
-
-def test_directive_EQKEY():
-    tree = base_test(
-        """
-        functions
-        {
-            #includeFunc components(U)
-            #includeFunc Qdot(region=gas)
-            #includeFunc residuals(region = shell, p_rgh, U, h)
-            #includeFunc residuals(region = tube, p_rgh, U, h)
         }
         """,
         check_dump_parse=True,

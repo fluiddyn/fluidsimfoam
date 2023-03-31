@@ -199,9 +199,13 @@ class FoamTransformer(Transformer):
 
     def directive_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
-        if len(nodes) != 2:
+        if len(nodes) != 1:
             raise NotImplementedError
-        directive, content = nodes
+        text = str(nodes[0])
+        directive, content = text.split(" ", 1)
+        if content and content[-1] == ";":
+            content = content[:-1]
+        content = content.strip(" ")
         key = directive + " " + content
         return Assignment(key, Directive(directive, content))
 

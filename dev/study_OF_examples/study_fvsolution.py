@@ -37,7 +37,9 @@ def is_example_dir(path):
 bad_files = set(
     [
         # semicolon missing
-        "heatTransfer/chtMultiRegionSimpleFoam/cpuCabinet/system/domain0/fvSolution"
+        "heatTransfer/chtMultiRegionSimpleFoam/cpuCabinet/system/domain0/fvSolution",
+        # too much }
+        "heatTransfer/chtMultiRegionFoam/coolingCylinder2D/system/controlDict",
     ]
 )
 
