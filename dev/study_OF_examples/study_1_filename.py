@@ -12,8 +12,16 @@ CHECK = "check" in sys.argv
 
 tutorials_dir = Path(os.environ["FOAM_TUTORIALS"])
 
-# name_studied_file = "fvSolution"
-name_studied_file = "controlDict"
+# name_studied_file = "fvSolution"  # check OK
+# name_studied_file = "controlDict"  # check OK
+name_studied_file = "fvSchemes"
+# name_studied_file = "blockMeshDict"
+# name_studied_file = "turbulenceProperties"
+# name_studied_file = "U"
+# name_studied_file = "decomposeParDict"
+# name_studied_file = "transportProperties"
+# name_studied_file = "g"
+# name_studied_file = "p"
 
 print(f"Parse all {name_studied_file} files in {tutorials_dir}")
 
@@ -38,6 +46,9 @@ bad_files = set(
     [
         # semicolon missing
         "heatTransfer/chtMultiRegionSimpleFoam/cpuCabinet/system/domain0/fvSolution",
+        "heatTransfer/chtMultiRegionFoam/coolingCylinder2D/system/fluid/fvSolution",
+        "heatTransfer/chtMultiRegionFoam/coolingSphere/templates/system/fluid/fvSolution",
+        "heatTransfer/chtMultiRegionFoam/coolingSphere/templates/system/fluid/fvSolution",
         # too much }
         "heatTransfer/chtMultiRegionFoam/coolingCylinder2D/system/controlDict",
         "incompressible/pimpleFoam/RAS/wingMotion/wingMotion_snappyHexMesh/system/controlDict",
