@@ -1,6 +1,6 @@
 ?value: _assignment | file
 
-EQKEY.2 : /[a-zA-Z]+\(\S+\)/
+EQKEY.2 : /[a-zA-Z]+\(\S+\)[a-zA-Z]*/
 
 MACRO_TERM : /\${\S+}/
 DOUBLE_NAME.1 : /[a-zA-Z][a-zA-Z\d]*[:.-][a-zA-Z\d]+/
@@ -11,14 +11,16 @@ _key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
 directive: /#[a-zA-Z]+/
 macro : "$" (CNAME|DOUBLE_NAME) | MACRO_TERM
 dimension_set : "[" (SIGNED_NUMBER)~7 "]"
-_dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | macro | SIGNED_NUMBER | dimension_set
+_dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | macro
+    | SIGNED_NUMBER | dimension_set | EQKEY
 list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
 
 
 equal_assign: CNAME "=" (CNAME|SIGNED_NUMBER|list)
 
-directive_assignment: [NEWLINE] directive ( CNAME [NEWLINE] "(" [NEWLINE] (CNAME|equal_assign) ( "," [NEWLINE] (CNAME|equal_assign))* [NEWLINE] ")" [";"]
-    | (EQKEY|ESCAPED_STRING) [";"]) [NEWLINE]
+_funtion_call : CNAME [NEWLINE] "(" [NEWLINE] (CNAME|equal_assign|_funtion_call) ( "," [NEWLINE] (CNAME|equal_assign))* [NEWLINE] ")"
+
+directive_assignment: [NEWLINE] directive ( _funtion_call | (CNAME|EQKEY|ESCAPED_STRING)) [";"] [NEWLINE]
 
 macro_assignment : [NEWLINE] macro [";"] [NEWLINE]
 list_assignment : [NEWLINE] _key [CNAME] NEWLINE list ";" [NEWLINE]

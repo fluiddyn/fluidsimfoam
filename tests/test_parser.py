@@ -152,6 +152,7 @@ def test_dict_strange_keys():
         div(phi,U)      Gauss linear;
         divSchemes
         {
+            field       cylindrical(U)Mean;
             default         none;
             div(phi,U)      Gauss linear;
             div((nuEff*dev2(T(grad(U))))) Gauss linear;
@@ -298,6 +299,8 @@ def test_directives_in_dict():
         """
         functions
         {
+            #includeFunc fieldAverage(cylindrical(U))
+            #includeFunc Qdot
             #includeFunc components(U)
             #includeFunc Qdot(region=gas)
             #includeFunc residuals(region = shell, p_rgh, U, h)
