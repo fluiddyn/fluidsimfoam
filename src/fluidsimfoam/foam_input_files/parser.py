@@ -59,6 +59,9 @@ class FoamTransformer(Transformer):
     def DOUBLE_NAME(self, token):
         return token.value
 
+    def EQKEY(self, token):
+        return token.value
+
     def MACRO_TERM(self, token):
         return token.value[1:]
 
@@ -77,7 +80,7 @@ class FoamTransformer(Transformer):
     def directive(self, nodes):
         if len(nodes) != 1:
             raise RuntimeError
-        return nodes[0]
+        return str(nodes[0])
 
     def list(self, items):
         return List(
@@ -197,15 +200,23 @@ class FoamTransformer(Transformer):
         name = nodes.pop(0)
         return Assignment(name, "")
 
+    def equal_assign(self, nodes):
+        if len(nodes) != 2:
+            raise RuntimeError
+        value = nodes[1]
+        if hasattr(value, "dump"):
+            value = value.dump()
+        return f"{nodes[0]}={value}"
+
     def directive_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
-        if len(nodes) != 1:
-            raise NotImplementedError
-        text = str(nodes[0])
-        directive, content = text.split(" ", 1)
-        content = content.strip()
-        if content and content[-1] == ";":
-            content = content[:-1]
+        if len(nodes) == 2:
+            directive, content = nodes
+        else:
+            directive = nodes.pop(0)
+            function_name = nodes.pop(0)
+            arguments = ", ".join(nodes)
+            content = function_name + f"({arguments})"
         key = directive + " " + content
         return Assignment(key, Directive(directive, content))
 

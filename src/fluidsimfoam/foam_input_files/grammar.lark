@@ -14,8 +14,12 @@ dimension_set : "[" (SIGNED_NUMBER)~7 "]"
 _dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | macro | SIGNED_NUMBER | dimension_set
 list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
 
-directive_assignment.2 : (/#[a-zA-Z\d]+\s+[a-zA-Z]+\n?[\s]*\([a-zA-Z\d,\s=_\n]*\);?/ | /#[a-zA-Z\d]+\s+["a-zA-Z]+;?/) [NEWLINE]
-    | /#[a-zA-Z\d]+\s+[a-zA-Z]+\(.*\n/
+
+equal_assign: CNAME "=" (CNAME|SIGNED_NUMBER|list)
+
+directive_assignment: [NEWLINE] directive ( CNAME [NEWLINE] "(" [NEWLINE] (CNAME|equal_assign) ( "," [NEWLINE] (CNAME|equal_assign))* [NEWLINE] ")" [";"]
+    | (EQKEY|ESCAPED_STRING) [";"]) [NEWLINE]
+
 macro_assignment : [NEWLINE] macro [";"] [NEWLINE]
 list_assignment : [NEWLINE] _key [CNAME] NEWLINE list ";" [NEWLINE]
 var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]
@@ -23,7 +27,7 @@ dict_assignment : [NEWLINE] _dict_name [directive] [NEWLINE] "{" [NEWLINE] [(_as
 code_assignment : [NEWLINE] CNAME NEWLINE /#{[\S\s]*#};/ NEWLINE
 dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" [NEWLINE]
 _assignment : var_assignment | dict_assignment | list_assignment
-              | dimension_assignment | directive_assignment | code_assignment | macro_assignment
+              | dimension_assignment | code_assignment | macro_assignment | directive_assignment
 
 file : (_assignment)+
 

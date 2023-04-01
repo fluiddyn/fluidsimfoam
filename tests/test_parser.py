@@ -316,6 +316,21 @@ def test_directives_in_dict():
     )
 
 
+"""
+            #includeFunc streamlinesLine
+            (
+                funcName=streamlines,
+                start=(-0.0205 0.001 0.00001),
+                end=(-0.0205 0.0251 0.00001),
+                nPoints=10,
+                fields=(p k U)
+            )
+            #includeFunc writeObjects(kEpsilon:G)
+
+
+"""
+
+
 def test_code():
     base_test(
         r"""
