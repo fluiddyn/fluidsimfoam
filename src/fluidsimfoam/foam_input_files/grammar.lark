@@ -18,7 +18,8 @@ list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
 
 equal_assign: CNAME "=" (CNAME|SIGNED_NUMBER|list)
 
-_funtion_call : CNAME [NEWLINE] "(" [NEWLINE] (CNAME|equal_assign|_funtion_call) ( "," [NEWLINE] (CNAME|equal_assign))* [NEWLINE] ")"
+_in_funtion_call : CNAME|DOUBLE_NAME|equal_assign|_funtion_call
+_funtion_call : CNAME [NEWLINE] "(" [NEWLINE] (_in_funtion_call) ( "," [NEWLINE] (_in_funtion_call))* [NEWLINE] ")"
 
 directive_assignment: [NEWLINE] directive ( _funtion_call | (CNAME|EQKEY|ESCAPED_STRING)) [";"] [NEWLINE]
 

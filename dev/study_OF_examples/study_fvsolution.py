@@ -40,6 +40,7 @@ bad_files = set(
         "heatTransfer/chtMultiRegionSimpleFoam/cpuCabinet/system/domain0/fvSolution",
         # too much }
         "heatTransfer/chtMultiRegionFoam/coolingCylinder2D/system/controlDict",
+        "incompressible/pimpleFoam/RAS/wingMotion/wingMotion_snappyHexMesh/system/controlDict",
     ]
 )
 

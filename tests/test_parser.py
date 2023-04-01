@@ -313,13 +313,6 @@ def test_directives_in_dict():
                 field=T
             )
             #includeFunc streamlinesLine(funcName=streamlines, start=(0 0.5 0), end=(9 0.5 0), nPoints=24, U)
-        }
-        """,
-        check_dump_parse=True,
-    )
-
-
-"""
             #includeFunc streamlinesLine
             (
                 funcName=streamlines,
@@ -329,9 +322,12 @@ def test_directives_in_dict():
                 fields=(p k U)
             )
             #includeFunc writeObjects(kEpsilon:G)
+            #includeFunc fieldAverage(U, p, alpha.vapour)
 
-
-"""
+        }
+        """,
+        check_dump_parse=True,
+    )
 
 
 def test_code():
