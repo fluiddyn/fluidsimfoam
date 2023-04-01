@@ -323,7 +323,29 @@ def test_directives_in_dict():
             )
             #includeFunc writeObjects(kEpsilon:G)
             #includeFunc fieldAverage(U, p, alpha.vapour)
-
+            #includeFunc writeObjects
+            (
+                d.particles,
+                a.particles,
+                phaseTransfer:dmidtf.TiO2.particlesAndVapor,
+                phaseTransfer:dmidtf.TiO2_s.particlesAndVapor
+            )
+            #includeFunc  graphUniform
+            (
+                funcName=graph,
+                start=(0 0 0.89),
+                end=(0.025 0 0.89),
+                nPoints=100,
+                fields=
+                (
+                    alpha.air1
+                    alpha.air2
+                    alpha.bubbles
+                    liftForce.water
+                    wallLubricationForce.water
+                    turbulentDispersionForce.water
+                )
+            )
         }
         """,
         check_dump_parse=True,

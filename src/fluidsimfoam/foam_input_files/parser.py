@@ -201,6 +201,7 @@ class FoamTransformer(Transformer):
         return Assignment(name, "")
 
     def equal_assign(self, nodes):
+        nodes = [node for node in nodes if node is not None]
         if len(nodes) != 2:
             raise RuntimeError
         value = nodes[1]
