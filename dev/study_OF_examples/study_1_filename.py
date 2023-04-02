@@ -112,11 +112,6 @@ for path_file in track(paths):
 
 print(f"{nb_examples = }")
 
-txt_issues = "\n".join(str(p) for p in issues)
-with open("tmp_issues.txt", "w") as file:
-    file.write(txt_issues + "\n")
-print("Fluidsimfoam issues: (saved in tmp_issues.txt)\n" + txt_issues)
-
 pprint(errors, sort_dicts=False)
 
 names_level0 = dict(
@@ -125,3 +120,14 @@ names_level0 = dict(
 pprint(names_level0, sort_dicts=False)
 print("FoamInfo classes:")
 pprint(file_classes)
+
+if issues:
+    txt_issues = "\n".join(str(p) for p in issues)
+    with open("tmp_issues.txt", "w") as file:
+        file.write(txt_issues + "\n")
+    print(
+        f"Fluidsimfoam issues ({len(issues)/nb_examples*100:.2f} % of files): "
+        "(saved in tmp_issues.txt)\n" + txt_issues
+    )
+else:
+    print(f"No parser issue for {name_studied_file}!")

@@ -121,15 +121,18 @@ class FoamTransformer(Transformer):
             except ValueError:
                 if all([isinstance(elem, str) for elem in nodes]):
                     value = " ".join(nodes)
-                elif (
-                    len(nodes) == 2
-                    and isinstance(nodes[0], str)
-                    and isinstance(nodes[1], List)
-                ):
-                    value = nodes[1]
-                    value._name = nodes[0]
                 else:
-                    value = nodes
+                    last_value = nodes.pop(-1)
+                    if not all(isinstance(node, str) for node in nodes):
+                        raise NotImplementedError(nodes)
+                    name_in_value = " ".join(nodes)
+                    if isinstance(last_value, List):
+                        value = last_value
+                        value._name = name_in_value
+                    elif isinstance(last_value, (int, float)):
+                        value = Value(last_value, name=name_in_value)
+                    else:
+                        raise NotImplementedError(nodes)
             else:
                 dimension_set = nodes.pop(index_dimension)
 
@@ -151,19 +154,30 @@ class FoamTransformer(Transformer):
             name = nodes.pop(0)
             return Assignment(name, Dict(data={}, name=name))
 
-        if isinstance(nodes[1], str) and nodes[1].startswith("#"):
-            # like #codeStream
-            directive = nodes.pop(1)
+        nodes_str = []
+        for node in nodes:
+            if isinstance(node, str) and node.startswith("#"):
+                # like #codeStream
+                directive = nodes.pop(1)
+                break
 
         name = nodes.pop(0)
+        if nodes_str:
+            name += " " + " ".join(nodes_str)
 
-        for node in nodes:
+        nodes_assign = [
+            node
+            for node in nodes
+            if hasattr(node, "name") and hasattr(node, "value")
+        ]
+
+        for node in nodes_assign:
             if isinstance(node.value, List):
                 node.value.add_name(node.name)
         return Assignment(
             name,
             Dict(
-                data={node.name: node.value for node in nodes},
+                data={node.name: node.value for node in nodes_assign},
                 name=name,
                 directive=directive,
             ),

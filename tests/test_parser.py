@@ -163,6 +163,20 @@ def test_dict_strange_keys():
     )
 
 
+def test_dict_strange_name():
+    """As in fvSchemes"""
+    tree = base_test(
+        """
+        div(phi,ft_b_ha_hau) Gauss multivariateSelection
+        {
+            ft              limitedLinear01 1;
+            b               limitedLinear01 1;
+        }
+    """,
+        check_dump_parse=True,
+    )
+
+
 def test_dict_nested():
     tree = base_test(
         """
@@ -514,6 +528,19 @@ def test_dimension_set():
     )
     assert isinstance(tree.children["nu"], Value)
     assert isinstance(tree.children["dimension"], DimensionSet)
+
+
+def test_named_values():
+    tree = base_test(
+        """
+        a  b;
+        ft  limitedLinear01 1;
+        """,
+        cls=FoamInputFile,
+        check_dump=True,
+        check_dump_parse=True,
+    )
+    assert isinstance(tree.children["ft"], Value)
 
 
 path_tiny_tgv = here / "pure_openfoam_cases/tiny-tgv"
