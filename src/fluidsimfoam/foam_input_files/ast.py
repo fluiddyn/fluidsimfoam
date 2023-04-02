@@ -19,8 +19,7 @@ def str2foam_units(units):
             next_oper = units[index]
             assert next_oper in "/."
             unit_all = units[:index]
-
-        units = units[index + 1 :]
+            units = units[index + 1 :]
         if "^" in unit_all:
             unit_name, unit_value = unit_all.split("^")
             unit_value = int(unit_value)
@@ -34,8 +33,6 @@ def str2foam_units(units):
 
 
 def foam_units2str(foam_units):
-    if len(foam_units) != len(symbols):
-        raise ValueError("len(foam_units) != len(symbols)")
     result = []
     for symbol, exponent in zip(symbols, foam_units):
         if exponent == 0:
@@ -125,10 +122,7 @@ class Value(Node):
     def __init__(self, value, name=None, dimension=None):
         self.value = value
         self.name = name
-
         if isinstance(dimension, (list, tuple)):
-            if len(dimension) != len(symbols):
-                raise ValueError("len(dimension) != len(symbols)")
             dimension = foam_units2str(dimension)
         self.dimension = dimension
 
@@ -158,12 +152,8 @@ class Value(Node):
 
 class DimensionSet(list, Node):
     def __init__(self, foam_units):
-        if len(foam_units) != len(symbols):
-            raise ValueError("len(dimension) != len(symbols)")
-
         if not all(isinstance(elem, int) for elem in foam_units):
             raise ValueError("Bad {foam_units = }")
-
         super().__init__(foam_units)
 
     def __repr__(self):

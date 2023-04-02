@@ -629,3 +629,29 @@ def test_double_value():
         """,
         check_dump_parse=True,
     )
+
+
+@pytest.mark.xfail()
+def test_for_blockmesh():
+    tree = base_test(
+        """
+        negHalfWidth          #neg $halfWidth;
+
+        blocks
+        (
+            // Fluid region
+            hex (4 6 14 12 0 2 10 8) (1 $upstreamCells $cylinderBoxCells) $expandBlock
+        );
+        """,
+        check_dump_parse=True,
+    )
+
+
+@pytest.mark.xfail()
+def test_for_U():
+    tree = base_test(
+        """
+        internalField   uniform $include/caseSettings!internalField/U;
+        """,
+        check_dump_parse=True,
+    )

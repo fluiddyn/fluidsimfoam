@@ -12,14 +12,14 @@ CHECK = "check" in sys.argv
 
 tutorials_dir = Path(os.environ["FOAM_TUTORIALS"])
 
-# name_studied_file = "fvSolution"  # check OK
-# name_studied_file = "controlDict"  # check OK
-name_studied_file = "fvSchemes"
-# name_studied_file = "blockMeshDict"
+# name_studied_file = "fvSolution"  # No parser issue
+# name_studied_file = "controlDict"  # No parser issue
+# name_studied_file = "fvSchemes"  # No parser issue
+name_studied_file = "blockMeshDict"
 # name_studied_file = "turbulenceProperties"
-# name_studied_file = "U"
-# name_studied_file = "decomposeParDict"
-# name_studied_file = "transportProperties"
+name_studied_file = "U"
+name_studied_file = "decomposeParDict"  # No parser issue
+name_studied_file = "transportProperties"  # No parser issue
 # name_studied_file = "g"
 # name_studied_file = "p"
 
@@ -52,6 +52,8 @@ bad_files = set(
         # too much }
         "heatTransfer/chtMultiRegionFoam/coolingCylinder2D/system/controlDict",
         "incompressible/pimpleFoam/RAS/wingMotion/wingMotion_snappyHexMesh/system/controlDict",
+        # dict named "(oil mercury)"
+        "multiphase/multiphaseEulerFoam/laminar/damBreak4phase/constant/transportProperties"
     ]
 )
 
@@ -82,6 +84,9 @@ for path_dir in tutorials_dir.rglob("*"):
 
         paths.append(path_file)
 
+print(f"{len(paths)} files found")
+if not paths:
+    sys.exit()
 
 for path_file in track(paths):
     text = path_file.read_text()
