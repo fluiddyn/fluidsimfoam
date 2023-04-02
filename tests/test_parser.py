@@ -157,6 +157,7 @@ def test_dict_strange_keys():
             div(phi,U)      Gauss linear;
             div((nuEff*dev2(T(grad(U))))) Gauss linear;
             ".*"           1;
+            div(rhoPhi,U)   Gauss cellCoBlended 2 linearUpwind grad(U) 5 upwind;
         }
     """,
         check_dump_parse=True,

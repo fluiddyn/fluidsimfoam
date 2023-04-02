@@ -153,7 +153,7 @@ class Value(Node):
         elif self.dimension is not None and self.name is None:
             return f"[{dimension_dumped}] {self.value}"
         else:
-            return f"{self.value};"
+            return f"{self.value}"
 
 
 class DimensionSet(list, Node):

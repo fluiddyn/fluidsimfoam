@@ -119,31 +119,30 @@ class FoamTransformer(Transformer):
                     isinstance(elem, DimensionSet) for elem in nodes
                 ].index(True)
             except ValueError:
-                if all([isinstance(elem, str) for elem in nodes]):
-                    value = " ".join(nodes)
-                else:
-                    last_value = nodes.pop(-1)
-                    if not all(isinstance(node, str) for node in nodes):
-                        raise NotImplementedError(nodes)
-                    name_in_value = " ".join(nodes)
-                    if isinstance(last_value, List):
-                        value = last_value
-                        value._name = name_in_value
-                    elif isinstance(last_value, (int, float)):
-                        value = Value(last_value, name=name_in_value)
-                    else:
-                        raise NotImplementedError(nodes)
+                dimension_set = None
             else:
                 dimension_set = nodes.pop(index_dimension)
 
-                if len(nodes) == 2:
-                    name_in_value, value = nodes
+            name_in_value = None
+            if all([isinstance(elem, str) for elem in nodes]):
+                last_value = " ".join(nodes)
+            else:
+                last_value = nodes.pop(-1)
+                if not all(isinstance(node, str) for node in nodes):
+                    nodes = [str(node) for node in nodes]
+                if nodes:
+                    name_in_value = " ".join(nodes)
+                if isinstance(last_value, List):
+                    last_value._name = name_in_value
 
-                elif len(nodes) == 1:
-                    value = nodes[0]
-                else:
-                    raise NotImplementedError()
-                value = Value(value, name=name_in_value, dimension=dimension_set)
+            if (name_in_value is None and dimension_set is None) or isinstance(
+                last_value, List
+            ):
+                value = last_value
+            else:
+                value = Value(
+                    last_value, name=name_in_value, dimension=dimension_set
+                )
         return VariableAssignment(name, value)
 
     def dict_assignment(self, nodes):
