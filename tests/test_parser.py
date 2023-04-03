@@ -646,7 +646,6 @@ def test_for_blockmesh():
     )
 
 
-@pytest.mark.xfail()
 def test_for_U():
     tree = base_test(
         """

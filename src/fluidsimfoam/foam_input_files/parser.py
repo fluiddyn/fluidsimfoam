@@ -63,7 +63,7 @@ class FoamTransformer(Transformer):
         return token.value
 
     def MACRO_TERM(self, token):
-        return token.value[1:]
+        return token.value
 
     def dimension_set(self, items):
         return DimensionSet(
@@ -75,7 +75,7 @@ class FoamTransformer(Transformer):
         )
 
     def macro(self, nodes):
-        return "$" + nodes[0]
+        return nodes[0]
 
     def directive(self, nodes):
         if len(nodes) != 1:
@@ -191,7 +191,7 @@ class FoamTransformer(Transformer):
             name, the_list = nodes
             name_internal = name
         else:
-            raise NotImplementedError
+            raise NotImplementedError(nodes)
         the_list._name = name_internal
         return Assignment(name, the_list)
 
@@ -204,19 +204,19 @@ class FoamTransformer(Transformer):
         elif len(nodes) == 2:
             return Assignment(name, Value(nodes[-1], dimension=nodes[-2]))
         else:
-            raise RuntimeError()
+            raise RuntimeError(nodes)
 
     def macro_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
         if len(nodes) != 1:
-            raise NotImplementedError
+            raise NotImplementedError(nodes)
         name = nodes.pop(0)
         return Assignment(name, "")
 
     def equal_assign(self, nodes):
         nodes = [node for node in nodes if node is not None]
         if len(nodes) != 2:
-            raise RuntimeError
+            raise RuntimeError(nodes)
         value = nodes[1]
         if hasattr(value, "dump"):
             value = value.dump()
