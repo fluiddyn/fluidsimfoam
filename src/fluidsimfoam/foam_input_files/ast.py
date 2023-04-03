@@ -252,17 +252,26 @@ class List(list, Node):
 
 
 class Code(Node):
-    def __init__(self, name, code):
+    def __init__(self, name, code, directive=None):
         self.name = name
         self.code = dedent(code)
+        self.directive = directive
 
     def __repr__(self):
-        return f'Code(name={self.name}, code="{self.code[:10]}[...]")'
+        if self.directive is None:
+            return f'Code(name={self.name}, code="{self.code[:10]}[...]")'
+        return (
+            f'Code(name={self.name}, code="{self.code[:10]}[...]",'
+            f" directive={self.directive})"
+        )
 
     def dump(self, indent=0):
         tmp = []
         indentation = indent * " "
-        tmp.append(indentation + self.name + f"\n{indentation}" + "#{")
+        start = indentation + self.name
+        if self.directive is not None:
+            start += " " + self.directive
+        tmp.append(start + f"\n{indentation}" + "#{")
         for line in self.code.split("\n"):
             tmp.append(indentation + 4 * " " + line)
         tmp.append(indentation + "#};\n")

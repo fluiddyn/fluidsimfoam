@@ -236,10 +236,16 @@ class FoamTransformer(Transformer):
 
     def code_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
-        if len(nodes) != 2:
-            raise NotImplementedError
-        name, code = nodes
+        directive = None
+        if len(nodes) == 2:
+            name, code = nodes
+        elif len(nodes) == 3:
+            name, directive, code = nodes
+            if not directive.startswith("#"):
+                raise NotImplementedError(nodes)
+        else:
+            raise NotImplementedError(nodes)
         code = str(code)
         code = code.split("\n", 1)[-1]
         code = code.rsplit("\n", 1)[0]
-        return Assignment(name, Code(name, code))
+        return Assignment(name, Code(name, code, directive=directive))

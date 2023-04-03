@@ -666,3 +666,12 @@ def test_directive_eval():
         """,
         check_dump_parse=True,
     )
+
+
+def test_code_with_directive():
+    tree = base_test(
+        """
+        nx    #eval #{ round(5 * $NSLABS) #};
+        """,
+        check_dump_parse=True,
+    )

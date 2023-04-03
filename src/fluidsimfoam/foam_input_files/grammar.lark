@@ -27,7 +27,7 @@ macro_assignment : [NEWLINE] macro [";"] [NEWLINE]
 list_assignment : [NEWLINE] _key [CNAME] NEWLINE list ";" [NEWLINE]
 var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]
 dict_assignment : [NEWLINE] _dict_name (CNAME)* [directive] [NEWLINE] "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
-code_assignment : [NEWLINE] CNAME NEWLINE /#{[\S\s]*#};/ NEWLINE
+code_assignment : [NEWLINE] CNAME [directive] [NEWLINE] /#{[\S\s]*#};/ NEWLINE
 dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" [NEWLINE]
 _assignment : var_assignment | dict_assignment | list_assignment
               | dimension_assignment | code_assignment | macro_assignment | directive_assignment
