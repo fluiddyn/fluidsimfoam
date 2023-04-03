@@ -653,3 +653,16 @@ def test_for_U():
         """,
         check_dump_parse=True,
     )
+
+
+def test_directive_eval():
+    tree = base_test(
+        """
+        transform
+        {
+            origin  (#eval{0.5 * $SLAB_OFFSET} 0 0);
+            rotation none;
+        }
+        """,
+        check_dump_parse=True,
+    )
