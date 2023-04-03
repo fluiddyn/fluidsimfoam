@@ -631,7 +631,6 @@ def test_double_value():
     )
 
 
-@pytest.mark.xfail()
 def test_for_blockmesh():
     tree = base_test(
         """

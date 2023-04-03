@@ -11,7 +11,7 @@ _key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
 directive: /#[a-zA-Z]+/
 macro : "$" (CNAME|DOUBLE_NAME) | MACRO_TERM
 dimension_set : "[" (SIGNED_NUMBER)+ "]"
-_dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | macro
+_dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | macro | directive
     | SIGNED_NUMBER | dimension_set | EQKEY
 list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
 
@@ -34,8 +34,8 @@ _assignment : var_assignment | dict_assignment | list_assignment
 
 file : (_assignment)+
 
-CPP_COMMENT: /\/\/[^\n]*/ NEWLINE
-C_COMMENT: "/*" /(.|\n)*?/ "*/" NEWLINE
+CPP_COMMENT: /\/\/[^\n]*/ [NEWLINE]
+C_COMMENT: "/*" /(.|\n)*?/ "*/" [NEWLINE]
 
 %ignore /[\n\f\r]+/
 %ignore CPP_COMMENT
