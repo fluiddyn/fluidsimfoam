@@ -16,10 +16,10 @@ tutorials_dir = Path(os.environ["FOAM_TUTORIALS"])
 # name_studied_file = "controlDict"  # No parser issue
 # name_studied_file = "fvSchemes"  # No parser issue
 name_studied_file = "blockMeshDict"
-# name_studied_file = "turbulenceProperties"
-name_studied_file = "U"
-name_studied_file = "decomposeParDict"  # No parser issue
-name_studied_file = "transportProperties"  # No parser issue
+name_studied_file = "turbulenceProperties"  # No parser issue
+# name_studied_file = "U"
+# name_studied_file = "decomposeParDict"  # No parser issue
+# name_studied_file = "transportProperties"  # No parser issue
 # name_studied_file = "g"
 # name_studied_file = "p"
 
@@ -53,7 +53,7 @@ bad_files = set(
         "heatTransfer/chtMultiRegionFoam/coolingCylinder2D/system/controlDict",
         "incompressible/pimpleFoam/RAS/wingMotion/wingMotion_snappyHexMesh/system/controlDict",
         # dict named "(oil mercury)"
-        "multiphase/multiphaseEulerFoam/laminar/damBreak4phase/constant/transportProperties"
+        "multiphase/multiphaseEulerFoam/laminar/damBreak4phase/constant/transportProperties",
     ]
 )
 
@@ -62,6 +62,8 @@ errors = {"Empty file": 0, "parser error": 0, "wrong files": 0}
 
 file_classes = {}
 names_level0 = {}
+names_level1 = {}
+names_level2 = {}
 
 issues = []
 
@@ -114,17 +116,55 @@ for path_file in track(paths):
         except KeyError:
             names_level0[name] = 1
 
+        if isinstance(tree.children[f"{name}"], dict):
+            for name1 in tree.children[f"{name}"].keys():
+                key = f"{name}/{name1}"
+                try:
+                    names_level1[key] += 1
+                except KeyError:
+                    names_level1[key] = 1
+
+                if isinstance(tree.children[f"{name}"][f"{name1}"], dict):
+                    for name2 in tree.children[f"{name}"][f"{name1}"].keys():
+                        key = f"{name}/{name1}/{name2}"
+                        try:
+                            names_level2[key] += 1
+                        except KeyError:
+                            names_level2[key] = 1
+
 
 print(f"{nb_examples = }")
 
 pprint(errors, sort_dicts=False)
 
+names_level0 = {key: val for key, val in names_level0.items() if val > 5}
 names_level0 = dict(
     sorted(names_level0.items(), key=lambda item: item[1], reverse=True)
 )
 pprint(names_level0, sort_dicts=False)
+
+names_level1 = {key: val for key, val in names_level1.items() if val > 50}
+names_level1 = dict(
+    sorted(names_level1.items(), key=lambda item: item[1], reverse=True)
+)
+if names_level1:
+    print("\nnames_level1:")
+    pprint(names_level1, sort_dicts=False)
+
+names_level2 = {key: val for key, val in names_level2.items() if val > 100}
+names_level2 = dict(
+    sorted(names_level2.items(), key=lambda item: item[1], reverse=True)
+)
+
+if names_level2:
+    print("\nnames_level2:")
+    pprint(names_level2, sort_dicts=False)
+
 print("FoamInfo classes:")
 pprint(file_classes)
+
+if not CHECK:
+    print("Warning: tree == parse(dump(tree)) not checked")
 
 if issues:
     txt_issues = "\n".join(str(p) for p in issues)
