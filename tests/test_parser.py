@@ -715,6 +715,46 @@ def test_macro_signed():
     )
 
 
+@pytest.mark.xfail
+def test_directive_if():
+    tree = base_test(
+        """
+        #if 0
+        xin     #eval{ $xin / 5 };
+        xout    #eval{ $xout / 5 };
+        zmax    #eval{ $zmax / 5 };
+
+        nxin    #eval{ round ($nxin / 5) };
+        nxout   #eval{ round ($nxout / 5) };
+        nz      #eval{ round ($nz / 5) };
+        #endif
+        """,
+        check_dump_parse=True,
+    )
+
+
+@pytest.mark.xfail
+def test_macro_with_dict():
+    tree = base_test(
+        """
+        rInner45    ${{ $rInner * sqrt(0.5) }};
+        rOuter45    ${{ $rOuter * sqrt(0.5) }};
+        xmin        ${{ -$xmax }};
+        """,
+        check_dump_parse=True,
+    )
+
+
+@pytest.mark.xfail
+def test_directive_strange():
+    tree = base_test(
+        """
+        #remove ( "r(Inner|Outer).*"  "[xy](min|max)" )
+        """,
+        check_dump_parse=True,
+    )
+
+
 @pytest.mark.xfail(
     reason="""
 inGroups  1
