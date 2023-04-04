@@ -96,7 +96,7 @@ for path_file in track(paths):
         tree = parse(text)
         if CHECK:
             assert tree == parse(dump(tree))
-    except lark.exceptions.LarkError:
+    except (lark.exceptions.LarkError, AssertionError):
         errors["parser error"] += 1
         issues.append(path_file)
         continue

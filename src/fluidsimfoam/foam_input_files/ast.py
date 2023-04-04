@@ -234,12 +234,25 @@ class List(list, Node):
         if self._name is not None:
             tmp.append("\n" + indentation + self._name + f"\n{indentation}" + "(")
             tmp1 = []
-            for item in self:
-                if hasattr(item, "dump"):
-                    tmp1.append(item.dump())
-                else:
-                    tmp1.append(str(item))
-            tmp.append(indentation + 4 * " " + " ".join(tmp1))
+            if self._name != "blocks":
+                for item in self:
+                    if hasattr(item, "dump"):
+                        tmp1.append(item.dump(indent + 4))
+                    else:
+                        tmp1.append(indentation + 4 * " " + str(item))
+                tmp.append("\n".join(tmp1))
+            else:
+                first_line = 0
+                tmp1.append(2 * " ")
+                for item in self:
+                    if item == "hex":
+                        tmp1.append(first_line * "\n   ")
+                    first_line = 1
+                    if hasattr(item, "dump"):
+                        tmp1.append(item.dump())
+                    else:
+                        tmp1.append(str(item))
+                tmp.append(" ".join(tmp1))
             tmp.append(indentation + ");\n")
             return "\n".join(tmp)
         elif self._name is None:

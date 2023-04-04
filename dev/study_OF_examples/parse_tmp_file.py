@@ -12,7 +12,13 @@ else:
 
 assert path.exists()
 
-tree = parse(path.read_text())
+text = path.read_text()
+tree = parse(text)
 
 dumped = dump(tree)
+
+here = Path(__file__).absolute().parent
+tmp_dumped = here / "tmp_dumped.txt"
+tmp_dumped.write_text(dumped)
+
 assert tree == parse(dumped)
