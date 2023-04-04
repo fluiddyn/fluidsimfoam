@@ -244,7 +244,7 @@ class List(list, Node):
             tmp.extend(self._make_list_strings(indent=0))
             return indentation + "(" + " ".join(tmp) + ")"
         else:
-            tmp.append("\n" + indentation + self._name + f"\n{indentation}" + "(")
+            tmp.append(indentation + self._name + f"\n{indentation}" + "(")
             if self._name != "blocks":
                 tmp.append("\n".join(self._make_list_strings(indent + 4)))
             else:
@@ -292,7 +292,7 @@ class Code(Node):
             start += " " + self.directive
         tmp.append(start + f"\n{indentation}" + "#{")
         for line in self.code.split("\n"):
-            tmp.append(indentation + 4 * " " + line)
+            tmp.append(indentation + line)
         tmp.append(indentation + "#};\n")
         return "\n".join(tmp)
 

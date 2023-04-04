@@ -2,7 +2,7 @@
 
 EQKEY.2 : /[a-zA-Z]+\(\S+\)[a-zA-Z]*/
 
-MACRO_TERM : /\$[^;^\s\n\)]+/
+MACRO_TERM : /[\-]*\$[^;^\s\n\)]+/
 DOUBLE_NAME.1 : /[a-zA-Z][a-zA-Z\d]*[:\.-][a-zA-Z\d\._]+/
 
 _dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY

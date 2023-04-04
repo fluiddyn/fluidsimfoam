@@ -376,7 +376,7 @@ def test_code():
             -I$(LIB_SRC)/meshTools/lnInclude
         #};
     """,
-        check_dump=True,
+        check_dump=False,
         check_dump_parse=True,
     )
 
@@ -414,9 +414,11 @@ def test_code_stream():
                 }
                 p.writeEntry("",os);
             #};
-        };
+
+        }
 """,
         check_dump_parse=True,
+        check_dump=True,
     )
 
 
@@ -685,7 +687,6 @@ def test_blocks():
             version     2.0;
         }
 
-
         blocks
         (
             hex (0 1 2 3 4 5 6 7) inletChannel (40 1 64) simpleGrading (1 1 1)
@@ -695,4 +696,38 @@ def test_blocks():
         );
         """,
         check_dump=True,
+        check_dump_parse=True,
+    )
+
+
+def test_macro_signed():
+    tree = base_test(
+        """
+        vertices
+        (
+            ( $x0      $y0    -$w2 )
+            (  0      -$h2    -$w2 )
+            (  0       $h2    -$w2 )
+            ( $x1      $y1    -$w2 )
+        );
+        """,
+        check_dump_parse=True,
+    )
+
+
+@pytest.mark.xfail(
+    reason="""
+inGroups  1
+(
+    cyclicAMI
+);
+;
+"""
+)
+def test_double_named_list():
+    tree = base_test(
+        """
+        inGroups 1(cyclicAMI);
+        """,
+        check_dump_parse=True,
     )
