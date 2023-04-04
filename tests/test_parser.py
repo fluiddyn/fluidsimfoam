@@ -683,21 +683,16 @@ def test_blocks():
         FoamFile
         {
             version     2.0;
-            format      ascii;
-            class       dictionary;
-            object      blockMeshDict;
         }
-        // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
 
         blocks
         (
             hex (0 1 2 3 4 5 6 7) inletChannel (40 1 64) simpleGrading (1 1 1)
             hex (4 5 6 7 8 9 10 11 12) inletChannel (40 1 16) simpleGrading (1 1 1)
-            hex (12 13 14 15 16 17 18 19) (96 1  8) simpleGrading (1 1 1)
+            hex (12 13 14 15 16 17 18 19) (96 1 8) simpleGrading (1 1 1)
             hex (16 17 18 19 20 21 22 23) (96 1 72) simpleGrading (1 1 1)
         );
-
-
         """,
-        check_dump_parse=True,
+        check_dump=True,
     )

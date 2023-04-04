@@ -228,40 +228,46 @@ class List(list, Node):
     def __repr__(self):
         return super().__repr__()
 
+    def _make_list_strings(self, indent):
+        return [self._dump_item(item, indent) for item in self]
+
+    def _dump_item(self, item, indent=0):
+        if hasattr(item, "dump"):
+            return item.dump(indent)
+        else:
+            return indent * " " + str(item)
+
     def dump(self, indent=0):
         tmp = []
         indentation = indent * " "
-        if self._name is not None:
+        if self._name is None:
+            tmp.extend(self._make_list_strings(indent=0))
+            return indentation + "(" + " ".join(tmp) + ")"
+        else:
             tmp.append("\n" + indentation + self._name + f"\n{indentation}" + "(")
-            tmp1 = []
             if self._name != "blocks":
-                for item in self:
-                    if hasattr(item, "dump"):
-                        tmp1.append(item.dump(indent + 4))
-                    else:
-                        tmp1.append(indentation + 4 * " " + str(item))
-                tmp.append("\n".join(tmp1))
+                tmp.append("\n".join(self._make_list_strings(indent + 4)))
             else:
-                first_line = 0
-                tmp1.append(2 * " ")
+                if not self[0] == "hex":
+                    raise ValueError(self)
+
+                lines = []
+                items_line = None
                 for item in self:
                     if item == "hex":
-                        tmp1.append(first_line * "\n   ")
-                    first_line = 1
-                    if hasattr(item, "dump"):
-                        tmp1.append(item.dump())
+                        if items_line is not None:
+                            lines.append(items_line)
+                        items_line = [item]
                     else:
-                        tmp1.append(str(item))
-                tmp.append(" ".join(tmp1))
+                        items_line.append(item)
+                lines.append(items_line)
+                lines = [
+                    " ".join(self._dump_item(_item) for _item in items_line)
+                    for items_line in lines
+                ]
+                tmp.extend((indent + 4) * " " + line for line in lines)
             tmp.append(indentation + ");\n")
             return "\n".join(tmp)
-        elif self._name is None:
-            for item in self:
-                if hasattr(item, "dump"):
-                    tmp.append(item.dump(indent + 4))
-                else:
-                    tmp.append(str(item))
-            return indentation + "(" + " ".join(tmp) + ")"
 
 
 class Code(Node):
