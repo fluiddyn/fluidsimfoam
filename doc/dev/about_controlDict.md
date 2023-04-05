@@ -13,47 +13,38 @@ python study_controldict.py
 Here are the results:
 
 ```
-nb_examples = 358
-{'Empty file': 0, 'parser error': 13, 'wrong files': 0}
+nb_examples = 425
+{'Empty file': 0, 'parser error': 5, 'wrong files': 0}
 
 {
- 'vertices': 345,
- 'blocks': 345,
- 'scale': 339,
- 'boundary': 310,
- 'edges': 287,
- 'mergePatchPairs': 194,
- 'patches': 35,
- 'nx': 20,
- 'ny': 20,
- 'nz': 20,
- 'defaultPatch': 14,
- 'zMax': 12,
- 'zMin': 12,
- 'mergeType': 11,
- 'y1': 11,
- 'xMin': 11,
- 'xMax': 11,
- 'yMin': 11,
- 'yMax': 11,
- 'y2': 10,
- 'alpha': 10,
- 'yExpansion': 10,
- 'sin0': 10,
- 'cos0': 10,
- 'xMindx': 10,
- 'xMaxdx': 10,
- 'yMaxdy': 10,
- 'L': 9,
- 'negY': 8,
- 'posY': 8,
- 'posYR': 8,
- 'H': 8,
- 'x1': 7,
- 'x2': 7
+ 'application': 420,
+ 'startTime': 420,
+ 'stopAt': 420,
+ 'endTime': 420,
+ 'deltaT': 420,
+ 'writeControl': 420,
+ 'writeFormat': 420,
+ 'timeFormat': 420,
+ 'startFrom': 419,
+ 'writeInterval': 419,
+ 'purgeWrite': 419,
+ 'runTimeModifiable': 419,
+ 'writeCompression': 416,
+ 'timePrecision': 416,
+ 'writePrecision': 412,
+ 'adjustTimeStep': 244,
+ 'maxCo': 229,
+ 'functions': 189,
+ 'maxDeltaT': 180,
+ 'maxAlphaCo': 90,
+ 'libs': 55,
+ 'graphFormat': 26,
+ 'DebugSwitches': 26,
+ 'maxDi': 17,
+ 'maxAlphaDdt': 6
  }
 
 FoamInfo classes:
-{'dictionary': 345}
-
+{'dictionary': 420}
+Fluidsimfoam issues (1.18 % of files): (saved in tmp_issues.txt)
 ```
