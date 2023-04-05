@@ -715,6 +715,24 @@ def test_macro_signed():
     )
 
 
+def test_list_numbered():
+    tree = base_test(
+        """
+        internalField nonuniform
+        List<vector>
+        4096
+        (
+            (-0.0376011 0.020584 -0.0051027)
+            (-0.0262359 0.0149309 -0.0048244)
+            (-0.0141003 0.00810973 -0.00427023)
+        );
+
+        """,
+        check_dump_parse=True,
+        check_dump=True,
+    )
+
+
 @pytest.mark.xfail
 def test_directive_if():
     tree = base_test(

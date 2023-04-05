@@ -5,9 +5,12 @@ EQKEY.2 : /[a-zA-Z]+\(\S+\)[a-zA-Z]*/
 MACRO_TERM : /[\-]*\$[^;^\s\n\)]+/
 DOUBLE_NAME.1 : /[a-zA-Z][a-zA-Z\d]*[:\.-][a-zA-Z\d\._]+/
 
-_dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY
+numbered_list : [NEWLINE] (CNAME|DOUBLE_NAME|NEWLINE)*  /<[a-zA-Z]*>/ NEWLINE SIGNED_NUMBER
 
-_key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
+_dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY
+_list_name:  EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME|
+
+_key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME|numbered_list
 directive: /#[a-zA-Z]+/ | /#[a-zA-Z]+{[^}]*}/
 macro :  MACRO_TERM
 dimension_set : "[" (SIGNED_NUMBER)+ "]"
@@ -24,7 +27,7 @@ _funtion_call : CNAME [NEWLINE] "(" [NEWLINE] (_in_funtion_call) ( "," [NEWLINE]
 directive_assignment: [NEWLINE] directive (_funtion_call|CNAME|EQKEY|ESCAPED_STRING) [";"] [NEWLINE]
 
 macro_assignment : [NEWLINE] macro [";"] [NEWLINE]
-list_assignment : [NEWLINE] _key [CNAME] NEWLINE list ";" [NEWLINE]
+list_assignment : [NEWLINE] _key [CNAME] NEWLINE list [NEWLINE] ";" [NEWLINE]
 var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]
 dict_assignment : [NEWLINE] _dict_name (CNAME)* [directive] [NEWLINE] "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
 code_assignment : [NEWLINE] CNAME [directive] [NEWLINE] /#{[\S\s]*#};/ NEWLINE

@@ -65,6 +65,21 @@ class FoamTransformer(Transformer):
     def MACRO_TERM(self, token):
         return token.value
 
+    def numbered_list(self, nodes):
+        nodes = [node for node in nodes if node is not None]
+        list_name = str(nodes.pop(0))
+        end_name = (
+            "\n"
+            + str(nodes.pop(-3))
+            + str(nodes.pop(-2))
+            + "\n"
+            + str(nodes.pop(-1))
+        )
+        if nodes:
+            for node in nodes:
+                list_name = list_name + " " + str(node)
+        return list_name + end_name
+
     def dimension_set(self, items):
         return DimensionSet(
             [
