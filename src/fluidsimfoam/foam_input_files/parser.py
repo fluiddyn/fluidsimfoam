@@ -80,6 +80,11 @@ class FoamTransformer(Transformer):
                 list_name = list_name + " " + str(node)
         return list_name + end_name
 
+    def list_container(self, nodes):
+        items = filter_no_newlines(nodes)
+        name = None
+        return Assignment(name, List([item for item in items]))
+
     def dimension_set(self, items):
         return DimensionSet(
             [

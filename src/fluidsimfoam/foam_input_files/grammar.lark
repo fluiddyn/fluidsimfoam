@@ -8,9 +8,9 @@ DOUBLE_NAME.1 : /[a-zA-Z][a-zA-Z\d]*[:\.-][a-zA-Z\d\._]+/
 numbered_list : [NEWLINE] (CNAME|DOUBLE_NAME|NEWLINE)*  /<[a-zA-Z]*>/ NEWLINE SIGNED_NUMBER
 
 _dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY
-_list_name:  EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME|
+_list_name: EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME|numbered_list|directive
 
-_key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME|numbered_list
+_key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
 directive: /#[a-zA-Z]+/ | /#[a-zA-Z]+{[^}]*}/
 macro :  MACRO_TERM
 dimension_set : "[" (SIGNED_NUMBER)+ "]"
@@ -27,13 +27,14 @@ _funtion_call : CNAME [NEWLINE] "(" [NEWLINE] (_in_funtion_call) ( "," [NEWLINE]
 directive_assignment: [NEWLINE] directive (_funtion_call|CNAME|EQKEY|ESCAPED_STRING) [";"] [NEWLINE]
 
 macro_assignment : [NEWLINE] macro [";"] [NEWLINE]
-list_assignment : [NEWLINE] _key [CNAME] NEWLINE list [NEWLINE] ";" [NEWLINE]
+list_assignment : [NEWLINE] _list_name [CNAME] [NEWLINE] list [NEWLINE] ";" [NEWLINE]
+list_container: [NEWLINE] "(" (list|NEWLINE)+ ")" ";" [NEWLINE]
 var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]
 dict_assignment : [NEWLINE] _dict_name (CNAME)* [directive] [NEWLINE] "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
 code_assignment : [NEWLINE] CNAME [directive] [NEWLINE] /#{[\S\s]*#};/ NEWLINE
 dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" [NEWLINE]
 _assignment : var_assignment | dict_assignment | list_assignment
-              | dimension_assignment | code_assignment | macro_assignment | directive_assignment
+              | dimension_assignment | code_assignment | macro_assignment | directive_assignment | list_container
 
 file : (_assignment)+
 

@@ -14,34 +14,35 @@ Here are the results:
 
 ```
 nb_examples = 369
-{'Empty file': 0, 'parser error': 48, 'wrong files': 0}
+{'Empty file': 36, 'parser error': 7, 'wrong files': 0}
 
 {
- 'dimensions': 321,
- 'internalField': 321,
- 'boundaryField': 321,
+ 'dimensions': 326,
+ 'boundaryField': 326,
+ 'internalField': 324,
  '#include "include/initialConditions"': 16,
  'Uinlet': 6
 }
 
 names_level1:
 {
- 'boundaryField/outlet': 137,
- 'boundaryField/inlet': 126,
+ 'boundaryField/outlet': 139,
+ 'boundaryField/inlet': 128,
  'boundaryField/walls': 69,
- 'boundaryField/frontAndBack': 67,
- 'boundaryField/#includeEtc "caseDicts/setConstraintTypes"': 51
+ 'boundaryField/frontAndBack': 68,
+ 'boundaryField/#includeEtc "caseDicts/setConstraintTypes"': 53
 }
 
 names_level2:
 {
- 'boundaryField/outlet/type': 136,
- 'boundaryField/inlet/type': 126,
- 'boundaryField/outlet/value': 101
+ 'boundaryField/outlet/type': 138,
+ 'boundaryField/inlet/type': 128,
+ 'boundaryField/outlet/value': 102
 }
 
 FoamInfo classes:
-{'volVectorField': 321}
-Fluidsimfoam issues (13.01 % of files): (saved in tmp_issues.txt)
+{'volVectorField': 326}
+
+Fluidsimfoam issues (1.90 % of files): (saved in tmp_issues.txt)
 
 ```

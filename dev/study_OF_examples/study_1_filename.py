@@ -54,6 +54,8 @@ bad_files = set(
         "incompressible/pimpleFoam/RAS/wingMotion/wingMotion_snappyHexMesh/system/controlDict",
         # dict named "(oil mercury)"
         "multiphase/multiphaseEulerFoam/laminar/damBreak4phase/constant/transportProperties",
+        # wrong dimension style
+        "/opt/openfoam/2206plus/OpenFOAM-v2206/tutorials/incompressible/pimpleFoam/RAS/TJunctionFan/0.orig/U",
     ]
 )
 
