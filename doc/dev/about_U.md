@@ -14,7 +14,7 @@ Here are the results:
 
 ```
 nb_examples = 369
-{'Empty file': 36, 'parser error': 7, 'wrong files': 0}
+{'Empty file': 38, 'parser error': 2, 'wrong files': 3}
 
 {
  'dimensions': 326,
@@ -43,6 +43,6 @@ names_level2:
 FoamInfo classes:
 {'volVectorField': 326}
 
-Fluidsimfoam issues (1.90 % of files): (saved in tmp_issues.txt)
+Fluidsimfoam issues (0.54 % of files): (saved in tmp_issues.txt)
 
 ```

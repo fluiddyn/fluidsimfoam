@@ -22,6 +22,10 @@ a rewrite of [OpenFOAM]!
 Fluidsimfoam is now in very early development. The goal is to get the
 equivalent of [Snek5000], our Fluidsim framework for [Nek5000].
 
+## Documentation and Examples
+
+[Fluidsimfoam](https://fluidsimfoam.readthedocs.org)
+
 ## Related projects
 
 - [PyFoam] ([PyPI package](https://pypi.org/project/PyFoam/),
