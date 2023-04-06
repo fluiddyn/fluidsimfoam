@@ -85,6 +85,8 @@ class FoamInputFile(Node):
                 tmp.append(node.dump())
             elif hasattr(node, "dump_without_assignment"):
                 tmp.append(f"{key}  {node.dump_without_assignment()};")
+            elif node is None:
+                tmp.append(f"{key}")
             else:
                 tmp.append(f"{key}  {node};")
         result = "\n".join(tmp)
@@ -304,9 +306,11 @@ class Code(Node):
         return "\n".join(tmp)
 
 
+@dataclass
 class Name(Node):
-    def __init__(self, name):
+    def __init__(self, name, value=None):
         self.name = name
+        self.value = value
 
     def __repr__(self):
         return f"Name({self.name})"

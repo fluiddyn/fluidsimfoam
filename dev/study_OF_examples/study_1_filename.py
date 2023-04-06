@@ -12,14 +12,14 @@ CHECK = "check" in sys.argv
 
 tutorials_dir = Path(os.environ["FOAM_TUTORIALS"])
 
-# name_studied_file = "fvSolution"  # No parser issue
-# name_studied_file = "controlDict"  # No parser issue
-# name_studied_file = "fvSchemes"  # No parser issue
-name_studied_file = "blockMeshDict"
+# name_studied_file = "fvSolution"            # No parser issue
+# name_studied_file = "controlDict"           # No parser issue
+name_studied_file = "fvSchemes"  # No parser issue
+# name_studied_file = "blockMeshDict"
 # name_studied_file = "turbulenceProperties"  # No parser issue
-# name_studied_file = "U"
-# name_studied_file = "decomposeParDict"  # No parser issue
-# name_studied_file = "transportProperties"  # No parser issue
+# name_studied_file = "U"                     # No parser issue
+# name_studied_file = "decomposeParDict"      # No parser issue
+# name_studied_file = "transportProperties"   # No parser issue
 # name_studied_file = "g"
 # name_studied_file = "p"
 

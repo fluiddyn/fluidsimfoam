@@ -750,6 +750,26 @@ def test_directive_if():
     )
 
 
+def test_directive_if_in_file():
+    tree = base_test(
+        """
+        #if 0
+        xin     #eval{ $xin / 5 };
+        xout    #eval{ $xout / 5 };
+        zmax    #eval{ $zmax / 5 };
+
+        nxin    #eval{ round ($nxin / 5) };
+        nxout   #eval{ round ($nxout / 5) };
+        nz      #eval{ round ($nz / 5) };
+        #endif
+
+        zmin    #eval{ -$zmax };
+
+        """,
+        check_dump_parse=True,
+    )
+
+
 def test_macro_with_dict():
     tree = base_test(
         """

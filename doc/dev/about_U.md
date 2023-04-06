@@ -14,12 +14,12 @@ Here are the results:
 
 ```
 nb_examples = 369
-{'Empty file': 38, 'parser error': 2, 'wrong files': 3}
+{'Empty file': 38, 'parser error': 0, 'wrong files': 3}
 
 {
- 'dimensions': 326,
- 'boundaryField': 326,
- 'internalField': 324,
+ 'dimensions': 328,
+ 'boundaryField': 328,
+ 'internalField': 326,
  '#include "include/initialConditions"': 16,
  'Uinlet': 6
 }
@@ -30,7 +30,7 @@ names_level1:
  'boundaryField/inlet': 128,
  'boundaryField/walls': 69,
  'boundaryField/frontAndBack': 68,
- 'boundaryField/#includeEtc "caseDicts/setConstraintTypes"': 53
+ 'boundaryField/#includeEtc "caseDicts/setConstraintTypes"': 55
 }
 
 names_level2:
@@ -41,8 +41,8 @@ names_level2:
 }
 
 FoamInfo classes:
-{'volVectorField': 326}
+{'volVectorField': 328}
 
-Fluidsimfoam issues (0.54 % of files): (saved in tmp_issues.txt)
+No parser issue for U!
 
 ```
