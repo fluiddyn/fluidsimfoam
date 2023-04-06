@@ -795,10 +795,11 @@ def test_double_named_list():
 def test_triple_named_list():
     tree = base_test(
         """
-        inGroups-list-1
-        (
-            cyclicAMI  5;
-        );
+        velocity-inlet-5
+        {
+            type            fixedValue;
+            value           uniform (1 0 0);
+        }
         """,
         check_dump_parse=True,
     )
@@ -821,4 +822,22 @@ def test_list_u():
 
         """,
         check_dump_parse=True,
+    )
+
+
+def test_list_numbered_u():
+    tree = base_test(
+        """
+        70
+        (
+            (5.74803 0 0)
+            (5.74803 0 0)
+            (11.3009 0 0)
+            (13.4518 0 0)
+            (13.4518 0 0)
+            (14.0472 0 0)
+        );
+        """,
+        check_dump_parse=True,
+        check_dump=True,
     )

@@ -83,7 +83,11 @@ class FoamTransformer(Transformer):
     def list_container(self, nodes):
         items = filter_no_newlines(nodes)
         name = None
-        return Assignment(name, List([item for item in items]))
+        if isinstance(items[0], int):
+            name = str(items.pop(0))
+            return List(List([item for item in items]), name=name)
+        else:
+            return Assignment(name, List([item for item in items]))
 
     def dimension_set(self, items):
         return DimensionSet(
