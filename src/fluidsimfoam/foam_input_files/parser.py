@@ -10,6 +10,7 @@ from .ast import (
     Directive,
     FoamInputFile,
     List,
+    Name,
     Value,
     VariableAssignment,
 )
@@ -276,3 +277,7 @@ class FoamTransformer(Transformer):
         code = code.split("\n", 1)[-1]
         code = code.rsplit("\n", 1)[0]
         return Assignment(name, Code(name, code, directive=directive))
+
+    def if_assignment(self, token):
+        token = filter_no_newlines(token)
+        return Name(token[0].value + "\n")

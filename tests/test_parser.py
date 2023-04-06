@@ -733,7 +733,6 @@ def test_list_numbered():
     )
 
 
-@pytest.mark.xfail
 def test_directive_if():
     tree = base_test(
         """
@@ -751,7 +750,6 @@ def test_directive_if():
     )
 
 
-@pytest.mark.xfail
 def test_macro_with_dict():
     tree = base_test(
         """

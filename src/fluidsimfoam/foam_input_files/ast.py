@@ -304,6 +304,17 @@ class Code(Node):
         return "\n".join(tmp)
 
 
+class Name(Node):
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return f"Name({self.name})"
+
+    def dump(self, indent=0):
+        return f"{self.name}"
+
+
 class Directive(Node):
     def __init__(self, directive, content):
         self.directive = directive
