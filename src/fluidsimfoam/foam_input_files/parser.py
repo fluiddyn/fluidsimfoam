@@ -59,6 +59,9 @@ class FoamTransformer(Transformer):
     def DOUBLE_NAME(self, token):
         return token.value
 
+    def TRIPLE_NAME(self, token):
+        return token.value
+
     def EQKEY(self, token):
         return token.value
 

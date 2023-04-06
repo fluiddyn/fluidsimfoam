@@ -51,7 +51,7 @@ bad_files = set(
         # too much }
         "heatTransfer/chtMultiRegionFoam/coolingCylinder2D/system/controlDict",
         "incompressible/pimpleFoam/RAS/wingMotion/wingMotion_snappyHexMesh/system/controlDict",
-        "/opt/openfoam/2206plus/OpenFOAM-v2206/tutorials/incompressible/pimpleFoam/laminar/filmPanel0/0.orig/U"
+        "/opt/openfoam/2206plus/OpenFOAM-v2206/tutorials/incompressible/pimpleFoam/laminar/filmPanel0/0.orig/U",
         # dict named "(oil mercury)"
         "multiphase/multiphaseEulerFoam/laminar/damBreak4phase/constant/transportProperties",
         # wrong dimension style [m s^-1]

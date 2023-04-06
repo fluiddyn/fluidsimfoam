@@ -791,7 +791,6 @@ def test_double_named_list():
     )
 
 
-@pytest.mark.xfail
 def test_triple_named_list():
     tree = base_test(
         """
