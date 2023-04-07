@@ -3,7 +3,7 @@
 EQKEY.2 : /[a-zA-Z]+\(\S+\)[a-zA-Z]*/
 
 MACRO_TERM : /[\-]*\$[^;^\s\n\)]+/ | /\$\{{[^;^\n]+/
-DOUBLE_NAME.1 : /[a-zA-Z][a-zA-Z\d]*[:\.-][a-zA-Z\d\._]+/
+DOUBLE_NAME.1 : /[a-zA-Z][a-zA-Z\d]*[:\.-][a-zA-Z\d\._\::]+/
 TRIPLE_NAME.3 :  /[a-zA-Z][a-zA-Z\d]*[:\-][a-zA-Z\d\._]+[:\-][a-zA-Z\d\._]/
 
 numbered_list : [NEWLINE] (CNAME|DOUBLE_NAME|NEWLINE)*  /<[a-zA-Z]*>/ NEWLINE SIGNED_NUMBER
@@ -12,7 +12,7 @@ _dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY|TRIPLE_NAME
 _list_name: EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME|numbered_list|directive
 
 _key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
-directive: /#[a-zA-Z]+/ | /#[a-zA-Z]+{[^}]*}/
+directive: /#[a-zA-Z]+/ | /#[a-zA-Z]+{[^}]*}/ | /#[a-zA-Z]+[\s#{]+[^#]*#}/
 macro :  MACRO_TERM
 dimension_set : "[" (SIGNED_NUMBER)+ "]"
 _dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | macro | directive

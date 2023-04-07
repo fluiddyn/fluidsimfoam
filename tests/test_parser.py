@@ -858,3 +858,48 @@ def test_list_numbered_u():
         check_dump_parse=True,
         check_dump=True,
     )
+
+
+""" In controlDict files, once"""
+
+
+def test_colon_double_name():
+    tree = base_test(
+        """
+        DebugSwitches
+        {
+            compressible::alphatWallBoilingWallFunction                 0;
+            compressible::turbulentTemperatureTwoPhaseRadCoupledMixed   0;
+        }
+        """,
+        check_dump_parse=True,
+    )
+
+
+""" In controlDict files, once"""
+
+
+def test_strange_directive():
+    tree = base_test(
+        """
+        timeStart  #eval #{ 1.0/3.0 * ${/endTime} #};
+
+        U
+        {
+            mean        on;
+            prime2Mean  on;
+            base        time;
+        }
+        """,
+        check_dump_parse=True,
+    )
+
+
+@pytest.mark.xfail(reason=""" In controlDict files, found in once""")
+def test_directive_with_macro():
+    tree = base_test(
+        """
+        timeStart       #eval{ 0.1 * ${/endTime} };
+        """,
+        check_dump_parse=True,
+    )

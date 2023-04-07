@@ -39,8 +39,10 @@ except IndexError:
 tutorials_dir = Path(os.environ["FOAM_TUTORIALS"])
 
 """
+Parser errors for each file: (OpenFOAM-v2206)
+
 fvSolution:            0  / 541
-controlDict:           5  / 425
+controlDict:           1  / 425
 fvSchemes:             4  / 504
 blockMeshDict:         2  / 348
 turbulenceProperties:  0  / 334
@@ -86,6 +88,9 @@ bad_files = set(
         # wrong dimension style [m s^-1]
         "incompressible/pimpleFoam/RAS/TJunctionFan/0.orig/U",
         "mesh/snappyHexMesh/addLayersToFaceZone/0.orig/U",
+        "incompressible/pimpleFoam/RAS/TJunctionArrheniusBirdCarreauTransport/system/controlDict",
+        # too much selmicolon
+        "lagrangian/reactingParcelFoam/recycleParticles/system/controlDict",
     ]
 )
 
