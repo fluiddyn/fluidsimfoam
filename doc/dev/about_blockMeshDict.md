@@ -5,9 +5,10 @@ by running
 
 ```sh
 cd dev/study_OF_examples
-python study_blockmeshdict.py check
+./study_1_filename.py blockMeshDict check
 # or (faster)
-python study_blockmeshdict.py
+./study_1_filename.py blockMeshDict
+
 ```
 
 Here are the results:

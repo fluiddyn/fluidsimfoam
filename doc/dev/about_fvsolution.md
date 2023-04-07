@@ -5,9 +5,9 @@ by running
 
 ```sh
 cd dev/study_OF_examples
-python study_fvsolution.py check
+./study_1_filename.py check
 # or (faster)
-python study_fvsolution.py
+./study_1_filename.py
 ```
 
 Here are the results:

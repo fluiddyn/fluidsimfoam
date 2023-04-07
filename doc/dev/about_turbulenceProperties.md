@@ -5,9 +5,9 @@ by running
 
 ```sh
 cd dev/study_OF_examples
-python study_turbulenceproperties.py check
+./study_1_filename.py turbulenceProperties check
 # or (faster)
-python study_turbulenceproperties.py
+./study_1_filename.py turbulenceProperties
 ```
 
 Here are the results:

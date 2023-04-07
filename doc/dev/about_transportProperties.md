@@ -5,9 +5,9 @@ by running
 
 ```sh
 cd dev/study_OF_examples
-python study_transportproperties.py check
+./study_1_filename.py transportProperties check
 # or (faster)
-python study_transportproperties.py
+./study_1_filename.py transportProperties
 ```
 
 Here are the results:

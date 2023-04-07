@@ -5,9 +5,9 @@ by running
 
 ```sh
 cd dev/study_OF_examples
-python study_controldict.py check
+./study_1_filename.py controlDict check
 # or (faster)
-python study_controldict.py
+./study_1_filename.py controlDict
 ```
 
 Here are the results:

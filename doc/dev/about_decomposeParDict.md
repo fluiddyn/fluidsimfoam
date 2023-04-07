@@ -5,9 +5,9 @@ by running
 
 ```sh
 cd dev/study_OF_examples
-python study_decomposepardict.py check
+./study_1_filename.py decomposeParDict check
 # or (faster)
-python study_decomposepardict.py
+./study_1_filename.py decomposeParDict
 ```
 
 Here are the results:
