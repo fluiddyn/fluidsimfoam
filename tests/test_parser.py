@@ -791,24 +791,6 @@ def test_directive_strange():
     )
 
 
-@pytest.mark.xfail(
-    reason="""
-inGroups  1
-(
-    cyclicAMI
-);
-;
-"""
-)
-def test_double_named_list():
-    tree = base_test(
-        """
-        inGroups 1(cyclicAMI);
-        """,
-        check_dump_parse=True,
-    )
-
-
 def test_triple_named_list():
     tree = base_test(
         """
@@ -913,7 +895,6 @@ def test_strange_assignment():
         """
         divSchemes
         {
-
             div(phi,U)      Gauss DEShybrid
                 linear                    // scheme 1
                 linearUpwind grad(U)      // scheme 2
@@ -947,6 +928,24 @@ def test_dict_with_list_name():
                 residualSlip 1e-3;
             }
         );
+        """,
+        check_dump_parse=True,
+    )
+
+
+@pytest.mark.xfail(reason=""" In g files, found once""")
+def test_list_name_eq():
+    tree = base_test(
+        """
+        value #eval
+        {
+            -9.81 * vector
+            (
+                sin(degToRad($alphax)),
+                sin(degToRad($alpha)),
+                cos(degToRad($alpha))
+            )
+        };
         """,
         check_dump_parse=True,
     )

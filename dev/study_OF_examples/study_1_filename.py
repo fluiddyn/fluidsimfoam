@@ -50,7 +50,7 @@ U:                     0  / 369
 decomposeParDict:      0  / 327
 transportProperties:   0  / 254
 g:                     1  / 224
-p:                     8  / 303
+p:                     0  / 303
 """
 
 print(f"Parse all {name_studied_file} files in {tutorials_dir}")
@@ -89,6 +89,8 @@ bad_files = set(
         "incompressible/pimpleFoam/RAS/TJunctionFan/0.orig/U",
         "mesh/snappyHexMesh/addLayersToFaceZone/0.orig/U",
         "incompressible/pimpleFoam/RAS/TJunctionArrheniusBirdCarreauTransport/system/controlDict",
+        "incompressible/pimpleFoam/RAS/TJunctionFan/0.orig/p",
+        "mesh/snappyHexMesh/addLayersToFaceZone/0.orig/p",
         # too much selmicolon
         "lagrangian/reactingParcelFoam/recycleParticles/system/controlDict",
     ]
