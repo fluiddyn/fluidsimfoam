@@ -781,7 +781,7 @@ def test_macro_with_dict():
     )
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail(reason=""" In blockMeshDict files, found twice (All errors)""")
 def test_directive_strange():
     tree = base_test(
         """
@@ -895,11 +895,58 @@ def test_strange_directive():
     )
 
 
-@pytest.mark.xfail(reason=""" In controlDict files, found in once""")
+@pytest.mark.xfail(reason=""" In controlDict files, found once""")
 def test_directive_with_macro():
     tree = base_test(
         """
         timeStart       #eval{ 0.1 * ${/endTime} };
+        """,
+        check_dump_parse=True,
+    )
+
+
+@pytest.mark.xfail(
+    reason=""" In fvSchemes files, all parser errors related to this test(3)"""
+)
+def test_strange_assignment():
+    tree = base_test(
+        """
+        divSchemes
+        {
+
+            div(phi,U)      Gauss DEShybrid
+                linear                    // scheme 1
+                linearUpwind grad(U)      // scheme 2
+                hmax
+                0.65                      // DES coefficient, typically = 0.65
+                1                         // Reference velocity scale
+                0.028                     // Reference length scale
+                0                         // Minimum sigma limit (0-1)
+                1                         // Maximum sigma limit (0-1)
+                1; // 1.0e-03;                  // Limiter of B function, typically 1e-03
+        }
+
+        """,
+        check_dump_parse=True,
+    )
+
+
+""" In transportProperties files, found 4 times"""
+
+
+def test_dict_with_list_name():
+    tree = base_test(
+        """
+        drag
+        (
+            (air water)
+            {
+                type blended;
+
+                residualPhaseFraction 1e-3;
+                residualSlip 1e-3;
+            }
+        );
         """,
         check_dump_parse=True,
     )

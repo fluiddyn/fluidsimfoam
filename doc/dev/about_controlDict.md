@@ -14,37 +14,39 @@ Here are the results:
 
 ```
 nb_examples = 425
-{'Empty file': 0, 'parser error': 5, 'wrong files': 0}
+{'Empty file': 0, 'parser error': 1, 'wrong files': 2}
 
 {
- 'application': 420,
- 'startTime': 420,
- 'stopAt': 420,
- 'endTime': 420,
- 'deltaT': 420,
- 'writeControl': 420,
- 'writeFormat': 420,
- 'timeFormat': 420,
- 'startFrom': 419,
- 'writeInterval': 419,
- 'purgeWrite': 419,
- 'runTimeModifiable': 419,
- 'writeCompression': 416,
- 'timePrecision': 416,
- 'writePrecision': 412,
- 'adjustTimeStep': 244,
- 'maxCo': 229,
- 'functions': 189,
- 'maxDeltaT': 180,
+ 'application': 422,
+ 'startTime': 422,
+ 'stopAt': 422,
+ 'endTime': 422,
+ 'deltaT': 422,
+ 'writeControl': 422,
+ 'writeFormat': 422,
+ 'timeFormat': 422,
+ 'startFrom': 421,
+ 'writeInterval': 421,
+ 'purgeWrite': 421,
+ 'runTimeModifiable': 421,
+ 'writeCompression': 418,
+ 'timePrecision': 418,
+ 'writePrecision': 414,
+ 'adjustTimeStep': 246,
+ 'maxCo': 230,
+ 'functions': 191,
+ 'maxDeltaT': 181,
  'maxAlphaCo': 90,
  'libs': 55,
+ 'DebugSwitches': 27,
  'graphFormat': 26,
- 'DebugSwitches': 26,
- 'maxDi': 17,
+ 'maxDi': 18,
  'maxAlphaDdt': 6
- }
+}
 
 FoamInfo classes:
-{'dictionary': 420}
-Fluidsimfoam issues (1.18 % of files): (saved in tmp_issues.txt)
+{'dictionary': 422}
+
+Fluidsimfoam issues (0.24 % of files): (saved in tmp_issues.txt)
+
 ```

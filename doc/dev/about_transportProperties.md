@@ -14,12 +14,12 @@ Here are the results:
 
 ```
 nb_examples = 254
-{'Empty file': 0, 'parser error': 4, 'wrong files': 0}
+{'Empty file': 0, 'parser error': 0, 'wrong files': 0}
 
 {
- 'nu': 141,
- 'transportModel': 129,
- 'phases': 79,
+ 'nu': 145,
+ 'transportModel': 133,
+ 'phases': 83,
  'sigma': 72,
  'water': 72,
  'air': 62,
@@ -32,7 +32,8 @@ nb_examples = 254
  'TRef': 7,
  'Pr': 7,
  'continuousPhase': 7,
- 'rho.air': 7
+ 'rho.air': 7,
+ 'sigmas': 7
 }
 
 names_level1:
@@ -46,7 +47,8 @@ names_level1:
 }
 
 FoamInfo classes:
-{'dictionary': 250}
-Fluidsimfoam issues (1.57 % of files): (saved in tmp_issues.txt)
+{'dictionary': 254}
+
+No parser issue for transportProperties!
 
 ```

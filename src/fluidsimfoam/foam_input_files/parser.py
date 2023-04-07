@@ -187,8 +187,10 @@ class FoamTransformer(Transformer):
                 # like #codeStream
                 directive = nodes.pop(1)
                 break
-
-        name = nodes.pop(0)
+        if isinstance(nodes[0], list):
+            name = "(" + " ".join(nodes.pop(0)) + ")"
+        else:
+            name = nodes.pop(0)
         if nodes_str:
             name += " " + " ".join(nodes_str)
 

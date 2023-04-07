@@ -43,12 +43,12 @@ Parser errors for each file: (OpenFOAM-v2206)
 
 fvSolution:            0  / 541
 controlDict:           1  / 425
-fvSchemes:             4  / 504
+fvSchemes:             3  / 504
 blockMeshDict:         2  / 348
 turbulenceProperties:  0  / 334
 U:                     0  / 369
 decomposeParDict:      0  / 327
-transportProperties:   4  / 254
+transportProperties:   0  / 254
 g:                     1  / 224
 p:                     8  / 303
 """
