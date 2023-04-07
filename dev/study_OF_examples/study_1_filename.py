@@ -1,3 +1,20 @@
+#!/usr/bin/env python3
+"""
+Example of usage:
+
+```sh
+
+# for fvSolution
+./study_1_filename.py
+./study_1_filename.py check
+
+# for other file names:
+./study_1_filename.py controlDict
+./study_1_filename.py controlDict check
+```
+
+"""
+
 import os
 import sys
 from pathlib import Path
@@ -8,22 +25,34 @@ from rich.progress import track
 
 from fluidsimfoam.foam_input_files import dump, parse
 
-CHECK = "check" in sys.argv
+args = sys.argv.copy()
+
+CHECK = "check" in args
+if CHECK:
+    args.remove("check")
+
+try:
+    name_studied_file = args[1]
+except IndexError:
+    name_studied_file = "fvSolution"
 
 tutorials_dir = Path(os.environ["FOAM_TUTORIALS"])
 
-# name_studied_file = "fvSolution"            # No parser issue
-# name_studied_file = "controlDict"           # No parser issue
-name_studied_file = "fvSchemes"  # No parser issue
-# name_studied_file = "blockMeshDict"
-# name_studied_file = "turbulenceProperties"  # No parser issue
-# name_studied_file = "U"                     # No parser issue
-# name_studied_file = "decomposeParDict"      # No parser issue
-# name_studied_file = "transportProperties"   # No parser issue
-# name_studied_file = "g"
-# name_studied_file = "p"
+"""
+fvSolution:            0  / 541
+controlDict:           5  / 425
+fvSchemes:             4  / 504
+blockMeshDict:         2  / 348
+turbulenceProperties:  0  / 334
+U:                     0  / 369
+decomposeParDict:      0  / 327
+transportProperties:   4  / 254
+g:                     1  / 224
+p:                     8  / 303
+"""
 
 print(f"Parse all {name_studied_file} files in {tutorials_dir}")
+
 
 input_files = {}
 
