@@ -15,38 +15,40 @@ Here are the results:
 
 ```
 nb_examples = 348
-{'Empty file': 0, 'parser error': 2, 'wrong files': 0}
+{'Empty file': 0, 'parser error': 0, 'wrong files': 0}
 
 {
- 'vertices': 346,
+ 'vertices': 348,
  'blocks': 346,
- 'scale': 340,
+ 'scale': 342,
  'boundary': 313,
  'edges': 292,
  'mergePatchPairs': 191,
  'patches': 33,
  'defaultPatch': 23,
+ 'nz': 20,
  'ny': 18,
- 'nz': 18,
+ 'y1': 15,
  'nx': 14,
  'mergeType': 11,
- 'y1': 11,
+ 'x1': 11,
+ 'zmin': 11,
  'y2': 10,
+ 'zmax': 10,
  'transform': 9,
- 'zmin': 9,
+ 'x0': 9,
  'negY': 8,
  'posY': 8,
  'posYR': 8,
  'L': 8,
- 'zmax': 8,
- 'x1': 7,
+ 'y0': 8,
  'x2': 7,
  'H': 7
 }
 
 FoamInfo classes:
-{'dictionary': 346}
+{'dictionary': 348}
 
-Fluidsimfoam issues (0.57 % of files): (saved in tmp_issues.txt)
+No parser issue for blockMeshDict!
 
 ```

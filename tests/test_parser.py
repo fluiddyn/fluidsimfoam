@@ -781,13 +781,13 @@ def test_macro_with_dict():
     )
 
 
-@pytest.mark.xfail(reason=""" In blockMeshDict files, found twice (All errors)""")
 def test_directive_strange():
     tree = base_test(
         """
         #remove ( "r(Inner|Outer).*"  "[xy](min|max)" )
         """,
         check_dump_parse=True,
+        check_dump=True,
     )
 
 

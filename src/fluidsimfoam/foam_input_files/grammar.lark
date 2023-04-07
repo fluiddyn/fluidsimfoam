@@ -33,11 +33,11 @@ list_container: [NEWLINE] [(SIGNED_NUMBER NEWLINE) ] "(" (list|NEWLINE)+ ")" [";
 var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]
 dict_assignment : [NEWLINE] _dict_name (CNAME)* [directive] [NEWLINE] "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
 code_assignment : [NEWLINE] CNAME [directive] [NEWLINE] /#{[\S\s]*#};/ NEWLINE
-if_assignment : [NEWLINE] /#if[\S\s]*#endif/ NEWLINE
+special_directives : [NEWLINE] (/#if[\S\s]*#endif/|/#remove[\S\s]+[^;\n{]/) NEWLINE
 dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" [NEWLINE]
 _assignment : var_assignment | dict_assignment | list_assignment
               | dimension_assignment | code_assignment | macro_assignment | directive_assignment
-              | list_container | if_assignment
+              | list_container | special_directives
 
 file : (_assignment)+
 
