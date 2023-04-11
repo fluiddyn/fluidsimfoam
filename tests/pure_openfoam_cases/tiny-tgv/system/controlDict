@@ -58,7 +58,7 @@ functions
 	type fieldMinMax;
 	//type banana;
 
-	functionObjectLibs ("libfieldFunctionObjects.so");
+	libs ("libfieldFunctionObjects.so");
 
 	enabled true;
 

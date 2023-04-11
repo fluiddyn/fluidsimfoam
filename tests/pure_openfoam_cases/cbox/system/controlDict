@@ -1,7 +1,7 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2112                                 |
+|  \\    /   O peration     | Version:  v2206                                 |
 |   \\  /    A nd           | Website:  www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
@@ -10,12 +10,11 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
     object      controlDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     icoFoam;
+application     buoyantSimpleFoam;
 
 startFrom       startTime;
 
@@ -23,55 +22,27 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         .3;
+endTime         1000;
 
-deltaT          0.05;
+deltaT          1;
 
-writeControl    adjustableRunTime;
+writeControl    timeStep;
 
-writeInterval   0.05;
+writeInterval   50;
 
-purgeWrite      0;
+purgeWrite      3;
 
 writeFormat     ascii;
 
-writePrecision  12;
+writePrecision  6;
 
 writeCompression off;
 
 timeFormat      general;
 
-timePrecision   12;
+timePrecision   6;
 
 runTimeModifiable true;
 
 
 // ************************************************************************* //
-
-functions
-{
-
-///////////////////////////////////////////////////////////////////////////
-
-    minmaxdomain
-    {
-	type fieldMinMax;
-	//type banana;
-
-	libs ("libfieldFunctionObjects.so");
-
-	enabled true;
-
-	mode component;
-
-	writeControl timeStep;
-	writeInterval 1;
-
-	log true;
-
-	fields (p U);
-    }
-
-///////////////////////////////////////////////////////////////////////////
-
-};
