@@ -842,10 +842,10 @@ def test_list_numbered_u():
     )
 
 
-""" In controlDict files, once"""
 
 
 def test_colon_double_name():
+    """In controlDict files (found once)"""
     tree = base_test(
         """
         DebugSwitches
@@ -858,10 +858,10 @@ def test_colon_double_name():
     )
 
 
-""" In controlDict files, once"""
 
 
 def test_strange_directive():
+    """In controlDict files (found once)"""
     tree = base_test(
         """
         timeStart  #eval #{ 1.0/3.0 * ${/endTime} #};
@@ -877,7 +877,7 @@ def test_strange_directive():
     )
 
 
-@pytest.mark.xfail(reason=""" In controlDict files, found once""")
+@pytest.mark.xfail(reason="In controlDict files (found once)")
 def test_directive_with_macro():
     tree = base_test(
         """
@@ -888,7 +888,7 @@ def test_directive_with_macro():
 
 
 @pytest.mark.xfail(
-    reason=""" In fvSchemes files, all parser errors related to this test(3)"""
+    reason="In fvSchemes files (found 3 times)"
 )
 def test_strange_assignment():
     tree = base_test(
@@ -912,10 +912,10 @@ def test_strange_assignment():
     )
 
 
-""" In transportProperties files, found 4 times"""
 
 
 def test_dict_with_list_name():
+    """In transportProperties files (found 4 times)"""
     tree = base_test(
         """
         drag
@@ -933,7 +933,7 @@ def test_dict_with_list_name():
     )
 
 
-@pytest.mark.xfail(reason=""" In g files, found once""")
+@pytest.mark.xfail(reason="In g files (found once)")
 def test_list_name_eq():
     tree = base_test(
         """
