@@ -7,8 +7,10 @@ from .ast import (
     Code,
     Dict,
     DimensionSet,
+    Directive,
     FoamInputFile,
     List,
+    Name,
     Value,
     VariableAssignment,
 )
@@ -55,6 +57,33 @@ class FoamTransformer(Transformer):
     def ESCAPED_STRING(self, token):
         return token.value
 
+    def DOUBLE_NAME(self, token):
+        return token.value
+
+    def TRIPLE_NAME(self, token):
+        return token.value
+
+    def EQKEY(self, token):
+        return token.value
+
+    def MACRO_TERM(self, token):
+        return token.value
+
+    def numbered_list(self, nodes):
+        nodes = [node for node in nodes if node is not None]
+        list_name = str(nodes.pop(0))
+        end_name = (
+            "\n"
+            + str(nodes.pop(-3))
+            + str(nodes.pop(-2))
+            + "\n"
+            + str(nodes.pop(-1))
+        )
+        if nodes:
+            for node in nodes:
+                list_name = list_name + " " + str(node)
+        return list_name + end_name
+
     def dimension_set(self, items):
         return DimensionSet(
             [
@@ -65,10 +94,12 @@ class FoamTransformer(Transformer):
         )
 
     def macro(self, nodes):
-        return "$" + nodes[0]
+        return nodes[0]
 
     def directive(self, nodes):
-        return "#" + nodes[0]
+        if len(nodes) != 1:
+            raise RuntimeError
+        return str(nodes[0])
 
     def list(self, items):
         return List(
@@ -87,6 +118,11 @@ class FoamTransformer(Transformer):
             nodes = nodes[1:]
         else:
             info_dict = None
+
+        for node in nodes:
+            if isinstance(node.value, List):
+                node.value.add_name(node.name)
+
         return FoamInputFile(info_dict, {node.name: node.value for node in nodes})
 
     def var_assignment(self, nodes):
@@ -101,44 +137,96 @@ class FoamTransformer(Transformer):
                 index_dimension = [
                     isinstance(elem, DimensionSet) for elem in nodes
                 ].index(True)
+            except ValueError:
+                dimension_set = None
+            else:
                 dimension_set = nodes.pop(index_dimension)
 
-                if len(nodes) == 2:
-                    name_in_value, value = nodes
+            name_in_value = None
+            if all([isinstance(elem, str) for elem in nodes]):
+                last_value = " ".join(nodes)
+            else:
+                last_value = nodes.pop(-1)
+                if not all(isinstance(node, str) for node in nodes):
+                    nodes = [str(node) for node in nodes]
+                if nodes:
+                    name_in_value = " ".join(nodes)
+                if isinstance(last_value, List):
+                    last_value._name = name_in_value
 
-                elif len(nodes) == 1:
-                    value = nodes[0]
-                else:
-                    raise NotImplementedError()
-                value = Value(value, name=name_in_value, dimension=dimension_set)
-            except ValueError:
-                value = " ".join(nodes)
-
+            if (name_in_value is None and dimension_set is None) or isinstance(
+                last_value, List
+            ):
+                value = last_value
+            else:
+                value = Value(
+                    last_value, name=name_in_value, dimension=dimension_set
+                )
         return VariableAssignment(name, value)
 
     def dict_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
-        name = nodes.pop(0)
-
-        # TODO: fix this code (related to #codeStream)
-        # "directive" never used
         directive = None
-        if isinstance(nodes[0], str) and nodes[0].startswith("#"):
-            directive = nodes.pop(0)
 
+        if len(nodes) == 1:
+            name = nodes.pop(0)
+            return Assignment(name, Dict(data={}, name=name))
+
+        nodes_str = []
         for node in nodes:
+            if isinstance(node, str) and node.startswith("#"):
+                # like #codeStream
+                directive = nodes.pop(1)
+                break
+        if isinstance(nodes[0], list):
+            name = "(" + " ".join(nodes.pop(0)) + ")"
+        else:
+            name = nodes.pop(0)
+        if nodes_str:
+            name += " " + " ".join(nodes_str)
+
+        nodes_assign = [
+            node
+            for node in nodes
+            if hasattr(node, "name") and hasattr(node, "value")
+        ]
+
+        for node in nodes_assign:
             if isinstance(node.value, List):
-                node.value._name = node.name
+                node.value.add_name(node.name)
         return Assignment(
-            name, Dict(data={node.name: node.value for node in nodes}, name=name)
+            name,
+            Dict(
+                data={node.name: node.value for node in nodes_assign},
+                name=name,
+                directive=directive,
+            ),
         )
+
+    def isolated_list(self, nodes):
+        nodes = filter_no_newlines(nodes)
+        if len(nodes) != 1:
+            raise NotImplementedError(nodes)
+        name = None
+        return Assignment(name, nodes[0])
 
     def list_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
-        if len(nodes) != 2:
-            raise NotImplementedError
-        name, the_list = nodes
-        the_list._name = name
+        if len(nodes) == 3:
+            name, subname, the_list = nodes
+            name_internal = name + " " + subname
+        elif len(nodes) == 2:
+            name, the_list = nodes
+            name_internal = name
+        else:
+            raise NotImplementedError(nodes)
+
+        if isinstance(name, int):
+            name = str(name)
+        if isinstance(name_internal, int):
+            name_internal = str(name_internal)
+
+        the_list._name = name_internal
         return Assignment(name, the_list)
 
     def dimension_assignment(self, nodes):
@@ -150,23 +238,52 @@ class FoamTransformer(Transformer):
         elif len(nodes) == 2:
             return Assignment(name, Value(nodes[-1], dimension=nodes[-2]))
         else:
-            raise RuntimeError()
+            raise RuntimeError(nodes)
 
     def macro_assignment(self, nodes):
+        nodes = [node for node in nodes if node is not None]
+        if len(nodes) != 1:
+            raise NotImplementedError(nodes)
         name = nodes.pop(0)
-        return Assignment(name, nodes[0])
+        return Assignment(name, "")
+
+    def equal_assign(self, nodes):
+        nodes = [node for node in nodes if node is not None]
+        if len(nodes) != 2:
+            raise RuntimeError(nodes)
+        value = nodes[1]
+        if hasattr(value, "dump"):
+            value = value.dump()
+        return f"{nodes[0]}={value}"
 
     def directive_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
-        name = nodes.pop(0)
-        return Assignment(name, nodes[0])
+        if len(nodes) == 2:
+            directive, content = nodes
+        else:
+            directive = nodes.pop(0)
+            function_name = nodes.pop(0)
+            arguments = ", ".join(nodes)
+            content = function_name + f"({arguments})"
+        key = directive + " " + content
+        return Assignment(key, Directive(directive, content))
 
     def code_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
-        if len(nodes) != 2:
-            raise NotImplementedError
-        name, code = nodes
+        directive = None
+        if len(nodes) == 2:
+            name, code = nodes
+        elif len(nodes) == 3:
+            name, directive, code = nodes
+            if not directive.startswith("#"):
+                raise NotImplementedError(nodes)
+        else:
+            raise NotImplementedError(nodes)
         code = str(code)
         code = code.split("\n", 1)[-1]
         code = code.rsplit("\n", 1)[0]
-        return Assignment(name, Code(name, code))
+        return Assignment(name, Code(name, code, directive=directive))
+
+    def special_directives(self, token):
+        token = filter_no_newlines(token)
+        return Name(token[0].value + "\n")

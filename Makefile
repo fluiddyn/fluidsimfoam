@@ -3,9 +3,9 @@ test:
 	pytest tests
 
 black:
-	black -l 82 src tests doc
+	black -l 82 src tests doc dev
 
 isort:
-	isort src tests doc
+	isort src tests doc dev
 
 format: black isort

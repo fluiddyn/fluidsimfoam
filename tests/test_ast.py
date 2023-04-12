@@ -23,12 +23,13 @@ def test_value():
 
 def test_foam_units2str():
     assert foam_units2str([0, 2, -1, 0, 0, 0, 0]) == "m^2/s"
-    assert foam_units2str([-1, 2, -1, 0, 0, 0, 0]) == "1/kg.m^2/s"
+    assert foam_units2str([-1, 2, -1, 0]) == "1/kg.m^2/s"
 
 
 def test_str2foam_units():
     assert str2foam_units("m^2/s") == [0, 2, -1, 0, 0, 0, 0]
     assert str2foam_units("1/kg.m^2/s") == [-1, 2, -1, 0, 0, 0, 0]
+    assert str2foam_units("K") == [0, 0, 0, 1, 0, 0, 0]
 
 
 @pytest.mark.parametrize(

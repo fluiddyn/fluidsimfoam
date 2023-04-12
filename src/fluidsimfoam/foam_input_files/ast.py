@@ -19,8 +19,7 @@ def str2foam_units(units):
             next_oper = units[index]
             assert next_oper in "/."
             unit_all = units[:index]
-
-        units = units[index + 1 :]
+            units = units[index + 1 :]
         if "^" in unit_all:
             unit_name, unit_value = unit_all.split("^")
             unit_value = int(unit_value)
@@ -34,8 +33,6 @@ def str2foam_units(units):
 
 
 def foam_units2str(foam_units):
-    if len(foam_units) != len(symbols):
-        raise ValueError("len(foam_units) != len(symbols)")
     result = []
     for symbol, exponent in zip(symbols, foam_units):
         if exponent == 0:
@@ -88,9 +85,14 @@ class FoamInputFile(Node):
                 tmp.append(node.dump())
             elif hasattr(node, "dump_without_assignment"):
                 tmp.append(f"{key}  {node.dump_without_assignment()};")
+            elif node is None:
+                tmp.append(f"{key}")
             else:
                 tmp.append(f"{key}  {node};")
-        return "\n".join(tmp)
+        result = "\n".join(tmp)
+        if result[-1] != "\n":
+            result += "\n"
+        return result
 
 
 @dataclass
@@ -122,10 +124,7 @@ class Value(Node):
     def __init__(self, value, name=None, dimension=None):
         self.value = value
         self.name = name
-
         if isinstance(dimension, (list, tuple)):
-            if len(dimension) != len(symbols):
-                raise ValueError("len(dimension) != len(symbols)")
             dimension = foam_units2str(dimension)
         self.dimension = dimension
 
@@ -150,17 +149,13 @@ class Value(Node):
         elif self.dimension is not None and self.name is None:
             return f"[{dimension_dumped}] {self.value}"
         else:
-            return f"{self.value};"
+            return f"{self.value}"
 
 
 class DimensionSet(list, Node):
     def __init__(self, foam_units):
-        if len(foam_units) != len(symbols):
-            raise ValueError("len(dimension) != len(symbols)")
-
         if not all(isinstance(elem, int) for elem in foam_units):
             raise ValueError("Bad {foam_units = }")
-
         super().__init__(foam_units)
 
     def __repr__(self):
@@ -171,8 +166,9 @@ class DimensionSet(list, Node):
 
 
 class Dict(dict, Node):
-    def __init__(self, data, name=None):
+    def __init__(self, data, name=None, directive=None):
         self._name = name
+        self._directive = directive
         super().__init__(**data)
 
     def get_name(self):
@@ -185,15 +181,28 @@ class Dict(dict, Node):
         tmp = []
         indentation = indent * " "
         if self._name is not None:
-            tmp.append(indentation + self._name + f"\n{indentation}" + "{")
-        max_length = max(len(key) for key in self)
+            line = indentation + self._name
+            if self._directive is not None:
+                line += "  " + self._directive
+            tmp.append(line + f"\n{indentation}" + "{")
+
+        try:
+            max_length = max(len(key) for key in self)
+        except ValueError:
+            max_length = 0
+
         default_space = 4
         num_spaces = max_length + default_space
         for key, node in self.items():
             if hasattr(node, "dump"):
                 tmp.append(node.dump(indent + 4))
+            elif hasattr(node, "dump_without_assignment"):
+                tmp.append(f"    {key}  {node.dump_without_assignment()};")
             else:
-                s = (num_spaces - len(key)) * " "
+                if node == "":
+                    s = ""
+                else:
+                    s = (num_spaces - len(key)) * " "
                 tmp.append(indentation + f"    {key}{s}{node};")
         tmp.append(indentation + "}\n")
         return "\n".join(tmp)
@@ -209,45 +218,114 @@ class List(list, Node):
     def get_name(self):
         return self._name
 
+    def add_name(self, name):
+        if self._name is None:
+            self._name = name
+        elif isinstance(self._name, str):
+            if self._name != name:
+                self._name = name + " " + self._name
+        else:
+            raise RuntimeError()
+
     def __repr__(self):
         return super().__repr__()
 
+    def _make_list_strings(self, indent):
+        return [self._dump_item(item, indent) for item in self]
+
+    def _dump_item(self, item, indent=0):
+        if hasattr(item, "dump"):
+            return item.dump(indent)
+        else:
+            return indent * " " + str(item)
+
     def dump(self, indent=0):
         tmp = []
         indentation = indent * " "
-        if self._name is not None:
-            tmp.append("\n" + indentation + self._name + f"\n{indentation}" + "(")
-            tmp1 = []
-            for item in self:
-                if hasattr(item, "dump"):
-                    tmp1.append(item.dump())
-                else:
-                    tmp1.append(str(item))
-            tmp.append(indentation + 4 * " " + " ".join(tmp1))
+        if self._name is None:
+            if not isinstance(self[0], list):
+                tmp.extend(self._make_list_strings(indent=0))
+                return indentation + "(" + " ".join(tmp) + ")"
+            else:
+                for item in self:
+                    tmp1 = []
+                    tmp1.extend(item._make_list_strings(indent=0))
+                    tmp.append(indentation + "(" + " ".join(tmp1) + ")")
+                return "(\n" + "\n".join(tmp) + "\n);"
+        else:
+            tmp.append(indentation + self._name + f"\n{indentation}" + "(")
+            if self._name != "blocks":
+                tmp.append("\n".join(self._make_list_strings(indent + 4)))
+            else:
+                if not self[0] == "hex":
+                    raise ValueError(self)
+
+                lines = []
+                items_line = None
+                for item in self:
+                    if item == "hex":
+                        if items_line is not None:
+                            lines.append(items_line)
+                        items_line = [item]
+                    else:
+                        items_line.append(item)
+                lines.append(items_line)
+                lines = [
+                    " ".join(self._dump_item(_item) for _item in items_line)
+                    for items_line in lines
+                ]
+                tmp.extend((indent + 4) * " " + line for line in lines)
             tmp.append(indentation + ");\n")
             return "\n".join(tmp)
-        elif self._name is None:
-            for item in self:
-                if hasattr(item, "dump"):
-                    tmp.append(item.dump(indent + 4))
-                else:
-                    tmp.append(str(item))
-            return indentation + "(" + " ".join(tmp) + ")"
 
 
 class Code(Node):
-    def __init__(self, name, code):
+    def __init__(self, name, code, directive=None):
         self.name = name
         self.code = dedent(code)
+        self.directive = directive
 
     def __repr__(self):
-        return f'Code(name={self.name}, code="{self.code[:10]}[...]")'
+        if self.directive is None:
+            return f'Code(name={self.name}, code="{self.code[:10]}[...]")'
+        return (
+            f'Code(name={self.name}, code="{self.code[:10]}[...]",'
+            f" directive={self.directive})"
+        )
 
     def dump(self, indent=0):
         tmp = []
         indentation = indent * " "
-        tmp.append(indentation + self.name + f"\n{indentation}" + "#{")
+        start = indentation + self.name
+        if self.directive is not None:
+            start += " " + self.directive
+        tmp.append(start + f"\n{indentation}" + "#{")
         for line in self.code.split("\n"):
-            tmp.append(indentation + 4 * " " + line)
+            tmp.append(indentation + line)
         tmp.append(indentation + "#};\n")
         return "\n".join(tmp)
+
+
+@dataclass
+class Name(Node):
+    def __init__(self, name, value=None):
+        self.name = name
+        self.value = value
+
+    def __repr__(self):
+        return f"Name({self.name})"
+
+    def dump(self, indent=0):
+        return f"{self.name}"
+
+
+class Directive(Node):
+    def __init__(self, directive, content):
+        self.directive = directive
+        self.content = content
+
+    def __repr__(self):
+        return f"{self.directive}  {self.content}"
+
+    def dump(self, indent=0):
+        return indent * " " + f"{self.directive}  {self.content};"
