@@ -24,8 +24,13 @@ def base_test(
     tree = parse(text)
     if isinstance(tree, FoamInputFile):
         assert all(
-            isinstance(obj, (Node, str, int, float)) for obj in tree.children
-        )
+            isinstance(obj, (Node, str, int, float, type(None)))
+            for obj in tree.children.values()
+        ), tree
+        assert all(
+            isinstance(key, (type(None), str)) for key in tree.children.keys()
+        ), tree
+
     if representation is not None:
         assert repr(tree) == representation
     if cls is not None:
@@ -842,8 +847,6 @@ def test_list_numbered_u():
     )
 
 
-
-
 def test_colon_double_name():
     """In controlDict files (found once)"""
     tree = base_test(
@@ -856,8 +859,6 @@ def test_colon_double_name():
         """,
         check_dump_parse=True,
     )
-
-
 
 
 def test_strange_directive():
@@ -887,9 +888,7 @@ def test_directive_with_macro():
     )
 
 
-@pytest.mark.xfail(
-    reason="In fvSchemes files (found 3 times)"
-)
+@pytest.mark.xfail(reason="In fvSchemes files (found 3 times)")
 def test_strange_assignment():
     tree = base_test(
         """
@@ -910,8 +909,6 @@ def test_strange_assignment():
         """,
         check_dump_parse=True,
     )
-
-
 
 
 def test_dict_with_list_name():

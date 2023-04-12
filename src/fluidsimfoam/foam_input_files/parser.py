@@ -84,15 +84,6 @@ class FoamTransformer(Transformer):
                 list_name = list_name + " " + str(node)
         return list_name + end_name
 
-    def list_container(self, nodes):
-        items = filter_no_newlines(nodes)
-        name = None
-        if isinstance(items[0], int):
-            name = str(items.pop(0))
-            return List(List([item for item in items]), name=name)
-        else:
-            return Assignment(name, List([item for item in items]))
-
     def dimension_set(self, items):
         return DimensionSet(
             [
@@ -212,6 +203,13 @@ class FoamTransformer(Transformer):
             ),
         )
 
+    def isolated_list(self, nodes):
+        nodes = filter_no_newlines(nodes)
+        if len(nodes) != 1:
+            raise NotImplementedError(nodes)
+        name = None
+        return Assignment(name, nodes[0])
+
     def list_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
         if len(nodes) == 3:
@@ -222,6 +220,12 @@ class FoamTransformer(Transformer):
             name_internal = name
         else:
             raise NotImplementedError(nodes)
+
+        if isinstance(name, int):
+            name = str(name)
+        if isinstance(name_internal, int):
+            name_internal = str(name_internal)
+
         the_list._name = name_internal
         return Assignment(name, the_list)
 
