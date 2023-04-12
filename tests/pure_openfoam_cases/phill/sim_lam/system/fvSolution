@@ -8,49 +8,62 @@
 FoamFile
 {
     version     2.0;
-    format      binary;
-    class       volVectorField;
-    location    "0";
-    object      U;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 -1 0 0 0 0];
-
-internalField   uniform (0.2 0 0);
-
-boundaryField
+solvers
 {
-    outlet
+    p_rgh
     {
-        type cyclic;
-
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-8;
+        relTol          0.01;
     }
 
-    inlet
+    p_rghFinal
     {
-        type cyclic;
-
+        $p_rgh;
+        relTol          0;
     }
 
-    bottom
+    "(U|rhok|k|epsilon|R)"
     {
-//        type           noSlip;
-        type            fixedValue;
-	    value uniform (0 0 0);
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-6;
+        relTol          0.1;
     }
 
-    top
+    "(U|rhok|k|epsilon|R)Final"
     {
-        type            slip;
-
+        $U;
+        relTol          0;
     }
-
-    frontandbackplanes
-    {
-	type		empty;
-    }
-
 }
+
+PIMPLE
+{
+    momentumPredictor no;
+    nOuterCorrectors 1;
+    nCorrectors     2;
+    nNonOrthogonalCorrectors 0;
+    pRefPoint (0. 0.3 0.0);
+    pRefValue       0;
+}
+
+relaxationFactors
+{
+    equations
+    {
+        "(U|rhok|k|epsilon|R)" 1;
+        "(U|rhok|k|epsilon|R)Final" 1;
+    }
+}
+
 
 // ************************************************************************* //

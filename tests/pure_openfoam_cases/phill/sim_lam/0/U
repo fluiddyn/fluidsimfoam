@@ -23,32 +23,32 @@ boundaryField
 {
     outlet
     {
-        type cyclic;
+        type        cyclic;
 
     }
 
     inlet
     {
-        type cyclic;
+        type        cyclic;
 
     }
 
     bottom
     {
 //        type           noSlip;
-        type            fixedValue;
-	    value uniform (0 0 0);
+        type        fixedValue;
+	    value       uniform (0 0 0);
     }
 
     top
     {
-        type            slip;
+        type        slip;
 
     }
 
     frontandbackplanes
     {
-	type		empty;
+	    type		empty;
     }
 
 }

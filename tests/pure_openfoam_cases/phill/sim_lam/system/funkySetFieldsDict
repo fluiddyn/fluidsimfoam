@@ -8,49 +8,30 @@
 FoamFile
 {
     version     2.0;
-    format      binary;
-    class       volVectorField;
-    location    "0";
-    object      U;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      setFieldsDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 -1 0 0 0 0];
+// #include "../constant/include/constants.h";
 
-internalField   uniform (0.2 0 0);
-
-boundaryField
-{
-    outlet
-    {
-        type cyclic;
-
-    }
-
-    inlet
-    {
-        type cyclic;
-
-    }
-
-    bottom
-    {
-//        type           noSlip;
-        type            fixedValue;
-	    value uniform (0 0 0);
-    }
-
-    top
-    {
-        type            slip;
-
-    }
-
-    frontandbackplanes
-    {
-	type		empty;
-    }
-
-}
+expressions
+(
+ grad_inv_rhok
+ {
+   variables
+     (
+      "rho0=1.15;"
+      "height=1;"
+      "delta_rho=-0.141;"
+      );
+   field rhok;
+   value uniform 1.15;
+   expression "rho0 + pos().y / height * delta_rho";
+   keepPatches 1;
+ }
+ );
 
 // ************************************************************************* //

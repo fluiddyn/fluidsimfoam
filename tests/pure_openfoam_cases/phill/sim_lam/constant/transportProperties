@@ -8,49 +8,22 @@
 FoamFile
 {
     version     2.0;
-    format      binary;
-    class       volVectorField;
-    location    "0";
-    object      U;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 -1 0 0 0 0];
+transportModel Newtonian;
 
-internalField   uniform (0.2 0 0);
+// Laminar viscosity
+nu            nu  [0 2 -1 0 0 0 0] 0.002;
 
-boundaryField
-{
-    outlet
-    {
-        type cyclic;
+// Laminar Prandtl number
+Pr            Pr [0 0 0 0 0 0 0] 1;
 
-    }
-
-    inlet
-    {
-        type cyclic;
-
-    }
-
-    bottom
-    {
-//        type           noSlip;
-        type            fixedValue;
-	    value uniform (0 0 0);
-    }
-
-    top
-    {
-        type            slip;
-
-    }
-
-    frontandbackplanes
-    {
-	type		empty;
-    }
-
-}
+// Turbulent Prandtl number
+Prt           Prt  [0 0 0 0 0 0 0] 0.85;
 
 // ************************************************************************* //

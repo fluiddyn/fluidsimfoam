@@ -8,49 +8,43 @@
 FoamFile
 {
     version     2.0;
-    format      binary;
-    class       volVectorField;
-    location    "0";
-    object      U;
+    format      ascii;
+    class       volScalarField;
+    object      p_rgh;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 -1 0 0 0 0];
+dimensions      [0 2 -2 0 0 0 0];
 
-internalField   uniform (0.2 0 0);
+internalField   uniform 0;
 
 boundaryField
 {
-    outlet
-    {
-        type cyclic;
-
-    }
-
     inlet
     {
-        type cyclic;
+        type        cyclic;
+    }
 
+    outlet
+    {
+        type         cyclic;
     }
 
     bottom
     {
-//        type           noSlip;
-        type            fixedValue;
-	    value uniform (0 0 0);
+        type        zeroGradient;
     }
 
     top
     {
-        type            slip;
+        type        zeroGradient;
 
     }
 
     frontandbackplanes
     {
-	type		empty;
+	    type		empty;
     }
-
 }
 
 // ************************************************************************* //

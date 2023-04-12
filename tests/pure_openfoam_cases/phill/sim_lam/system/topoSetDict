@@ -8,49 +8,26 @@
 FoamFile
 {
     version     2.0;
-    format      binary;
-    class       volVectorField;
-    location    "0";
-    object      U;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      topoSetDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform (0.2 0 0);
-
-boundaryField
-{
-    outlet
-    {
-        type cyclic;
-
-    }
-
-    inlet
-    {
-        type cyclic;
-
-    }
-
-    bottom
-    {
-//        type           noSlip;
-        type            fixedValue;
-	    value uniform (0 0 0);
-    }
-
-    top
-    {
-        type            slip;
-
-    }
-
-    frontandbackplanes
-    {
-	type		empty;
-    }
-
-}
-
-// ************************************************************************* //
+actions
+(
+	{
+		name    rotor;
+		type    cellSet;
+		action  new;
+		source  cylinderToCell;
+		sourceInfo
+		{
+			p1 (0 0 0);
+			p2 (0 0 0.5);
+			radius 6.5;
+		}
+	}
+);
