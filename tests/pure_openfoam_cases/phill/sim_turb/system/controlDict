@@ -10,20 +10,47 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    object      turbulenceProperties;
+    location    "system";
+    object      controlDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-simulationType          RAS;
+application     interFoam;
 
-RAS
-{
-    RASModel            kOmegaSST;
+startFrom       startTime;
 
-    turbulence          on;
+startTime       0;
 
-    printCoeffs         on;
-}
+stopAt          endTime;
 
+endTime         60;
+
+deltaT          0.05;
+
+writeControl    adjustableRunTime;
+
+writeInterval   1;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.6;
+maxAlphaCo      0.6;
+maxDeltaT       1;
+
+libs ("libgroovyBC.so");
 
 // ************************************************************************* //

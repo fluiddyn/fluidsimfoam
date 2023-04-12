@@ -9,41 +9,29 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      omega;
+    class       dictionary;
+    location    "system";
+    object      setFieldsDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 -1 0 0 0 0];
+// #include "../constant/include/constants.h";
 
-internalField   uniform 0.12;
-
-boundaryField
-{
-    frontAndBack
-    {
-        type            omegaWallFunction;
-        value           uniform 0.12;
-    }
-
-    topAndBottom
-    {
-        type            omegaWallFunction;
-        value           uniform 0.12;
-    }
-
-    hot
-    {
-        type            omegaWallFunction;
-        value           uniform 0.12;
-    }
-
-    cold
-    {
-        type            omegaWallFunction;
-        value           uniform 0.12;
-    }
-}
-
+expressions
+(
+ grad_inv_rhok
+ {
+   variables
+     (
+      "rho0=1.15;"
+      "height=1;"
+      "delta_rho=-0.141;"
+      );
+   field rhok;
+   value uniform 1.15;
+   expression "rho0 + pos().y / height * delta_rho";
+   keepPatches 1;
+ }
+ );
 
 // ************************************************************************* //

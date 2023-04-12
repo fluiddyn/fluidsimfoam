@@ -9,39 +9,19 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      T;
+    class       dictionary;
+    location    "constant";
+    object      MRFProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 1 0 0 0];
-
-internalField   uniform 0;
-
-boundaryField
+MRF1
 {
-    frontAndBack
-    {
-        type            zeroGradient;
-    }
-
-    topAndBottom
-    {
-        type            zeroGradient;
-    }
-
-    hot
-    {
-        type            fixedValue;
-        value           uniform 0.5;
-    }
-
-    cold
-    {
-        type            fixedValue;
-        value           uniform -0.5;
-    }
+	active          no;
+	selectionMode   cellZone;
+	cellZone        rotor;
+//nonRotatingPatches ();
+        origin      (0 0 0);
+        axis        (0 0 1);
+        omega       constant 0.0;
 }
-
-
-// ************************************************************************* //

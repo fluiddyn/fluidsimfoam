@@ -10,40 +10,38 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    object      k;
+    object      p_rgh;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 dimensions      [0 2 -2 0 0 0 0];
 
-internalField   uniform 3.75e-04;
+internalField   uniform 0;
 
 boundaryField
 {
-    frontAndBack
+    inlet
     {
-        type            kqRWallFunction;
-        value           uniform 3.75e-04;
+        type cyclic;
     }
-
-    topAndBottom
+    outlet
     {
-        type            kqRWallFunction;
-        value           uniform 3.75e-04;
+        type cyclic;
     }
-
-    hot
+    bottom
     {
-        type            kqRWallFunction;
-        value           uniform 3.75e-04;
+        type zeroGradient;
     }
-
-    cold
+    top
     {
-        type            kqRWallFunction;
-        value           uniform 3.75e-04;
+        type zeroGradient;
+
+    }
+    frontandbackplanes
+    {
+	type		empty;
+
     }
 }
-
 
 // ************************************************************************* //

@@ -10,39 +10,24 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    object      controlDict;
+    location    "system";
+    object      topoSetDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     buoyantSimpleFoam;
 
-startFrom       startTime;
-
-startTime       0;
-
-stopAt          endTime;
-
-endTime         1000;
-
-deltaT          1;
-
-writeControl    timeStep;
-
-writeInterval   50;
-
-purgeWrite      3;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable true;
-
-
-// ************************************************************************* //
+actions
+(
+	{
+		name    rotor;
+		type    cellSet;
+		action  new;
+		source  cylinderToCell;
+		sourceInfo
+		{
+			p1 (0 0 0);
+			p2 (0 0 0.5);
+			radius 6.5;
+		}
+	}
+);
