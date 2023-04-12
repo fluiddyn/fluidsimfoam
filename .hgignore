@@ -28,6 +28,6 @@ dist*
 
 tmp_*
 
-tests/pure_openfoam_cases/*/constant/polyMesh
-tests/pure_openfoam_cases/*/dynamicCode
-tests/pure_openfoam_cases/*/postProcessing
+tests/pure_openfoam_cases/**/constant/polyMesh
+tests/pure_openfoam_cases/**/dynamicCode
+tests/pure_openfoam_cases/**/postProcessing
