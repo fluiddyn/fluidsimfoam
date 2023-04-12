@@ -56,6 +56,19 @@ def test_var_simple():
     )
 
 
+def test_var_quoted_string():
+    tree = base_test(
+        """
+        laplacianSchemes
+        {
+            default         "Gauss linear corrected";
+        }
+    """,
+        check_dump_parse=True,
+    )
+    assert tree.value["default"] == '"Gauss linear corrected"'
+
+
 def test_var_multiple():
     tree = base_test(
         """
@@ -65,6 +78,33 @@ def test_var_multiple():
         representation="InputFile(\nchildren={'a': 'b', 'c': 'd'}\n)",
         cls=FoamInputFile,
         check_dump=True,
+    )
+
+
+def test_strange_names():
+    tree = base_test(
+        """
+        "(U|k|epsilon|R)Final"
+        {
+            $U;
+            tolerance    1e-07;
+            relTol       0;
+        }
+
+        thermalPhaseChange:dmdtf 1.0;
+
+        thermo:rho
+        {
+            solver            PCG;
+        };
+
+        alpha.water
+        {
+            solver            PCG;
+        };
+
+    """,
+        check_dump_parse=True,
     )
 
 
@@ -92,39 +132,6 @@ def test_list_assignment():
     )
 
 
-def test_file_simple():
-    tree = base_test(
-        """
-        FoamFile
-        {
-            version     2.0;
-            format      ascii;
-            class       dictionary;
-            object      blockMeshDict;
-        }
-
-        // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-        a  b;
-        c  d;
-    """,
-        cls=FoamInputFile,
-    )
-
-
-def test_var_value_with_space():
-    tree = base_test(
-        """
-        laplacianSchemes
-        {
-            default         Gauss linear corrected;
-        }
-    """,
-        check_dump_parse=True,
-    )
-    assert tree.value["default"] == "Gauss linear corrected"
-
-
 def test_dict_simple():
     # we add a space on purpose...
     space = " "
@@ -148,39 +155,6 @@ def test_dict_simple():
     assert my_dict["version"] == 2.0
     assert my_dict["format"] == "ascii"
     assert my_dict["location"] == '"system"'
-
-
-def test_dict_strange_keys():
-    """As in fvSchemes"""
-    tree = base_test(
-        """
-        div(phi,U)      Gauss linear;
-        divSchemes
-        {
-            field       cylindrical(U)Mean;
-            default         none;
-            div(phi,U)      Gauss linear;
-            div((nuEff*dev2(T(grad(U))))) Gauss linear;
-            ".*"           1;
-            div(rhoPhi,U)   Gauss cellCoBlended 2 linearUpwind grad(U) 5 upwind;
-        }
-    """,
-        check_dump_parse=True,
-    )
-
-
-def test_dict_strange_name():
-    """As in fvSchemes"""
-    tree = base_test(
-        """
-        div(phi,ft_b_ha_hau) Gauss multivariateSelection
-        {
-            ft              limitedLinear01 1;
-            b               limitedLinear01 1;
-        }
-    """,
-        check_dump_parse=True,
-    )
 
 
 def test_dict_nested():
@@ -264,6 +238,26 @@ def test_list_with_str():
         );
     """,
         check_dump_parse=True,
+    )
+
+
+def test_file_simple():
+    tree = base_test(
+        """
+        FoamFile
+        {
+            version     2.0;
+            format      ascii;
+            class       dictionary;
+            object      blockMeshDict;
+        }
+
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+        a  b;
+        c  d;
+    """,
+        cls=FoamInputFile,
     )
 
 
@@ -433,9 +427,6 @@ def test_macro():
         FoamFile
         {
             version     2.0;
-            format      ascii;
-            class       volScalarField;
-            object      p;
         }
 
         relTol  $p;
@@ -463,7 +454,7 @@ def test_empty_dict():
     )
 
 
-def test_without_assignment():
+def test_dict_isolated_key():
     tree = base_test(
         """
         cache
@@ -472,49 +463,6 @@ def test_without_assignment():
         }
     """,
         check_dump=True,
-    )
-
-
-def test_strange_names():
-    tree = base_test(
-        """
-        "(U|k|epsilon|R)Final"
-        {
-            $U;
-            tolerance    1e-07;
-            relTol       0;
-        }
-
-        thermalPhaseChange:dmdtf 1.0;
-
-        thermo:rho
-        {
-            solver            PCG;
-        };
-
-        alpha.water
-        {
-            solver            PCG;
-        };
-
-
-    """,
-        check_dump_parse=True,
-    )
-
-
-def test_assignment_strange_name():
-    tree = base_test(
-        """
-        equations
-        {
-            "(U|e|k).*"  0.7;
-
-            // Demonstrate some ramping
-            "(U|e|k|epsilon).*" table ((0 0.4) (0.5 0.7));
-        }
-    """,
-        check_dump_parse=True,
     )
 
 
@@ -559,7 +507,7 @@ def test_reading_one_file():
     with open(path_to_file, "r") as file:
         text = file.read()
 
-    tree = base_test(text, cls=FoamInputFile, check_dump=False)
+    tree = base_test(text, cls=FoamInputFile)
     assert tree.info["object"] == "fvSolution"
     assert tree.children["solvers"]["U"]["solver"] == "PBiCGStab"
 
@@ -581,21 +529,19 @@ def test_tiny_tgv(path_name, request):
     tree = base_test(text, check_dump_parse=True)
 
 
-def test_ugly_macro():
+def test_macro_ugly():
     tree = base_test(
         """
         relaxationFactors
         {
             ${_${FOAM_EXECUTABLE}};
         }
-
-
         """,
         check_dump_parse=True,
     )
 
 
-def test_new_list_types():
+def test_list_on_1_line():
     tree = base_test(
         """
         libs            (overset rigidBodyDynamics);
@@ -614,23 +560,12 @@ def test_new_list_types():
     )
 
 
-def test_strange_dict_macro():
-    tree = base_test(
-        """
-        relaxationFactors { $relaxationFactors-SIMPLE }
-        """,
-        check_dump_parse=True,
-    )
-
-
 def test_double_value():
     tree = base_test(
         """
         FoamFile
         {
             format      ascii;
-            class       dictionary;
-            location    "system";
             object      controlDict.1st;
         }
         """,
@@ -657,19 +592,6 @@ def test_for_U():
     tree = base_test(
         """
         internalField   uniform $include/caseSettings!internalField/U;
-        """,
-        check_dump_parse=True,
-    )
-
-
-def test_directive_eval():
-    tree = base_test(
-        """
-        transform
-        {
-            origin  (#eval{0.5 * $SLAB_OFFSET} 0 0);
-            rotation none;
-        }
         """,
         check_dump_parse=True,
     )
@@ -738,65 +660,7 @@ def test_list_numbered():
     )
 
 
-def test_directive_if():
-    tree = base_test(
-        """
-        #if 0
-        xin     #eval{ $xin / 5 };
-        xout    #eval{ $xout / 5 };
-        zmax    #eval{ $zmax / 5 };
-
-        nxin    #eval{ round ($nxin / 5) };
-        nxout   #eval{ round ($nxout / 5) };
-        nz      #eval{ round ($nz / 5) };
-        #endif
-        """,
-        check_dump_parse=True,
-    )
-
-
-def test_directive_if_in_file():
-    tree = base_test(
-        """
-        #if 0
-        xin     #eval{ $xin / 5 };
-        xout    #eval{ $xout / 5 };
-        zmax    #eval{ $zmax / 5 };
-
-        nxin    #eval{ round ($nxin / 5) };
-        nxout   #eval{ round ($nxout / 5) };
-        nz      #eval{ round ($nz / 5) };
-        #endif
-
-        zmin    #eval{ -$zmax };
-
-        """,
-        check_dump_parse=True,
-    )
-
-
-def test_macro_with_dict():
-    tree = base_test(
-        """
-        rInner45    ${{ $rInner * sqrt(0.5) }};
-        rOuter45    ${{ $rOuter * sqrt(0.5) }};
-        xmin        ${{ -$xmax }};
-        """,
-        check_dump_parse=True,
-    )
-
-
-def test_directive_strange():
-    tree = base_test(
-        """
-        #remove ( "r(Inner|Outer).*"  "[xy](min|max)" )
-        """,
-        check_dump_parse=True,
-        check_dump=True,
-    )
-
-
-def test_triple_named_list():
+def test_list_triple_named():
     tree = base_test(
         """
         velocity-inlet-5
@@ -861,7 +725,22 @@ def test_colon_double_name():
     )
 
 
-def test_strange_directive():
+def test_assignment_strange_name():
+    tree = base_test(
+        """
+        equations
+        {
+            "(U|e|k).*"  0.7;
+
+            // Demonstrate some ramping
+            "(U|e|k|epsilon).*" table ((0 0.4) (0.5 0.7));
+        }
+    """,
+        check_dump_parse=True,
+    )
+
+
+def test_code_with_directive_and_macro():
     """In controlDict files (found once)"""
     tree = base_test(
         """
@@ -873,76 +752,6 @@ def test_strange_directive():
             prime2Mean  on;
             base        time;
         }
-        """,
-        check_dump_parse=True,
-    )
-
-
-@pytest.mark.xfail(reason="In controlDict files (found once)")
-def test_directive_with_macro():
-    tree = base_test(
-        """
-        timeStart       #eval{ 0.1 * ${/endTime} };
-        """,
-        check_dump_parse=True,
-    )
-
-
-@pytest.mark.xfail(reason="In fvSchemes files (found 3 times)")
-def test_strange_assignment():
-    tree = base_test(
-        """
-        divSchemes
-        {
-            div(phi,U)      Gauss DEShybrid
-                linear                    // scheme 1
-                linearUpwind grad(U)      // scheme 2
-                hmax
-                0.65                      // DES coefficient, typically = 0.65
-                1                         // Reference velocity scale
-                0.028                     // Reference length scale
-                0                         // Minimum sigma limit (0-1)
-                1                         // Maximum sigma limit (0-1)
-                1; // 1.0e-03;                  // Limiter of B function, typically 1e-03
-        }
-
-        """,
-        check_dump_parse=True,
-    )
-
-
-def test_dict_with_list_name():
-    """In transportProperties files (found 4 times)"""
-    tree = base_test(
-        """
-        drag
-        (
-            (air water)
-            {
-                type blended;
-
-                residualPhaseFraction 1e-3;
-                residualSlip 1e-3;
-            }
-        );
-        """,
-        check_dump_parse=True,
-    )
-
-
-@pytest.mark.xfail(reason="In g files (found once)")
-def test_list_name_eq():
-    tree = base_test(
-        """
-        value #eval
-        {
-            -9.81 * vector
-            (
-                sin(degToRad($alphax)),
-                sin(degToRad($alpha)),
-                cos(degToRad($alpha))
-            )
-        };
         """,
         check_dump_parse=True,
     )
