@@ -307,11 +307,8 @@ class Code(Node):
 
     def __repr__(self):
         if self.directive is None:
-            return f'Code(name={self.name}, code="{self.code[:10]}[...]")'
-        return (
-            f'Code(name={self.name}, code="{self.code[:10]}[...]",'
-            f" directive={self.directive})"
-        )
+            return f'Code("{self.code[:20]}[...]")'
+        return f'Code("{self.code[:20]}[...]", directive={self.directive})'
 
     def dump(self, indent=0):
         tmp = []
