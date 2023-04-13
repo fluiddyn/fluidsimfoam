@@ -1,6 +1,6 @@
 # OpenFOAM Periodic Hills (Phill) Case
 
-This repository contains the necessary files to set up and run a  flow over Periodic Hills (Phill) using OpenFOAM. For now there are two phill cases, laminar and turbulent cases.
+This repository contains the necessary files to set up and run a flow over Periodic Hills (Phill) using OpenFOAM. For now there are two phill cases, laminar and turbulent cases.
 
 ## Requirements
 
