@@ -46,7 +46,6 @@ After generating the mesh you can run the simulation by just calling the model t
 buoyantBoussinesqPimpleFoam
 ```
 
-
 ## Visualization
 
 To visualize the result, you can use some packages like ParaView and Gnuplot. If you want to load data with ParaView, you could try this command:

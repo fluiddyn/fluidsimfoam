@@ -1,10 +1,3 @@
-/*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2206                                 |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
-|    \\/     M anipulation  |                                                 |
-\*---------------------------------------------------------------------------*/
 FoamFile
 {
     version     2.0;
@@ -13,25 +6,21 @@ FoamFile
     location    "system";
     object      setFieldsDict;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-// #include "../constant/include/constants.h";
 
 expressions
 (
- grad_inv_rhok
- {
-   variables
-     (
-      "rho0=1.15;"
-      "height=1;"
-      "delta_rho=-0.141;"
-      );
-   field rhok;
-   value uniform 1.15;
-   expression "rho0 + pos().y / height * delta_rho";
-   keepPatches 1;
- }
- );
+    grad_inv_rhok
+    {
+        variables
+        (
+            "rho0=1.15;"
+            "height=1;"
+            "delta_rho=-0.141;"
+        );
 
-// ************************************************************************* //
+        field rhok;
+        value uniform 1.15;
+        expression "rho0 + pos().y / height * delta_rho";
+        keepPatches 1;
+    }
+);
