@@ -1,5 +1,4 @@
 import pytest
-
 from test_parser import base_test
 
 

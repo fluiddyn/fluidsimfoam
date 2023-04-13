@@ -7,6 +7,7 @@ from lark.exceptions import LarkError
 from fluidsimfoam.foam_input_files import dump, parse
 from fluidsimfoam.foam_input_files.ast import (
     Assignment,
+    CodeStream,
     Dict,
     DimensionSet,
     FoamInputFile,
@@ -389,16 +390,19 @@ def test_code_stream():
             #{
                 #include "fvCFD.H"
             #};
+
             codeOptions
             #{
                 -I$(LIB_SRC)/finiteVolume/lnInclude \
                 -I$(LIB_SRC)/meshTools/lnInclude
             #};
+
             codeLibs
             #{
                 -lmeshTools \
                 -lfiniteVolume
             #};
+
             code
             #{
                 const IOdictionary& d = static_cast<const IOdictionary&>(dict);
@@ -419,6 +423,14 @@ def test_code_stream():
         check_dump_parse=True,
         check_dump=True,
     )
+
+    code_stream = tree.value
+    assert isinstance(code_stream, CodeStream)
+    for name in ("code_include", "code_options", "code_libs", "code"):
+        assert hasattr(code_stream, name)
+    assert code_stream.code.strip().startswith("const IOdictionary")
+    code_stream.code_include = "toto"
+    code_stream["codeInclude"] == "toto"
 
 
 def test_macro():
