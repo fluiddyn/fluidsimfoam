@@ -85,6 +85,9 @@ class FoamInputFile(Node):
         for key, node in self.children.items():
             if hasattr(node, "dump"):
                 tmp.append(node.dump())
+                # special for isolated list
+                if key is None and isinstance(node, List):
+                    tmp[-1] += ";"
             elif hasattr(node, "dump_without_assignment"):
                 tmp.append(f"{key}  {node.dump_without_assignment()};")
             elif node is None:
@@ -245,15 +248,8 @@ class List(list, Node):
         tmp = []
         indentation = indent * " "
         if self._name is None:
-            if not isinstance(self[0], list):
-                tmp.extend(self._make_list_strings(indent=0))
-                return indentation + "(" + " ".join(tmp) + ")"
-            else:
-                for item in self:
-                    tmp1 = []
-                    tmp1.extend(item._make_list_strings(indent=0))
-                    tmp.append(indentation + "(" + " ".join(tmp1) + ")")
-                return "(\n" + "\n".join(tmp) + "\n);"
+            tmp.extend(self._make_list_strings(indent=0))
+            return indentation + "(" + " ".join(tmp) + ")"
         else:
             tmp.append(indentation + self._name + f"\n{indentation}" + "(")
             if self._name != "blocks":

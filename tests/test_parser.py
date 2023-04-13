@@ -23,6 +23,7 @@ def base_test(
     text, representation=None, cls=None, check_dump=False, check_dump_parse=False
 ):
     tree = parse(text)
+    text = dedent(text)
     if isinstance(tree, FoamInputFile):
         assert all(
             isinstance(obj, (Node, str, int, float, type(None)))
@@ -36,12 +37,13 @@ def base_test(
         assert repr(tree) == representation
     if cls is not None:
         assert isinstance(tree, cls)
+    if check_dump or check_dump_parse:
+        dumped_text = dump(tree)
     if check_dump:
-        dump_text = dump(tree)
-        assert dedent(text).strip() == dump_text.strip()
+        assert dedent(text).strip() == dumped_text.strip()
     if check_dump_parse:
         try:
-            assert tree == parse(dump(tree))
+            assert tree == parse(dumped_text)
         except LarkError as err:
             raise RuntimeError from err
     return tree
@@ -695,6 +697,10 @@ def test_list_triple_named():
 def test_list_u():
     tree = base_test(
         """
+        FoamFile
+        {
+            version     2.0;
+        }
         (
         (4.507730000e+00 1.799630000e+00 0.000000000e+00)
         (6.062080000e+00 2.408310000e+00 0.000000000e+00)
@@ -790,7 +796,6 @@ def test_list_edges():
     )
 
 
-@pytest.mark.xfail(reason="In blockMeshDict file in phill (found once)")
 def test_list_blocks():
     tree = base_test(
         """

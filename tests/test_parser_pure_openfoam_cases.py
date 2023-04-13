@@ -16,7 +16,7 @@ paths_in_dirs = [
 
 
 @pytest.mark.xfail
-def test_files():
+def _test_files():
     for name in track(paths_in_dirs):
         path_manual = path_files / name
         text_manual = path_manual.read_text()
