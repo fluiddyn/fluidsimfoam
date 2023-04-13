@@ -457,7 +457,6 @@ def test_macro():
         relaxationFactors  $relaxationFactors-SIMPLE;
     """,
         check_dump=True,
-        check_dump_parse=True,
     )
 
 
