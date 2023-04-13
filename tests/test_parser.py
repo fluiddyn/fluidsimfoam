@@ -782,7 +782,6 @@ def test_code_with_directive_and_macro():
     )
 
 
-@pytest.mark.xfail(reason="In blockMeshDict file in phill (found once)")
 def test_list_edges():
     tree = base_test(
         """
@@ -792,7 +791,7 @@ def test_list_edges():
             spline 6 5 ((0.6 0.0124 0.05) (0.7 0.0395 0.05) (0.8 0.0724 0.05) (0.9 0.132 0.05) (1 0.172 0.05) (1.1 0.132 0.05) (1.2 0.0724 0.05) (1.3 0.0395 0.05) (1.4 0.0124 0.05))
         );
         """,
-        check_dump_parse=True,
+        check_dump=True,
     )
 
 
@@ -806,5 +805,5 @@ def test_list_blocks():
             hex (2 3 11 10 5 4 12 13) (225 100 1) simpleGrading (1 ((0.1 0.25 41.9) (0.9 0.75 1)) 1)
         );
         """,
-        check_dump_parse=True,
+        check_dump=True,
     )

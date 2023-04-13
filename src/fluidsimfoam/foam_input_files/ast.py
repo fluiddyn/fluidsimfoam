@@ -252,16 +252,17 @@ class List(list, Node):
             return indentation + "(" + " ".join(tmp) + ")"
         else:
             tmp.append(indentation + self._name + f"\n{indentation}" + "(")
-            if self._name != "blocks":
+            special_keys = {"blocks": "hex", "edges": "spline"}
+            if self._name not in special_keys.keys():
                 tmp.append("\n".join(self._make_list_strings(indent + 4)))
-            else:
-                if not self[0] == "hex":
+            elif self:
+                special_key = special_keys[self._name]
+                if not self[0] == special_key:
                     raise ValueError(self)
-
                 lines = []
                 items_line = None
                 for item in self:
-                    if item == "hex":
+                    if item == special_key:
                         if items_line is not None:
                             lines.append(items_line)
                         items_line = [item]
