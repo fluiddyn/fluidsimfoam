@@ -5,6 +5,7 @@ from lark import Lark, Token, Transformer
 from .ast import (
     Assignment,
     Code,
+    CodeStream,
     Dict,
     DimensionSet,
     Directive,
@@ -194,9 +195,15 @@ class FoamTransformer(Transformer):
         for node in nodes_assign:
             if isinstance(node.value, List):
                 node.value.add_name(node.name)
+
+        if directive is not None and directive == "#codeStream":
+            cls = CodeStream
+        else:
+            cls = Dict
+
         return Assignment(
             name,
-            Dict(
+            cls(
                 data={node.name: node.value for node in nodes_assign},
                 name=name,
                 directive=directive,

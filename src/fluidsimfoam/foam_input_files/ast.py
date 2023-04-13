@@ -2,6 +2,8 @@ import re
 from dataclasses import dataclass
 from textwrap import dedent
 
+from inflection import underscore
+
 symbols = ["kg", "m", "s", "K", "kmol", "A", "cd"]
 
 
@@ -279,6 +281,24 @@ class List(list, Node):
             return "\n".join(tmp)
 
 
+class CodeStream(Dict):
+    """A dictionnary to store #codeStream"""
+
+
+def _make_alias(name):
+    def get(self):
+        return self[name].code
+
+    def set(_self, value):
+        _self[name].code = value
+
+    return property(get, set)
+
+
+for _name in ("codeInclude", "codeOptions", "codeLibs", "code"):
+    setattr(CodeStream, underscore(_name), _make_alias(_name))
+
+
 class Code(Node):
     def __init__(self, name, code, directive=None):
         self.name = name
@@ -296,12 +316,13 @@ class Code(Node):
     def dump(self, indent=0):
         tmp = []
         indentation = indent * " "
+        indentation4 = (indent + 4) * " "
         start = indentation + self.name
         if self.directive is not None:
             start += " " + self.directive
         tmp.append(start + f"\n{indentation}" + "#{")
         for line in self.code.split("\n"):
-            tmp.append(indentation + line)
+            tmp.append(indentation4 + line)
         tmp.append(indentation + "#};\n")
         return "\n".join(tmp)
 
