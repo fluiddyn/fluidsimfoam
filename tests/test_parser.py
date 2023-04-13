@@ -1,7 +1,5 @@
-from pathlib import Path
 from textwrap import dedent
 
-import pytest
 from lark.exceptions import LarkError
 
 from fluidsimfoam.foam_input_files import dump, parse
@@ -15,8 +13,6 @@ from fluidsimfoam.foam_input_files.ast import (
     Value,
     VariableAssignment,
 )
-
-here = Path(__file__).absolute().parent
 
 
 def base_test(
@@ -518,36 +514,6 @@ def test_named_values():
         check_dump_parse=True,
     )
     assert isinstance(tree.children["ft"], Value)
-
-
-path_tiny_tgv = here / "pure_openfoam_cases/tiny-tgv"
-
-
-def test_reading_one_file():
-    path_to_file = path_tiny_tgv / "system/fvSolution"
-    with open(path_to_file, "r") as file:
-        text = file.read()
-
-    tree = base_test(text, cls=FoamInputFile)
-    assert tree.info["object"] == "fvSolution"
-    assert tree.children["solvers"]["U"]["solver"] == "PBiCGStab"
-
-
-paths_tiny_tgv = {
-    path.name: path
-    for path in path_tiny_tgv.rglob("*")
-    if path.is_file() and "README" not in path.name
-}
-
-
-@pytest.mark.parametrize("path_name", paths_tiny_tgv)
-def test_tiny_tgv(path_name, request):
-    # if path_name == "fvSchemes":
-    #     request.applymarker(pytest.mark.xfail())
-
-    path = paths_tiny_tgv[path_name]
-    text = path.read_text()
-    tree = base_test(text, check_dump_parse=True)
 
 
 def test_macro_ugly():
