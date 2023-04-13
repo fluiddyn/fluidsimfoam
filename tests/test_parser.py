@@ -447,9 +447,17 @@ def test_macro():
             $p;
         }
 
+        p_rbghFinal
+        {
+            $p_rbgh;
+            tolerance    1e-08;
+            relTol       0;
+        }
+
         relaxationFactors  $relaxationFactors-SIMPLE;
     """,
         check_dump=True,
+        check_dump_parse=True,
     )
 
 
