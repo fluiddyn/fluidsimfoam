@@ -774,3 +774,32 @@ def test_code_with_directive_and_macro():
         """,
         check_dump_parse=True,
     )
+
+
+@pytest.mark.xfail(reason="In blockMeshDict file in phill (found once)")
+def test_list_edges():
+    tree = base_test(
+        """
+        edges
+        (
+            spline 1 2 ((0.6 0.0124 0.0) (0.7 0.0395 0.0) (0.8 0.0724 0.0) (0.9 0.132 0.0) (1 0.172 0.0) (1.1 0.132 0.0) (1.2 0.0724 0.0) (1.3 0.0395 0.0) (1.4 0.0124 0.0))
+            spline 6 5 ((0.6 0.0124 0.05) (0.7 0.0395 0.05) (0.8 0.0724 0.05) (0.9 0.132 0.05) (1 0.172 0.05) (1.1 0.132 0.05) (1.2 0.0724 0.05) (1.3 0.0395 0.05) (1.4 0.0124 0.05))
+        );
+        """,
+        check_dump_parse=True,
+    )
+
+
+@pytest.mark.xfail(reason="In blockMeshDict file in phill (found once)")
+def test_list_blocks():
+    tree = base_test(
+        """
+        blocks
+        (
+            hex (0 1 9 8 7 6 14 15) (50 100 1) simpleGrading (1 ((0.1 0.25 41.9) (0.9 0.75 1)) 1)
+            hex (1 2 10 9 6 5 13 14) (50 100 1) simpleGrading (1 ((0.1 0.25 41.9) (0.9 0.75 1)) 1)
+            hex (2 3 11 10 5 4 12 13) (225 100 1) simpleGrading (1 ((0.1 0.25 41.9) (0.9 0.75 1)) 1)
+        );
+        """,
+        check_dump_parse=True,
+    )

@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import pytest
 from rich.progress import track
 from test_parser import base_test
