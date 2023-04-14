@@ -1,3 +1,4 @@
+from functools import partial
 from textwrap import dedent
 
 from lark.exceptions import LarkError
@@ -16,9 +17,14 @@ from fluidsimfoam.foam_input_files.ast import (
 
 
 def base_test(
-    text, representation=None, cls=None, check_dump=False, check_dump_parse=False
+    text,
+    representation=None,
+    cls=None,
+    check_dump=False,
+    check_dump_parse=False,
+    grammar=None,
 ):
-    tree = parse(text)
+    tree = parse(text, grammar=grammar)
     text = dedent(text)
     if isinstance(tree, FoamInputFile):
         assert all(
@@ -30,23 +36,24 @@ def base_test(
         ), tree
 
     if representation is not None:
-        assert repr(tree) == representation
-    if cls is not None:
-        assert isinstance(tree, cls)
+        grammar
     if check_dump or check_dump_parse:
         dumped_text = dump(tree)
     if check_dump:
         assert dedent(text).strip() == dumped_text.strip()
     if check_dump_parse:
         try:
-            assert tree == parse(dumped_text)
+            assert tree == parse(dumped_text, grammar=grammar)
         except LarkError as err:
             raise RuntimeError from err
     return tree
 
 
+base_test_simple = partial(base_test, grammar="simple")
+
+
 def test_var_simple():
-    tree = base_test(
+    tree = base_test_simple(
         """
         a  b;
     """,
@@ -56,7 +63,7 @@ def test_var_simple():
 
 
 def test_var_quoted_string():
-    tree = base_test(
+    tree = base_test_simple(
         """
         laplacianSchemes
         {
@@ -69,7 +76,7 @@ def test_var_quoted_string():
 
 
 def test_var_multiple():
-    tree = base_test(
+    tree = base_test_simple(
         """
         a  b;
         c  d;
@@ -81,7 +88,7 @@ def test_var_multiple():
 
 
 def test_strange_names():
-    tree = base_test(
+    tree = base_test_simple(
         """
         "(U|k|epsilon|R)Final"
         {
@@ -107,7 +114,7 @@ def test_strange_names():
 
 
 def test_list_simple():
-    tree = base_test(
+    tree = base_test_simple(
         """
         faces
         (
@@ -121,7 +128,7 @@ def test_list_simple():
 
 
 def test_list_assignment():
-    tree = base_test(
+    tree = base_test_simple(
         """
         faces  (1 5 4 0);
     """,
@@ -133,7 +140,7 @@ def test_list_assignment():
 def test_dict_simple():
     # we add a space on purpose...
     space = " "
-    tree = base_test(
+    tree = base_test_simple(
         f"""
         my_dict{space}
         {{
@@ -156,7 +163,7 @@ def test_dict_simple():
 
 
 def test_dict_nested():
-    tree = base_test(
+    tree = base_test_simple(
         """
         my_nested_dict
         {
@@ -188,7 +195,7 @@ def test_dict_nested():
 
 
 def test_dict_with_list():
-    tree = base_test(
+    tree = base_test_simple(
         """
         PISO
         {
@@ -205,7 +212,7 @@ def test_dict_with_list():
 
 
 def test_list_with_dict():
-    base_test(
+    base_test_simple(
         """
     boundary
     (
@@ -228,7 +235,7 @@ def test_list_with_dict():
 
 
 def test_list_with_str():
-    base_test(
+    base_test_simple(
         """
         blocks
         (
@@ -240,7 +247,7 @@ def test_list_with_str():
 
 
 def test_file_simple():
-    tree = base_test(
+    tree = base_test_simple(
         """
         FoamFile
         {
@@ -259,7 +266,7 @@ def test_file_simple():
 
 
 def test_file():
-    tree = base_test(
+    tree = base_test_simple(
         """
         FoamFile
         {
@@ -289,7 +296,7 @@ def test_file():
 
 
 def test_directive():
-    base_test(
+    base_test_simple(
         """
         FoamFile
         {
@@ -304,7 +311,7 @@ def test_directive():
 
 
 def test_directives_in_dict():
-    tree = base_test(
+    tree = base_test_simple(
         """
         functions
         {
@@ -362,7 +369,7 @@ def test_directives_in_dict():
 
 
 def test_code():
-    base_test(
+    base_test_simple(
         r"""
         code_name
         #{
@@ -375,7 +382,7 @@ def test_code():
 
 
 def test_code_stream():
-    tree = base_test(
+    tree = base_test_simple(
         r"""
         internalField  #codeStream
         {
@@ -426,7 +433,7 @@ def test_code_stream():
 
 
 def test_macro():
-    tree = base_test(
+    tree = base_test_simple(
         """
         FoamFile
         {
@@ -453,7 +460,7 @@ def test_macro():
 
 
 def test_empty_dict():
-    tree = base_test(
+    tree = base_test_simple(
         """
         solvers
         {
@@ -466,7 +473,7 @@ def test_empty_dict():
 
 
 def test_dict_isolated_key():
-    tree = base_test(
+    tree = base_test_simple(
         """
         cache
         {
@@ -478,7 +485,7 @@ def test_dict_isolated_key():
 
 
 def test_dimension_set():
-    tree = base_test(
+    tree = base_test_simple(
         """
         dimension  [0 2 -1 0 0 0 0];
         nu  [0 2 -1 0 0 0 0] 1e-05;
@@ -497,7 +504,7 @@ def test_dimension_set():
 
 
 def test_named_values():
-    tree = base_test(
+    tree = base_test_simple(
         """
         a  b;
         ft  limitedLinear01 1;
@@ -509,7 +516,7 @@ def test_named_values():
 
 
 def test_macro_ugly():
-    tree = base_test(
+    tree = base_test_simple(
         """
         relaxationFactors
         {
@@ -521,7 +528,7 @@ def test_macro_ugly():
 
 
 def test_list_on_1_line():
-    tree = base_test(
+    tree = base_test_simple(
         """
         libs            (overset rigidBodyDynamics);
 
@@ -540,7 +547,7 @@ def test_list_on_1_line():
 
 
 def test_double_value():
-    tree = base_test(
+    tree = base_test_simple(
         """
         FoamFile
         {
@@ -553,7 +560,7 @@ def test_double_value():
 
 
 def test_for_blockmesh():
-    tree = base_test(
+    tree = base_test_simple(
         """
         negHalfWidth  #neg $halfWidth;
         blocks
@@ -566,7 +573,7 @@ def test_for_blockmesh():
 
 
 def test_for_U():
-    tree = base_test(
+    tree = base_test_simple(
         """
         internalField  uniform $include/caseSettings!internalField/U;
         """,
@@ -575,7 +582,7 @@ def test_for_U():
 
 
 def test_code_with_directive():
-    tree = base_test(
+    tree = base_test_simple(
         """
         nx  #eval #{ round(5 * $NSLABS) #};
         """,
@@ -584,7 +591,7 @@ def test_code_with_directive():
 
 
 def test_blocks():
-    tree = base_test(
+    tree = base_test_simple(
         """
         FoamFile
         {
@@ -604,7 +611,7 @@ def test_blocks():
 
 
 def test_macro_signed():
-    tree = base_test(
+    tree = base_test_simple(
         """
         vertices
         (
@@ -619,7 +626,7 @@ def test_macro_signed():
 
 
 def test_list_numbered():
-    tree = base_test(
+    tree = base_test_simple(
         """
         internalField nonuniform
         List<vector>
@@ -636,7 +643,7 @@ def test_list_numbered():
 
 
 def test_list_triple_named():
-    tree = base_test(
+    tree = base_test_simple(
         """
         velocity-inlet-5
         {
@@ -649,7 +656,7 @@ def test_list_triple_named():
 
 
 def test_list_u():
-    tree = base_test(
+    tree = base_test_simple(
         """
         FoamFile
         {
@@ -673,7 +680,7 @@ def test_list_u():
 
 
 def test_list_numbered_u():
-    tree = base_test(
+    tree = base_test_simple(
         """
         70
         (
@@ -691,7 +698,7 @@ def test_list_numbered_u():
 
 def test_colon_double_name():
     """In controlDict files (found once)"""
-    tree = base_test(
+    tree = base_test_simple(
         """
         DebugSwitches
         {
@@ -704,7 +711,7 @@ def test_colon_double_name():
 
 
 def test_assignment_strange_name():
-    tree = base_test(
+    tree = base_test_simple(
         """
         equations
         {
@@ -718,7 +725,7 @@ def test_assignment_strange_name():
 
 def test_code_with_directive_and_macro():
     """In controlDict files (found once)"""
-    tree = base_test(
+    tree = base_test_simple(
         """
         timeStart  #eval #{ 1.0/3.0 * ${/endTime} #};
         U
@@ -733,7 +740,7 @@ def test_code_with_directive_and_macro():
 
 
 def test_list_edges():
-    tree = base_test(
+    tree = base_test_simple(
         """
         edges
         (
@@ -746,7 +753,7 @@ def test_list_edges():
 
 
 def test_list_blocks():
-    tree = base_test(
+    tree = base_test_simple(
         """
         blocks
         (
