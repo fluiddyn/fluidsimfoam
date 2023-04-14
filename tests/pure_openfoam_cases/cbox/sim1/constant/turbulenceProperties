@@ -12,7 +12,6 @@ FoamFile
     class       dictionary;
     object      turbulenceProperties;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 simulationType      laminar;
 
@@ -24,6 +23,3 @@ RAS
 
     printCoeffs     on;
 }
-
-
-// ************************************************************************* //

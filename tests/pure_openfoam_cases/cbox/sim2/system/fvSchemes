@@ -12,7 +12,6 @@ FoamFile
     class       dictionary;
     object      fvSchemes;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 ddtSchemes
 {
@@ -52,6 +51,3 @@ snGradSchemes
 {
     default         corrected;
 }
-
-
-// ************************************************************************* //

@@ -13,7 +13,6 @@ FoamFile
     location    "system";
     object      controlDict;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 application     icoFoam;
 
@@ -46,7 +45,6 @@ timePrecision   12;
 runTimeModifiable true;
 
 
-// ************************************************************************* //
 
 functions
 {

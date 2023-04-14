@@ -251,7 +251,6 @@ def test_file_simple():
             object      blockMeshDict;
         }
 
-        // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
         a  b;
         c  d;

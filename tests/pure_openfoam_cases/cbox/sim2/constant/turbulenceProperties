@@ -12,18 +12,12 @@ FoamFile
     class       dictionary;
     object      turbulenceProperties;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 simulationType      laminar;
 
 RAS
 {
     RASModel        kEpsilon;
-
     turbulence      on;
-
     printCoeffs     on;
 }
-
-
-// ************************************************************************* //

@@ -12,7 +12,6 @@ FoamFile
     class       dictionary;
     object      blockMeshDict;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 scale   1;
 
@@ -81,6 +80,3 @@ boundary
 mergePatchPairs
 (
 );
-
-
-// ************************************************************************* //

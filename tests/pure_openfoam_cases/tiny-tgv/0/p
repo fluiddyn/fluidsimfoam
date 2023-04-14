@@ -12,7 +12,6 @@ FoamFile
     class       volScalarField;
     object      p;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 dimensions      [0 2 -2 0 0 0 0];
 
@@ -38,7 +37,7 @@ internalField   #codeStream
             const fvMesh& mesh = refCast<const fvMesh>(d.db());
             scalarField p(mesh.nCells(), 0.);
             forAll(p, i)
-            {  
+            {
                 const scalar x = mesh.C()[i][0];
                 const scalar y = mesh.C()[i][1];
                 const scalar z = mesh.C()[i][2];
@@ -60,7 +59,7 @@ boundaryField
     {
         type            cyclic;
     }
-    
+
     leftBoundary
     {
         type            cyclic;
@@ -75,12 +74,9 @@ boundaryField
     {
         type            cyclic;
     }
-    
+
     backBoundary
     {
         type            cyclic;
     }
 }
-
-
-// ************************************************************************* //

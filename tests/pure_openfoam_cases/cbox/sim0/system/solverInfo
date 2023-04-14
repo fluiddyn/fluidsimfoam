@@ -7,6 +7,3 @@ writeControl writeTime;
 fields      (p_rgh);
 
 writeFields yes;
-
-
-// ************************************************************************* //

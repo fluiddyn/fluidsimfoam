@@ -12,7 +12,6 @@ FoamFile
     class       volVectorField;
     object      U;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 dimensions      [0 1 -1 0 0 0 0];
 
@@ -44,7 +43,7 @@ internalField   #codeStream
                 const scalar z = mesh.C()[i][2];
                 U[i] = Foam::Vector<double>(Foam::sin(x)
                 *Foam::cos(y)*Foam::cos(z), -Foam::cos(x)
-                *Foam::sin(y)*Foam::cos(z), 0.);   
+                *Foam::sin(y)*Foam::cos(z), 0.);
             }
 
             U.writeEntry("",os);
@@ -53,12 +52,12 @@ internalField   #codeStream
 
 boundaryField
 {
-    upperBoundary      
+    upperBoundary
     {
         type            cyclic;
     }
 
-    lowerBoundary      
+    lowerBoundary
     {
         type            cyclic;
     }
@@ -77,10 +76,9 @@ boundaryField
     {
         type            cyclic;
     }
-    
+
     backBoundary
     {
         type            cyclic;
     }
 }
-// ************************************************************************* //

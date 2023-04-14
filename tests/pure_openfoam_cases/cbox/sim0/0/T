@@ -12,7 +12,6 @@ FoamFile
     class       volScalarField;
     object      T;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 dimensions      [0 0 0 1 0 0 0];
 
@@ -44,6 +43,3 @@ boundaryField
 
     #includeEtc "caseDicts/setConstraintTypes"
 }
-
-
-// ************************************************************************* //

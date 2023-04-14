@@ -6,6 +6,3 @@ end     (9 0.5 0);
 fields  (U);
 
 #includeEtc "caseDicts/postProcessing/visualization/streamlines.cfg"
-
-
-// ************************************************************************* //
