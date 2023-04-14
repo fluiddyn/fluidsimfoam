@@ -12,11 +12,10 @@ FoamFile
     class       dictionary;
     object      blockMeshDict;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 scale   6.28318530718;
 
-vertices        
+vertices
 (
     (0 0 0)
     (1 0 0)
@@ -28,19 +27,19 @@ vertices
     (0 1 1)
 );
 
-blocks          
+blocks
 (
     hex (0 1 2 3 4 5 6 7) (40  40  40) simpleGrading (1 1 1)
 );
 
-edges           
+edges
 (
 );
 
 boundary
 (
 
-    upperBoundary 
+    upperBoundary
     {
         type cyclic;
         neighbourPatch lowerBoundary;
@@ -59,7 +58,7 @@ boundary
             (1 5 4 0)
         );
      }
-     
+
     leftBoundary
     {
         type cyclic;
@@ -89,8 +88,8 @@ boundary
             (4 5 6 7)
         );
     }
-    
-    backBoundary 
+
+    backBoundary
     {
         type cyclic;
         neighbourPatch frontBoundary;
@@ -101,8 +100,6 @@ boundary
     }
 );
 
-mergePatchPairs 
+mergePatchPairs
 (
 );
-
-// ************************************************************************* //

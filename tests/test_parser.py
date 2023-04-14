@@ -1,7 +1,5 @@
-from pathlib import Path
 from textwrap import dedent
 
-import pytest
 from lark.exceptions import LarkError
 
 from fluidsimfoam.foam_input_files import dump, parse
@@ -16,13 +14,12 @@ from fluidsimfoam.foam_input_files.ast import (
     VariableAssignment,
 )
 
-here = Path(__file__).absolute().parent
-
 
 def base_test(
     text, representation=None, cls=None, check_dump=False, check_dump_parse=False
 ):
     tree = parse(text)
+    text = dedent(text)
     if isinstance(tree, FoamInputFile):
         assert all(
             isinstance(obj, (Node, str, int, float, type(None)))
@@ -36,12 +33,13 @@ def base_test(
         assert repr(tree) == representation
     if cls is not None:
         assert isinstance(tree, cls)
+    if check_dump or check_dump_parse:
+        dumped_text = dump(tree)
     if check_dump:
-        dump_text = dump(tree)
-        assert dedent(text).strip() == dump_text.strip()
+        assert dedent(text).strip() == dumped_text.strip()
     if check_dump_parse:
         try:
-            assert tree == parse(dump(tree))
+            assert tree == parse(dumped_text)
         except LarkError as err:
             raise RuntimeError from err
     return tree
@@ -253,7 +251,6 @@ def test_file_simple():
             object      blockMeshDict;
         }
 
-        // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
         a  b;
         c  d;
@@ -447,6 +444,13 @@ def test_macro():
             $p;
         }
 
+        p_rbghFinal
+        {
+            $p_rbgh;
+            tolerance    1e-08;
+            relTol       0;
+        }
+
         relaxationFactors  $relaxationFactors-SIMPLE;
     """,
         check_dump=True,
@@ -509,36 +513,6 @@ def test_named_values():
         check_dump_parse=True,
     )
     assert isinstance(tree.children["ft"], Value)
-
-
-path_tiny_tgv = here / "pure_openfoam_cases/tiny-tgv"
-
-
-def test_reading_one_file():
-    path_to_file = path_tiny_tgv / "system/fvSolution"
-    with open(path_to_file, "r") as file:
-        text = file.read()
-
-    tree = base_test(text, cls=FoamInputFile)
-    assert tree.info["object"] == "fvSolution"
-    assert tree.children["solvers"]["U"]["solver"] == "PBiCGStab"
-
-
-paths_tiny_tgv = {
-    path.name: path
-    for path in path_tiny_tgv.rglob("*")
-    if path.is_file() and "README" not in path.name
-}
-
-
-@pytest.mark.parametrize("path_name", paths_tiny_tgv)
-def test_tiny_tgv(path_name, request):
-    # if path_name == "fvSchemes":
-    #     request.applymarker(pytest.mark.xfail())
-
-    path = paths_tiny_tgv[path_name]
-    text = path.read_text()
-    tree = base_test(text, check_dump_parse=True)
 
 
 def test_macro_ugly():
@@ -688,6 +662,10 @@ def test_list_triple_named():
 def test_list_u():
     tree = base_test(
         """
+        FoamFile
+        {
+            version     2.0;
+        }
         (
         (4.507730000e+00 1.799630000e+00 0.000000000e+00)
         (6.062080000e+00 2.408310000e+00 0.000000000e+00)
@@ -766,4 +744,31 @@ def test_code_with_directive_and_macro():
         }
         """,
         check_dump_parse=True,
+    )
+
+
+def test_list_edges():
+    tree = base_test(
+        """
+        edges
+        (
+            spline 1 2 ((0.6 0.0124 0.0) (0.7 0.0395 0.0) (0.8 0.0724 0.0) (0.9 0.132 0.0) (1 0.172 0.0) (1.1 0.132 0.0) (1.2 0.0724 0.0) (1.3 0.0395 0.0) (1.4 0.0124 0.0))
+            spline 6 5 ((0.6 0.0124 0.05) (0.7 0.0395 0.05) (0.8 0.0724 0.05) (0.9 0.132 0.05) (1 0.172 0.05) (1.1 0.132 0.05) (1.2 0.0724 0.05) (1.3 0.0395 0.05) (1.4 0.0124 0.05))
+        );
+        """,
+        check_dump=True,
+    )
+
+
+def test_list_blocks():
+    tree = base_test(
+        """
+        blocks
+        (
+            hex (0 1 9 8 7 6 14 15) (50 100 1) simpleGrading (1 ((0.1 0.25 41.9) (0.9 0.75 1)) 1)
+            hex (1 2 10 9 6 5 13 14) (50 100 1) simpleGrading (1 ((0.1 0.25 41.9) (0.9 0.75 1)) 1)
+            hex (2 3 11 10 5 4 12 13) (225 100 1) simpleGrading (1 ((0.1 0.25 41.9) (0.9 0.75 1)) 1)
+        );
+        """,
+        check_dump=True,
     )

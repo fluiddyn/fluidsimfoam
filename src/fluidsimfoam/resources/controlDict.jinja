@@ -13,7 +13,6 @@ FoamFile
     location    "system";
     object      controlDict;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 application     icoFoam;
 
@@ -46,7 +45,6 @@ timePrecision   12;
 runTimeModifiable true;
 
 
-// ************************************************************************* //
 
 functions
 {
@@ -58,7 +56,7 @@ functions
 	type fieldMinMax;
 	//type banana;
 
-	functionObjectLibs ("libfieldFunctionObjects.so");
+	libs ("libfieldFunctionObjects.so");
 
 	enabled true;
 

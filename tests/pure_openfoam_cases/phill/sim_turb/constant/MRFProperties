@@ -1,0 +1,19 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      MRFProperties;
+}
+
+MRF1
+{
+	active          no;
+	selectionMode   cellZone;
+	cellZone        rotor;
+
+    origin      (0 0 0);
+    axis        (0 0 1);
+    omega       constant 0.0;
+}

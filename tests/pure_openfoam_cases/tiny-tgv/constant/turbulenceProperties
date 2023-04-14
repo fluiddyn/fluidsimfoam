@@ -12,9 +12,5 @@ FoamFile
     class       dictionary;
     object      turbulenceProperties;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 simulationType  laminar;
-
-
-// ************************************************************************* //
