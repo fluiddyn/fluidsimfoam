@@ -1,6 +1,7 @@
+SHELL := /bin/bash
 
 test:
-	pytest tests
+	time pytest tests
 
 black:
 	black -l 82 src tests doc dev
