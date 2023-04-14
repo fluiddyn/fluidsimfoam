@@ -96,7 +96,6 @@ def test_directives_in_dict():
     )
 
 
-@pytest.mark.xfail(reason="wrong indentation in dumping codes")
 def test_code():
     base_test(
         r"""

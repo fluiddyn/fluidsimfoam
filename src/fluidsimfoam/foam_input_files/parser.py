@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from lark import Lark, Token, Transformer
+from lark.exceptions import LarkError
 
 from .ast import (
     Assignment,
@@ -18,14 +19,27 @@ from .ast import (
 
 here = Path(__file__).absolute().parent
 
+
 grammar = (here / "grammar.lark").read_text()
+grammar_advanced = (here / "grammar_advanced.lark").read_text()
 
 lark_parser = Lark(grammar, start="value", lexer="basic")
+lark_parser_advanced = Lark(grammar_advanced, start="value", lexer="basic")
+
+parsers = {"simple": lark_parser, "advanced": lark_parser_advanced}
 
 
-def parse(text):
+def parse(text, grammar=None):
     text = "\n".join(line.rstrip() for line in text.split("\n"))
-    tree = lark_parser.parse(text)
+
+    if grammar is None:
+        try:
+            tree = lark_parser.parse(text)
+        except LarkError:
+            tree = lark_parser_advanced.parse(text)
+    else:
+        tree = parsers[grammar].parse(text)
+
     return FoamTransformer().transform(tree)
 
 
