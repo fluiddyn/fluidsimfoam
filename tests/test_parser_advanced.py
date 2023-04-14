@@ -194,3 +194,74 @@ def test_list_name_eq():
         """,
         check_dump_parse=True,
     )
+
+
+def test_list_triple_named():
+    tree = base_test(
+        """
+        velocity-inlet-5
+        {
+            type            fixedValue;
+            value           uniform (1 0 0);
+        }
+        """,
+        check_dump_parse=True,
+    )
+
+
+def test_directives_in_dict():
+    tree = base_test(
+        """
+        functions
+        {
+            #includeFunc fieldAverage(cylindrical(U))
+            #includeFunc Qdot
+            #includeFunc components(U)
+            #includeFunc Qdot(region=gas)
+            #includeFunc residuals(region = shell, p_rgh, U, h)
+            #includeFunc residuals(region = tube, p_rgh, U, h)
+            #includeFunc patchAverage
+            (
+                funcName=cylinderT,
+                region=fluid,
+                patch=fluid_to_solid,
+                field=T
+            )
+            #includeFunc streamlinesLine(funcName=streamlines, start=(0 0.5 0), end=(9 0.5 0), nPoints=24, U)
+            #includeFunc streamlinesLine
+            (
+                funcName=streamlines,
+                start=(-0.0205 0.001 0.00001),
+                end=(-0.0205 0.0251 0.00001),
+                nPoints=10,
+                fields=(p k U)
+            )
+            #includeFunc writeObjects(kEpsilon:G)
+            #includeFunc fieldAverage(U, p, alpha.vapour)
+            #includeFunc writeObjects
+            (
+                d.particles,
+                a.particles,
+                phaseTransfer:dmidtf.TiO2.particlesAndVapor,
+                phaseTransfer:dmidtf.TiO2_s.particlesAndVapor
+            )
+            #includeFunc  graphUniform
+            (
+                funcName=graph,
+                start=(0 0 0.89),
+                end=(0.025 0 0.89),
+                nPoints=100,
+                fields=
+                (
+                    alpha.air1
+                    alpha.air2
+                    alpha.bubbles
+                    liftForce.water
+                    wallLubricationForce.water
+                    turbulentDispersionForce.water
+                )
+            )
+        }
+        """,
+        check_dump_parse=True,
+    )

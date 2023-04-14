@@ -4,11 +4,11 @@ EQKEY.2 : /[a-zA-Z]+\(\S+\)[a-zA-Z]*/
 
 MACRO_TERM : /[\-]*\$[^;^\s\n\)]+/ | /\$\{{[^;^\n]+/
 DOUBLE_NAME.1 : /[a-zA-Z][a-zA-Z\d]*[:\.-][a-zA-Z\d\._\::]+/
-TRIPLE_NAME.3 :  /[a-zA-Z][a-zA-Z\d]*[:\-][a-zA-Z\d\._]+[:\-][a-zA-Z\d\._]/
+
 
 numbered_list : [NEWLINE] (CNAME|DOUBLE_NAME|NEWLINE)*  /<[a-zA-Z]*>/ NEWLINE SIGNED_NUMBER
 
-_dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY|TRIPLE_NAME|list
+_dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY
 _list_name: EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME|numbered_list|directive|SIGNED_NUMBER
 
 _key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
@@ -20,25 +20,18 @@ _dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | macro | directive
 list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
 
 
-equal_assign: CNAME "=" (CNAME|SIGNED_NUMBER|list) | CNAME "=" NEWLINE list
-
-_in_funtion_call : CNAME|DOUBLE_NAME|equal_assign|_funtion_call
-_funtion_call : CNAME [NEWLINE] "(" [NEWLINE] (_in_funtion_call) ( "," [NEWLINE] (_in_funtion_call))* [NEWLINE] ")"
-
 isolated_list : [NEWLINE] list ";" [NEWLINE]
 _isolated_thing : isolated_list
 
-directive_assignment: [NEWLINE] directive (_funtion_call|CNAME|EQKEY|ESCAPED_STRING) [";"] [NEWLINE]
+directive_assignment: [NEWLINE] directive (CNAME|EQKEY|ESCAPED_STRING) [";"] [NEWLINE]
 macro_assignment : [NEWLINE] macro [";"] [NEWLINE]
 list_assignment : [NEWLINE] _list_name [CNAME] [NEWLINE] list [NEWLINE] ";" [NEWLINE]
 var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]
 dict_assignment : [NEWLINE] _dict_name (CNAME)* [directive] [NEWLINE] "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
 code_assignment : [NEWLINE] CNAME [directive] [NEWLINE] /#{[\S\s]*?#};/ NEWLINE
-special_directives : [NEWLINE] (/#if[\S\s]*#endif/|/#remove[\S\s]+[^;\n{]/) NEWLINE
 dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" [NEWLINE]
 _assignment : var_assignment | dict_assignment | list_assignment
               | dimension_assignment | code_assignment | macro_assignment | directive_assignment
-              | special_directives
 
 file : (_assignment | _isolated_thing)+
 
