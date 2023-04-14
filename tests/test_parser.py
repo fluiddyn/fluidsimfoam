@@ -644,7 +644,7 @@ def test_list_triple_named():
             value           uniform (1 0 0);
         }
         """,
-        check_dump=True,
+        check_dump_parse=True,
     )
 
 
