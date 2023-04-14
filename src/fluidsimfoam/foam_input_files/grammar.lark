@@ -12,7 +12,7 @@ _dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY|TRIPLE_NAME|list
 _list_name: EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME|numbered_list|directive|SIGNED_NUMBER
 
 _key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
-directive: /#[a-zA-Z]+/ | /#[a-zA-Z]+{[^}]*}/ | /#[a-zA-Z]+[\s#{]+[^#]*#}/
+directive: /#[a-zA-Z]+/ | /#[a-zA-Z]+{[^}]*}/
 macro :  MACRO_TERM
 dimension_set : "[" (SIGNED_NUMBER)+ "]"
 _dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | macro | directive

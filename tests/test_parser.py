@@ -579,7 +579,7 @@ def test_code_with_directive():
         """
         nx  #eval #{ round(5 * $NSLABS) #};
         """,
-        check_dump=True,
+        check_dump_parse=True,
     )
 
 
@@ -728,7 +728,7 @@ def test_code_with_directive_and_macro():
             base          time;
         }
         """,
-        check_dump=True,
+        check_dump_parse=True,
     )
 
 

@@ -300,8 +300,11 @@ class FoamTransformer(Transformer):
         else:
             raise NotImplementedError(nodes)
         code = str(code)
-        code = code.split("\n", 1)[-1]
-        code = code.rsplit("\n", 1)[0]
+        if code.startswith("#{\n"):
+            code = code.split("\n", 1)[-1]
+            code = code.rsplit("\n", 1)[0]
+        else:
+            code = code[2:-3].strip()
         return Assignment(name, Code(name, code, directive=directive))
 
     def special_directives(self, token):
