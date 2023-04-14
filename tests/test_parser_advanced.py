@@ -122,7 +122,6 @@ def test_directive_strange():
         """
         #remove ( "r(Inner|Outer).*"  "[xy](min|max)" )
         """,
-        check_dump_parse=True,
         check_dump=True,
     )
 

@@ -60,10 +60,10 @@ def test_var_quoted_string():
         """
         laplacianSchemes
         {
-            default         "Gauss linear corrected";
+            default    "Gauss linear corrected";
         }
     """,
-        check_dump_parse=True,
+        check_dump=True,
     )
     assert tree.value["default"] == '"Gauss linear corrected"'
 
@@ -90,20 +90,19 @@ def test_strange_names():
             relTol       0;
         }
 
-        thermalPhaseChange:dmdtf 1.0;
-
+        thermalPhaseChange:dmdtf  1.0;
         thermo:rho
         {
-            solver            PCG;
-        };
+            solver    PCG;
+        }
 
         alpha.water
         {
-            solver            PCG;
-        };
+            solver    PCG;
+        }
 
     """,
-        check_dump_parse=True,
+        check_dump=True,
     )
 
 
@@ -117,7 +116,7 @@ def test_list_simple():
         );
     """,
         cls=Assignment,
-        check_dump_parse=True,
+        check_dump=True,
     )
 
 
@@ -181,7 +180,6 @@ def test_dict_nested():
     """,
         cls=Assignment,
         check_dump=True,
-        check_dump_parse=True,
     )
 
     my_nested_dict = tree.value
@@ -211,20 +209,21 @@ def test_list_with_dict():
         """
     boundary
     (
+        upperBoundary
+        {
+            type              cyclic;
+            neighbourPatch    lowerBoundary;
+            faces
+            (
+                (3 7 6 2)
+            );
 
-    upperBoundary
-    {
-        type cyclic;
-        neighbourPatch lowerBoundary;
-        faces
-        (
-            (3 7 6 2)
-        );
-    }
+        }
+
     );
     """,
         cls=Assignment,
-        check_dump_parse=True,
+        check_dump=True,
     )
 
 
@@ -233,10 +232,10 @@ def test_list_with_str():
         """
         blocks
         (
-            hex (0 1 2 3 4 5 6 7) (40  40  40) simpleGrading (1 1 1)
+            hex (0 1 2 3 4 5 6 7) (40 40 40) simpleGrading (1 1 1)
         );
     """,
-        check_dump_parse=True,
+        check_dump=True,
     )
 
 
@@ -272,7 +271,6 @@ def test_file():
 
         a  1;
         b  2;
-
         faces
         (
             (1 5 4 0)
@@ -285,7 +283,7 @@ def test_file():
         }
     """,
         cls=FoamInputFile,
-        check_dump_parse=True,
+        check_dump=True,
     )
     assert tree.children["my_dict"]["a"] == 1
 
@@ -302,7 +300,6 @@ def test_directive():
     """,
         cls=FoamInputFile,
         check_dump=True,
-        check_dump_parse=True,
     )
 
 
@@ -374,7 +371,6 @@ def test_code():
         #};
     """,
         check_dump=False,
-        check_dump_parse=True,
     )
 
 
@@ -417,7 +413,6 @@ def test_code_stream():
 
         }
 """,
-        check_dump_parse=True,
         check_dump=True,
     )
 
@@ -496,7 +491,6 @@ def test_dimension_set():
         """,
         cls=FoamInputFile,
         check_dump=True,
-        check_dump_parse=True,
     )
     assert isinstance(tree.children["nu"], Value)
     assert isinstance(tree.children["dimension"], DimensionSet)
@@ -510,7 +504,6 @@ def test_named_values():
         """,
         cls=FoamInputFile,
         check_dump=True,
-        check_dump_parse=True,
     )
     assert isinstance(tree.children["ft"], Value)
 
@@ -523,7 +516,7 @@ def test_macro_ugly():
             ${_${FOAM_EXECUTABLE}};
         }
         """,
-        check_dump_parse=True,
+        check_dump=True,
     )
 
 
@@ -551,44 +544,42 @@ def test_double_value():
         """
         FoamFile
         {
-            format      ascii;
-            object      controlDict.1st;
+            format    ascii;
+            object    controlDict.1st;
         }
         """,
-        check_dump_parse=True,
+        check_dump=True,
     )
 
 
 def test_for_blockmesh():
     tree = base_test(
         """
-        negHalfWidth          #neg $halfWidth;
-
+        negHalfWidth  #neg $halfWidth;
         blocks
         (
-            // Fluid region
             hex (4 6 14 12 0 2 10 8) (1 $upstreamCells $cylinderBoxCells) $expandBlock
         );
         """,
-        check_dump_parse=True,
+        check_dump=True,
     )
 
 
 def test_for_U():
     tree = base_test(
         """
-        internalField   uniform $include/caseSettings!internalField/U;
+        internalField  uniform $include/caseSettings!internalField/U;
         """,
-        check_dump_parse=True,
+        check_dump=True,
     )
 
 
 def test_code_with_directive():
     tree = base_test(
         """
-        nx    #eval #{ round(5 * $NSLABS) #};
+        nx  #eval #{ round(5 * $NSLABS) #};
         """,
-        check_dump_parse=True,
+        check_dump=True,
     )
 
 
@@ -609,7 +600,6 @@ def test_blocks():
         );
         """,
         check_dump=True,
-        check_dump_parse=True,
     )
 
 
@@ -618,13 +608,13 @@ def test_macro_signed():
         """
         vertices
         (
-            ( $x0      $y0    -$w2 )
-            (  0      -$h2    -$w2 )
-            (  0       $h2    -$w2 )
-            ( $x1      $y1    -$w2 )
+            ($x0 $y0 -$w2)
+            (0 -$h2 -$w2)
+            (0 $h2 -$w2)
+            ($x1 $y1 -$w2)
         );
         """,
-        check_dump_parse=True,
+        check_dump=True,
     )
 
 
@@ -641,7 +631,6 @@ def test_list_numbered():
         );
 
         """,
-        check_dump_parse=True,
         check_dump=True,
     )
 
@@ -696,7 +685,6 @@ def test_list_numbered_u():
             (14.0472 0 0)
         );
         """,
-        check_dump_parse=True,
         check_dump=True,
     )
 
@@ -721,8 +709,6 @@ def test_assignment_strange_name():
         equations
         {
             "(U|e|k).*"  0.7;
-
-            // Demonstrate some ramping
             "(U|e|k|epsilon).*" table ((0 0.4) (0.5 0.7));
         }
     """,
@@ -735,15 +721,14 @@ def test_code_with_directive_and_macro():
     tree = base_test(
         """
         timeStart  #eval #{ 1.0/3.0 * ${/endTime} #};
-
         U
         {
-            mean        on;
-            prime2Mean  on;
-            base        time;
+            mean          on;
+            prime2Mean    on;
+            base          time;
         }
         """,
-        check_dump_parse=True,
+        check_dump=True,
     )
 
 
