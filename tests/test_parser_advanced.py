@@ -322,3 +322,65 @@ def test_code_stream():
     assert code_stream.code.strip().startswith("const IOdictionary")
     code_stream.code_include = "toto"
     code_stream["codeInclude"] == "toto"
+
+
+def test_assignment_strange_name():
+    tree = base_test_advanced(
+        """
+        equations
+        {
+            "(U|e|k).*"  0.7;
+            "(U|e|k|epsilon).*" table ((0 0.4) (0.5 0.7));
+        }
+    """,
+        check_dump_parse=True,
+    )
+
+
+def test_code_with_directive_and_macro():
+    """In controlDict files (found once)"""
+    tree = base_test_advanced(
+        """
+        timeStart  #eval #{ 1.0/3.0 * ${/endTime} #};
+        U
+        {
+            mean          on;
+            prime2Mean    on;
+            base          time;
+        }
+        """,
+        check_dump_parse=True,
+    )
+
+
+def test_code_with_directive():
+    tree = base_test_advanced(
+        """
+        nx  #eval #{ round(5 * $NSLABS) #};
+        """,
+        check_dump_parse=True,
+    )
+
+
+def test_list_u():
+    tree = base_test_advanced(
+        """
+        FoamFile
+        {
+            version     2.0;
+        }
+        (
+        (4.507730000e+00 1.799630000e+00 0.000000000e+00)
+        (6.062080000e+00 2.408310000e+00 0.000000000e+00)
+        (6.874000000e+00 2.720790000e+00 0.000000000e+00)
+        (7.429290000e+00 2.931000000e+00 0.000000000e+00)
+        (7.850950000e+00 3.088050000e+00 0.000000000e+00)
+        (8.192020000e+00 3.213060000e+00 0.000000000e+00)
+        (1.750000000e+01 1.925590000e-09 0.000000000e+00)
+        (1.750000000e+01 6.810450000e-12 0.000000000e+00)
+        (1.750000000e+01 6.810450000e-12 0.000000000e+00)
+        );
+
+        """,
+        check_dump_parse=True,
+    )

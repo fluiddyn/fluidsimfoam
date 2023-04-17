@@ -5,38 +5,34 @@ EQKEY.2 : /[a-zA-Z]+\(\S+\)[a-zA-Z]*/
 MACRO_TERM : /[\-]*\$[^;^\s\n\)]+/ | /\$\{{[^;^\n]+/
 DOUBLE_NAME.1 : /[a-zA-Z][a-zA-Z\d]*[:\.-][a-zA-Z\d\._\::]+/
 
-
-numbered_list : [NEWLINE] (CNAME|DOUBLE_NAME|NEWLINE)*  /<[a-zA-Z]*>/ NEWLINE SIGNED_NUMBER
+numbered_list : (CNAME|DOUBLE_NAME|NEWLINE)*  /<[a-zA-Z]*>/ NEWLINE SIGNED_NUMBER
 
 _dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY
 _list_name: EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME|numbered_list|directive|SIGNED_NUMBER
 
 _key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
-directive: /#[a-zA-Z]+/ | /#[a-zA-Z]+{[^}]*}/
-macro :  MACRO_TERM
+directive: /#[a-zA-Z]+/
+macro : MACRO_TERM
 dimension_set : "[" (SIGNED_NUMBER)+ "]"
 _dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | macro | directive
-    | SIGNED_NUMBER | dimension_set | EQKEY
+            | SIGNED_NUMBER | dimension_set | EQKEY
+
 list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
 
-
-isolated_list : [NEWLINE] list ";" [NEWLINE]
-_isolated_thing : isolated_list
-
-directive_assignment: [NEWLINE] directive (CNAME|EQKEY|ESCAPED_STRING) [";"] [NEWLINE]
-macro_assignment : [NEWLINE] macro [";"] [NEWLINE]
-list_assignment : [NEWLINE] _list_name [CNAME] [NEWLINE] list [NEWLINE] ";" [NEWLINE]
-var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]
+directive_assignment: [NEWLINE] directive (CNAME|EQKEY|ESCAPED_STRING) [";"] NEWLINE
+macro_assignment : [NEWLINE] macro ";" NEWLINE
+list_assignment : [NEWLINE] _list_name NEWLINE list ";" NEWLINE
+var_assignment : [NEWLINE] _key [(_dataentry)+] ";" NEWLINE
 dict_assignment : [NEWLINE] _dict_name NEWLINE "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
-code_assignment : [NEWLINE] CNAME [directive] [NEWLINE] /#{[\S\s]*?#};/ NEWLINE
-dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" [NEWLINE]
+code_assignment : [NEWLINE] CNAME NEWLINE /#{[\S\s]*?#};/ NEWLINE
+dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" NEWLINE
 _assignment : var_assignment | dict_assignment | list_assignment
               | dimension_assignment | code_assignment | macro_assignment | directive_assignment
 
-file : (_assignment | _isolated_thing)+
+file : (_assignment)+
 
-CPP_COMMENT: /\/\/[^\n]*/ [NEWLINE]
-C_COMMENT: "/*" /(.|\n)*?/ "*/" [NEWLINE]
+CPP_COMMENT: /\/\/[^\n]*/ NEWLINE
+C_COMMENT: "/*" /(.|\n)*?/ "*/" NEWLINE
 
 %ignore /[\n\f\r]+/
 %ignore CPP_COMMENT
