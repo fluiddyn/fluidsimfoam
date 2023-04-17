@@ -27,7 +27,7 @@ directive_assignment: [NEWLINE] directive (CNAME|EQKEY|ESCAPED_STRING) [";"] [NE
 macro_assignment : [NEWLINE] macro [";"] [NEWLINE]
 list_assignment : [NEWLINE] _list_name [CNAME] [NEWLINE] list [NEWLINE] ";" [NEWLINE]
 var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]
-dict_assignment : [NEWLINE] _dict_name (CNAME)* [directive] [NEWLINE] "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
+dict_assignment : [NEWLINE] _dict_name NEWLINE "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
 code_assignment : [NEWLINE] CNAME [directive] [NEWLINE] /#{[\S\s]*?#};/ NEWLINE
 dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" [NEWLINE]
 _assignment : var_assignment | dict_assignment | list_assignment
