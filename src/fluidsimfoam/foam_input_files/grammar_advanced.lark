@@ -2,16 +2,17 @@
 
 EQKEY.2 : /[a-zA-Z]+\(\S+\)[a-zA-Z]*/
 
-MACRO_TERM : /[\-]*\$[^;^\s\n\)]+/ | /\$\{{[^;^\n]+/
+MACRO_TERM : /[\-]?\$[^;^\s\n\)]+/ | /\$\{{[^;^\n]+/
 DOUBLE_NAME.1 : /[a-zA-Z][a-zA-Z\d]*[:\.-][a-zA-Z\d\._\::]+/
 TRIPLE_NAME.3 :  /[a-zA-Z][a-zA-Z\d]*[:\-][a-zA-Z\d\._]+[:\-][a-zA-Z\d\._]/
 
-numbered_list : [NEWLINE] (CNAME|DOUBLE_NAME|NEWLINE)*  /<[a-zA-Z]*>/ NEWLINE SIGNED_NUMBER
-
+_list_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|macro|SIGNED_NUMBER|EQKEY|directive
 _dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY|TRIPLE_NAME|list
-_list_name: EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME|numbered_list|directive|SIGNED_NUMBER
+_var_name : CNAME|ESCAPED_STRING|DOUBLE_NAME|macro|EQKEY
 
-_key : EQKEY|CNAME|macro|ESCAPED_STRING|DOUBLE_NAME
+LIST_TYPE.2 : /List<[\w]+>/
+list_info : _list_name [CNAME] [NEWLINE LIST_TYPE] [NEWLINE SIGNED_NUMBER]
+
 directive: /#[a-zA-Z]+/ | /#[a-zA-Z]+{[^}]*}/
 macro :  MACRO_TERM
 dimension_set : "[" (SIGNED_NUMBER)+ "]"
@@ -19,9 +20,7 @@ _dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | macro | directive
     | SIGNED_NUMBER | dimension_set | EQKEY
 list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
 
-
 equal_assign: CNAME "=" (CNAME|SIGNED_NUMBER|list) | CNAME "=" NEWLINE list
-
 _in_funtion_call : CNAME|DOUBLE_NAME|equal_assign|_funtion_call
 _funtion_call : CNAME [NEWLINE] "(" [NEWLINE] (_in_funtion_call) ( "," [NEWLINE] (_in_funtion_call))* [NEWLINE] ")"
 
@@ -30,8 +29,8 @@ _isolated_thing : isolated_list
 
 directive_assignment: [NEWLINE] directive (_funtion_call|CNAME|EQKEY|ESCAPED_STRING) [";"] [NEWLINE]
 macro_assignment : [NEWLINE] macro [";"] [NEWLINE]
-list_assignment : [NEWLINE] _list_name [CNAME] [NEWLINE] list [NEWLINE] ";" [NEWLINE]
-var_assignment : [NEWLINE] _key [(_dataentry)+] ";" [NEWLINE]
+list_assignment : [NEWLINE] list_info [NEWLINE] list [NEWLINE] ";" [NEWLINE]
+var_assignment : [NEWLINE] _var_name [(_dataentry)+] ";" [NEWLINE]
 dict_assignment : [NEWLINE] _dict_name (CNAME)* [directive] [NEWLINE] "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
 code_assignment : [NEWLINE] CNAME [directive] [NEWLINE] /#{[\S\s]*?#};/ NEWLINE
 special_directives : [NEWLINE] (/#if[\S\s]*#endif/|/#remove[\S\s]+[^;\n{]/) NEWLINE

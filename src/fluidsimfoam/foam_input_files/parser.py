@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 
 from lark import Lark, Token, Transformer
@@ -26,6 +27,14 @@ lark_parser = Lark(grammar, start="value", lexer="basic")
 lark_parser_advanced = Lark(grammar_advanced, start="value", lexer="basic")
 
 parsers = {"simple": lark_parser, "advanced": lark_parser_advanced}
+
+
+@dataclass
+class ListInfo:
+    name: str
+    info: str = None
+    dtype: str = None
+    size: int = None
 
 
 def parse(text, grammar=None):
@@ -82,21 +91,6 @@ class FoamTransformer(Transformer):
 
     def MACRO_TERM(self, token):
         return token.value
-
-    def numbered_list(self, nodes):
-        nodes = [node for node in nodes if node is not None]
-        list_name = str(nodes.pop(0))
-        end_name = (
-            "\n"
-            + str(nodes.pop(-3))
-            + str(nodes.pop(-2))
-            + "\n"
-            + str(nodes.pop(-1))
-        )
-        if nodes:
-            for node in nodes:
-                list_name = list_name + " " + str(node)
-        return list_name + end_name
 
     def dimension_set(self, items):
         return DimensionSet(
@@ -230,16 +224,46 @@ class FoamTransformer(Transformer):
         name = None
         return Assignment(name, nodes[0])
 
+    def list_info(self, nodes):
+        nodes = filter_no_newlines(nodes)
+
+        dtype = None
+        for inode, node in enumerate(nodes):
+            if isinstance(node, Token) and node.type == "LIST_TYPE":
+                dtype = str(node)[5:-1]
+                break
+        if dtype is not None:
+            nodes.pop(inode)
+
+        size = None
+        if len(nodes) > 1 and isinstance(nodes[-1], int):
+            size = nodes.pop(-1)
+
+        name = nodes.pop(0)
+
+        info = None
+        if nodes:
+            info = " ".join(nodes)
+
+        return ListInfo(name=name, info=info, dtype=dtype, size=size)
+
     def list_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
-        if len(nodes) == 3:
-            name, subname, the_list = nodes
-            name_internal = name + " " + subname
-        elif len(nodes) == 2:
-            name, the_list = nodes
-            name_internal = name
-        else:
-            raise NotImplementedError(nodes)
+
+        list_info, the_list = nodes
+        assert isinstance(list_info, ListInfo)
+
+        name = list_info.name
+        name_internal = name
+
+        if list_info.info is not None:
+            name_internal += " " + list_info.info
+
+        if list_info.dtype is not None:
+            name_internal += f"\nList<{list_info.dtype}>"
+
+        if list_info.size is not None:
+            name_internal += f"\n{list_info.size}"
 
         if isinstance(name, int):
             name = str(name)
