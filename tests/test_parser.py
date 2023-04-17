@@ -1,24 +1,21 @@
-from functools import partial
 from textwrap import dedent
 
+import pytest
 from lark.exceptions import LarkError
 
 from fluidsimfoam.foam_input_files import dump, parse
 from fluidsimfoam.foam_input_files.ast import (
-    Assignment,
     Dict,
     DimensionSet,
     FoamInputFile,
     Node,
     Value,
-    VariableAssignment,
 )
 
 
 def base_test(
     text,
     representation=None,
-    cls=None,
     check_dump=False,
     check_dump_parse=False,
     grammar=None,
@@ -48,46 +45,51 @@ def base_test(
     return tree
 
 
-base_test_simple = partial(base_test, grammar="simple")
+both_grammars = pytest.mark.parametrize("grammar", ("simple", "advanced"))
 
 
-def test_var_simple():
-    tree = base_test_simple(
+@both_grammars
+def test_var_simple(grammar):
+    base_test(
         """
         a  b;
     """,
-        cls=VariableAssignment,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_var_quoted_string():
-    tree = base_test_simple(
+@both_grammars
+def test_var_quoted_string(grammar):
+    tree = base_test(
         """
         laplacianSchemes
         {
             default    "Gauss linear corrected";
         }
     """,
+        grammar=grammar,
         check_dump=True,
     )
     assert tree.value["default"] == '"Gauss linear corrected"'
 
 
-def test_var_multiple():
-    tree = base_test_simple(
+@both_grammars
+def test_var_multiple(grammar):
+    tree = base_test(
         """
         a  b;
         c  d;
     """,
+        grammar=grammar,
         representation="InputFile(\nchildren={'a': 'b', 'c': 'd'}\n)",
-        cls=FoamInputFile,
         check_dump=True,
     )
 
 
-def test_strange_names():
-    tree = base_test_simple(
+@both_grammars
+def test_strange_names(grammar):
+    tree = base_test(
         """
         "(U|k|epsilon|R)Final"
         {
@@ -108,12 +110,14 @@ def test_strange_names():
         }
 
     """,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_list_simple():
-    tree = base_test_simple(
+@both_grammars
+def test_list_simple(grammar):
+    tree = base_test(
         """
         faces
         (
@@ -121,25 +125,27 @@ def test_list_simple():
             (2 3 4 5)
         );
     """,
-        cls=Assignment,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_list_assignment():
-    tree = base_test_simple(
+@both_grammars
+def test_list_assignment(grammar):
+    tree = base_test(
         """
         faces  (1 5 4 0);
     """,
-        cls=Assignment,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_dict_simple():
+@both_grammars
+def test_dict_simple(grammar):
     # we add a space on purpose...
     space = " "
-    tree = base_test_simple(
+    tree = base_test(
         f"""
         my_dict{space}
         {{
@@ -150,7 +156,7 @@ def test_dict_simple():
             object      controlDict;
         }}
     """,
-        cls=Assignment,
+        grammar=grammar,
         check_dump_parse=True,
     )
 
@@ -161,8 +167,9 @@ def test_dict_simple():
     assert my_dict["location"] == '"system"'
 
 
-def test_dict_nested():
-    tree = base_test_simple(
+@both_grammars
+def test_dict_nested(grammar):
+    tree = base_test(
         """
         my_nested_dict
         {
@@ -184,7 +191,7 @@ def test_dict_nested():
 
         }
     """,
-        cls=Assignment,
+        grammar=grammar,
         check_dump=True,
     )
 
@@ -193,8 +200,9 @@ def test_dict_nested():
     assert my_nested_dict["U"]["tolerance"] == 1e-05
 
 
-def test_dict_with_list():
-    tree = base_test_simple(
+@both_grammars
+def test_dict_with_list(grammar):
+    tree = base_test(
         """
         PISO
         {
@@ -204,14 +212,15 @@ def test_dict_with_list():
             pRefValue                   0;
         }
     """,
-        cls=Assignment,
+        grammar=grammar,
         check_dump_parse=True,
     )
     assert tree.value["pRefPoint"]._name == "pRefPoint"
 
 
-def test_list_with_dict():
-    base_test_simple(
+@both_grammars
+def test_list_with_dict(grammar):
+    base_test(
         """
     boundary
     (
@@ -228,25 +237,28 @@ def test_list_with_dict():
 
     );
     """,
-        cls=Assignment,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_list_with_str():
-    base_test_simple(
+@both_grammars
+def test_list_with_str(grammar):
+    base_test(
         """
         blocks
         (
             hex (0 1 2 3 4 5 6 7) (40 40 40) simpleGrading (1 1 1)
         );
     """,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_file_simple():
-    tree = base_test_simple(
+@both_grammars
+def test_file_simple(grammar):
+    tree = base_test(
         """
         FoamFile
         {
@@ -260,12 +272,13 @@ def test_file_simple():
         a  b;
         c  d;
     """,
-        cls=FoamInputFile,
+        grammar=grammar,
     )
 
 
-def test_file():
-    tree = base_test_simple(
+@both_grammars
+def test_file(grammar):
+    tree = base_test(
         """
         FoamFile
         {
@@ -288,14 +301,15 @@ def test_file():
             a    1;
         }
     """,
-        cls=FoamInputFile,
+        grammar=grammar,
         check_dump=True,
     )
     assert tree.children["my_dict"]["a"] == 1
 
 
-def test_directive():
-    base_test_simple(
+@both_grammars
+def test_directive(grammar):
+    base_test(
         """
         FoamFile
         {
@@ -304,13 +318,74 @@ def test_directive():
 
         #include  "initialConditions";
     """,
-        cls=FoamInputFile,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_code():
-    base_test_simple(
+@both_grammars
+def test_directives_in_dict(grammar):
+    tree = base_test(
+        """
+        functions
+        {
+            #includeFunc fieldAverage(cylindrical(U))
+            #includeFunc Qdot
+            #includeFunc components(U)
+            #includeFunc Qdot(region=gas)
+            #includeFunc residuals(region = shell, p_rgh, U, h)
+            #includeFunc residuals(region = tube, p_rgh, U, h)
+            #includeFunc patchAverage
+            (
+                funcName=cylinderT,
+                region=fluid,
+                patch=fluid_to_solid,
+                field=T
+            )
+            #includeFunc streamlinesLine(funcName=streamlines, start=(0 0.5 0), end=(9 0.5 0), nPoints=24, U)
+            #includeFunc streamlinesLine
+            (
+                funcName=streamlines,
+                start=(-0.0205 0.001 0.00001),
+                end=(-0.0205 0.0251 0.00001),
+                nPoints=10,
+                fields=(p k U)
+            )
+            #includeFunc writeObjects(kEpsilon:G)
+            #includeFunc fieldAverage(U, p, alpha.vapour)
+            #includeFunc writeObjects
+            (
+                d.particles,
+                a.particles,
+                phaseTransfer:dmidtf.TiO2.particlesAndVapor,
+                phaseTransfer:dmidtf.TiO2_s.particlesAndVapor
+            )
+            #includeFunc  graphUniform
+            (
+                funcName=graph,
+                start=(0 0 0.89),
+                end=(0.025 0 0.89),
+                nPoints=100,
+                fields=
+                (
+                    alpha.air1
+                    alpha.air2
+                    alpha.bubbles
+                    liftForce.water
+                    wallLubricationForce.water
+                    turbulentDispersionForce.water
+                )
+            )
+        }
+        """,
+        grammar=grammar,
+        check_dump_parse=True,
+    )
+
+
+@both_grammars
+def test_code(grammar):
+    base_test(
         r"""
         code_name
         #{
@@ -318,12 +393,14 @@ def test_code():
             -I$(LIB_SRC)/meshTools/lnInclude
         #};
     """,
+        grammar=grammar,
         check_dump=False,
     )
 
 
-def test_macro():
-    tree = base_test_simple(
+@both_grammars
+def test_macro(grammar):
+    tree = base_test(
         """
         FoamFile
         {
@@ -345,12 +422,14 @@ def test_macro():
 
         relaxationFactors  $relaxationFactors-SIMPLE;
     """,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_empty_dict():
-    tree = base_test_simple(
+@both_grammars
+def test_empty_dict(grammar):
+    tree = base_test(
         """
         solvers
         {
@@ -358,24 +437,28 @@ def test_empty_dict():
         relaxationFactors
         {}
     """,
+        grammar=grammar,
         check_dump=False,
     )
 
 
-def test_dict_isolated_key():
-    tree = base_test_simple(
+@both_grammars
+def test_dict_isolated_key(grammar):
+    tree = base_test(
         """
         cache
         {
             grad(U);
         }
     """,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_dimension_set():
-    tree = base_test_simple(
+@both_grammars
+def test_dimension_set(grammar):
+    tree = base_test(
         """
         dimension  [0 2 -1 0 0 0 0];
         nu  [0 2 -1 0 0 0 0] 1e-05;
@@ -386,39 +469,43 @@ def test_dimension_set():
         }
 
         """,
-        cls=FoamInputFile,
+        grammar=grammar,
         check_dump=True,
     )
     assert isinstance(tree.children["nu"], Value)
     assert isinstance(tree.children["dimension"], DimensionSet)
 
 
-def test_named_values():
-    tree = base_test_simple(
+@both_grammars
+def test_named_values(grammar):
+    tree = base_test(
         """
         a  b;
         ft  limitedLinear01 1;
         """,
-        cls=FoamInputFile,
+        grammar=grammar,
         check_dump=True,
     )
     assert isinstance(tree.children["ft"], Value)
 
 
-def test_macro_ugly():
-    tree = base_test_simple(
+@both_grammars
+def test_macro_ugly(grammar):
+    tree = base_test(
         """
         relaxationFactors
         {
             ${_${FOAM_EXECUTABLE}};
         }
         """,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_list_on_1_line():
-    tree = base_test_simple(
+@both_grammars
+def test_list_on_1_line(grammar):
+    tree = base_test(
         """
         libs            (overset rigidBodyDynamics);
 
@@ -432,12 +519,14 @@ def test_list_on_1_line():
             }
         }
         """,
+        grammar=grammar,
         check_dump_parse=True,
     )
 
 
-def test_double_value():
-    tree = base_test_simple(
+@both_grammars
+def test_double_value(grammar):
+    tree = base_test(
         """
         FoamFile
         {
@@ -445,12 +534,14 @@ def test_double_value():
             object    controlDict.1st;
         }
         """,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_for_blockmesh():
-    tree = base_test_simple(
+@both_grammars
+def test_for_blockmesh(grammar):
+    tree = base_test(
         """
         negHalfWidth  #neg $halfWidth;
         blocks
@@ -458,21 +549,25 @@ def test_for_blockmesh():
             hex (4 6 14 12 0 2 10 8) (1 $upstreamCells $cylinderBoxCells) $expandBlock
         );
         """,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_for_U():
-    tree = base_test_simple(
+@both_grammars
+def test_for_U(grammar):
+    tree = base_test(
         """
         internalField  uniform $include/caseSettings!internalField/U;
         """,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_blocks():
-    tree = base_test_simple(
+@both_grammars
+def test_blocks(grammar):
+    tree = base_test(
         """
         FoamFile
         {
@@ -487,12 +582,14 @@ def test_blocks():
             hex (16 17 18 19 20 21 22 23) (96 1 72) simpleGrading (1 1 1)
         );
         """,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_macro_signed():
-    tree = base_test_simple(
+@both_grammars
+def test_macro_signed(grammar):
+    tree = base_test(
         """
         vertices
         (
@@ -502,12 +599,14 @@ def test_macro_signed():
             ($x1 $y1 -$w2)
         );
         """,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_list_numbered():
-    tree = base_test_simple(
+@both_grammars
+def test_list_numbered(grammar):
+    tree = base_test(
         """
         internalField nonuniform
         List<vector>
@@ -519,12 +618,14 @@ def test_list_numbered():
         );
 
         """,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_list_numbered_u():
-    tree = base_test_simple(
+@both_grammars
+def test_list_numbered_u(grammar):
+    tree = base_test(
         """
         70
         (
@@ -536,13 +637,15 @@ def test_list_numbered_u():
             (14.0472 0 0)
         );
         """,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_colon_double_name():
+@both_grammars
+def test_colon_double_name(grammar):
     """In controlDict files (found once)"""
-    tree = base_test_simple(
+    tree = base_test(
         """
         DebugSwitches
         {
@@ -550,12 +653,14 @@ def test_colon_double_name():
             compressible::turbulentTemperatureTwoPhaseRadCoupledMixed   0;
         }
         """,
+        grammar=grammar,
         check_dump_parse=True,
     )
 
 
-def test_list_edges():
-    tree = base_test_simple(
+@both_grammars
+def test_list_edges(grammar):
+    tree = base_test(
         """
         edges
         (
@@ -563,12 +668,14 @@ def test_list_edges():
             spline 6 5 ((0.6 0.0124 0.05) (0.7 0.0395 0.05) (0.8 0.0724 0.05) (0.9 0.132 0.05) (1 0.172 0.05) (1.1 0.132 0.05) (1.2 0.0724 0.05) (1.3 0.0395 0.05) (1.4 0.0124 0.05))
         );
         """,
+        grammar=grammar,
         check_dump=True,
     )
 
 
-def test_list_blocks():
-    tree = base_test_simple(
+@both_grammars
+def test_list_blocks(grammar):
+    tree = base_test(
         """
         blocks
         (
@@ -577,5 +684,6 @@ def test_list_blocks():
             hex (2 3 11 10 5 4 12 13) (225 100 1) simpleGrading (1 ((0.1 0.25 41.9) (0.9 0.75 1)) 1)
         );
         """,
+        grammar=grammar,
         check_dump=True,
     )
