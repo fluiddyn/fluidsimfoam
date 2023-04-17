@@ -89,7 +89,7 @@ class FoamTransformer(Transformer):
     def EQKEY(self, token):
         return token.value
 
-    def MACRO_TERM(self, token):
+    def MACRO(self, token):
         return token.value
 
     def dimension_set(self, items):
@@ -100,9 +100,6 @@ class FoamTransformer(Transformer):
                 if not (isinstance(item, Token) and item.type == "NEWLINE")
             ]
         )
-
-    def macro(self, nodes):
-        return nodes[0]
 
     def directive(self, nodes):
         if len(nodes) != 1:

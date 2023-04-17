@@ -6,7 +6,6 @@ from lark.exceptions import LarkError
 from fluidsimfoam.foam_input_files import dump, parse
 from fluidsimfoam.foam_input_files.ast import (
     Assignment,
-    CodeStream,
     Dict,
     DimensionSet,
     FoamInputFile,
