@@ -1,0 +1,54 @@
+?value: _assignment | file
+
+EQKEY.2 : /[a-zA-Z]+\(\S+\)[a-zA-Z]*/
+
+MACRO : /[\-]?\$[^;^\s\n\)]+/ | /\$\{{[^;^\n]+/
+DOUBLE_NAME.1 : /[a-zA-Z][a-zA-Z\d]*[:\.-][:]?[a-zA-Z\d\._]+/
+TRIPLE_NAME.3 :  /[a-zA-Z][a-zA-Z\d]*[:\-][a-zA-Z\d\._]+[:\-][a-zA-Z\d\._]/
+
+_list_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|MACRO|SIGNED_NUMBER|EQKEY|directive
+_dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY|TRIPLE_NAME|list
+_var_name : CNAME|ESCAPED_STRING|DOUBLE_NAME|MACRO|EQKEY
+
+LIST_TYPE.2 : /List<[\w]+>/
+list_info : _list_name [CNAME] [NEWLINE LIST_TYPE] [NEWLINE SIGNED_NUMBER]
+
+directive: /#[a-zA-Z]+/ | /#[a-zA-Z]+{[^}]*}/
+dimension_set : "[" (SIGNED_NUMBER)+ "]"
+_dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | MACRO | directive
+    | SIGNED_NUMBER | dimension_set | EQKEY
+list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
+
+equal_assign: CNAME "=" (CNAME|SIGNED_NUMBER|list) | CNAME "=" NEWLINE list
+_in_funtion_call : CNAME|DOUBLE_NAME|equal_assign|_funtion_call
+_funtion_call : CNAME [NEWLINE] "(" [NEWLINE] (_in_funtion_call) ( "," [NEWLINE] (_in_funtion_call))* [NEWLINE] ")"
+
+isolated_list : [NEWLINE] list ";" [NEWLINE]
+_isolated_thing : isolated_list
+
+directive_assignment: [NEWLINE] directive (_funtion_call|CNAME|EQKEY|ESCAPED_STRING) [";"] [NEWLINE]
+macro_assignment : [NEWLINE] MACRO [";"] [NEWLINE]
+list_assignment : [NEWLINE] list_info [NEWLINE] list [NEWLINE] ";" [NEWLINE]
+var_assignment : [NEWLINE] _var_name [(_dataentry)+] ";" [NEWLINE]
+dict_assignment : [NEWLINE] _dict_name (CNAME)* [directive] [NEWLINE] "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
+code_assignment : [NEWLINE] CNAME [directive] [NEWLINE] /#{[\S\s]*?#};/ NEWLINE
+special_directives : [NEWLINE] (/#if[\S\s]*#endif/|/#remove[\S\s]+[^;\n{]/) NEWLINE
+dimension_assignment : [NEWLINE] CNAME [CNAME] dimension_set _dataentry ";" [NEWLINE]
+_assignment : var_assignment | dict_assignment | list_assignment
+              | dimension_assignment | code_assignment | macro_assignment | directive_assignment
+              | special_directives
+
+file : (_assignment | _isolated_thing)+
+
+CPP_COMMENT: /\/\/[^\n]*/ [NEWLINE]
+C_COMMENT: "/*" /(.|\n)*?/ "*/" [NEWLINE]
+
+%ignore /[\n\f\r]+/
+%ignore CPP_COMMENT
+%ignore C_COMMENT
+%import common.SIGNED_NUMBER
+%import common.ESCAPED_STRING
+%import common.WS
+%ignore WS
+%import common.NEWLINE
+%import common.CNAME

@@ -1,6 +1,8 @@
+from dataclasses import dataclass
 from pathlib import Path
 
 from lark import Lark, Token, Transformer
+from lark.exceptions import LarkError
 
 from .ast import (
     Assignment,
@@ -19,13 +21,33 @@ from .ast import (
 here = Path(__file__).absolute().parent
 
 grammar = (here / "grammar.lark").read_text()
+grammar_advanced = (here / "grammar_advanced.lark").read_text()
 
 lark_parser = Lark(grammar, start="value", lexer="basic")
+lark_parser_advanced = Lark(grammar_advanced, start="value", lexer="basic")
+
+parsers = {"simple": lark_parser, "advanced": lark_parser_advanced}
 
 
-def parse(text):
+@dataclass
+class ListInfo:
+    name: str
+    info: str = None
+    dtype: str = None
+    size: int = None
+
+
+def parse(text, grammar=None):
     text = "\n".join(line.rstrip() for line in text.split("\n"))
-    tree = lark_parser.parse(text)
+
+    if grammar is None:
+        try:
+            tree = lark_parser.parse(text)
+        except LarkError:
+            tree = lark_parser_advanced.parse(text)
+    else:
+        tree = parsers[grammar].parse(text)
+
     return FoamTransformer().transform(tree)
 
 
@@ -67,23 +89,8 @@ class FoamTransformer(Transformer):
     def EQKEY(self, token):
         return token.value
 
-    def MACRO_TERM(self, token):
+    def MACRO(self, token):
         return token.value
-
-    def numbered_list(self, nodes):
-        nodes = [node for node in nodes if node is not None]
-        list_name = str(nodes.pop(0))
-        end_name = (
-            "\n"
-            + str(nodes.pop(-3))
-            + str(nodes.pop(-2))
-            + "\n"
-            + str(nodes.pop(-1))
-        )
-        if nodes:
-            for node in nodes:
-                list_name = list_name + " " + str(node)
-        return list_name + end_name
 
     def dimension_set(self, items):
         return DimensionSet(
@@ -93,9 +100,6 @@ class FoamTransformer(Transformer):
                 if not (isinstance(item, Token) and item.type == "NEWLINE")
             ]
         )
-
-    def macro(self, nodes):
-        return nodes[0]
 
     def directive(self, nodes):
         if len(nodes) != 1:
@@ -217,16 +221,46 @@ class FoamTransformer(Transformer):
         name = None
         return Assignment(name, nodes[0])
 
+    def list_info(self, nodes):
+        nodes = filter_no_newlines(nodes)
+
+        dtype = None
+        for inode, node in enumerate(nodes):
+            if isinstance(node, Token) and node.type == "LIST_TYPE":
+                dtype = str(node)[5:-1]
+                break
+        if dtype is not None:
+            nodes.pop(inode)
+
+        size = None
+        if len(nodes) > 1 and isinstance(nodes[-1], int):
+            size = nodes.pop(-1)
+
+        name = nodes.pop(0)
+
+        info = None
+        if nodes:
+            info = " ".join(nodes)
+
+        return ListInfo(name=name, info=info, dtype=dtype, size=size)
+
     def list_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
-        if len(nodes) == 3:
-            name, subname, the_list = nodes
-            name_internal = name + " " + subname
-        elif len(nodes) == 2:
-            name, the_list = nodes
-            name_internal = name
-        else:
-            raise NotImplementedError(nodes)
+
+        list_info, the_list = nodes
+        assert isinstance(list_info, ListInfo)
+
+        name = list_info.name
+        name_internal = name
+
+        if list_info.info is not None:
+            name_internal += " " + list_info.info
+
+        if list_info.dtype is not None:
+            name_internal += f"\nList<{list_info.dtype}>"
+
+        if list_info.size is not None:
+            name_internal += f"\n{list_info.size}"
 
         if isinstance(name, int):
             name = str(name)
@@ -287,8 +321,11 @@ class FoamTransformer(Transformer):
         else:
             raise NotImplementedError(nodes)
         code = str(code)
-        code = code.split("\n", 1)[-1]
-        code = code.rsplit("\n", 1)[0]
+        if code.startswith("#{\n"):
+            code = code.split("\n", 1)[-1]
+            code = code.rsplit("\n", 1)[0]
+        else:
+            code = code[2:-3].strip()
         return Assignment(name, Code(name, code, directive=directive))
 
     def special_directives(self, token):
