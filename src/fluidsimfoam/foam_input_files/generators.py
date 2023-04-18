@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 from inspect import getmodule
+from pathlib import Path
 
 import jinja2
+from inflection import underscore
 
 
 class InputFiles:
@@ -10,6 +12,7 @@ class InputFiles:
     def __init__(self, output):
         self.output = output
         mod = getmodule(type(output.sim))
+        self.templates_dir = Path(mod.__file__).absolute().parent / "templates"
 
         loader = jinja2.ChoiceLoader(
             [
@@ -28,7 +31,7 @@ class InputFiles:
         return self.jinja_env.get_template(template_name)
 
 
-class FoamInputFileGenerator(ABC):
+class FileGeneratorABC(ABC):
     rel_path: str
 
     def __init__(self, output):
@@ -44,16 +47,42 @@ class FoamInputFileGenerator(ABC):
         """Generate the code of the file"""
 
 
-class FileGeneratorTemplate(FoamInputFileGenerator):
+class FileGenerator(FileGeneratorABC):
     template_name: str
 
+    def __init__(self, output):
+        super().__init__(output)
+        self._name = underscore(Path(self.rel_path).name)
+
     def generate_code(self):
-        """Generate the code of the file from the Jinja template"""
-        template = self.output.input_files.get_template(self.template_name)
-        return template.render(params=self.output.sim.params)
+        """Generate the code of the file from ...
+
+        - a method named like `sim.output.make_code_block_mesh_dict`,
+        - or a Jinja template.
+        """
+        try:
+            method = getattr(self.output, "make_code_" + self._name)
+            if method is None:
+                raise AttributeError
+
+            if (
+                self.output.input_files.templates_dir / self.template_name
+            ).exists():
+                raise RuntimeError(
+                    "Fluidsimfoam solver issue: "
+                    f"2 concurrent methods to produce {self.rel_path}:\n"
+                    f"- template in {self.output.input_files.templates_dir},\n"
+                    f"- function output.make_code_{self._name}.\n"
+                    "Remove the file or the function (or make it equal to None)."
+                )
+
+            return method(self.output.sim.params)
+        except AttributeError:
+            template = self.output.input_files.get_template(self.template_name)
+            return template.render(params=self.output.sim.params)
 
 
-class BlockMeshGeneratorTemplate(FileGeneratorTemplate):
+class BlockMeshGenerator(FileGenerator):
     rel_path = "system/blockMeshDict"
     template_name = "blockMeshDict.jinja"
 
@@ -62,11 +91,7 @@ class BlockMeshGeneratorTemplate(FileGeneratorTemplate):
         params._set_child("block_mesh_dict", doc="""TODO""")
 
 
-class BlockMeshGeneratorPython(FoamInputFileGenerator):
-    pass
-
-
-class FvSolutionGeneratorTemplate(FileGeneratorTemplate):
+class FvSolutionGenerator(FileGenerator):
     rel_path = "system/fvSolution"
     template_name = "fvSolution.jinja"
 
@@ -105,7 +130,7 @@ class FvSolutionGeneratorTemplate(FileGeneratorTemplate):
         )
 
 
-class ControlDictGeneratorTemplate(FileGeneratorTemplate):
+class ControlDictGenerator(FileGenerator):
     rel_path = "system/controlDict"
     template_name = "controlDict.jinja"
 
@@ -114,7 +139,7 @@ class ControlDictGeneratorTemplate(FileGeneratorTemplate):
         params._set_child("control_dict", doc="""TODO""")
 
 
-class FvSchemesGeneratorTemplate(FileGeneratorTemplate):
+class FvSchemesGenerator(FileGenerator):
     rel_path = "system/fvSchemes"
     template_name = "fvSchemes.jinja"
 
@@ -133,7 +158,7 @@ class FvSchemesGeneratorTemplate(FileGeneratorTemplate):
         fv_schemes._set_child("snGradSchemes", attribs={"default": "corrected"})
 
 
-class TransportPropertiesGeneratorTemplate(FileGeneratorTemplate):
+class TransportPropertiesGenerator(FileGenerator):
     rel_path = "constant/transportProperties"
     template_name = "transportProperties.jinja"
 
@@ -142,7 +167,7 @@ class TransportPropertiesGeneratorTemplate(FileGeneratorTemplate):
         params._set_child("transport_properties", doc="""TODO""")
 
 
-class TurbulencePropertiesGeneratorTemplate(FileGeneratorTemplate):
+class TurbulencePropertiesGenerator(FileGenerator):
     rel_path = "constant/turbulenceProperties"
     template_name = "turbulenceProperties.jinja"
 
@@ -151,7 +176,7 @@ class TurbulencePropertiesGeneratorTemplate(FileGeneratorTemplate):
         params._set_child("turbulence_properties", doc="""TODO""")
 
 
-class PGeneratorTemplate(FileGeneratorTemplate):
+class PGenerator(FileGenerator):
     rel_path = "0/p"
     template_name = "p.jinja"
 
@@ -160,7 +185,7 @@ class PGeneratorTemplate(FileGeneratorTemplate):
         params._set_child("p", doc="""TODO""")
 
 
-class UGeneratorTemplate(FileGeneratorTemplate):
+class UGenerator(FileGenerator):
     rel_path = "0/U"
     template_name = "U.jinja"
 

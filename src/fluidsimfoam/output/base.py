@@ -8,10 +8,8 @@ from fluiddyn.io import stdout_redirected
 from fluiddyn.util import mpi
 from fluidsim_core.output import OutputCore
 from fluidsim_core.params import iter_complete_params
-from fluidsimfoam.foam_input_files.generators import (
-    FoamInputFileGenerator,
-    InputFiles,
-)
+from fluidsimfoam.foam_input_files import DEFAULT_HEADER, FoamInputFile
+from fluidsimfoam.foam_input_files.generators import FileGeneratorABC, InputFiles
 from fluidsimfoam.log import logger
 from fluidsimfoam.solvers import get_solver_package
 
@@ -49,7 +47,7 @@ class Output(OutputCore):
                 class_name,
                 attribs={
                     "module_name": module_name,
-                    "class_name": class_name + "GeneratorTemplate",
+                    "class_name": class_name + "Generator",
                 },
             )
 
@@ -58,7 +56,7 @@ class Output(OutputCore):
                 "BlockMesh",
                 attribs={
                     "module_name": module_name,
-                    "class_name": "BlockMeshGeneratorTemplate",
+                    "class_name": "BlockMeshGenerator",
                 },
             )
 
@@ -120,7 +118,7 @@ class Output(OutputCore):
                     continue
                 obj_name = underscore(cls_name)
 
-                if issubclass(Class, FoamInputFileGenerator):
+                if issubclass(Class, FileGeneratorABC):
                     obj_containing = self.input_files
                     str_obj_containing = "output.input_files"
                 else:
@@ -166,3 +164,16 @@ class Output(OutputCore):
         for file_generator in vars(self.input_files).values():
             if hasattr(file_generator, "generate_file"):
                 file_generator.generate_file()
+
+    def make_code_turbulence_properties(self, params):
+        tree = FoamInputFile(
+            info={
+                "version": "2.0",
+                "format": "ascii",
+                "class": "dictionary",
+                "object": "turbulenceProperties",
+            },
+            children={"simulationType": "laminar"},
+            header=DEFAULT_HEADER,
+        )
+        return tree.dump()
