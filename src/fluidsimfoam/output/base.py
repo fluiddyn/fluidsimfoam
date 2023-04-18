@@ -9,13 +9,19 @@ from fluiddyn.util import mpi
 from fluidsim_core.output import OutputCore
 from fluidsim_core.params import iter_complete_params
 from fluidsimfoam.foam_input_files import DEFAULT_HEADER, FoamInputFile
-from fluidsimfoam.foam_input_files.generators import FileGeneratorABC, InputFiles
+from fluidsimfoam.foam_input_files.generators import (
+    FileGeneratorABC,
+    InputFiles,
+    new_file_generator_class,
+)
 from fluidsimfoam.log import logger
 from fluidsimfoam.solvers import get_solver_package
 
 
 class Output(OutputCore):
-    do_use_blockmesh = False
+    variable_names = ["p", "U"]
+    constant_files_names = ["transportProperties", "turbulenceProperties"]
+    system_files_names = ["controlDict", "fvSchemes", "fvSolution"]
 
     @classmethod
     def _complete_info_solver(cls, info_solver):
@@ -32,37 +38,26 @@ class Output(OutputCore):
     def _set_info_solver_classes(cls, classes):
         """Set the classes for info_solver.classes.Output"""
 
-        module_name = "fluidsimfoam.foam_input_files.generators"
+    @classmethod
+    def _setup_file_generators_classes(cls):
+        classes = cls._file_generators_classes = {}
+        for variable_name in cls.variable_names:
+            classes[variable_name] = new_file_generator_class(variable_name)
 
-        for class_name in (
-            "FvSolution",
-            "ControlDict",
-            "FvSchemes",
-            "TransportProperties",
-            "TurbulenceProperties",
-            "P",
-            "U",
-        ):
-            classes._set_child(
-                class_name,
-                attribs={
-                    "module_name": module_name,
-                    "class_name": class_name + "Generator",
-                },
-            )
+        for file_name in cls.constant_files_names:
+            classes[file_name] = new_file_generator_class(file_name, "constant")
 
-        if cls.do_use_blockmesh:
-            classes._set_child(
-                "BlockMesh",
-                attribs={
-                    "module_name": module_name,
-                    "class_name": "BlockMeshGenerator",
-                },
-            )
+        for file_name in cls.system_files_names:
+            classes[file_name] = new_file_generator_class(file_name, "system")
 
-    @staticmethod
-    def _complete_params_with_default(params, info_solver):
+    @classmethod
+    def _complete_params_with_default(cls, params, info_solver):
         """This static method is used to complete the *params* container."""
+
+        cls._setup_file_generators_classes()
+        iter_complete_params(
+            params, info_solver, cls._file_generators_classes.values()
+        )
 
         # Bare minimum
         params._set_attribs(dict(NEW_DIR_RESULTS=True, short_name_type_run="run"))
@@ -109,26 +104,38 @@ class Output(OutputCore):
                 "Initializing Output class without sim or params might lead to errors."
             )
 
-        if sim:
-            self.input_files = InputFiles(self)
-            # initialize objects
-            dict_classes = sim.info.solver.classes.Output.import_classes()
-            for cls_name, Class in dict_classes.items():
-                if isinstance(self, Class):
-                    continue
-                obj_name = underscore(cls_name)
+        if not sim:
+            return
 
-                if issubclass(Class, FileGeneratorABC):
-                    obj_containing = self.input_files
-                    str_obj_containing = "output.input_files"
-                else:
-                    obj_containing = self
-                    str_obj_containing = "output"
+        self.input_files = InputFiles(self)
+        # initialize objects
+        dict_classes = sim.info.solver.classes.Output.import_classes()
 
-                setattr(obj_containing, obj_name, Class(self))
+        if not self._file_generators_classes:
+            self._setup_file_generators_classes()
+        dict_classes.update(self._file_generators_classes)
+
+        for_str_input_files = []
+        for cls_name, Class in dict_classes.items():
+            if isinstance(self, Class):
+                continue
+            obj_name = underscore(cls_name)
+
+            if issubclass(Class, FileGeneratorABC):
+                obj_containing = self.input_files
+                for_str_input_files.append(cls_name)
+            else:
+                obj_containing = self
                 self.sim._objects_to_print += "{:28s}{}\n".format(
-                    f"sim.{str_obj_containing}.{obj_name}: ", Class
+                    f"sim.output.{obj_name}: ", Class
                 )
+
+            setattr(obj_containing, obj_name, Class(self))
+
+        if for_str_input_files:
+            self.sim._objects_to_print += (
+                f"{'input files:':28s}{' '.join(for_str_input_files)}\n"
+            )
 
     @classmethod
     def get_path_solver_package(cls):
@@ -166,6 +173,11 @@ class Output(OutputCore):
                 file_generator.generate_file()
 
     def make_code_turbulence_properties(self, params):
+        try:
+            params.turbulence_properties
+        except AttributeError:
+            raise Exception
+
         tree = FoamInputFile(
             info={
                 "version": "2.0",
@@ -179,3 +191,59 @@ class Output(OutputCore):
             header=DEFAULT_HEADER,
         )
         return tree.dump()
+
+    @classmethod
+    def _complete_params_turbulence_properties(cls, params):
+        params._set_child(
+            "turbulence_properties",
+            attribs={"simulation_type": "laminar"},
+            doc="""TODO""",
+        )
+
+    @classmethod
+    def _complete_params_fv_solution(cls, params):
+        params._set_child("fv_solution", doc="""TODO""")
+        solvers = params.fv_solution._set_child("solvers", doc="""TODO""")
+        attribs = {
+            "solver": "PCG",
+            "preconditioner": "DIC",
+            "tolerance": 1e-06,
+            "relTol": 0.01,
+        }
+
+        solvers._set_child("p", attribs=attribs)
+        solvers._set_child("pFinal", attribs=attribs)
+        solvers.pFinal.relTol = 0
+        solvers._set_child(
+            "U",
+            attribs={
+                "solver": "PBiCGStab",
+                "preconditioner": "DILU",
+                "tolerance": 1e-08,
+                "relTol": 0,
+            },
+        )
+
+        params.fv_solution._set_child(
+            "piso",
+            attribs={
+                "nCorrectors": 2,
+                "nNonOrthogonalCorrectors": 1,
+                "pRefPoint": "(0 0 0)",
+                "pRefValue": 0,
+            },
+        )
+
+    @classmethod
+    def _complete_params_fv_schemes(cls, params):
+        fv_schemes = params._set_child("fv_schemes", doc="""TODO""")
+        fv_schemes._set_child("ddtSchemes", attribs={"default": "backward"})
+        fv_schemes._set_child("gradSchemes", attribs={"default": "leastSquares"})
+        fv_schemes._set_child("divSchemes", attribs={"default": "none"})
+        fv_schemes._set_child(
+            "laplacianSchemes", attribs={"default": "Gauss linear corrected"}
+        )
+        fv_schemes._set_child(
+            "interpolationSchemes", attribs={"default": "linear"}
+        )
+        fv_schemes._set_child("snGradSchemes", attribs={"default": "corrected"})
