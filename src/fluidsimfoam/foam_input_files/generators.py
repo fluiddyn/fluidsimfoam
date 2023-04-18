@@ -3,7 +3,9 @@ from inspect import getmodule
 from pathlib import Path
 
 import jinja2
-from inflection import underscore
+from inflection import camelize, underscore
+
+from fluiddyn.util import import_class
 
 
 class InputFiles:
@@ -64,7 +66,10 @@ class FileGenerator(FileGeneratorABC):
             method = getattr(self.output, "make_code_" + self._name)
             if method is None:
                 raise AttributeError
-
+        except AttributeError:
+            template = self.output.input_files.get_template(self.template_name)
+            return template.render(params=self.output.sim.params)
+        else:
             if (
                 self.output.input_files.templates_dir / self.template_name
             ).exists():
@@ -77,9 +82,35 @@ class FileGenerator(FileGeneratorABC):
                 )
 
             return method(self.output.sim.params)
+
+    @classmethod
+    def _complete_params_with_default(cls, params, info_solver):
+        output_cls = import_class(
+            info_solver.classes.Output.module_name,
+            info_solver.classes.Output.class_name,
+        )
+
+        try:
+            method = getattr(output_cls, "_complete_params_" + cls._name)
+            if method is None:
+                raise AttributeError
         except AttributeError:
-            template = self.output.input_files.get_template(self.template_name)
-            return template.render(params=self.output.sim.params)
+            pass
+        else:
+            method(params)
+
+
+def new_file_generator_class(file_name, dir_name="0"):
+    cls_name = f"FileGenerator{camelize(file_name)}"
+    return type(
+        cls_name,
+        (FileGenerator,),
+        {
+            "rel_path": f"{dir_name}/{file_name}",
+            "template_name": f"{file_name}.jinja",
+            "_name": underscore(file_name),
+        },
+    )
 
 
 class BlockMeshGenerator(FileGenerator):
@@ -157,42 +188,3 @@ class FvSchemesGenerator(FileGenerator):
         )
         fv_schemes._set_child("snGradSchemes", attribs={"default": "corrected"})
 
-
-class TransportPropertiesGenerator(FileGenerator):
-    rel_path = "constant/transportProperties"
-    template_name = "transportProperties.jinja"
-
-    @classmethod
-    def _complete_params_with_default(cls, params):
-        params._set_child("transport_properties", doc="""TODO""")
-
-
-class TurbulencePropertiesGenerator(FileGenerator):
-    rel_path = "constant/turbulenceProperties"
-    template_name = "turbulenceProperties.jinja"
-
-    @classmethod
-    def _complete_params_with_default(cls, params):
-        params._set_child(
-            "turbulence_properties",
-            attribs={"simulation_type": "laminar"},
-            doc="""TODO""",
-        )
-
-
-class PGenerator(FileGenerator):
-    rel_path = "0/p"
-    template_name = "p.jinja"
-
-    @classmethod
-    def _complete_params_with_default(cls, params):
-        params._set_child("p", doc="""TODO""")
-
-
-class UGenerator(FileGenerator):
-    rel_path = "0/U"
-    template_name = "U.jinja"
-
-    @classmethod
-    def _complete_params_with_default(cls, params):
-        params._set_child("u", doc="""TODO""")

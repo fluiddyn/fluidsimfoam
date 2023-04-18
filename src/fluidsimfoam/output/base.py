@@ -12,7 +12,7 @@ from fluidsimfoam.foam_input_files import DEFAULT_HEADER, FoamInputFile
 from fluidsimfoam.foam_input_files.generators import (
     FileGeneratorABC,
     InputFiles,
-    FileGenerator,
+    new_file_generator_class,
 )
 from fluidsimfoam.log import logger
 from fluidsimfoam.solvers import get_solver_package
@@ -21,6 +21,7 @@ from fluidsimfoam.solvers import get_solver_package
 class Output(OutputCore):
     do_use_blockmesh = False
     variable_names = ["p", "U"]
+    constant_files_names = ["transportProperties", "turbulenceProperties"]
 
     @classmethod
     def _complete_info_solver(cls, info_solver):
@@ -43,8 +44,6 @@ class Output(OutputCore):
             "FvSolution",
             "ControlDict",
             "FvSchemes",
-            "TransportProperties",
-            "TurbulenceProperties",
         ):
             classes._set_child(
                 class_name,
@@ -63,9 +62,24 @@ class Output(OutputCore):
                 },
             )
 
-    @staticmethod
-    def _complete_params_with_default(params, info_solver):
+    @classmethod
+    def _complete_params_with_default(cls, params, info_solver):
         """This static method is used to complete the *params* container."""
+
+        cls._classes_generators = {}
+        for variable_name in cls.variable_names:
+            cls._classes_generators[variable_name] = new_file_generator_class(
+                variable_name
+            )
+
+        for file_name in cls.constant_files_names:
+            cls._classes_generators[file_name] = new_file_generator_class(
+                file_name, "constant"
+            )
+
+        iter_complete_params(
+            params, info_solver, cls._classes_generators.values()
+        )
 
         # Bare minimum
         params._set_attribs(dict(NEW_DIR_RESULTS=True, short_name_type_run="run"))
@@ -118,18 +132,9 @@ class Output(OutputCore):
         self.input_files = InputFiles(self)
         # initialize objects
         dict_classes = sim.info.solver.classes.Output.import_classes()
+        dict_classes.update(self._classes_generators)
 
-        for variable_name in self.variable_names:
-            cls_name = f"FileGenerator{variable_name.capitalize()}"
-            dict_classes[cls_name] = type(
-                cls_name,
-                (FileGenerator,),
-                {
-                    "rel_path": f"0/{variable_name}",
-                    "template_name": f"{variable_name}.jinja",
-                },
-            )
-
+        for_str_input_files = []
         for cls_name, Class in dict_classes.items():
             if isinstance(self, Class):
                 continue
@@ -137,14 +142,18 @@ class Output(OutputCore):
 
             if issubclass(Class, FileGeneratorABC):
                 obj_containing = self.input_files
-                str_obj_containing = "output.input_files"
+                for_str_input_files.append(cls_name)
             else:
                 obj_containing = self
-                str_obj_containing = "output"
+                self.sim._objects_to_print += "{:28s}{}\n".format(
+                    f"sim.output.{obj_name}: ", Class
+                )
 
             setattr(obj_containing, obj_name, Class(self))
-            self.sim._objects_to_print += "{:28s}{}\n".format(
-                f"sim.{str_obj_containing}.{obj_name}: ", Class
+
+        if for_str_input_files:
+            self.sim._objects_to_print += (
+                f"{'input files:':28s}{' '.join(for_str_input_files)}\n"
             )
 
     @classmethod
@@ -183,6 +192,11 @@ class Output(OutputCore):
                 file_generator.generate_file()
 
     def make_code_turbulence_properties(self, params):
+        try:
+            params.turbulence_properties
+        except AttributeError:
+            raise Exception
+
         tree = FoamInputFile(
             info={
                 "version": "2.0",
@@ -196,3 +210,11 @@ class Output(OutputCore):
             header=DEFAULT_HEADER,
         )
         return tree.dump()
+
+    @classmethod
+    def _complete_params_turbulence_properties(cls, params):
+        params._set_child(
+            "turbulence_properties",
+            attribs={"simulation_type": "laminar"},
+            doc="""TODO""",
+        )
