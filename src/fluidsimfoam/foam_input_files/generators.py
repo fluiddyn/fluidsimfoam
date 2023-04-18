@@ -187,4 +187,3 @@ class FvSchemesGenerator(FileGenerator):
             "interpolationSchemes", attribs={"default": "linear"}
         )
         fv_schemes._set_child("snGradSchemes", attribs={"default": "corrected"})
-

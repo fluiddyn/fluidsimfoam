@@ -63,22 +63,21 @@ class Output(OutputCore):
             )
 
     @classmethod
+    def _setup_file_generators_classes(cls):
+        classes = cls._file_generators_classes = {}
+        for variable_name in cls.variable_names:
+            classes[variable_name] = new_file_generator_class(variable_name)
+
+        for file_name in cls.constant_files_names:
+            classes[file_name] = new_file_generator_class(file_name, "constant")
+
+    @classmethod
     def _complete_params_with_default(cls, params, info_solver):
         """This static method is used to complete the *params* container."""
 
-        cls._classes_generators = {}
-        for variable_name in cls.variable_names:
-            cls._classes_generators[variable_name] = new_file_generator_class(
-                variable_name
-            )
-
-        for file_name in cls.constant_files_names:
-            cls._classes_generators[file_name] = new_file_generator_class(
-                file_name, "constant"
-            )
-
+        cls._setup_file_generators_classes()
         iter_complete_params(
-            params, info_solver, cls._classes_generators.values()
+            params, info_solver, cls._file_generators_classes.values()
         )
 
         # Bare minimum
@@ -132,7 +131,10 @@ class Output(OutputCore):
         self.input_files = InputFiles(self)
         # initialize objects
         dict_classes = sim.info.solver.classes.Output.import_classes()
-        dict_classes.update(self._classes_generators)
+
+        if not self._file_generators_classes:
+            self._setup_file_generators_classes()
+        dict_classes.update(self._file_generators_classes)
 
         for_str_input_files = []
         for cls_name, Class in dict_classes.items():
