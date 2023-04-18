@@ -24,7 +24,8 @@ def test_init_simul():
     )
 
     sim.make.list()
-    sim.make.exec("clean")
+    # problem: clean remove .xml files (bash function cleanAuxiliary)
+    # sim.make.exec("clean")
     sim.make.exec("run")
 
     sim2 = load(sim.path_run)

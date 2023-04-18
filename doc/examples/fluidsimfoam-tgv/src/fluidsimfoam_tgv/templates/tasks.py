@@ -4,20 +4,20 @@ from invoke import task
 
 
 @task
-def clean(command):
-    return command.run("foamCleanTutorials")
+def clean(context):
+    context.run("foamCleanTutorials", warn=True)
 
 
 @task
-def block_mesh(command):
+def block_mesh(context):
     here = Path(__file__).absolute().parent
     if not (here / "system/blockMeshDict").exists():
         print("blockMeshDict not found!")
 
     elif not (here / "constant/polyMesh").is_dir():
-        return command.run("blockMesh")
+        context.run("blockMesh")
 
 
 @task(block_mesh)
-def run(command):
-    return command.run("icoFoam")
+def run(context):
+    context.run("icoFoam")

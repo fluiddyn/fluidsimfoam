@@ -16,6 +16,7 @@ pandas = "^1.5.3"
 jinja2 = "^3.1.2"
 lark = "^1.1.5"
 rich = "^13.3.3"
+invoke = "^2.0.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.2.1"
