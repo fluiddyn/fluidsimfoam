@@ -173,7 +173,9 @@ class Output(OutputCore):
                 "class": "dictionary",
                 "object": "turbulenceProperties",
             },
-            children={"simulationType": "laminar"},
+            children={
+                "simulationType": params.turbulence_properties.simulation_type
+            },
             header=DEFAULT_HEADER,
         )
         return tree.dump()

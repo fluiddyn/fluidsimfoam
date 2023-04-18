@@ -173,7 +173,11 @@ class TurbulencePropertiesGenerator(FileGenerator):
 
     @classmethod
     def _complete_params_with_default(cls, params):
-        params._set_child("turbulence_properties", doc="""TODO""")
+        params._set_child(
+            "turbulence_properties",
+            attribs={"simulation_type": "laminar"},
+            doc="""TODO""",
+        )
 
 
 class PGenerator(FileGenerator):
