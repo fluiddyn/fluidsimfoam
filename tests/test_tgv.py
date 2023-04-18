@@ -23,6 +23,10 @@ def test_init_simul():
         for name in ("info_solver.xml", "params_simul.xml")
     )
 
+    sim.make.list()
+    sim.make.exec("clean")
+    sim.make.exec("run")
+
     sim2 = load(sim.path_run)
 
     assert sim2.path_run == sim.path_run

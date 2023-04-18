@@ -173,11 +173,6 @@ class Output(OutputCore):
                 file_generator.generate_file()
 
     def make_code_turbulence_properties(self, params):
-        try:
-            params.turbulence_properties
-        except AttributeError:
-            raise Exception
-
         tree = FoamInputFile(
             info={
                 "version": "2.0",
