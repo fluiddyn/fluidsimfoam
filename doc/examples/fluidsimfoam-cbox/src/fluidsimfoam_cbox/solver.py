@@ -2,7 +2,7 @@ from fluidsimfoam.info import InfoSolver
 from fluidsimfoam.solvers.base import SimulFoam
 
 
-class InfoSolverCBOX(InfoSolver):
+class InfoSolverCBox(InfoSolver):
     """Contain the information on a :class:`fluidsimfoam_cbox.solver.Simul`
     instance.
 
@@ -15,13 +15,13 @@ class InfoSolverCBOX(InfoSolver):
         self.short_name = "cbox"
 
         self.classes.Output.module_name = "fluidsimfoam_cbox.output"
-        self.classes.Output.class_name = "OutputCBOX"
+        self.classes.Output.class_name = "OutputCBox"
 
 
-class SimulCBOX(SimulFoam):
+class SimulCBox(SimulFoam):
     """A solver which compiles and runs using a Snakefile."""
 
-    InfoSolver = InfoSolverCBOX
+    InfoSolver = InfoSolverCBox
 
     @classmethod
     def create_default_params(cls):
@@ -37,4 +37,4 @@ class SimulCBOX(SimulFoam):
         return params
 
 
-Simul = SimulCBOX
+Simul = SimulCBox

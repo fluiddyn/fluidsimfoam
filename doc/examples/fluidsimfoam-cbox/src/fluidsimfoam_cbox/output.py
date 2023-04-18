@@ -1,7 +1,7 @@
 from fluidsimfoam.output import Output
 
 
-class OutputCBOX(Output):
+class OutputCBox(Output):
     do_use_blockmesh = True
 
     # @classmethod
