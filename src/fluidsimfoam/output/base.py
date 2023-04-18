@@ -19,7 +19,6 @@ from fluidsimfoam.solvers import get_solver_package
 
 
 class Output(OutputCore):
-    do_use_blockmesh = False
     variable_names = ["p", "U"]
     constant_files_names = ["transportProperties", "turbulenceProperties"]
     system_files_names = ["controlDict", "fvSchemes", "fvSolution"]
@@ -38,17 +37,6 @@ class Output(OutputCore):
     @classmethod
     def _set_info_solver_classes(cls, classes):
         """Set the classes for info_solver.classes.Output"""
-
-        module_name = "fluidsimfoam.foam_input_files.generators"
-
-        if cls.do_use_blockmesh:
-            classes._set_child(
-                "BlockMesh",
-                attribs={
-                    "module_name": module_name,
-                    "class_name": "BlockMeshGenerator",
-                },
-            )
 
     @classmethod
     def _setup_file_generators_classes(cls):

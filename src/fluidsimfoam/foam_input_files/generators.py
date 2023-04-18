@@ -111,12 +111,3 @@ def new_file_generator_class(file_name, dir_name="0"):
             "_name": underscore(file_name),
         },
     )
-
-
-class BlockMeshGenerator(FileGenerator):
-    rel_path = "system/blockMeshDict"
-    template_name = "blockMeshDict.jinja"
-
-    @classmethod
-    def _complete_params_with_default(cls, params):
-        params._set_child("block_mesh_dict", doc="""TODO""")
