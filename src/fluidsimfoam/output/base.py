@@ -9,13 +9,18 @@ from fluiddyn.util import mpi
 from fluidsim_core.output import OutputCore
 from fluidsim_core.params import iter_complete_params
 from fluidsimfoam.foam_input_files import DEFAULT_HEADER, FoamInputFile
-from fluidsimfoam.foam_input_files.generators import FileGeneratorABC, InputFiles
+from fluidsimfoam.foam_input_files.generators import (
+    FileGeneratorABC,
+    InputFiles,
+    FileGenerator,
+)
 from fluidsimfoam.log import logger
 from fluidsimfoam.solvers import get_solver_package
 
 
 class Output(OutputCore):
     do_use_blockmesh = False
+    variable_names = ["p", "U"]
 
     @classmethod
     def _complete_info_solver(cls, info_solver):
@@ -40,8 +45,6 @@ class Output(OutputCore):
             "FvSchemes",
             "TransportProperties",
             "TurbulenceProperties",
-            "P",
-            "U",
         ):
             classes._set_child(
                 class_name,
@@ -109,26 +112,40 @@ class Output(OutputCore):
                 "Initializing Output class without sim or params might lead to errors."
             )
 
-        if sim:
-            self.input_files = InputFiles(self)
-            # initialize objects
-            dict_classes = sim.info.solver.classes.Output.import_classes()
-            for cls_name, Class in dict_classes.items():
-                if isinstance(self, Class):
-                    continue
-                obj_name = underscore(cls_name)
+        if not sim:
+            return
 
-                if issubclass(Class, FileGeneratorABC):
-                    obj_containing = self.input_files
-                    str_obj_containing = "output.input_files"
-                else:
-                    obj_containing = self
-                    str_obj_containing = "output"
+        self.input_files = InputFiles(self)
+        # initialize objects
+        dict_classes = sim.info.solver.classes.Output.import_classes()
 
-                setattr(obj_containing, obj_name, Class(self))
-                self.sim._objects_to_print += "{:28s}{}\n".format(
-                    f"sim.{str_obj_containing}.{obj_name}: ", Class
-                )
+        for variable_name in self.variable_names:
+            cls_name = f"FileGenerator{variable_name.capitalize()}"
+            dict_classes[cls_name] = type(
+                cls_name,
+                (FileGenerator,),
+                {
+                    "rel_path": f"0/{variable_name}",
+                    "template_name": f"{variable_name}.jinja",
+                },
+            )
+
+        for cls_name, Class in dict_classes.items():
+            if isinstance(self, Class):
+                continue
+            obj_name = underscore(cls_name)
+
+            if issubclass(Class, FileGeneratorABC):
+                obj_containing = self.input_files
+                str_obj_containing = "output.input_files"
+            else:
+                obj_containing = self
+                str_obj_containing = "output"
+
+            setattr(obj_containing, obj_name, Class(self))
+            self.sim._objects_to_print += "{:28s}{}\n".format(
+                f"sim.{str_obj_containing}.{obj_name}: ", Class
+            )
 
     @classmethod
     def get_path_solver_package(cls):
