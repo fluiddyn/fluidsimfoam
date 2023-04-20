@@ -25,6 +25,6 @@ def test_init_simul_sim0(index_sim):
         path_manual = path_pure_openfoam_case / name
         text_manual = path_manual.read_text()
         path_produced = sim.path_run / name
-        assert path_produced.exists()
+        assert path_produced.exists(), name
         text_produced = path_produced.read_text()
         assert text_produced == text_manual, name

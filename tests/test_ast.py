@@ -1,6 +1,9 @@
+from textwrap import dedent
+
 import pytest
 
 from fluidsimfoam.foam_input_files.ast import (
+    FoamInputFile,
     Value,
     foam_units2str,
     str2foam_units,
@@ -38,3 +41,33 @@ def test_str2foam_units():
 )
 def test_convert_unit_format(foam_units):
     assert str2foam_units(foam_units2str(foam_units)) == foam_units
+
+
+def test_dump_file():
+    tree = FoamInputFile(
+        info={
+            "version": "2.0",
+        },
+        children={
+            "transportModel": "Newtonian",
+            "nu": 1e-03,
+        },
+        comments={
+            "nu": "Laminar viscosity",
+        },
+    )
+    result = dedent(
+        """
+        FoamFile
+        {
+            version     2.0;
+        }
+
+        transportModel  Newtonian;
+
+        // Laminar viscosity
+        nu  0.001;
+    """
+    )[1:]
+
+    assert tree.dump() == result

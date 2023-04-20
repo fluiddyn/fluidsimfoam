@@ -41,6 +41,13 @@ class OutputCBox(Output):
                 "Prt": 1.0,
             },
             header=DEFAULT_HEADER,
+            comments={
+                "nu": "Laminar viscosity",
+                "beta": "Thermal expansion coefficient",
+                "TRef": "Reference temperature",
+                "Pr": "Laminar Prandtl number",
+                "Prt": "Turbulent Prandtl number",
+            },
         )
 
 

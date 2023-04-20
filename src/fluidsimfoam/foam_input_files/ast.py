@@ -60,10 +60,11 @@ class Node:
 
 
 class FoamInputFile(Node):
-    def __init__(self, info, children, header=None):
+    def __init__(self, info, children, header=None, comments=None):
         self.info = info
         self.children = children
         self.header = header
+        self.comments = comments
 
     def __repr__(self):
         tmp = ["InputFile(\n"]
@@ -85,16 +86,20 @@ class FoamInputFile(Node):
             tmp.append("\n".join(tmp1))
         for key, node in self.children.items():
             if hasattr(node, "dump"):
-                tmp.append(node.dump())
+                code_node = node.dump()
                 # special for isolated list
                 if key is None and isinstance(node, List):
-                    tmp[-1] += ";"
+                    code_node += ";"
             elif hasattr(node, "dump_without_assignment"):
-                tmp.append(f"{key}  {node.dump_without_assignment()};")
+                code_node = f"{key}  {node.dump_without_assignment()};"
             elif node is None:
-                tmp.append(f"{key}")
+                code_node = f"{key}"
             else:
-                tmp.append(f"{key}  {node};")
+                code_node = f"{key}  {node};"
+            if self.comments is not None and key in self.comments:
+                comment = "// " + self.comments[key].replace("\n", "\n// ")
+                code_node = comment + "\n" + code_node
+            tmp.append(code_node)
         result = "\n\n".join(tmp)
         if result[-1] != "\n":
             result += "\n"
