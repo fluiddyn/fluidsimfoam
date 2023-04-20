@@ -77,11 +77,12 @@ class FoamInputFile(Node):
         if self.header is not None:
             tmp.append(self.header)
         if self.info is not None:
-            tmp.append("FoamFile" + "\n{")
+            tmp1 = ["FoamFile\n{"]
             for key, node in self.info.items():
                 s = (12 - len(key)) * " "
-                tmp.append(f"    {key}{s}{node};")
-            tmp.append("}\n")
+                tmp1.append(f"    {key}{s}{node};")
+            tmp1.append("}")
+            tmp.append("\n".join(tmp1))
         for key, node in self.children.items():
             if hasattr(node, "dump"):
                 tmp.append(node.dump())
@@ -94,7 +95,7 @@ class FoamInputFile(Node):
                 tmp.append(f"{key}")
             else:
                 tmp.append(f"{key}  {node};")
-        result = "\n".join(tmp)
+        result = "\n\n".join(tmp)
         if result[-1] != "\n":
             result += "\n"
         return result
@@ -209,7 +210,7 @@ class Dict(dict, Node):
                 else:
                     s = (num_spaces - len(key)) * " "
                 tmp.append(indentation + f"    {key}{s}{node};")
-        tmp.append(indentation + "}\n")
+        tmp.append(indentation + "}")
         return "\n".join(tmp)
 
 
@@ -274,7 +275,7 @@ class List(list, Node):
                     for items_line in lines
                 ]
                 tmp.extend((indent + 4) * " " + line for line in lines)
-            tmp.append(indentation + ");\n")
+            tmp.append(indentation + ");")
             return "\n".join(tmp)
 
 

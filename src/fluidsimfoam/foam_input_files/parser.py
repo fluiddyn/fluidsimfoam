@@ -39,6 +39,8 @@ class ListInfo:
 
 def parse(text, grammar=None):
     text = "\n".join(line.rstrip() for line in text.split("\n"))
+    if not text.endswith("\n"):
+        text += "\n"
 
     if grammar is None:
         try:

@@ -36,11 +36,12 @@ def base_test(
     if check_dump or check_dump_parse:
         dumped_text = dump(tree)
     if check_dump:
-        assert dedent(text).strip() == dumped_text.strip()
+        assert dumped_text.strip() == dedent(text).strip()
     if check_dump_parse:
         try:
             assert tree == parse(dumped_text, grammar=grammar)
         except LarkError as err:
+            print(dumped_text)
             raise RuntimeError from err
     return tree
 
@@ -79,6 +80,7 @@ def test_var_multiple(grammar):
     tree = base_test(
         """
         a  b;
+
         c  d;
     """,
         grammar=grammar,
@@ -99,6 +101,7 @@ def test_strange_names(grammar):
         }
 
         thermalPhaseChange:dmdtf  1.0;
+
         thermo:rho
         {
             solver    PCG;
@@ -180,7 +183,6 @@ def test_dict_nested(grammar):
                 tolerance         1e-06;
                 relTol            0.05;
             }
-
             U
             {
                 solver       smoothSolver;
@@ -188,7 +190,6 @@ def test_dict_nested(grammar):
                 tolerance    1e-05;
                 relTol       0;
             }
-
         }
     """,
         grammar=grammar,
@@ -232,9 +233,7 @@ def test_list_with_dict(grammar):
             (
                 (3 7 6 2)
             );
-
         }
-
     );
     """,
         grammar=grammar,
@@ -268,8 +267,8 @@ def test_file_simple(grammar):
             object      blockMeshDict;
         }
 
-
         a  b;
+
         c  d;
     """,
         grammar=grammar,
@@ -289,7 +288,9 @@ def test_file(grammar):
         }
 
         a  1;
+
         b  2;
+
         faces
         (
             (1 5 4 0)
@@ -408,6 +409,7 @@ def test_macro(grammar):
         }
 
         relTol  $p;
+
         Phi
         {
             $p;
@@ -461,13 +463,15 @@ def test_dimension_set(grammar):
     tree = base_test(
         """
         dimension  [0 2 -1 0 0 0 0];
+
         nu  [0 2 -1 0 0 0 0] 1e-05;
+
         nu1  nu [0 2 -1 0 0 0 0] 1e-06;
+
         SIMPLE
         {
             rhoMin  rhoMin [1 -3 0 0 0 0 0] 0.3;
         }
-
         """,
         grammar=grammar,
         check_dump=True,
@@ -481,6 +485,7 @@ def test_named_values(grammar):
     tree = base_test(
         """
         a  b;
+
         ft  limitedLinear01 1;
         """,
         grammar=grammar,
@@ -544,6 +549,7 @@ def test_for_blockmesh(grammar):
     tree = base_test(
         """
         negHalfWidth  #neg $halfWidth;
+
         blocks
         (
             hex (4 6 14 12 0 2 10 8) (1 $upstreamCells $cylinderBoxCells) $expandBlock
