@@ -49,7 +49,7 @@ def test_init(sim_tgv):
         path_produced = sim.path_run / name
         assert path_produced.exists()
         text_produced = path_produced.read_text()
-        assert text_manual == text_produced
+        assert text_produced == text_manual, name
 
 
 def test_list(sim_tgv):
