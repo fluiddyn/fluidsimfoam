@@ -1,0 +1,21 @@
+# Common large paths
+node_modules/
+build/
+dist/
+vendor/
+.env/
+.venv/
+.tox/
+
+# Common test paths
+tests/
+doc/
+dev/
+.hg/
+.pytest_cache/
+
+# Semgrep rules folder
+.semgrep
+
+# Semgrep-action log folder
+.semgrep_logs/
