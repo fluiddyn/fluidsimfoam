@@ -5,7 +5,7 @@ from fluidsimfoam.output import Output
 class OutputCBox(Output):
     """Output for the cbox solver"""
 
-    variable_names = ["T", "U", "alphat",  "epsilon",  "k",  "nut",  "p",  "p_rgh"]
+    variable_names = ["T", "U", "alphat", "epsilon", "k", "nut", "p", "p_rgh"]
 
     # @classmethod
     # def _set_info_solver_classes(cls, classes):
@@ -53,5 +53,7 @@ class OutputCBox(Output):
         )
 
 
-OutputCBox.system_files_names.append("blockMeshDict")
+OutputCBox.system_files_names.extend(
+    ["blockMeshDict", "solverInfo", "streamlines"]
+)
 OutputCBox.constant_files_names.append("g")
