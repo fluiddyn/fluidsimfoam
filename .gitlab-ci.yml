@@ -17,6 +17,9 @@ sast:
 include:
 - template: Security/SAST.gitlab-ci.yml
 
+variables:
+  SAST_EXCLUDED_PATHS: "tests, dev, doc, .pytest_cache, .hg"
+
 cache:
   # Required to keep artifacts from old builds, e.g. from default
   paths:
