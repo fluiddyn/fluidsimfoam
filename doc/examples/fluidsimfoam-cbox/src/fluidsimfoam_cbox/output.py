@@ -52,3 +52,4 @@ class OutputCBox(Output):
 
 
 OutputCBox.system_files_names.append("blockMeshDict")
+OutputCBox.constant_files_names.append("g")
