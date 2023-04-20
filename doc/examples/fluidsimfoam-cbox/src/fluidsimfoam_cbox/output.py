@@ -1,4 +1,4 @@
-from fluidsimfoam.foam_input_files.ast import Dict
+from fluidsimfoam.foam_input_files import DEFAULT_HEADER, Dict, FoamInputFile
 from fluidsimfoam.output import Output
 
 
@@ -18,6 +18,30 @@ class OutputCBox(Output):
             name="RAS",
         )
         return tree
+
+    def make_tree_transport_properties(self, params):
+        return FoamInputFile(
+            info={
+                "version": "2.0",
+                "format": "ascii",
+                "class": "dictionary",
+                "object": "transportProperties",
+            },
+            children={
+                "transportModel": "Newtonian",
+                # // Laminar viscosity
+                "nu": 1e-03,
+                # // Thermal expansion coefficient
+                "beta": 1.88583,
+                # // Reference temperature
+                "TRef": 300,
+                # // Laminar Prandtl number
+                "Pr": 1.0,
+                # // Turbulent Prandtl number
+                "Prt": 1.0,
+            },
+            header=DEFAULT_HEADER,
+        )
 
 
 OutputCBox.system_files_names.append("blockMeshDict")

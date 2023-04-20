@@ -248,10 +248,6 @@ class Output(OutputCore):
             header=DEFAULT_HEADER,
         )
 
-    def make_code_turbulence_properties(self, params):
-        tree = self.make_tree_turbulence_properties(params)
-        return tree.dump()
-
     @classmethod
     def _complete_params_fv_solution(cls, params):
         params._set_child("fv_solution", doc="""TODO""")
