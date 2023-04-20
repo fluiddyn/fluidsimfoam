@@ -26,7 +26,11 @@ def load_simul(path_dir="."):
     short_name = get_solver_short_name(path_dir)
     Simul = import_cls_simul(short_name)
 
-    params = Parameters(path_file=path_dir / "params_simul.xml")
+    path_params = path_dir / "params_simul.xml"
+    if not path_params.exists():
+        path_params = path_dir / ".data_fluidsim/params_simul.xml"
+
+    params = Parameters(path_file=path_params)
 
     # Modify parameters prior to loading
     params.NEW_DIR_RESULTS = False

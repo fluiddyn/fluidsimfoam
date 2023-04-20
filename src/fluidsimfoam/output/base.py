@@ -163,6 +163,16 @@ class Output(OutputCore):
         ):
             self.post_init_create_additional_source_files()
 
+        # OpenFOAM cleanup removes .xml files!
+        path_run = Path(self.path_run)
+        path_info_fluidsim = path_run / ".data_fluidsim"
+        path_info_fluidsim.mkdir(exist_ok=True)
+        for file_name in ("info_solver.xml", "params_simul.xml"):
+            path_new = path_info_fluidsim / file_name
+            if path_new.exists():
+                continue
+            shutil.copy(path_run / file_name, path_new)
+
     def post_init_create_additional_source_files(self):
         """Create the files from their template"""
         (self.sim.path_run / "system").mkdir()

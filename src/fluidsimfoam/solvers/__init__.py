@@ -99,6 +99,9 @@ def get_solver_short_name(path_dir):
 
     """
     info_solver_xml = path_dir / "info_solver.xml"
+    if not info_solver_xml.exists():
+        info_solver_xml = path_dir / ".data_fluidsim/info_solver.xml"
+
     if info_solver_xml.exists():
         info_solver = InfoSolverCore(path_file=info_solver_xml)
         short_name = info_solver.short_name
