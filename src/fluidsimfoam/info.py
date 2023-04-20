@@ -17,9 +17,13 @@ class InfoSolver(InfoSolverCore):
                 "class_name": "Output",
             },
         )
-        # self.classes._set_child(
-        #     "Make", attribs={"module_name": "snek5000.make", "class_name": "Make"}
-        # )
+        self.classes._set_child(
+            "Make",
+            attribs={
+                "module_name": "fluidsimfoam.make",
+                "class_name": "MakeInvoke",
+            },
+        )
 
     def complete_with_classes(self):
         """Populate info solver by executing ``_complete_info_solver`` class
