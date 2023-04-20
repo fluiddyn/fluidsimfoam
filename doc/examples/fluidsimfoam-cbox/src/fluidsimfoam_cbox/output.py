@@ -5,6 +5,8 @@ from fluidsimfoam.output import Output
 class OutputCBox(Output):
     """Output for the cbox solver"""
 
+    variable_names = ["T", "U", "alphat",  "epsilon",  "k",  "nut",  "p",  "p_rgh"]
+
     # @classmethod
     # def _set_info_solver_classes(cls, classes):
     #     """Set the the classes for info_solver.classes.Output"""
