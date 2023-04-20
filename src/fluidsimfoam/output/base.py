@@ -234,8 +234,8 @@ class Output(OutputCore):
             doc="""TODO""",
         )
 
-    def make_code_turbulence_properties(self, params):
-        tree = FoamInputFile(
+    def make_tree_turbulence_properties(self, params):
+        return FoamInputFile(
             info={
                 "version": "2.0",
                 "format": "ascii",
@@ -247,6 +247,9 @@ class Output(OutputCore):
             },
             header=DEFAULT_HEADER,
         )
+
+    def make_code_turbulence_properties(self, params):
+        tree = self.make_tree_turbulence_properties(params)
         return tree.dump()
 
     @classmethod
