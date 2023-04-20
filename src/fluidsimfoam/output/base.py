@@ -9,7 +9,11 @@ from fluiddyn.io import stdout_redirected
 from fluiddyn.util import mpi
 from fluidsim_core.output import OutputCore
 from fluidsim_core.params import iter_complete_params
-from fluidsimfoam.foam_input_files import DEFAULT_HEADER, FoamInputFile
+from fluidsimfoam.foam_input_files import (
+    DEFAULT_CONTROL_DICT,
+    DEFAULT_HEADER,
+    FoamInputFile,
+)
 from fluidsimfoam.foam_input_files.generators import (
     FileGeneratorABC,
     InputFiles,
@@ -191,6 +195,45 @@ class Output(OutputCore):
             )
         shutil.copy(path_tasks_py, self.sim.path_run)
 
+    @classmethod
+    def _complete_params_control_dict(cls, params):
+        attribs = {
+            underscore(key): value for key, value in DEFAULT_CONTROL_DICT.items()
+        }
+
+        params._set_child(
+            "control_dict",
+            attribs=attribs,
+            doc="""See https://doc.cfd.direct/openfoam/user-guide-v6/controldict""",
+        )
+
+    def make_code_control_dict(self, params):
+        children = {
+            key: params.control_dict[underscore(key)]
+            for key in DEFAULT_CONTROL_DICT.keys()
+        }
+
+        tree = FoamInputFile(
+            info={
+                "version": "2.0",
+                "format": "ascii",
+                "class": "dictionary",
+                "location": '"system"',
+                "object": "controlDict",
+            },
+            children=children,
+            header=DEFAULT_HEADER,
+        )
+        return tree.dump()
+
+    @classmethod
+    def _complete_params_turbulence_properties(cls, params):
+        params._set_child(
+            "turbulence_properties",
+            attribs={"simulation_type": "laminar"},
+            doc="""TODO""",
+        )
+
     def make_code_turbulence_properties(self, params):
         tree = FoamInputFile(
             info={
@@ -205,14 +248,6 @@ class Output(OutputCore):
             header=DEFAULT_HEADER,
         )
         return tree.dump()
-
-    @classmethod
-    def _complete_params_turbulence_properties(cls, params):
-        params._set_child(
-            "turbulence_properties",
-            attribs={"simulation_type": "laminar"},
-            doc="""TODO""",
-        )
 
     @classmethod
     def _complete_params_fv_solution(cls, params):
