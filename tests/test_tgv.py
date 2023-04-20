@@ -1,5 +1,7 @@
+import shutil
 from pathlib import Path
 
+import pytest
 from fluidsimfoam_tgv import Simul
 
 from fluidsimfoam import load
@@ -9,28 +11,24 @@ here = Path(__file__).absolute().parent
 path_tiny = here / "pure_openfoam_cases/tiny-tgv"
 
 
-def test_init_simul():
+@pytest.fixture(scope="function")
+def sim_tgv():
     params = Simul.create_default_params()
 
     params.output.sub_directory = "tests_fluidsimfoam/tgv"
 
     params.fv_solution.solvers.p.solver = "PCG"
 
-    sim = Simul(params)
+    return Simul(params)
+
+
+def test_init(sim_tgv):
+    sim = sim_tgv
 
     assert all(
         (sim.path_run / name).exists()
         for name in ("info_solver.xml", "params_simul.xml")
     )
-
-    sim.make.list()
-    # problem: clean remove .xml files (bash function cleanAuxiliary)
-    # sim.make.exec("clean")
-    sim.make.exec("run")
-
-    sim2 = load(sim.path_run)
-
-    assert sim2.path_run == sim.path_run
 
     paths_in_tiny = [
         path.relative_to(path_tiny)
@@ -45,3 +43,46 @@ def test_init_simul():
         assert path_produced.exists()
         text_produced = path_produced.read_text()
         assert text_manual == text_produced
+
+
+def test_list(sim_tgv):
+    sim = sim_tgv
+    sim.make.list()
+    # problem: clean remove .xml files (bash function cleanAuxiliary)
+    # sim.make.exec("clean")
+
+    sim2 = load(sim.path_run)
+
+    assert sim2.path_run == sim.path_run
+
+
+path_foam_clean = shutil.which("foamCleanTutorials")
+
+
+def test_clean_load(sim_tgv):
+    sim = sim_tgv
+
+    if path_foam_clean is not None:
+        # problem: clean remove .xml files (bash function cleanAuxiliary)
+        sim.make.exec("clean")
+
+    sim2 = load(sim.path_run)
+    assert sim2.path_run == sim.path_run
+
+
+path_foam_executable = shutil.which("icoFoam")
+
+
+@pytest.mark.skipif(
+    path_foam_executable is None, reason="executable icoFoam not available"
+)
+def test_run():
+    params = Simul.create_default_params()
+
+    params.output.sub_directory = "tests_fluidsimfoam/tgv"
+
+    params.fv_solution.solvers.p.solver = "PCG"
+
+    sim = Simul(params)
+
+    sim.make.exec("run")

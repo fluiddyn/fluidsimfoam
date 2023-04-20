@@ -1,4 +1,5 @@
 import inspect
+import shutil
 import textwrap
 from pathlib import Path
 
@@ -171,6 +172,14 @@ class Output(OutputCore):
         for file_generator in vars(self.input_files).values():
             if hasattr(file_generator, "generate_file"):
                 file_generator.generate_file()
+
+        path_tasks_py = self.input_files.templates_dir / "tasks.py"
+        if not path_tasks_py.exists():
+            raise RuntimeError(
+                "tasks.py missing in solver templates_dir "
+                f"{self.input_files.templates_dir}"
+            )
+        shutil.copy(path_tasks_py, self.sim.path_run)
 
     def make_code_turbulence_properties(self, params):
         tree = FoamInputFile(
