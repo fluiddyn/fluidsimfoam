@@ -17,6 +17,13 @@ def sim_tgv():
 
     params.output.sub_directory = "tests_fluidsimfoam/tgv"
 
+    params.control_dict.end_time = 0.3
+    params.control_dict.delta_t = 0.05
+    params.control_dict.write_interval = 0.05
+    params.control_dict.write_control = "adjustableRunTime"
+    params.control_dict.write_precision = 12
+    params.control_dict.time_precision = 12
+
     params.fv_solution.solvers.p.solver = "PCG"
 
     return Simul(params)
