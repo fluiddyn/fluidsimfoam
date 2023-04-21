@@ -6,7 +6,7 @@ from fluidsimfoam_cbox import Simul
 here = Path(__file__).absolute().parent
 
 
-@pytest.mark.parametrize("index_sim", [0, 1])
+@pytest.mark.parametrize("index_sim", [0, 1, 2])
 def test_init_simul_sim0(index_sim):
     params = Simul.create_default_params()
 
@@ -14,6 +14,8 @@ def test_init_simul_sim0(index_sim):
 
     if index_sim == 1:
         params.transport_properties.nu = 0.002
+    elif index_sim == 2:
+        params.transport_properties.nu = 0.003
 
     sim = Simul(params)
 
