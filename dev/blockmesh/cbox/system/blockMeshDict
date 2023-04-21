@@ -39,7 +39,7 @@ blocks
 
 boundary
 (
-    FrontAndBack
+    frontAndBack
     {
         type wall;
         faces
