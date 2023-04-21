@@ -2,11 +2,11 @@
 try to generate cbox mesh
 """
 
-from __future__ import unicode_literals, print_function, division
+from __future__ import division, print_function, unicode_literals
 
 import math
 
-from ofblockmeshdicthelper import BlockMeshDict, Vertex, SimpleGrading
+from ofblockmeshdicthelper import BlockMeshDict, SimpleGrading, Vertex
 
 
 def make_block_mesh(case_name):
