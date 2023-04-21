@@ -88,6 +88,8 @@ def test_run():
 
     params.output.sub_directory = "tests_fluidsimfoam/tgv"
 
+    params.control_dict.end_time = 0.02
+
     params.fv_solution.solvers.p.solver = "PCG"
 
     sim = Simul(params)
