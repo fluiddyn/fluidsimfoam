@@ -9,23 +9,9 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      transportProperties;
+    class       uniformDimensionedVectorField;
+    object      g;
 }
 
-transportModel  Newtonian;
-
-// Laminar viscosity
-nu              0.001;
-
-// Thermal expansion coefficient
-beta            1.88583;
-
-// Reference temperature
-TRef            300;
-
-// Laminar Prandtl number
-Pr              1.0;
-
-// Turbulent Prandtl number
-Prt             1.0;
+dimensions      [0 1 -2 0 0 0 0];
+value           (0 -9.81 0);

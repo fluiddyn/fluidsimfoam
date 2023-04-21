@@ -10,22 +10,44 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    object      transportProperties;
+    object      fvSchemes;
 }
 
-transportModel  Newtonian;
+ddtSchemes
+{
+    default         Euler;
+}
 
-// Laminar viscosity
-nu              0.001;
+gradSchemes
+{
+    default         Gauss linear;
+}
 
-// Thermal expansion coefficient
-beta            1.88583;
+divSchemes
+{
+    default         none;
 
-// Reference temperature
-TRef            300;
+    div(phi,U)      Gauss linearUpwind grad(U);
+    div(phi,T)      Gauss limitedLinear 1;
 
-// Laminar Prandtl number
-Pr              1.0;
+    turbulence      Gauss limitedLinear 1;
+    div(phi,k)      $turbulence;
+    div(phi,epsilon) $turbulence;
 
-// Turbulent Prandtl number
-Prt             1.0;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}

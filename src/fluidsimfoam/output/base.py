@@ -207,7 +207,7 @@ class Output(OutputCore):
             doc="""See https://doc.cfd.direct/openfoam/user-guide-v6/controldict""",
         )
 
-    def make_code_control_dict(self, params):
+    def make_tree_control_dict(self, params):
         children = {
             key: params.control_dict[underscore(key)]
             for key in DEFAULT_CONTROL_DICT.keys()
@@ -224,6 +224,10 @@ class Output(OutputCore):
             children=children,
             header=DEFAULT_HEADER,
         )
+        return tree
+
+    def make_code_control_dict(self, params):
+        tree = self.make_tree_control_dict(params)
         return tree.dump()
 
     @classmethod
@@ -234,8 +238,8 @@ class Output(OutputCore):
             doc="""TODO""",
         )
 
-    def make_code_turbulence_properties(self, params):
-        tree = FoamInputFile(
+    def make_tree_turbulence_properties(self, params):
+        return FoamInputFile(
             info={
                 "version": "2.0",
                 "format": "ascii",
@@ -247,7 +251,6 @@ class Output(OutputCore):
             },
             header=DEFAULT_HEADER,
         )
-        return tree.dump()
 
     @classmethod
     def _complete_params_fv_solution(cls, params):

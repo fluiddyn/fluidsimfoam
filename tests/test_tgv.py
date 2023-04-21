@@ -49,7 +49,7 @@ def test_init(sim_tgv):
         path_produced = sim.path_run / name
         assert path_produced.exists()
         text_produced = path_produced.read_text()
-        assert text_manual == text_produced
+        assert text_produced == text_manual, name
 
 
 def test_list(sim_tgv):
@@ -87,6 +87,8 @@ def test_run():
     params = Simul.create_default_params()
 
     params.output.sub_directory = "tests_fluidsimfoam/tgv"
+
+    params.control_dict.end_time = 0.02
 
     params.fv_solution.solvers.p.solver = "PCG"
 

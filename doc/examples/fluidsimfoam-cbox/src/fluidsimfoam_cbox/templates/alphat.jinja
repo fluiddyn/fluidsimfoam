@@ -9,23 +9,22 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      transportProperties;
+    class       volScalarField;
+    object      alphat;
 }
 
-transportModel  Newtonian;
+dimensions      [0 2 -1 0 0 0 0];
 
-// Laminar viscosity
-nu              0.001;
+internalField   uniform 0;
 
-// Thermal expansion coefficient
-beta            1.88583;
+boundaryField
+{
+    wall
+    {
+        type            alphatJayatillekeWallFunction;
+        Prt             0.85;
+        value           $internalField;
+    }
 
-// Reference temperature
-TRef            300;
-
-// Laminar Prandtl number
-Pr              1.0;
-
-// Turbulent Prandtl number
-Prt             1.0;
+    #includeEtc "caseDicts/setConstraintTypes"
+}

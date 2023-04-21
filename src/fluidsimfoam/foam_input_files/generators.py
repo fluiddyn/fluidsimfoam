@@ -67,21 +67,30 @@ class FileGenerator(FileGeneratorABC):
             if method is None:
                 raise AttributeError
         except AttributeError:
-            template = self.output.input_files.get_template(self.template_name)
-            return template.render(params=self.output.sim.params)
-        else:
-            if (
-                self.output.input_files.templates_dir / self.template_name
-            ).exists():
-                raise RuntimeError(
-                    "Fluidsimfoam solver issue: "
-                    f"2 concurrent methods to produce {self.rel_path}:\n"
-                    f"- template in {self.output.input_files.templates_dir},\n"
-                    f"- function output.make_code_{self._name}.\n"
-                    "Remove the file or the function (or make it equal to None)."
+            try:
+                make_tree = getattr(self.output, "make_tree_" + self._name)
+                if make_tree is None:
+                    raise AttributeError
+            except AttributeError:
+                template = self.output.input_files.get_template(
+                    self.template_name
                 )
+                return template.render(params=self.output.sim.params)
+            else:
 
-            return method(self.output.sim.params)
+                def method(params):
+                    return make_tree(params).dump()
+
+        if (self.output.input_files.templates_dir / self.template_name).exists():
+            raise RuntimeError(
+                "Fluidsimfoam solver issue: "
+                f"2 concurrent methods to produce {self.rel_path}:\n"
+                f"- template in {self.output.input_files.templates_dir},\n"
+                f"- function output.make_code_{self._name}.\n"
+                "Remove the file or the function (or make it equal to None)."
+            )
+
+        return method(self.output.sim.params)
 
     @classmethod
     def _complete_params_with_default(cls, params, info_solver):

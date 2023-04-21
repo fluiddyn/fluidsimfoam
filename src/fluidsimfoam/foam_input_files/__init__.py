@@ -1,7 +1,15 @@
-from .ast import FoamInputFile
+from .ast import Dict, FoamInputFile, List, Value
 from .parser import dump, parse
 
-__all__ = ["parse", "dump", "FoamInputFile", "DEFAULT_HEADER"]
+__all__ = [
+    "parse",
+    "dump",
+    "FoamInputFile",
+    "DEFAULT_HEADER",
+    "Dict",
+    "List",
+    "Value",
+]
 
 DEFAULT_HEADER = r"""
 /*--------------------------------*- C++ -*----------------------------------*\
