@@ -207,7 +207,7 @@ class Output(OutputCore):
             doc="""See https://doc.cfd.direct/openfoam/user-guide-v6/controldict""",
         )
 
-    def make_code_control_dict(self, params):
+    def make_tree_control_dict(self, params):
         children = {
             key: params.control_dict[underscore(key)]
             for key in DEFAULT_CONTROL_DICT.keys()
@@ -224,6 +224,10 @@ class Output(OutputCore):
             children=children,
             header=DEFAULT_HEADER,
         )
+        return tree
+
+    def make_code_control_dict(self, params):
+        tree = self.make_tree_control_dict(params)
         return tree.dump()
 
     @classmethod

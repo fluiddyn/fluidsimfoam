@@ -93,7 +93,7 @@ class FoamInputFile(Node):
             elif node is None:
                 code_node = f"{key}"
             else:
-                code_node = f"{key}  {node};"
+                code_node = f"{key:14s}  {node};"
             if self.comments is not None and key in self.comments:
                 comment = "// " + self.comments[key].replace("\n", "\n// ")
                 code_node = comment + "\n" + code_node
