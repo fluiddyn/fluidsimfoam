@@ -75,8 +75,6 @@ class FoamInputFile(Node):
 
     def dump(self):
         tmp = []
-        if self.header is not None:
-            tmp.append(self.header)
         if self.info is not None:
             tmp1 = ["FoamFile\n{"]
             for key, node in self.info.items():
@@ -101,6 +99,8 @@ class FoamInputFile(Node):
                 code_node = comment + "\n" + code_node
             tmp.append(code_node)
         result = "\n\n".join(tmp)
+        if self.header is not None:
+            result = self.header + "\n" + result
         if result[-1] != "\n":
             result += "\n"
         return result
