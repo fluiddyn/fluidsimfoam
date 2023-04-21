@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 import pytest
@@ -33,3 +34,21 @@ def test_init_simul_sim0(index_sim):
         assert path_produced.exists(), name
         text_produced = path_produced.read_text()
         assert text_produced == text_manual, name
+
+
+path_foam_executable = shutil.which("buoyantBoussinesqPimpleFoam")
+
+
+@pytest.mark.skipif(
+    path_foam_executable is None, reason="executable icoFoam not available"
+)
+def test_run():
+    params = Simul.create_default_params()
+
+    params.output.sub_directory = "tests_fluidsimfoam/cbox/"
+
+    params.control_dict.end_time = 10
+
+    sim = Simul(params)
+
+    sim.make.exec("run")
