@@ -66,7 +66,7 @@ def test_dump_file():
         transportModel  Newtonian;
 
         // Laminar viscosity
-        nu  0.001;
+        nu              0.001;
     """
     )[1:]
 

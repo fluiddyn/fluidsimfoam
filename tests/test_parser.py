@@ -79,9 +79,9 @@ def test_var_quoted_string(grammar):
 def test_var_multiple(grammar):
     tree = base_test(
         """
-        a  b;
+        a               b;
 
-        c  d;
+        c               d;
     """,
         grammar=grammar,
         representation="InputFile(\nchildren={'a': 'b', 'c': 'd'}\n)",
@@ -287,9 +287,9 @@ def test_file(grammar):
             object      p;
         }
 
-        a  1;
+        a               1;
 
-        b  2;
+        b               2;
 
         faces
         (
@@ -408,7 +408,7 @@ def test_macro(grammar):
             version     2.0;
         }
 
-        relTol  $p;
+        relTol          $p;
 
         Phi
         {
@@ -484,7 +484,7 @@ def test_dimension_set(grammar):
 def test_named_values(grammar):
     tree = base_test(
         """
-        a  b;
+        a               b;
 
         ft  limitedLinear01 1;
         """,
@@ -548,7 +548,7 @@ def test_double_value(grammar):
 def test_for_blockmesh(grammar):
     tree = base_test(
         """
-        negHalfWidth  #neg $halfWidth;
+        negHalfWidth    #neg $halfWidth;
 
         blocks
         (
