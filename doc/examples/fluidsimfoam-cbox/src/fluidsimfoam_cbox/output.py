@@ -15,6 +15,15 @@ code_control_dict_functions = dedent(
 """
 )
 
+_attribs_transport_prop = {
+    "transportModel": "Newtonian",
+    "nu": 0.001,
+    "beta": 1.88583,
+    "TRef": 300,
+    "Pr": 1.0,
+    "Prt": 1.0,
+}
+
 
 class OutputCBox(Output):
     """Output for the cbox solver"""
@@ -47,14 +56,13 @@ class OutputCBox(Output):
         code = super().make_code_control_dict(params)
         return code + code_control_dict_functions
 
-    def make_tree_turbulence_properties(self, params):
-        tree = super().make_tree_turbulence_properties(params)
-        # TODO: fix this bad API (need for `Dict` and `name`)
-        tree.children["RAS"] = Dict(
-            {"RASModel": "kEpsilon", "turbulence": "on", "printCoeffs": "on"},
-            name="RAS",
+    @classmethod
+    def _complete_params_transport_properties(cls, params):
+        params._set_child(
+            "transport_properties",
+            attribs=_attribs_transport_prop,
+            doc="""TODO""",
         )
-        return tree
 
     def make_tree_transport_properties(self, params):
         return FoamInputFile(
@@ -65,12 +73,8 @@ class OutputCBox(Output):
                 "object": "transportProperties",
             },
             children={
-                "transportModel": "Newtonian",
-                "nu": 1e-03,
-                "beta": 1.88583,
-                "TRef": 300,
-                "Pr": 1.0,
-                "Prt": 1.0,
+                key: params.transport_properties[key]
+                for key in _attribs_transport_prop.keys()
             },
             header=DEFAULT_HEADER,
             comments={
@@ -81,6 +85,15 @@ class OutputCBox(Output):
                 "Prt": "Turbulent Prandtl number",
             },
         )
+
+    def make_tree_turbulence_properties(self, params):
+        tree = super().make_tree_turbulence_properties(params)
+        # TODO: fix this bad API (need for `Dict` and `name`)
+        tree.children["RAS"] = Dict(
+            {"RASModel": "kEpsilon", "turbulence": "on", "printCoeffs": "on"},
+            name="RAS",
+        )
+        return tree
 
 
 OutputCBox.system_files_names.extend(

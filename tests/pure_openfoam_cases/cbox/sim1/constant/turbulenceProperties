@@ -13,13 +13,11 @@ FoamFile
     object      turbulenceProperties;
 }
 
-simulationType      laminar;
+simulationType  laminar;
 
 RAS
 {
-    RASModel        kEpsilon;
-
-    turbulence      on;
-
-    printCoeffs     on;
+    RASModel       kEpsilon;
+    turbulence     on;
+    printCoeffs    on;
 }

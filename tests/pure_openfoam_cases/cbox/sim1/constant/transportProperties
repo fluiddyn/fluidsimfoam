@@ -13,13 +13,13 @@ FoamFile
     object      transportProperties;
 }
 
-transportModel Newtonian;
+transportModel  Newtonian;
 
 // Laminar viscosity
-nu              1e-03;
+nu              0.002;
 
 // Thermal expansion coefficient
-beta            18.8583;
+beta            1.88583;
 
 // Reference temperature
 TRef            300;
