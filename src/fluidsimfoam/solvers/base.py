@@ -14,6 +14,12 @@ class SimulFoam(SimulCore):
     def _complete_params_with_default(cls, params):
         pass
 
+    @classmethod
+    def create_default_params(cls):
+        # TODO: needed because abstract method in fluidsim-core
+        params = super().create_default_params()
+        return params
+
     def __init__(self, params):
         super().__init__(params)
 

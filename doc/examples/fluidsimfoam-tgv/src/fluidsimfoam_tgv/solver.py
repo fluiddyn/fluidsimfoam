@@ -23,18 +23,5 @@ class SimulTGV(SimulFoam):
 
     InfoSolver = InfoSolverTGV
 
-    @classmethod
-    def create_default_params(cls):
-        """Set default values of parameters as given in reference
-        implementation.
-
-        """
-        params = super().create_default_params()
-        # Re-define default values for parameters here, if necessary
-
-        ...
-
-        return params
-
 
 Simul = SimulTGV
