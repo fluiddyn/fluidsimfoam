@@ -1,37 +1,38 @@
-# taken from https://github.com/takaakiaoki/ofblockmeshdicthelper (Git commit 58589f1)
+"""blockmeshhelper
 
-# for compatibility to Py2.7
-from __future__ import unicode_literals, print_function
-from six import string_types
+Taken from https://github.com/takaakiaoki/ofblockmeshdicthelper (Git commit
+58589f1) and modified as follow:
+
+- `pyupgrade __init__.py --py39-plus`
+
+"""
 
 import io
-try:
-    from collections.abc import Iterable
-except ImportError:
-    from collections import Iterable
-from string import Template
+from collections.abc import Iterable
 from itertools import groupby
+from string import Template
 
 
-class Vertex(object):
+class Vertex:
     def __init__(self, x, y, z, name, index=None):
         self.x = x
         self.y = y
         self.z = z
         self.name = name  # identical name
-        self.alias = set([name])  # aliasname, self.name should be included
+        self.alias = {name}  # aliasname, self.name should be included
 
         # seqential index which is assigned at final output
         # for blocks, edges, boundaries
         self.index = None
 
     def format(self):
-        com = str(self.index) + ' ' + self.name
+        com = str(self.index) + " " + self.name
         if len(self.alias) > 1:
-            com += ' : '
-            com += ' '.join(self.alias)
-        return '( {0:18.15g} {1:18.15g} {2:18.15g} )  // {3:s}'.format(
-            self.x, self.y, self.z, com)
+            com += " : "
+            com += " ".join(self.alias)
+        return "( {:18.15g} {:18.15g} {:18.15g} )  // {:s}".format(
+            self.x, self.y, self.z, com
+        )
 
     def __lt__(self, rhs):
         return (self.z, self.y, self.x) < (rhs.z, rhs.y, rhs.x)
@@ -43,17 +44,17 @@ class Vertex(object):
         return hash((self.z, self.y, self.x))
 
 
-class Point(object):
+class Point:
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
 
     def format(self):
-        return '( {0:18.15g} {1:18.15g} {2:18.15g} )'.format(
-            self.x, self.y, self.z)
+        return f"( {self.x:18.15g} {self.y:18.15g} {self.z:18.15g} )"
 
-class Face(object):
+
+class Face:
     def __init__(self, vnames, name):
         """
         vname is list or tuple of vertex names
@@ -65,19 +66,18 @@ class Face(object):
         """Format instance to dump
         vertices is dict of name to Vertex
         """
-        index = ' '.join(str(vertices[vn].index) for vn in self.vnames)
-        com = ' '.join(self.vnames)  # for comment
-        return '({0:s})  // {1:s} ({2:s})'.format(index, self.name, com)
+        index = " ".join(str(vertices[vn].index) for vn in self.vnames)
+        com = " ".join(self.vnames)  # for comment
+        return f"({index:s})  // {self.name:s} ({com:s})"
 
 
-class Grading(object):
+class Grading:
     """base class for Simple- and Edge- Grading"""
-    pass
 
 
-class SimpleGradingElement(object):
-    """x, y or z Element of simpleGrading. adopted to multi-grading
-    """
+class SimpleGradingElement:
+    """x, y or z Element of simpleGrading. adopted to multi-grading"""
+
     def __init__(self, d):
         """initialization
         d is single number for expansion ratio
@@ -88,18 +88,18 @@ class SimpleGradingElement(object):
     def format(self):
         if isinstance(self.d, Iterable):
             s = io.StringIO()
-            s.write('( ')
+            s.write("( ")
             for e in self.d:
-                s.write('( {0:g} {1:g} {2:g} ) '.format(e[0], e[1], e[2]))
-            s.write(')')
+                s.write(f"( {e[0]:g} {e[1]:g} {e[2]:g} ) ")
+            s.write(")")
             return s.getvalue()
         else:
             return str(self.d)
 
 
 class SimpleGrading(Grading):
-    """configutation for 'simpleGrading'
-    """
+    """configutation for 'simpleGrading'"""
+
     def __init__(self, x, y, z):
         if not isinstance(x, SimpleGradingElement):
             self.x = SimpleGradingElement(x)
@@ -115,11 +115,12 @@ class SimpleGrading(Grading):
             self.z = z
 
     def format(self):
-        return 'simpleGrading ({0:s} {1:s} {2:s})'.format(self.x.format(), self.y.format(), self.z.format())
+        return f"simpleGrading ({self.x.format():s} {self.y.format():s} {self.z.format():s})"
+
 
 class EdgeGrading(Grading):
-    """configutation for 'edgeGrading'
-    """
+    """configutation for 'edgeGrading'"""
+
     def __init__(self, x1, x2, x3, x4, y1, y2, y3, y4, z1, z2, z3, z4):
         if not isinstance(x1, SimpleGradingElement):
             self.x1 = SimpleGradingElement(x1)
@@ -170,18 +171,29 @@ class EdgeGrading(Grading):
         else:
             self.z4 = z4
 
-
     def format(self):
-        return 'edgeGrading '\
-                '({0:s} {1:s} {2:s} {3:s} '\
-                '{4:s} {5:s} {6:s} {7:s} '\
-                '{8:s} {9:s} {10:s} {11:s})'.format(
-                    self.x1.format(), self.x2.format(), self.x3.format(), self.x4.format(),
-                    self.y1.format(), self.y2.format(), self.y3.format(), self.y4.format(),
-                    self.z1.format(), self.z2.format(), self.z3.format(), self.z4.format()
-                    )
+        return (
+            "edgeGrading "
+            "({:s} {:s} {:s} {:s} "
+            "{:s} {:s} {:s} {:s} "
+            "{:s} {:s} {:s} {:s})".format(
+                self.x1.format(),
+                self.x2.format(),
+                self.x3.format(),
+                self.x4.format(),
+                self.y1.format(),
+                self.y2.format(),
+                self.y3.format(),
+                self.y4.format(),
+                self.z1.format(),
+                self.z2.format(),
+                self.z3.format(),
+                self.z4.format(),
+            )
+        )
 
-class HexBlock(object):
+
+class HexBlock:
     def __init__(self, vnames, cells, name, grading=SimpleGrading(1, 1, 1)):
         """Initialize HexBlock instance
         vnames is the vertex names in order descrived in
@@ -199,11 +211,14 @@ class HexBlock(object):
         """Format instance to dump
         vertices is dict of name to Vertex
         """
-        index = ' '.join(str(vertices[vn].index) for vn in self.vnames)
-        vcom = ' '.join(self.vnames)  # for comment
-        return 'hex ({0:s}) {2:s} ({1[0]:d} {1[1]:d} {1[2]:d}) '\
-               '{4:s}  // {2:s} ({3:s})'.format(
-                    index, self.cells, self.name, vcom, self.grading.format())
+        index = " ".join(str(vertices[vn].index) for vn in self.vnames)
+        vcom = " ".join(self.vnames)  # for comment
+        return (
+            "hex ({0:s}) {2:s} ({1[0]:d} {1[1]:d} {1[2]:d}) "
+            "{4:s}  // {2:s} ({3:s})".format(
+                index, self.cells, self.name, vcom, self.grading.format()
+            )
+        )
 
     def face(self, index, name=None):
         """Generate Face object
@@ -218,28 +233,43 @@ class HexBlock(object):
             genaratied like ('f-' + self.name + '-w')
         """
         kw_to_index = {
-            'w': 0, 'xm': 0, '-100': 0,
-            'e': 1, 'xp': 1, '100': 1,
-            's': 2, 'ym': 2, '0-10': 2,
-            'n': 3, 'yp': 3, '010': 3,
-            'b': 4, 'zm': 4, '00-1': 4,
-            't': 5, 'zp': 5, '001': 5}
+            "w": 0,
+            "xm": 0,
+            "-100": 0,
+            "e": 1,
+            "xp": 1,
+            "100": 1,
+            "s": 2,
+            "ym": 2,
+            "0-10": 2,
+            "n": 3,
+            "yp": 3,
+            "010": 3,
+            "b": 4,
+            "zm": 4,
+            "00-1": 4,
+            "t": 5,
+            "zp": 5,
+            "001": 5,
+        }
         index_to_vertex = [
             (0, 4, 7, 3),
             (1, 2, 6, 5),
             (0, 1, 5, 4),
             (2, 3, 7, 6),
             (0, 3, 2, 1),
-            (4, 5, 6, 7)]
+            (4, 5, 6, 7),
+        ]
         index_to_defaultsuffix = [
-            'f-{}-w',
-            'f-{}-n',
-            'f-{}-s',
-            'f-{}-n',
-            'f-{}-b',
-            'f-{}-t']
+            "f-{}-w",
+            "f-{}-n",
+            "f-{}-s",
+            "f-{}-n",
+            "f-{}-b",
+            "f-{}-t",
+        ]
 
-        if isinstance(index, string_types):
+        if isinstance(index, str):
             index = kw_to_index[index]
 
         vnames = tuple([self.vnames[i] for i in index_to_vertex[index]])
@@ -248,7 +278,7 @@ class HexBlock(object):
         return Face(vnames, name)
 
 
-class ArcEdge(object):
+class ArcEdge:
     def __init__(self, vnames, name, interVertex):
         """Initialize ArcEdge instance
         vnames is the vertex names in order descrived in
@@ -266,13 +296,15 @@ class ArcEdge(object):
         """Format instance to dump
         vertices is dict of name to Vertex
         """
-        index = ' '.join(str(vertices[vn].index) for vn in self.vnames)
-        vcom = ' '.join(self.vnames)  # for comment
-        return 'arc {0:s} ({1.x:18.15g} {1.y:18.15g} {1.z:18.15g}) '\
-                '// {2:s} ({3:s})'.format(
-                        index, self.interVertex, self.name, vcom)
+        index = " ".join(str(vertices[vn].index) for vn in self.vnames)
+        vcom = " ".join(self.vnames)  # for comment
+        return (
+            "arc {0:s} ({1.x:18.15g} {1.y:18.15g} {1.z:18.15g}) "
+            "// {2:s} ({3:s})".format(index, self.interVertex, self.name, vcom)
+        )
 
-class SplineEdge(object):
+
+class SplineEdge:
     def __init__(self, vnames, name, points):
         """Initialize SplineEdge instance
         vnames is the vertex names in order descrived in
@@ -287,24 +319,25 @@ class SplineEdge(object):
         """Format instance to dump
         vertices is dict of name to Vertex
         """
-        index = ' '.join(str(vertices[vn].index) for vn in self.vnames)
-        vcom = ' '.join(self.vnames)  # for comment
+        index = " ".join(str(vertices[vn].index) for vn in self.vnames)
+        vcom = " ".join(self.vnames)  # for comment
         buf = io.StringIO()
 
-        buf.write('spline {0:s}                      '\
-                '// {1:s} ({2:s})'.format(
-                        index,self.name, vcom))
-        buf.write('\n     (\n')
+        buf.write(
+            "spline {:s}                      "
+            "// {:s} ({:s})".format(index, self.name, vcom)
+        )
+        buf.write("\n     (\n")
         for p in self.points:
-            buf.write('         '+p.format()+'\n')
-        buf.write('\n     )\n')
-        buf.write('')
+            buf.write("         " + p.format() + "\n")
+        buf.write("\n     )\n")
+        buf.write("")
         return buf.getvalue()
 
 
-class Boundary(object):
+class Boundary:
     def __init__(self, type_, name, faces=[]):
-        """ initialize boundary
+        """initialize boundary
         type_ is type keyword (wall, patch, empty, ..)
         name is nave of boundary emelment
         faces is faces which are applied with this boundary conditions
@@ -325,20 +358,20 @@ class Boundary(object):
         """
         buf = io.StringIO()
 
-        buf.write(self.name + '\n')
-        buf.write('{\n')
-        buf.write('    type {};\n'.format(self.type_))
-        buf.write('    faces\n')
-        buf.write('    (\n')
+        buf.write(self.name + "\n")
+        buf.write("{\n")
+        buf.write(f"    type {self.type_};\n")
+        buf.write("    faces\n")
+        buf.write("    (\n")
         for f in self.faces:
             s = f.format(vertices)
-            buf.write('        {}\n'.format(s))
-        buf.write('    );\n')
-        buf.write('}')
+            buf.write(f"        {s}\n")
+        buf.write("    );\n")
+        buf.write("}")
         return buf.getvalue()
 
 
-class BlockMeshDict(object):
+class BlockMeshDict:
     def __init__(self):
         self.convert_to_meters = 1.0
         self.vertices = {}  # mapping of uniq name to Vertex object
@@ -349,14 +382,15 @@ class BlockMeshDict(object):
     def set_metric(self, metric):
         """set self.comvert_to_meters by word"""
         metricsym_to_conversion = {
-            'km': 1000,
-            'm': 1,
-            'cm': 0.01,
-            'mm': 0.001,
-            'um': 1e-6,
-            'nm': 1e-9,
-            'A': 1e-10,
-            'Angstrom': 1e-10}
+            "km": 1000,
+            "m": 1,
+            "cm": 0.01,
+            "mm": 0.001,
+            "um": 1e-6,
+            "nm": 1e-9,
+            "A": 1e-10,
+            "Angstrom": 1e-10,
+        }
         self.convert_to_meters = metricsym_to_conversion[metric]
 
     def add_vertex(self, x, y, z, name):
@@ -390,7 +424,9 @@ class BlockMeshDict(object):
         """call reduce_vertex on all vertices with identical values."""
 
         # groupby expects sorted data
-        sorted_vertices = sorted(list(self.vertices.items()), key=lambda v: hash(v[1]))
+        sorted_vertices = sorted(
+            list(self.vertices.items()), key=lambda v: hash(v[1])
+        )
         groups = []
         for k, g in groupby(sorted_vertices, lambda v: hash(v[1])):
             groups.append(list(g))
@@ -448,11 +484,11 @@ class BlockMeshDict(object):
         should have valid index.
         """
         buf = io.StringIO()
-        buf.write('vertices\n')
-        buf.write('(\n')
+        buf.write("vertices\n")
+        buf.write("(\n")
         for v in self.valid_vertices:
-            buf.write('    ' + v.format() + '\n')
-        buf.write(');')
+            buf.write("    " + v.format() + "\n")
+        buf.write(");")
         return buf.getvalue()
 
     def format_blocks_section(self):
@@ -461,11 +497,11 @@ class BlockMeshDict(object):
         vertices reffered by blocks should have valid index.
         """
         buf = io.StringIO()
-        buf.write('blocks\n')
-        buf.write('(\n')
+        buf.write("blocks\n")
+        buf.write("(\n")
         for b in self.blocks.values():
-            buf.write('    ' + b.format(self.vertices) + '\n')
-        buf.write(');')
+            buf.write("    " + b.format(self.vertices) + "\n")
+        buf.write(");")
         return buf.getvalue()
 
     def format_edges_section(self):
@@ -474,11 +510,11 @@ class BlockMeshDict(object):
         vertices reffered by blocks should have valid index.
         """
         buf = io.StringIO()
-        buf.write('edges\n')
-        buf.write('(\n')
+        buf.write("edges\n")
+        buf.write("(\n")
         for e in self.edges.values():
-            buf.write('  ' + e.format(self.vertices) + '\n')
-        buf.write(');')
+            buf.write("  " + e.format(self.vertices) + "\n")
+        buf.write(");")
         return buf.getvalue()
 
     def format_boundary_section(self):
@@ -487,24 +523,25 @@ class BlockMeshDict(object):
         vertices reffered by faces should have valid index.
         """
         buf = io.StringIO()
-        buf.write('boundary\n')
-        buf.write('(\n')
+        buf.write("boundary\n")
+        buf.write("(\n")
         for b in self.boundaries.values():
             # format Boundary instance and add indent
-            indent = ' ' * 4
-            s = b.format(self.vertices).replace('\n', '\n'+indent)
-            buf.write(indent + s + '\n')
-        buf.write(');')
+            indent = " " * 4
+            s = b.format(self.vertices).replace("\n", "\n" + indent)
+            buf.write(indent + s + "\n")
+        buf.write(");")
         return buf.getvalue()
 
     def format_mergepatchpairs_section(self):
-        return '''\
+        return """\
 mergePatchPairs
 (
-);'''
+);"""
 
     def format(self):
-        template = Template(r'''/*--------------------------------*- C++ -*----------------------------------*\
+        template = Template(
+            r"""/*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
 |  \\    /   O peration     | Version:  2.3.0                                 |
@@ -533,7 +570,8 @@ $boundary
 $mergepatchpairs
 
 // ************************************************************************* //
-''')
+"""
+        )
 
         return template.substitute(
             metricconvert=str(self.convert_to_meters),
@@ -541,4 +579,5 @@ $mergepatchpairs
             edges=self.format_edges_section(),
             blocks=self.format_blocks_section(),
             boundary=self.format_boundary_section(),
-            mergepatchpairs=self.format_mergepatchpairs_section())
+            mergepatchpairs=self.format_mergepatchpairs_section(),
+        )
