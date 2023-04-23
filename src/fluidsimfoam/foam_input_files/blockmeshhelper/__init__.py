@@ -5,11 +5,20 @@ Taken from https://github.com/takaakiaoki/ofblockmeshdicthelper (Git commit
 
 - `pyupgrade __init__.py --py39-plus`
 
+TODO:
+
+- unittests most format functions
+- cleanup code (more f-strings, no StringIO, ...)
+- "sorted(set)"
+- split this file in different modules (for ex. grading.py)
+
 """
 
-import io
 from collections.abc import Iterable
-from itertools import groupby
+
+# TODO: remove usage of StringIO (replace with list + join)
+from io import StringIO
+from itertools import groupby, product
 from string import Template
 
 
@@ -21,15 +30,14 @@ class Vertex:
         self.name = name  # identical name
         self.alias = {name}  # aliasname, self.name should be included
 
-        # seqential index which is assigned at final output
+        # sequential index which is assigned at final output
         # for blocks, edges, boundaries
         self.index = None
 
     def format(self):
-        com = str(self.index) + " " + self.name
+        com = f"{self.index} {self.name}"
         if len(self.alias) > 1:
-            com += " : "
-            com += " ".join(sorted(self.alias))
+            com += " : " + " ".join(sorted(self.alias))
         return f"( {self.x:18.15g} {self.y:18.15g} {self.z:18.15g} )  // {com}"
 
     def __lt__(self, rhs):
@@ -65,8 +73,8 @@ class Face:
         vertices is dict of name to Vertex
         """
         index = " ".join(str(vertices[vn].index) for vn in self.vnames)
-        com = " ".join(self.vnames)  # for comment
-        return f"({index:s})  // {self.name:s} ({com:s})"
+        comment = " ".join(self.vnames)
+        return f"({index:s})  // {self.name:s} ({comment:s})"
 
 
 class Grading:
@@ -79,18 +87,17 @@ class SimpleGradingElement:
     def __init__(self, d):
         """initialization
         d is single number for expansion ratio
-          or iterative object consits (dirction ratio, cell ratio, expansion ratio)
+          or iterative object consits (direction ratio, cell ratio, expansion ratio)
         """
         self.d = d
 
     def format(self):
         if isinstance(self.d, Iterable):
-            s = io.StringIO()
-            s.write("( ")
-            for e in self.d:
-                s.write(f"( {e[0]:g} {e[1]:g} {e[2]:g} ) ")
-            s.write(")")
-            return s.getvalue()
+            return (
+                "( "
+                + " ".join(f"( {e[0]:g} {e[1]:g} {e[2]:g} )" for e in self.d)
+                + " )"
+            )
         else:
             return str(self.d)
 
@@ -113,7 +120,10 @@ class SimpleGrading(Grading):
             self.z = z
 
     def format(self):
-        return f"simpleGrading ({self.x.format():s} {self.y.format():s} {self.z.format():s})"
+        return (
+            f"simpleGrading "
+            f"({self.x.format():s} {self.y.format():s} {self.z.format():s})"
+        )
 
 
 class EdgeGrading(Grading):
@@ -170,25 +180,11 @@ class EdgeGrading(Grading):
             self.z4 = z4
 
     def format(self):
-        return (
-            "edgeGrading "
-            "({:s} {:s} {:s} {:s} "
-            "{:s} {:s} {:s} {:s} "
-            "{:s} {:s} {:s} {:s})".format(
-                self.x1.format(),
-                self.x2.format(),
-                self.x3.format(),
-                self.x4.format(),
-                self.y1.format(),
-                self.y2.format(),
-                self.y3.format(),
-                self.y4.format(),
-                self.z1.format(),
-                self.z2.format(),
-                self.z3.format(),
-                self.z4.format(),
-            )
-        )
+        tmp = []
+        for letter, index in product("xyz", "1234"):
+            var = getattr(self, letter + index)
+            tmp.append(var.format())
+        return "edgeGrading (" + " ".join(tmp) + ")"
 
 
 class HexBlock:
@@ -210,12 +206,11 @@ class HexBlock:
         vertices is dict of name to Vertex
         """
         index = " ".join(str(vertices[vn].index) for vn in self.vnames)
-        vcom = " ".join(self.vnames)  # for comment
+        comment = " ".join(self.vnames)
         return (
-            "hex ({0:s}) {2:s} ({1[0]:d} {1[1]:d} {1[2]:d}) "
-            "{4:s}  // {2:s} ({3:s})".format(
-                index, self.cells, self.name, vcom, self.grading.format()
-            )
+            f"hex ({index}) {self.name} "
+            f"({self.cells[0]:d} {self.cells[1]:d} {self.cells[2]:d}) "
+            f"{self.grading.format()}  // {self.name} ({comment})"
         )
 
     def face(self, index, name=None):
@@ -295,10 +290,10 @@ class ArcEdge:
         vertices is dict of name to Vertex
         """
         index = " ".join(str(vertices[vn].index) for vn in self.vnames)
-        vcom = " ".join(self.vnames)  # for comment
+        comment = " ".join(self.vnames)
         return (
             "arc {0:s} ({1.x:18.15g} {1.y:18.15g} {1.z:18.15g}) "
-            "// {2:s} ({3:s})".format(index, self.interVertex, self.name, vcom)
+            "// {2:s} ({3:s})".format(index, self.interVertex, self.name, comment)
         )
 
 
@@ -319,7 +314,7 @@ class SplineEdge:
         """
         index = " ".join(str(vertices[vn].index) for vn in self.vnames)
         vcom = " ".join(self.vnames)  # for comment
-        buf = io.StringIO()
+        buf = StringIO()
 
         buf.write(
             "spline {:s}                      "
@@ -354,7 +349,7 @@ class Boundary:
         """Format instance to dump
         vertices is dict of name to Vertex
         """
-        buf = io.StringIO()
+        buf = StringIO()
 
         buf.write(self.name + "\n")
         buf.write("{\n")
@@ -461,8 +456,9 @@ class BlockMeshDict:
         4. sorted list is saved as self.valid_vertices
         """
 
-        # gather 'uniq' names which are refferred by blocks
+        # gather 'uniq' names which are referred by blocks
         validvnames = set()
+        # TODO: change this variable name (valid_vertices)
         self.valid_vertices = []
         for b in self.blocks.values():
             for n in b.vnames:
@@ -470,7 +466,7 @@ class BlockMeshDict:
                 if v.name not in validvnames:
                     validvnames.update([v.name])
                     self.valid_vertices.append(v)
-
+        # TODO: it should be possible to skip this sort
         self.valid_vertices = sorted(self.valid_vertices)
         for i, v in enumerate(self.valid_vertices):
             v.index = i
@@ -481,7 +477,8 @@ class BlockMeshDict:
         self.valid_vetices should be available and member self.valid_vertices
         should have valid index.
         """
-        buf = io.StringIO()
+        # TODO: use list instead of StringIO
+        buf = StringIO()
         buf.write("vertices\n")
         buf.write("(\n")
         for v in self.valid_vertices:
@@ -492,22 +489,21 @@ class BlockMeshDict:
     def format_blocks_section(self):
         """format blocks section.
         assign_vertexid() should be called before this method, because
-        vertices reffered by blocks should have valid index.
+        vertices refered by blocks should have valid index.
         """
-        buf = io.StringIO()
-        buf.write("blocks\n")
-        buf.write("(\n")
+        tmp = ["blocks\n("]
         for b in self.blocks.values():
-            buf.write("    " + b.format(self.vertices) + "\n")
-        buf.write(");")
-        return buf.getvalue()
+            tmp.append("    " + b.format(self.vertices))
+        tmp.append(");")
+        return "\n".join(tmp)
 
     def format_edges_section(self):
         """format edges section.
         assign_vertexid() should be called before this method, because
-        vertices reffered by blocks should have valid index.
+        vertices refered by blocks should have valid index.
         """
-        buf = io.StringIO()
+        # TODO: use list instead of StringIO
+        buf = StringIO()
         buf.write("edges\n")
         buf.write("(\n")
         for e in self.edges.values():
@@ -518,9 +514,10 @@ class BlockMeshDict:
     def format_boundary_section(self):
         """format boundary section.
         assign_vertexid() should be called before this method, because
-        vertices reffered by faces should have valid index.
+        vertices refered by faces should have valid index.
         """
-        buf = io.StringIO()
+        # TODO: use list instead of StringIO
+        buf = StringIO()
         buf.write("boundary\n")
         buf.write("(\n")
         for b in self.boundaries.values():

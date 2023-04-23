@@ -5,8 +5,9 @@ import pytest
 
 from fluidsimfoam.foam_input_files.blockmeshhelper import (
     BlockMeshDict,
-    Vertex,
+    EdgeGrading,
     SimpleGrading,
+    Vertex,
 )
 
 
@@ -75,6 +76,7 @@ def create_code_example():
     bmd.add_boundary("patch", "outlet", [b0.face("t")])
     bmd.add_boundary("empty", "axis", [b0.face("w")])
 
+    # TODO: we need to improve the API by avoiding this call
     # prepare for output
     bmd.assign_vertexid()
 
@@ -100,3 +102,8 @@ def test_blockmesh(name):
     code_saved = path_saved_file.read_text()
 
     assert code_from_py == code_saved
+
+
+def test_edge_grading():
+    eg = EdgeGrading(*list(range(12)))
+    assert eg.format() == "edgeGrading (0 1 2 3 4 5 6 7 8 9 10 11)"
