@@ -7,7 +7,7 @@ Taken from https://github.com/takaakiaoki/ofblockmeshdicthelper (Git commit
 
 TODO:
 
-- unittests most format functions
+- unittests most format functions (especially those not already tested!)
 - cleanup code (more f-strings, no StringIO, ...)
 - "sorted(set)"
 - split this file in different modules (for ex. grading.py)

@@ -1,3 +1,12 @@
+"""
+To see the coverage, run as:
+
+```
+pytest tests/test_blockmeshhelper.py -vv --cov --cov-report term --cov-report html
+firefox htmlcov/index.html
+```
+"""
+
 import math
 from pathlib import Path
 
