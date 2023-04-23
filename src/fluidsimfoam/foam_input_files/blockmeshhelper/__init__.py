@@ -29,10 +29,8 @@ class Vertex:
         com = str(self.index) + " " + self.name
         if len(self.alias) > 1:
             com += " : "
-            com += " ".join(self.alias)
-        return "( {:18.15g} {:18.15g} {:18.15g} )  // {:s}".format(
-            self.x, self.y, self.z, com
-        )
+            com += " ".join(sorted(self.alias))
+        return f"( {self.x:18.15g} {self.y:18.15g} {self.z:18.15g} )  // {com}"
 
     def __lt__(self, rhs):
         return (self.z, self.y, self.x) < (rhs.z, rhs.y, rhs.x)
