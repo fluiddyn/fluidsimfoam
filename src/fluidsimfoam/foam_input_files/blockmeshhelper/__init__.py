@@ -14,8 +14,6 @@ TODO:
 """
 
 from collections.abc import Iterable
-
-
 from itertools import groupby, product
 from string import Template
 

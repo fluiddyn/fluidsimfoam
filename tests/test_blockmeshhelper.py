@@ -17,7 +17,9 @@ from fluidsimfoam.foam_input_files.blockmeshhelper import (
     ArcEdge,
     BlockMeshDict,
     EdgeGrading,
+    Point,
     SimpleGrading,
+    SplineEdge,
     Vertex,
 )
 
@@ -189,4 +191,25 @@ def test_arc_edge():
         for index, name in enumerate("abc")
     }
     edge = ArcEdge(list("abc"), "edgename", vertices["b"])
-    assert edge.format(vertices) == "arc 0 1 2 (               0.1                0.2                0.3) // edgename (a b c)"
+    assert (
+        edge.format(vertices)
+        == "arc 0 1 2 (               0.1                0.2                0.3) // edgename (a b c)"
+    )
+
+
+def test_spline_edge():
+    vertices = {
+        name: Vertex(index * 0.1, index * 0.2, index * 0.3, name, index=index)
+        for index, name in enumerate("abc")
+    }
+    edge = SplineEdge(
+        list("abc"), "edgename", [Point(0.1, 0.1, 0.1), Point(0.2, 0.2, 0.2)]
+    )
+    assert (
+        edge.format(vertices)
+        == """spline 0 1 2                      // edgename (a b c)
+    (
+         (                0.1                0.1                0.1 )
+         (                0.2                0.2                0.2 )
+)"""
+    )
