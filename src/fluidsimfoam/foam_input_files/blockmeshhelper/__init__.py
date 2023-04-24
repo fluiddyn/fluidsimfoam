@@ -8,7 +8,6 @@ Taken from https://github.com/takaakiaoki/ofblockmeshdicthelper (Git commit
 TODO:
 
 - unittests most format functions (especially those not already tested!)
-- cleanup code (more f-strings, no StringIO, ...)
 - "sorted(set)"
 - split this file in different modules (for ex. grading.py)
 
@@ -16,8 +15,7 @@ TODO:
 
 from collections.abc import Iterable
 
-# TODO: remove usage of StringIO (replace with list + join)
-from io import StringIO
+
 from itertools import groupby, product
 from string import Template
 
@@ -314,18 +312,18 @@ class SplineEdge:
         """
         index = " ".join(str(vertices[vn].index) for vn in self.vnames)
         vcom = " ".join(self.vnames)  # for comment
-        buf = StringIO()
 
-        buf.write(
+        tmp = []
+        tmp.append(
             "spline {:s}                      "
             "// {:s} ({:s})".format(index, self.name, vcom)
         )
-        buf.write("\n     (\n")
+        tmp.append("    (")
+
         for p in self.points:
-            buf.write("         " + p.format() + "\n")
-        buf.write("\n     )\n")
-        buf.write("")
-        return buf.getvalue()
+            tmp.append("         " + p.format())
+        tmp.append(")")
+        return "\n".join(tmp)
 
 
 class Boundary:
