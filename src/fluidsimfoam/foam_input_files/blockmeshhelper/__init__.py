@@ -349,19 +349,17 @@ class Boundary:
         """Format instance to dump
         vertices is dict of name to Vertex
         """
-        buf = StringIO()
-
-        buf.write(self.name + "\n")
-        buf.write("{\n")
-        buf.write(f"    type {self.type_};\n")
-        buf.write("    faces\n")
-        buf.write("    (\n")
+        tmp = [self.name]
+        tmp.append("{")
+        tmp.append(f"    type {self.type_};")
+        tmp.append("    faces")
+        tmp.append("    (")
         for f in self.faces:
             s = f.format(vertices)
-            buf.write(f"        {s}\n")
-        buf.write("    );\n")
-        buf.write("}")
-        return buf.getvalue()
+            tmp.append(f"        {s}")
+        tmp.append("    );")
+        tmp.append("}")
+        return "\n".join(tmp)
 
 
 class BlockMeshDict:
@@ -449,7 +447,7 @@ class BlockMeshDict:
         self.boundaries[name] = b
         return b
 
-    def assign_vertexid(self):
+    def assign_vertexid(self, sort=True):
         """1. create list of Vertex which are referred by blocks only.
         2. sort vertex according to (x, y, z)
         3. assign sequence number for each Vertex
@@ -467,7 +465,8 @@ class BlockMeshDict:
                     validvnames.update([v.name])
                     self.valid_vertices.append(v)
         # TODO: it should be possible to skip this sort
-        self.valid_vertices = sorted(self.valid_vertices)
+        if sort:
+            self.valid_vertices = sorted(self.valid_vertices)
         for i, v in enumerate(self.valid_vertices):
             v.index = i
 
@@ -477,14 +476,11 @@ class BlockMeshDict:
         self.valid_vetices should be available and member self.valid_vertices
         should have valid index.
         """
-        # TODO: use list instead of StringIO
-        buf = StringIO()
-        buf.write("vertices\n")
-        buf.write("(\n")
+        tmp = ["vertices\n("]
         for v in self.valid_vertices:
-            buf.write("    " + v.format() + "\n")
-        buf.write(");")
-        return buf.getvalue()
+            tmp.append("    " + v.format())
+        tmp.append(");")
+        return "\n".join(tmp)
 
     def format_blocks_section(self):
         """format blocks section.
@@ -502,31 +498,27 @@ class BlockMeshDict:
         assign_vertexid() should be called before this method, because
         vertices refered by blocks should have valid index.
         """
-        # TODO: use list instead of StringIO
-        buf = StringIO()
-        buf.write("edges\n")
-        buf.write("(\n")
+
+        tmp = ["edges\n("]
         for e in self.edges.values():
-            buf.write("  " + e.format(self.vertices) + "\n")
-        buf.write(");")
-        return buf.getvalue()
+            tmp.append("    " + e.format(self.vertices))
+        tmp.append(");")
+        return "\n".join(tmp)
 
     def format_boundary_section(self):
         """format boundary section.
         assign_vertexid() should be called before this method, because
         vertices refered by faces should have valid index.
         """
-        # TODO: use list instead of StringIO
-        buf = StringIO()
-        buf.write("boundary\n")
-        buf.write("(\n")
+
+        tmp = ["boundary\n("]
         for b in self.boundaries.values():
             # format Boundary instance and add indent
             indent = " " * 4
             s = b.format(self.vertices).replace("\n", "\n" + indent)
-            buf.write(indent + s + "\n")
-        buf.write(");")
-        return buf.getvalue()
+            tmp.append(indent + s)
+        tmp.append(");")
+        return "\n".join(tmp)
 
     def format_mergepatchpairs_section(self):
         return """\
@@ -539,8 +531,8 @@ mergePatchPairs
             r"""/*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.3.0                                 |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
@@ -552,7 +544,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-convertToMeters $metricconvert;
+scale   $metricconvert;
 
 $vertices
 
