@@ -14,6 +14,7 @@ import pytest
 
 from fluidsimfoam.foam_input_files import dump, parse
 from fluidsimfoam.foam_input_files.blockmeshhelper import (
+    ArcEdge,
     BlockMeshDict,
     EdgeGrading,
     SimpleGrading,
@@ -183,5 +184,9 @@ def test_edge_grading():
 
 
 def test_arc_edge():
-    pass
-    # assert eg.format() == "edgeGrading (0 1 2 3 4 5 6 7 8 9 10 11)"
+    vertices = {
+        name: Vertex(index * 0.1, index * 0.2, index * 0.3, name, index=index)
+        for index, name in enumerate("abc")
+    }
+    edge = ArcEdge(list("abc"), "edgename", vertices["b"])
+    assert edge.format(vertices) == "arc 0 1 2 (               0.1                0.2                0.3) // edgename (a b c)"

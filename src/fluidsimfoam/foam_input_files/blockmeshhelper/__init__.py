@@ -30,7 +30,7 @@ class Vertex:
 
         # sequential index which is assigned at final output
         # for blocks, edges, boundaries
-        self.index = None
+        self.index = index
 
     def format(self):
         com = f"{self.index} {self.name}"
@@ -289,6 +289,7 @@ class ArcEdge:
         """
         index = " ".join(str(vertices[vn].index) for vn in self.vnames)
         comment = " ".join(self.vnames)
+        # raise BaseException()
         return (
             "arc {0:s} ({1.x:18.15g} {1.y:18.15g} {1.z:18.15g}) "
             "// {2:s} ({3:s})".format(index, self.interVertex, self.name, comment)
