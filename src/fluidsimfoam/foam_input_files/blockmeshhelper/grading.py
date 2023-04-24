@@ -47,7 +47,7 @@ class SimpleGrading(Grading):
     def format(self):
         return (
             f"simpleGrading "
-            f"({self.x.format():s} {self.y.format():s} {self.z.format():s})"
+            f"({self.x.format()} {self.y.format()} {self.z.format()})"
         )
 
 

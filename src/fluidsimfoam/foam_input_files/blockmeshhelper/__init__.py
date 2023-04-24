@@ -190,8 +190,7 @@ class Boundary:
         tmp = [self.name]
         tmp.append("{\n" + f"    type {self.type_};\n    faces\n    (")
         for f in self.faces:
-            s = f.format(vertices)
-            tmp.append(f"        {s}")
+            tmp.append(f"        {f.format(vertices)}")
         tmp.append("    );\n}")
         return "\n".join(tmp)
 
@@ -228,7 +227,8 @@ class BlockMeshDict:
         if isinstance(x, Vertex):
             if any(arg is not None for arg in (y, z, name)):
                 raise ValueError(
-                    "x is a Vertex and `any(arg is not None for arg in (y, z, name))`"
+                    "x is a Vertex and "
+                    "`any(arg is not None for arg in (y, z, name))`"
                 )
             vertex = x
             name = vertex.name
@@ -276,8 +276,8 @@ class BlockMeshDict:
         self.blocks[name] = b
         return b
 
-    def add_arcedge(self, vnames, name, interVertex):
-        e = ArcEdge(vnames, name, interVertex)
+    def add_arcedge(self, vnames, name, inter_vertex):
+        e = ArcEdge(vnames, name, inter_vertex)
         self.edges[name] = e
         return e
 
