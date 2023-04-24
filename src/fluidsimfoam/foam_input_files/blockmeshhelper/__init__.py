@@ -13,6 +13,7 @@ Taken from https://github.com/takaakiaoki/ofblockmeshdicthelper (Git commit
 from itertools import groupby
 from string import Template
 
+from .. import DEFAULT_HEADER
 from .edges import ArcEdge, SplineEdge
 from .grading import EdgeGrading, Grading, SimpleGrading, SimpleGradingElement
 
@@ -369,15 +370,9 @@ mergePatchPairs
 (
 );"""
 
-    def format(self):
+    def format(self, header=DEFAULT_HEADER):
         template = Template(
-            r"""/*--------------------------------*- C++ -*----------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  v2206                                 |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
-|    \\/     M anipulation  |                                                 |
-\*---------------------------------------------------------------------------*/
+            r"""$header
 FoamFile
 {
     version     2.0;
@@ -404,6 +399,7 @@ $mergepatchpairs
         )
 
         return template.substitute(
+            header=header,
             metricconvert=str(self.convert_to_meters),
             vertices=self.format_vertices_section(),
             edges=self.format_edges_section(),
