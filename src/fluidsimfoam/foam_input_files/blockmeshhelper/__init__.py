@@ -548,9 +548,9 @@ scale   $metricconvert;
 
 $vertices
 
-$edges
-
 $blocks
+
+$edges
 
 $boundary
 
