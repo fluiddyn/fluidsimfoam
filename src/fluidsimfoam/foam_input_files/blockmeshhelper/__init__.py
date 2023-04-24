@@ -4,11 +4,11 @@ Taken from https://github.com/takaakiaoki/ofblockmeshdicthelper (Git commit
 58589f1) and modified as follow:
 
 - `pyupgrade __init__.py --py39-plus`
+- tested (100% coverage)
+- sets sorted
 
 TODO:
 
-- unittests most format functions (especially those not already tested!)
-- "sorted(set)"
 - split this file in different modules (for ex. grading.py)
 
 """
@@ -457,33 +457,30 @@ class BlockMeshDict:
         """1. create list of Vertex which are referred by blocks only.
         2. sort vertex according to (x, y, z)
         3. assign sequence number for each Vertex
-        4. sorted list is saved as self.valid_vertices
+        4. sorted list is saved as self._vertices_in_blockmesh
         """
-
         # gather 'uniq' names which are referred by blocks
         validvnames = set()
-        # TODO: change this variable name (valid_vertices)
-        self.valid_vertices = []
+        self._vertices_in_blockmesh = []
         for b in self.blocks.values():
             for n in b.vnames:
                 v = self.vertices[n]
                 if v.name not in validvnames:
                     validvnames.update([v.name])
-                    self.valid_vertices.append(v)
-        # TODO: it should be possible to skip this sort
+                    self._vertices_in_blockmesh.append(v)
         if sort:
-            self.valid_vertices = sorted(self.valid_vertices)
-        for i, v in enumerate(self.valid_vertices):
+            self._vertices_in_blockmesh = sorted(self._vertices_in_blockmesh)
+        for i, v in enumerate(self._vertices_in_blockmesh):
             v.index = i
 
     def format_vertices_section(self):
         """format vertices section.
         assign_vertexid() should be called before this method, because
-        self.valid_vetices should be available and member self.valid_vertices
-        should have valid index.
+        self._vertices_in_blockmesh should be available and
+        members of self._vertices_in_blockmesh should have valid index.
         """
         tmp = ["vertices\n("]
-        for v in self.valid_vertices:
+        for v in self._vertices_in_blockmesh:
             tmp.append("    " + v.format())
         tmp.append(");")
         return "\n".join(tmp)
