@@ -188,15 +188,11 @@ class Boundary:
         vertices is dict of name to Vertex
         """
         tmp = [self.name]
-        tmp.append("{")
-        tmp.append(f"    type {self.type_};")
-        tmp.append("    faces")
-        tmp.append("    (")
+        tmp.append("{\n" + f"    type {self.type_};\n    faces\n    (")
         for f in self.faces:
             s = f.format(vertices)
             tmp.append(f"        {s}")
-        tmp.append("    );")
-        tmp.append("}")
+        tmp.append("    );\n}")
         return "\n".join(tmp)
 
 
@@ -207,6 +203,7 @@ class BlockMeshDict:
         self.blocks = {}
         self.edges = {}
         self.boundaries = {}
+        self._vertices_in_blockmesh = None
 
     def set_metric(self, metric):
         """set self.comvert_to_meters by word"""
@@ -301,13 +298,13 @@ class BlockMeshDict:
         4. sorted list is saved as self._vertices_in_blockmesh
         """
         # gather 'uniq' names which are referred by blocks
-        validvnames = set()
+        vnames_kept = set()
         self._vertices_in_blockmesh = []
         for b in self.blocks.values():
             for n in b.vnames:
                 v = self.vertices[n]
-                if v.name not in validvnames:
-                    validvnames.update([v.name])
+                if v.name not in vnames_kept:
+                    vnames_kept.add(v.name)
                     self._vertices_in_blockmesh.append(v)
         if sort:
             self._vertices_in_blockmesh = sorted(self._vertices_in_blockmesh)
@@ -370,7 +367,8 @@ mergePatchPairs
 (
 );"""
 
-    def format(self, header=DEFAULT_HEADER):
+    def format(self, header=DEFAULT_HEADER, sort_vortices=True):
+        self.assign_vertexid(sort=sort_vortices)
         template = Template(
             r"""$header
 FoamFile

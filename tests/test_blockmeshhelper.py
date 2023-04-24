@@ -92,10 +92,6 @@ def create_code_example():
     bmd.add_boundary("patch", "outlet", [b0.face("t")])
     bmd.add_boundary("empty", "axis", [b0.face("w")])
 
-    # TODO: we need to improve the API by avoiding this call
-    # prepare for output
-    bmd.assign_vertexid()
-
     return bmd.format()
 
 
@@ -148,10 +144,7 @@ def create_code_cbox():
     bmd.add_boundary("wall", "hot", [b0.face("e")])
     bmd.add_boundary("wall", "cold", [b0.face("w")])
 
-    # prepare for output
-    bmd.assign_vertexid(sort=False)
-
-    return bmd.format()
+    return bmd.format(sort_vortices=False)
 
 
 path_data = Path(__file__).absolute().parent / "data_blockmeshhelper"
