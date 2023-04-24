@@ -381,13 +381,22 @@ class BlockMeshDict:
         }
         self.convert_to_meters = metricsym_to_conversion[metric]
 
-    def add_vertex(self, x, y, z, name):
+    def add_vertex(self, x, y=None, z=None, name=None):
         """add vertex by coordinate and uniq name
         x y z is coordinates of vertex
         name is uniq name to refer the vertex
         returns Vertex object whici is added.
         """
-        self.vertices[name] = Vertex(x, y, z, name)
+        if isinstance(x, Vertex):
+            if any(arg is not None for arg in (y, z, name)):
+                raise ValueError(
+                    "x is a Vertex and `any(arg is not None for arg in (y, z, name))`"
+                )
+            vertex = x
+            name = vertex.name
+        else:
+            vertex = Vertex(x, y, z, name)
+        self.vertices[name] = vertex
         return self.vertices[name]
 
     def del_vertex(self, name):

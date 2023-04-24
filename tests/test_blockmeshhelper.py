@@ -19,6 +19,7 @@ from fluidsimfoam.foam_input_files.blockmeshhelper import (
     EdgeGrading,
     Point,
     SimpleGrading,
+    SimpleGradingElement,
     SplineEdge,
     Vertex,
 )
@@ -46,6 +47,9 @@ def create_code_example():
         Vertex(0, 0, length_z, "v3"),
     ]
 
+    # for coverage
+    assert basevs[0] != basevs[1]
+
     # rotate wedgedegree/2 around z axis
     # rotated vertices are named with '-y' or '+y' suffix.
     # these verteces are added to BlockMeshDict instence to be referred
@@ -57,8 +61,7 @@ def create_code_example():
         bmd.add_vertex(v.x * cosd, v.x * sind, v.z, v.name + "+y")
 
     # v0+y and v3+y have same coordinate as v0-y and v3-y, respectively.
-    bmd.reduce_vertex("v0-y", "v0+y")
-    bmd.reduce_vertex("v3-y", "v3+y")
+    bmd.merge_vertices()
 
     def vnamegen(x0z0, x1z0, x1z1, x0z1):
         return (
@@ -185,16 +188,31 @@ def test_edge_grading():
     assert eg.format() == "edgeGrading (0 1 2 3 4 5 6 7 8 9 10 11)"
 
 
+def test_grading():
+    SimpleGrading(*[SimpleGradingElement(i) for i in range(3)])
+    EdgeGrading(*[SimpleGradingElement(i) for i in range(12)])
+
+
 def test_arc_edge():
     vertices = {
         name: Vertex(index * 0.1, index * 0.2, index * 0.3, name, index=index)
         for index, name in enumerate("abc")
     }
-    edge = ArcEdge(list("abc"), "edgename", vertices["b"])
+
+    bmd = BlockMeshDict()
+
+    for v in vertices.values():
+        bmd.add_vertex(v)
+
+    edge = bmd.add_arcedge(list("abc"), "edgename", vertices["b"])
+
     assert (
         edge.format(vertices)
         == "arc 0 1 2 (               0.1                0.2                0.3) // edgename (a b c)"
     )
+
+    bmd.assign_vertexid()
+    bmd.format_edges_section()
 
 
 def test_spline_edge():
@@ -202,7 +220,8 @@ def test_spline_edge():
         name: Vertex(index * 0.1, index * 0.2, index * 0.3, name, index=index)
         for index, name in enumerate("abc")
     }
-    edge = SplineEdge(
+    bmd = BlockMeshDict()
+    edge = bmd.add_splineedge(
         list("abc"), "edgename", [Point(0.1, 0.1, 0.1), Point(0.2, 0.2, 0.2)]
     )
     assert (
@@ -213,3 +232,24 @@ def test_spline_edge():
          (                0.2                0.2                0.2 )
 )"""
     )
+
+
+def test_other():
+    bmd = BlockMeshDict()
+
+    for iz in [0, 1]:
+        for iy in [0, 1]:
+            for ix in [0, 1]:
+                bmd.add_vertex(ix, iy, iz, f"v{ix}{iy}{iz}")
+
+    b0 = bmd.add_hexblock(list(bmd.vertices.keys()), (10, 10, 10), "b0")
+
+    bound0 = bmd.add_boundary("wall", "hot", [b0.face("e")])
+
+    bound0.add_face(b0.face("n"))
+
+    bmd.add_vertex(1, 2, 4, "foo")
+    bmd.del_vertex("foo")
+
+    with pytest.raises(ValueError):
+        bmd.add_vertex(bmd.vertices["v000"], 2)
