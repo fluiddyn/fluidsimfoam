@@ -303,14 +303,14 @@ class Output(OutputCore):
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
         default = {
-            "num_mesh_x": 40,
-            "num_mesh_y": 40,
-            "num_mesh_z": 40,
-            "length_x": 1.0,
-            "length_y": 1.0,
-            "length_z": 1.0,
+            "nx": 40,
+            "ny": 40,
+            "nz": 40,
+            "lx": 1.0,
+            "ly": 1.0,
+            "lz": 1.0,
             "metric": "m",
-            "scale": 6.28318530718,
+            "scale": None,
         }
 
         params._set_child(

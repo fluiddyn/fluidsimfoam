@@ -169,7 +169,7 @@ class HexBlock:
 
 
 class Boundary:
-    def __init__(self, type_, name, faces=None, neighbour_patch=None):
+    def __init__(self, type_, name, faces=None, neighbour=None):
         """initialize boundary
         type_ is type keyword (wall, patch, empty, ..)
         name is nave of boundary emelment
@@ -179,8 +179,10 @@ class Boundary:
         self.name = name
         if faces is None:
             faces = []
+        elif isinstance(faces, Face):
+            faces = [faces]
         self.faces = faces
-        self.neighbour_patch = neighbour_patch
+        self.neighbour = neighbour
 
     def add_face(self, face):
         """add face instance
@@ -193,12 +195,12 @@ class Boundary:
         vertices is dict of name to Vertex
         """
         tmp = [self.name]
-        if self.neighbour_patch is None:
+        if self.neighbour is None:
             tmp.append("{\n" + f"    type {self.type_};\n    faces\n    (")
         else:
             tmp.append(
                 "{\n"
-                + f"    type {self.type_};\n    neighbourPatch  {self.neighbour_patch};\n    faces\n    ("
+                + f"    type {self.type_};\n    neighbourPatch  {self.neighbour};\n    faces\n    ("
             )
         for f in self.faces:
             tmp.append(f"        {f.format(vertices)}")
@@ -215,7 +217,7 @@ class BlockMeshDict:
         self.boundaries = {}
         self._vertices_in_blockmesh = None
 
-    def set_metric(self, metric, scale=1):
+    def set_metric(self, metric):
         """set self.comvert_to_meters by word"""
         metricsym_to_conversion = {
             "km": 1000,
@@ -227,7 +229,10 @@ class BlockMeshDict:
             "A": 1e-10,
             "Angstrom": 1e-10,
         }
-        self.convert_to_meters = metricsym_to_conversion[metric] * scale
+        self.convert_to_meters = metricsym_to_conversion[metric]
+
+    def set_scale(self, scale):
+        self.convert_to_meters = scale
 
     def add_vertex(self, x, y=None, z=None, name=None):
         """add vertex by coordinate and uniq name
@@ -297,14 +302,14 @@ class BlockMeshDict:
         self.edges[name] = e
         return e
 
-    def add_boundary(self, type_, name, faces=None, neighbour_patch=None):
-        b = Boundary(type_, name, faces, neighbour_patch)
+    def add_boundary(self, type_, name, faces=None, neighbour=None):
+        b = Boundary(type_, name, faces, neighbour)
         self.boundaries[name] = b
         return b
 
     def add_cyclic_boundaries(self, name0, name1, faces0, faces1):
-        b0 = self.add_boundary("cyclic", name0, faces0, neighbour_patch=name1)
-        b1 = self.add_boundary("cyclic", name1, faces1, neighbour_patch=name0)
+        b0 = self.add_boundary("cyclic", name0, faces0, neighbour=name1)
+        b1 = self.add_boundary("cyclic", name1, faces1, neighbour=name0)
         return b0, b1
 
     def assign_vertexid(self, sort=True):
