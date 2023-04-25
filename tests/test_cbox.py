@@ -4,6 +4,8 @@ from pathlib import Path
 import pytest
 from fluidsimfoam_cbox import Simul
 
+from fluidsimfoam.foam_input_files import dump, parse
+
 here = Path(__file__).absolute().parent
 
 
@@ -33,7 +35,13 @@ def test_init_simul_sim0(index_sim):
         path_produced = sim.path_run / name
         assert path_produced.exists(), name
         text_produced = path_produced.read_text()
-        assert text_produced == text_manual, name
+        if str(name) != "system/blockMeshDict":
+            assert text_produced == text_manual, name
+        else:
+            tree_saved_file = parse(text_manual)
+            tree_from_py = parse(text_produced)
+
+            assert dump(tree_saved_file).strip() == dump(tree_from_py).strip()
 
 
 path_foam_executable = shutil.which("buoyantBoussinesqPimpleFoam")

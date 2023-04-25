@@ -1,0 +1,102 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   6.28318530718;
+
+vertices
+(
+    (                  0                  0                  0 )  // 0 v0-z
+    (                  1                  0                  0 )  // 1 v1-z
+    (                  1                  1                  0 )  // 2 v2-z
+    (                  0                  1                  0 )  // 3 v3-z
+    (                  0                  0                  1 )  // 4 v0+z
+    (                  1                  0                  1 )  // 5 v1+z
+    (                  1                  1                  1 )  // 6 v2+z
+    (                  0                  1                  1 )  // 7 v3+z
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7)  (40 40 40) simpleGrading (1 1 1)  //  (v0-z v1-z v2-z v3-z v0+z v1+z v2+z v3+z)
+);
+
+edges
+(
+);
+
+boundary
+(
+    upperBoundary
+    {
+        type cyclic;
+        neighbourPatch  lowerBoundary;
+        faces
+        (
+            (2 3 7 6)  // f--n (v2-z v3-z v3+z v2+z)
+        );
+    }
+    lowerBoundary
+    {
+        type cyclic;
+        neighbourPatch  upperBoundary;
+        faces
+        (
+            (0 1 5 4)  // f--s (v0-z v1-z v1+z v0+z)
+        );
+    }
+    leftBoundary
+    {
+        type cyclic;
+        neighbourPatch  rightBoundary;
+        faces
+        (
+            (0 4 7 3)  // f--w (v0-z v0+z v3+z v3-z)
+        );
+    }
+    rightBoundary
+    {
+        type cyclic;
+        neighbourPatch  leftBoundary;
+        faces
+        (
+            (1 2 6 5)  // f--n (v1-z v2-z v2+z v1+z)
+        );
+    }
+    frontBoundary
+    {
+        type cyclic;
+        neighbourPatch  backBoundary;
+        faces
+        (
+            (4 5 6 7)  // f--t (v0+z v1+z v2+z v3+z)
+        );
+    }
+    backBoundary
+    {
+        type cyclic;
+        neighbourPatch  frontBoundary;
+        faces
+        (
+            (0 3 2 1)  // f--b (v0-z v3-z v2-z v1-z)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //
