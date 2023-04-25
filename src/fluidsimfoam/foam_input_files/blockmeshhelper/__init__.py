@@ -169,7 +169,7 @@ class HexBlock:
 
 
 class Boundary:
-    def __init__(self, type_, name, faces=[], neighbour_patch=None):
+    def __init__(self, type_, name, faces=None, neighbour_patch=None):
         """initialize boundary
         type_ is type keyword (wall, patch, empty, ..)
         name is nave of boundary emelment
@@ -177,6 +177,8 @@ class Boundary:
         """
         self.type_ = type_
         self.name = name
+        if faces is None:
+            faces = []
         self.faces = faces
         self.neighbour_patch = neighbour_patch
 
@@ -295,10 +297,15 @@ class BlockMeshDict:
         self.edges[name] = e
         return e
 
-    def add_boundary(self, type_, name, faces=[], neighbour_patch=None):
+    def add_boundary(self, type_, name, faces=None, neighbour_patch=None):
         b = Boundary(type_, name, faces, neighbour_patch)
         self.boundaries[name] = b
         return b
+
+    def add_cyclic_boundaries(self, name0, name1, faces0, faces1):
+        b0 = self.add_boundary("cyclic", name0, faces0, neighbour_patch=name1)
+        b1 = self.add_boundary("cyclic", name1, faces1, neighbour_patch=name0)
+        return b0, b1
 
     def assign_vertexid(self, sort=True):
         """1. create list of Vertex which are referred by blocks only.
