@@ -299,3 +299,22 @@ class Output(OutputCore):
             "interpolationSchemes", attribs={"default": "linear"}
         )
         fv_schemes._set_child("snGradSchemes", attribs={"default": "corrected"})
+
+    @classmethod
+    def _complete_params_block_mesh_dict(cls, params):
+        default = {
+            "nx": 40,
+            "ny": 40,
+            "nz": 40,
+            "lx": 1.0,
+            "ly": 1.0,
+            "lz": 1.0,
+            "metric": "m",
+            "scale": None,
+        }
+
+        params._set_child(
+            "block_mesh_dict",
+            attribs=default,
+            doc="""TODO""",
+        )

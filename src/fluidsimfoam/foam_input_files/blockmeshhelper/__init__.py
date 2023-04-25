@@ -40,10 +40,12 @@ class Vertex:
         self.index = index
 
     def format(self):
-        com = f"{self.index} {self.name}"
+        comment = f"{self.index} {self.name}"
         if len(self.alias) > 1:
-            com += " : " + " ".join(sorted(self.alias))
-        return f"( {self.x:18.15g} {self.y:18.15g} {self.z:18.15g} )  // {com}"
+            comment += " : " + " ".join(sorted(self.alias))
+        return (
+            f"( {self.x:18.15g} {self.y:18.15g} {self.z:18.15g} )  // {comment}"
+        )
 
     def __lt__(self, rhs):
         return (self.z, self.y, self.x) < (rhs.z, rhs.y, rhs.x)
@@ -167,7 +169,7 @@ class HexBlock:
 
 
 class Boundary:
-    def __init__(self, type_, name, faces=[]):
+    def __init__(self, type_, name, faces=None, neighbour=None):
         """initialize boundary
         type_ is type keyword (wall, patch, empty, ..)
         name is nave of boundary emelment
@@ -175,7 +177,12 @@ class Boundary:
         """
         self.type_ = type_
         self.name = name
+        if faces is None:
+            faces = []
+        elif isinstance(faces, Face):
+            faces = [faces]
         self.faces = faces
+        self.neighbour = neighbour
 
     def add_face(self, face):
         """add face instance
@@ -188,7 +195,13 @@ class Boundary:
         vertices is dict of name to Vertex
         """
         tmp = [self.name]
-        tmp.append("{\n" + f"    type {self.type_};\n    faces\n    (")
+        if self.neighbour is None:
+            tmp.append("{\n" + f"    type {self.type_};\n    faces\n    (")
+        else:
+            tmp.append(
+                "{\n"
+                + f"    type {self.type_};\n    neighbourPatch  {self.neighbour};\n    faces\n    ("
+            )
         for f in self.faces:
             tmp.append(f"        {f.format(vertices)}")
         tmp.append("    );\n}")
@@ -217,6 +230,9 @@ class BlockMeshDict:
             "Angstrom": 1e-10,
         }
         self.convert_to_meters = metricsym_to_conversion[metric]
+
+    def set_scale(self, scale):
+        self.convert_to_meters = scale
 
     def add_vertex(self, x, y=None, z=None, name=None):
         """add vertex by coordinate and uniq name
@@ -286,10 +302,15 @@ class BlockMeshDict:
         self.edges[name] = e
         return e
 
-    def add_boundary(self, type_, name, faces=[]):
-        b = Boundary(type_, name, faces)
+    def add_boundary(self, type_, name, faces=None, neighbour=None):
+        b = Boundary(type_, name, faces, neighbour)
         self.boundaries[name] = b
         return b
+
+    def add_cyclic_boundaries(self, name0, name1, faces0, faces1):
+        b0 = self.add_boundary("cyclic", name0, faces0, neighbour=name1)
+        b1 = self.add_boundary("cyclic", name1, faces1, neighbour=name0)
+        return b0, b1
 
     def assign_vertexid(self, sort=True):
         """1. create list of Vertex which are referred by blocks only.
