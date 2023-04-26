@@ -1,4 +1,4 @@
 # Authors
 
-- [Pierre Augier](mailto:pierre.augier@univ-grenoble-alpes.fr)
-- [Pooria Danaeifar](mailto:pouryadanaeifar@gmail.com)
+- [Pierre Augier](http://www.legi.grenoble-inp.fr/people/Pierre.Augier/)
+- [Pooria Danaeifar](https://foss.heptapod.net/Pooriadf)

@@ -6,6 +6,8 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import runpy
+
 import fluidsimfoam
 
 project = "Fluidsimfoam"
@@ -39,6 +41,8 @@ exclude_patterns = [
     "Thumbs.db",
     ".DS_Store",
     "examples/fluidsimfoam-tgv/README.md",
+    "examples/fluidsimfoam-cbox/README.md",
+    "examples/.pytest_cache/*",
 ]
 
 
@@ -55,3 +59,38 @@ source_suffix = {
 
 html_theme = "pydata_sphinx_theme"
 # html_static_path = ["_static"]
+
+# -- Options for Intersphinx -------------------------------------------------
+intersphinx_mapping = runpy.run_path("ls_intersphinx_targets.py")[
+    "intersphinx_mapping"
+]
+
+# -- Other options ------------------------------------------------------------
+autosummary_generate = True
+
+autodoc_default_options = {
+    "members": True,
+    "member-order": "bysource",
+    #  'special-members': '__init__',
+    "undoc-members": True,
+    "exclude-members": "__weakref__",
+    "inherited-members": True,
+}
+autodoc_mock_imports = ["IPython"]
+
+todo_include_todos = True
+
+napoleon_numpy_docstring = True
+
+# -- Custom functions --------------------------------------------------------
+
+
+# def autodoc_skip_member(app, what, name, obj, skip, options):
+#     # return True if (skip or exclude) else None
+#     # Can interfere with subsequent skip functions.
+#     if what == "function" and name == "load" and obj is fluidsimfoam.load:
+#         return True
+
+
+# def setup(app):
+#     app.connect("autodoc-skip-member", autodoc_skip_member)

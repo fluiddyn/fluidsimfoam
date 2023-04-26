@@ -1,3 +1,15 @@
+"""OpenFOAM input files
+
+.. autosummary::
+   :toctree:
+
+    blockmeshhelper
+    ast
+    generators
+    parser
+
+"""
+
 from .ast import Dict, FoamInputFile, List, Value
 from .parser import dump, parse
 
