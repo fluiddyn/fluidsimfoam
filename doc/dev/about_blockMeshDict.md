@@ -1,7 +1,7 @@
 # blockMeshDict
 
-We study blockMeshDict files in OpenFOAM tutorials. The results can be obtained
-by running
+We study blockMeshDict files in OpenFOAM tutorials. The results can be obtained by
+running
 
 ```sh
 cd dev/study_OF_examples

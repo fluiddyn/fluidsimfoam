@@ -1,4 +1,3 @@
-
 # Fluidsimfoam documentation
 
 Fluidsimfoam is a Python package and a thin interface over OpenFoam. It provides a
@@ -14,21 +13,33 @@ load simulations to read the associated parameters/data and produce nice figures
 ```
 
 ```{toctree}
-:caption: 'User guide:'
-:maxdepth: 1
-
+---
+caption: User guide
+maxdepth: 1
+---
 intro
 tutorials
 ```
 
 ```{toctree}
-:caption: Help & Reference
-:maxdepth: 1
-
-AUTHORS
+---
+caption: Python API
+maxdepth: 1
+---
+autosum.rst
 ```
 
-# Indices and tables
+```{toctree}
+---
+caption: Help & Reference
+maxdepth: 1
+---
+CHANGELOG
+AUTHORS
+dev/index.md
+```
+
+## Indices and tables
 
 - {ref}`genindex`
 - {ref}`modindex`

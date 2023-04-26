@@ -1,7 +1,6 @@
 # fvSchemes
 
-We study fvSchemes files in OpenFOAM tutorials. The results can be obtained
-by running
+We study fvSchemes files in OpenFOAM tutorials. The results can be obtained by running
 
 ```sh
 cd dev/study_OF_examples

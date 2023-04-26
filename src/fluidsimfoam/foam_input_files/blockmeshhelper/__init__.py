@@ -1,12 +1,12 @@
-"""blockmeshhelper
+"""Utility to create blockMeshDict files
 
 Taken from https://github.com/takaakiaoki/ofblockmeshdicthelper (Git commit
 58589f1) and modified as follow:
 
-- `pyupgrade __init__.py --py39-plus`
-- tested (100% coverage)
-- sets sorted
+- ``pyupgrade __init__.py --py39-plus``
+- tested (100% coverage) and reproducible (sets sorted)
 - refactor
+- support for cyclic boundaries
 
 """
 

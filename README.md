@@ -1,8 +1,15 @@
+<div align="center">
+
 # Fluidsimfoam
+
+[![PyPI](https://img.shields.io/pypi/v/fluidsimfoam)](https://pypi.org/project/fluidsimfoam/)
+[![Documentation Status](https://readthedocs.org/projects/fluidsimfoam/badge/?version=latest)](https://fluidsimfoam.readthedocs.io/en/latest/?badge=latest)
 
 <!-- badges -->
 
 Python framework for [OpenFOAM]
+
+</div>
 
 Fluidsimfoam is a Python package which **will** allow one to write [Fluidsim]
 solvers based for the simulations on the C++ CFD code [OpenFOAM]. There
@@ -19,21 +26,20 @@ Fluidsimfoam can be seen as a workflow manager for [OpenFOAM] or a Python
 wrapper around [OpenFOAM]. It uses [OpenFOAM] on the background and is thus NOT
 a rewrite of [OpenFOAM]!
 
-Fluidsimfoam is now in very early development. The goal is to get the
+Fluidsimfoam is now in early development. The goal is to get the
 equivalent of [Snek5000], our Fluidsim framework for [Nek5000].
 
-## Documentation and Examples
-
-[Fluidsimfoam](https://fluidsimfoam.readthedocs.org)
+We currently target OpenFOAM v2206. See more in [Fluidsimfoam
+documentation](https://fluidsimfoam.readthedocs.org).
 
 ## Related projects
 
-- [PyFoam] ([PyPI package](https://pypi.org/project/PyFoam/),
-  [hg repo](http://hg.code.sf.net/p/openfoam-extend/PyFoam)) Python utilities for
-  OpenFOAM. GNU GPL. Still maintained. Should be used by Fluidsimfoam.
-
 - [Fluidfoam] Another Fluiddyn package (like Fluidsimfoam) to use/plot OpenFOAM
   data. Will be used by Fluidsimfoam.
+
+- [PyFoam] ([PyPI package](https://pypi.org/project/PyFoam/),
+  [hg repo](http://hg.code.sf.net/p/openfoam-extend/PyFoam)) Python utilities for
+  OpenFOAM. GNU GPL. Still maintained.
 
 - [PythonFlu] ([wiki](https://openfoamwiki.net/index.php/Contrib_pythonFlu))
 

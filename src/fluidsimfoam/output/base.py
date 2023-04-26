@@ -118,7 +118,7 @@ class Output(OutputCore):
         # initialize objects
         dict_classes = sim.info.solver.classes.Output.import_classes()
 
-        if not self._file_generators_classes:
+        if not hasattr(self, "_file_generators_classes"):
             self._setup_file_generators_classes()
         dict_classes.update(self._file_generators_classes)
 

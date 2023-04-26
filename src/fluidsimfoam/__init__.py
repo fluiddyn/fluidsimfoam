@@ -1,3 +1,31 @@
+"""
+Fluidsimfoam API reference
+
+.. rubric:: Sub-packages
+
+.. autosummary::
+   :toctree:
+
+   foam_input_files
+   output
+   resources
+   solvers
+   util
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+
+   info
+   init_fields
+   log
+   make
+   next_fluidsim_core
+   operators
+   tasks
+
+"""
 import importlib.metadata
 
 from fluidsim_core.params import Parameters

@@ -1,7 +1,7 @@
 # transportProperties
 
-We study transportProperties files in OpenFOAM tutorials. The results can be obtained
-by running
+We study transportProperties files in OpenFOAM tutorials. The results can be obtained by
+running
 
 ```sh
 cd dev/study_OF_examples
