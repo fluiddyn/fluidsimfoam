@@ -41,7 +41,7 @@ class FileGeneratorABC(ABC):
 
     def generate_file(self):
         """Generate the file"""
-        with open(self.output.sim.path_run / self.rel_path, "w") as file:
+        with open(self.output.path_run / self.rel_path, "w") as file:
             file.write(self.generate_code())
 
     @abstractmethod
