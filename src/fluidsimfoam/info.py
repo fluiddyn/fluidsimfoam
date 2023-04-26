@@ -5,16 +5,25 @@ class InfoSolver(InfoSolverCore):
     def _init_root(self):
         super()._init_root()
 
-        # self._set_child("classes")
-        # self.classes._set_child(
-        #     "Oper",
-        #     attribs={"module_name": "snek5000.operators", "class_name": "Operators"},
-        # )
         self.classes._set_child(
             "Output",
             attribs={
                 "module_name": "fluidsimfoam.output",
                 "class_name": "Output",
+            },
+        )
+        self.classes._set_child(
+            "Oper",
+            attribs={
+                "module_name": "fluidsimfoam.operators",
+                "class_name": "Operators",
+            },
+        )
+        self.classes._set_child(
+            "InitFields",
+            attribs={
+                "module_name": "fluidsimfoam.init_fields",
+                "class_name": "InitFields",
             },
         )
         self.classes._set_child(

@@ -112,6 +112,8 @@ class Output(OutputCore):
         if not sim:
             return
 
+        self.path_run = Path(self.path_run)
+
         self.input_files = InputFiles(self)
         # initialize objects
         dict_classes = sim.info.solver.classes.Output.import_classes()
@@ -141,6 +143,24 @@ class Output(OutputCore):
             self.sim._objects_to_print += (
                 f"{'input files:':28s}{' '.join(for_str_input_files)}\n"
             )
+
+        if not (
+            mpi.rank == 0
+            and self._has_to_save
+            and self.sim.params.NEW_DIR_RESULTS
+        ):
+            return
+
+        (self.path_run / "system").mkdir()
+        (self.path_run / "0").mkdir()
+        (self.path_run / "constant").mkdir()
+
+        try:
+            file_generator = getattr(self.input_files, "block_mesh_dict")
+        except AttributeError:
+            pass
+        else:
+            file_generator.generate_file()
 
     @classmethod
     def get_path_solver_package(cls):
@@ -179,11 +199,10 @@ class Output(OutputCore):
 
     def post_init_create_additional_source_files(self):
         """Create the files from their template"""
-        (self.sim.path_run / "system").mkdir()
-        (self.sim.path_run / "0").mkdir()
-        (self.sim.path_run / "constant").mkdir()
-
-        for file_generator in vars(self.input_files).values():
+        for name, file_generator in vars(self.input_files).items():
+            if name == "block_mesh_dict":
+                # already produced during __init__
+                continue
             if hasattr(file_generator, "generate_file"):
                 file_generator.generate_file()
 
