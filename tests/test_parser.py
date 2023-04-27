@@ -5,6 +5,7 @@ from lark.exceptions import LarkError
 
 from fluidsimfoam.foam_input_files import dump, parse
 from fluidsimfoam.foam_input_files.ast import (
+    CodeStream,
     Dict,
     DimensionSet,
     FoamInputFile,
@@ -693,3 +694,50 @@ def test_list_blocks(grammar):
         grammar=grammar,
         check_dump=True,
     )
+
+
+def test_code_stream():
+    tree = base_test(
+        r"""
+        internalField  #codeStream
+        {
+            codeInclude
+            #{
+                #include "fvCFD.H"
+            #};
+            codeOptions
+            #{
+                -I$(LIB_SRC)/finiteVolume/lnInclude \
+                -I$(LIB_SRC)/meshTools/lnInclude
+            #};
+            codeLibs
+            #{
+                -lmeshTools \
+                -lfiniteVolume
+            #};
+            code
+            #{
+                const IOdictionary& d = static_cast<const IOdictionary&>(dict);
+                const fvMesh& mesh = refCast<const fvMesh>(d.db());
+                scalarField p(mesh.nCells(), 0.);
+                forAll(p, i)
+                {
+                    const scalar x = mesh.C()[i][0];
+                    const scalar y = mesh.C()[i][1];
+                    const scalar z = mesh.C()[i][2];
+                    p[i]=-0.0625*(Foam::cos(2*x) + Foam::cos(2*y))*Foam::cos(2*z+2);
+                }
+                p.writeEntry("",os);
+            #};
+        };
+        """,
+        check_dump=True,
+    )
+
+    code_stream = tree.value
+    assert isinstance(code_stream, CodeStream)
+    for name in ("code_include", "code_options", "code_libs", "code"):
+        assert hasattr(code_stream, name)
+    assert code_stream.code.strip().startswith("const IOdictionary")
+    code_stream.code_include = "toto"
+    code_stream["codeInclude"] == "toto"

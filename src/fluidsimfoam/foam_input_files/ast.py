@@ -226,6 +226,11 @@ class Dict(dict, Node):
                     s = (num_spaces - len(key)) * " "
                 tmp.append(indentation + f"    {key}{s}{node};")
         tmp.append(indentation + "}")
+
+        # because OpenFOAM inconsistency
+        if isinstance(self, CodeStream):
+            tmp[-1] += ";"
+
         return "\n".join(tmp)
 
 
@@ -333,7 +338,7 @@ class Code(Node):
         tmp.append(start + f"\n{indentation}" + "#{")
         for line in self.code.split("\n"):
             tmp.append(indentation4 + line)
-        tmp.append(indentation + "#};\n")
+        tmp.append(indentation + "#};")
         return "\n".join(tmp)
 
 
