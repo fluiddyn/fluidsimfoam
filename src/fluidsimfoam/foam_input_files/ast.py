@@ -333,7 +333,7 @@ class Code(Node):
         tmp.append(start + f"\n{indentation}" + "#{")
         for line in self.code.split("\n"):
             tmp.append(indentation4 + line)
-        tmp.append(indentation + "#};\n")
+        tmp.append(indentation + "#};")
         return "\n".join(tmp)
 
 

@@ -6,12 +6,20 @@ from abc import ABC
 
 from fluidsimfoam.foam_input_files import parse
 from fluidsimfoam.foam_input_files.ast import (
+    Code,
+    CodeStream,
     Dict,
     DimensionSet,
     FoamInputFile,
     Value,
     str2foam_units,
 )
+
+DEFAULT_CODE_INCLUDE = '#include "fvCFD.H"'
+DEFAULT_CODE_OPTIONS = (
+    "-I$(LIB_SRC)/finiteVolume/lnInclude \\\n-I$(LIB_SRC)/meshTools/lnInclude"
+)
+DEFAULT_CODE_LIBS = "-lmeshTools \\\n-lfiniteVolume"
 
 
 class FieldABC(ABC):
@@ -56,8 +64,23 @@ class FieldABC(ABC):
 
         raise NotImplementedError
 
-    def set_codestream(self, code):
-        raise NotImplementedError
+    def set_codestream(
+        self,
+        code,
+        include=DEFAULT_CODE_INCLUDE,
+        options=DEFAULT_CODE_OPTIONS,
+        libs=DEFAULT_CODE_LIBS,
+    ):
+        data = {
+            "codeInclude": include,
+            "codeOptions": options,
+            "codeLibs": libs,
+            "code": code,
+        }
+        data = {key: Code(key, value.strip()) for key, value in data.items()}
+        self.tree.children["internalField"] = CodeStream(
+            data, name="internalField", directive="#codeStream"
+        )
 
     def set_boundary(self, name, type_, value=None):
         boundaries = self.tree.children["boundaryField"]

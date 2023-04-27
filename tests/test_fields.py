@@ -1,6 +1,6 @@
 from textwrap import dedent
 
-from fluidsimfoam.foam_input_files.fields import VolScalarField
+from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
 
 code_p = dedent(
     """
@@ -70,3 +70,109 @@ def test_nut():
     ] = '"caseDicts/setConstraintTypes"'
 
     assert field.dump().strip() == code_nut.strip()
+
+
+code_u = dedent(
+    r"""
+    FoamFile
+    {
+        version     2.0;
+        format      ascii;
+        class       volVectorField;
+        object      U;
+    }
+
+    dimensions  [0 1 -1 0 0 0 0];
+
+    internalField  #codeStream
+    {
+        codeInclude
+        #{
+            #include "fvCFD.H"
+        #};
+        codeOptions
+        #{
+            -I$(LIB_SRC)/finiteVolume/lnInclude \
+            -I$(LIB_SRC)/meshTools/lnInclude
+        #};
+        codeLibs
+        #{
+            -lmeshTools \
+            -lfiniteVolume
+        #};
+        code
+        #{
+            const IOdictionary& d = static_cast<const IOdictionary&>(dict);
+            const fvMesh& mesh = refCast<const fvMesh>(d.db());
+            vectorField U(mesh.nCells(), Foam::Vector<double>(0.,0.,0.));
+            forAll(U, i)
+            {
+                const scalar x = mesh.C()[i][0];
+                const scalar y = mesh.C()[i][1];
+                const scalar z = mesh.C()[i][2];
+                U[i] = Foam::Vector<double>(Foam::sin(x)
+                *Foam::cos(y)*Foam::cos(z), -Foam::cos(x)
+                *Foam::sin(y)*Foam::cos(z), 0.);
+            }
+            U.writeEntry("",os);
+        #};
+    }
+
+    boundaryField
+    {
+        upperBoundary
+        {
+            type    cyclic;
+        }
+        lowerBoundary
+        {
+            type    cyclic;
+        }
+        leftBoundary
+        {
+            type    cyclic;
+        }
+        rightBoundary
+        {
+            type    cyclic;
+        }
+        frontBoundary
+        {
+            type    cyclic;
+        }
+        backBoundary
+        {
+            type    cyclic;
+        }
+    }
+"""
+)
+
+
+def test_u():
+    field = VolVectorField("U", "m/s")
+
+    field.set_codestream(
+        dedent(
+            """
+                const IOdictionary& d = static_cast<const IOdictionary&>(dict);
+                const fvMesh& mesh = refCast<const fvMesh>(d.db());
+                vectorField U(mesh.nCells(), Foam::Vector<double>(0.,0.,0.));
+                forAll(U, i)
+                {
+                    const scalar x = mesh.C()[i][0];
+                    const scalar y = mesh.C()[i][1];
+                    const scalar z = mesh.C()[i][2];
+                    U[i] = Foam::Vector<double>(Foam::sin(x)
+                    *Foam::cos(y)*Foam::cos(z), -Foam::cos(x)
+                    *Foam::sin(y)*Foam::cos(z), 0.);
+                }
+                U.writeEntry("",os);
+    """
+        )
+    )
+
+    for prefix in ("upper", "lower", "left", "right", "front", "back"):
+        field.set_boundary(prefix + "Boundary", "cyclic")
+
+    assert field.dump().strip() == code_u.strip()
