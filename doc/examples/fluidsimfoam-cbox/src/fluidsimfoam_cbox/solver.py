@@ -19,7 +19,6 @@ class InfoSolverCBox(InfoSolver):
 
 
 class SimulCBox(SimulFoam):
-    """A solver which compiles and runs using a Snakefile."""
 
     InfoSolver = InfoSolverCBox
 

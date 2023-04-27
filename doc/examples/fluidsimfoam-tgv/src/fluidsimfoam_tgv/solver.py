@@ -19,7 +19,6 @@ class InfoSolverTGV(InfoSolver):
 
 
 class SimulTGV(SimulFoam):
-    """A solver which compiles and runs using a Snakefile."""
 
     InfoSolver = InfoSolverTGV
 

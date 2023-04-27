@@ -6,11 +6,11 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fluidsimfoam-cbox"
+name = "fluidsimfoam-sed"
 authors = [
     {name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr"},
 ]
-description = 'simulation of the sidewall convection in a "convective box" with fluidsimfoam'
+description = "SedFOAM simulations with fluidsimfoam"
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "BSD-3-Clause"}
@@ -20,4 +20,4 @@ dependencies = [
 ]
 
 [project.entry-points."fluidsimfoam.solvers"]
-cbox = "fluidsimfoam_cbox.solver"
+sed = "fluidsimfoam_sed.solver"
