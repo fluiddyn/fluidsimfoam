@@ -2,7 +2,8 @@
 
 """
 
-from abc import ABC
+from abc import ABC, abstractmethod
+from numbers import Number
 
 from fluidsimfoam.foam_input_files import parse
 from fluidsimfoam.foam_input_files.ast import (
@@ -11,6 +12,7 @@ from fluidsimfoam.foam_input_files.ast import (
     Dict,
     DimensionSet,
     FoamInputFile,
+    List,
     Value,
     str2foam_units,
 )
@@ -57,12 +59,9 @@ class FieldABC(ABC):
     def dump(self):
         return self.tree.dump()
 
+    @abstractmethod
     def set_values(self, values):
-        if isinstance(values, (int, float)):
-            self.tree.children["internalField"] = Value(values, name="uniform")
-            return
-
-        raise NotImplementedError
+        """Set internalField with value(s)"""
 
     def set_codestream(
         self,
@@ -94,6 +93,27 @@ class FieldABC(ABC):
 class VolScalarField(FieldABC):
     cls = "volScalarField"
 
+    def set_values(self, values):
+        if isinstance(values, Number):
+            value = Value(values, name="uniform")
+        else:
+            value = List(
+                values,
+                name=f"internalField nonuniform\nList<scalar>\n{len(values)}",
+            )
+        self.tree.children["internalField"] = value
+
 
 class VolVectorField(FieldABC):
     cls = "volVectorField"
+
+    def set_values(self, values):
+        n_elem = len(values)
+        if n_elem == 3 and isinstance(values[0], Number):
+            value = Value(List(values), name="uniform")
+        else:
+            value = List(
+                [List(value) for value in values],
+                name=f"internalField nonuniform\nList<vector>\n{n_elem}",
+            )
+        self.tree.children["internalField"] = value

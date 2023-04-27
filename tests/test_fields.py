@@ -29,8 +29,11 @@ def test_p():
     assert field.dump().strip() == code_p.format("")
 
     field.set_values(2.0)
-
     assert field.dump().strip() == code_p.format("  uniform 2.0;")
+
+    field.set_values([1.0, 2.0, 3.0])
+    result = " nonuniform\nList<scalar>\n3\n(\n    1.0\n    2.0\n    3.0\n);"
+    assert field.dump().strip() == code_p.format(result)
 
 
 code_nut = dedent(
@@ -176,3 +179,37 @@ def test_u():
         field.set_boundary(prefix + "Boundary", "cyclic")
 
     assert field.dump().strip() == code_u.strip()
+
+
+code_vector = dedent(
+    r"""
+    FoamFile
+    {
+        version     2.0;
+        format      ascii;
+        class       volVectorField;
+        object      U;
+    }
+
+    dimensions  [0 1 -1 0 0 0 0];
+
+    internalField nonuniform
+    List<vector>
+    3
+    (
+        (-1 2 3)
+        (-2 4 6)
+        (-3 6 9)
+    );
+
+    boundaryField
+    {
+    }
+"""
+)
+
+
+def test_vector():
+    field = VolVectorField("U", "m/s")
+    field.set_values([[-i, 2 * i, 3 * i] for i in range(1, 4)])
+    assert field.dump().strip() == code_vector.strip()
