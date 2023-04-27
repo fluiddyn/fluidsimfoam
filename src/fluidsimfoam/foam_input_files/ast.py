@@ -105,6 +105,16 @@ class FoamInputFile(Node):
             result += "\n"
         return result
 
+    def set_child(self, key, child):
+        if isinstance(child, (type(None), str, int, float)):
+            pass
+        elif isinstance(child, dict):
+            child = Dict(child, name=key)
+        else:
+            raise NotImplementedError
+
+        self.children[key] = child
+
 
 @dataclass
 class Assignment:

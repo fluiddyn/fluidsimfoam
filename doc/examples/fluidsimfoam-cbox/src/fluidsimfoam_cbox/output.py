@@ -95,10 +95,9 @@ class OutputCBox(Output):
 
     def make_tree_turbulence_properties(self, params):
         tree = super().make_tree_turbulence_properties(params)
-        # TODO: fix this bad API (need for `Dict` and `name`)
-        tree.children["RAS"] = Dict(
+        tree.set_child(
+            "RAS",
             {"RASModel": "kEpsilon", "turbulence": "on", "printCoeffs": "on"},
-            name="RAS",
         )
         return tree
 

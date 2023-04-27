@@ -1,12 +1,21 @@
 """OpenFOAM input files
 
+.. rubric:: AST and parser
+
+.. autosummary::
+   :toctree:
+
+    ast
+    generators
+    parser
+
+.. rubric:: Helper to create input files
+
 .. autosummary::
    :toctree:
 
     blockmeshhelper
-    ast
-    generators
-    parser
+    fields
 
 """
 
