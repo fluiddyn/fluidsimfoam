@@ -116,7 +116,7 @@ code_u = dedent(
             }
             U.writeEntry("",os);
         #};
-    }
+    };
 
     boundaryField
     {

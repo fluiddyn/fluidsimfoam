@@ -729,7 +729,7 @@ def test_code_stream():
                 }
                 p.writeEntry("",os);
             #};
-        }
+        };
         """,
         check_dump=True,
     )
