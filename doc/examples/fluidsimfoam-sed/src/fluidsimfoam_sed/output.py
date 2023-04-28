@@ -1,6 +1,6 @@
 from textwrap import dedent
 
-from fluidsimfoam.foam_input_files.blockmeshhelper import BlockMeshDict, Vertex
+from fluidsimfoam.foam_input_files.blockmeshhelper import BlockMeshDict
 from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
 from fluidsimfoam.output import Output
 
@@ -14,6 +14,12 @@ def add_default_boundaries(field):
         ("frontAndBackPlanes", "empty"),
     ):
         field.set_boundary(name, type_)
+
+
+def make_scalar_field(name, dimension, values=None):
+    field = VolScalarField(name, dimension, values=values)
+    add_default_boundaries(field)
+    return field
 
 
 code_init_alpha_a = dedent(
@@ -138,21 +144,19 @@ class OutputSED(Output):
         return bmd.format(sort_vortices="as_added")
 
     def make_tree_alpha_a(self, params):
-        field = VolScalarField("alpha_a", dimension="")
-        add_default_boundaries(field)
+        field = make_scalar_field("alpha_a", dimension="")
         field.set_boundary("top", "fixedValue", "uniform 0")
         field.set_codestream(code_init_alpha_a)
         return field
 
     def make_tree_alpha_plastic(self, params):
-        field = VolScalarField("alphaMinFriction", dimension="", values=0.57)
-        add_default_boundaries(field)
-        return field
+        return make_scalar_field("alphaMinFriction", dimension="", values=0.57)
 
-    def make_tree_theta(self, params):
-        field = VolScalarField("Theta", dimension="m^2/s^2", values=0.0)
-        add_default_boundaries(field)
-        return field
+    def make_tree_delta(self, params):
+        return make_scalar_field("delta", dimension="", values=0.0)
+
+    def make_tree_mu_i(self, params):
+        return make_scalar_field("muI", dimension="", values=0.0)
 
     def make_tree_u_a(self, params, name="U.a"):
         field = VolVectorField(name, dimension="m/s", values=(0, 0, 0))
@@ -163,49 +167,34 @@ class OutputSED(Output):
     def make_tree_u_b(self, params):
         return self.make_tree_u_a(params, name="U.b")
 
+    def make_tree_omega_b(self, params):
+        return make_scalar_field("omega.b", dimension="1/s", values=1e-20)
+
+    def make_tree_theta(self, params):
+        return make_scalar_field("Theta", dimension="m^2/s^2", values=0.0)
+
     def make_tree_epsilon_b(self, params):
-        field = VolScalarField("epsilon", dimension="m^2/s^3", values=1e-8)
-        add_default_boundaries(field)
-        return field
+        return make_scalar_field("epsilon", dimension="m^2/s^3", values=1e-8)
 
     def make_tree_k_b(self, params):
-        field = VolScalarField("k.b", dimension="m^2/s^2", values=1e-6)
-        add_default_boundaries(field)
+        field = make_scalar_field("k.b", dimension="m^2/s^2", values=1e-6)
         field.set_boundary("bottom", "fixedValue", "uniform 1e-06")
         return field
 
-    def make_tree_mu_i(self, params):
-        field = VolScalarField("muI", dimension="", values=0.0)
-        add_default_boundaries(field)
-        return field
-
     def make_tree_nut_b(self, params):
-        field = VolScalarField("nut.b", dimension="m^2/s^1", values=0.0)
-        add_default_boundaries(field)
+        field = make_scalar_field("nut.b", dimension="m^2/s^1", values=0.0)
         field.set_boundary("bottom", "fixedValue", "uniform 0.0")
         return field
 
-    def make_tree_omega_b(self, params):
-        field = VolScalarField("omega.b", dimension="1/s", values=1e-20)
-        add_default_boundaries(field)
-        return field
-
     def make_tree_pa(self, params):
-        field = VolScalarField("pa", dimension="kg/m/s^2", values=0.0)
-        add_default_boundaries(field)
+        field = make_scalar_field("pa", dimension="kg/m/s^2", values=0.0)
         field.set_boundary("top", "slip")
         return field
 
     def make_tree_p_rbgh(self, params):
-        field = VolScalarField("p_rbgh", dimension="kg/m/s^2", values=0.0)
-        add_default_boundaries(field)
+        field = make_scalar_field("p_rbgh", dimension="kg/m/s^2", values=0.0)
         field.set_boundary("top", "fixedValue", "uniform 0.0")
         field.set_boundary(
             "bottom", "fixedFluxPressure", gradient="$internalField"
         )
-        return field
-
-    def make_tree_delta(self, params):
-        field = VolScalarField("delta", dimension="", values=0.0)
-        add_default_boundaries(field)
         return field
