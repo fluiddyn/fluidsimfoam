@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from numbers import Number
 from textwrap import dedent
 
 from inflection import underscore
@@ -60,8 +61,10 @@ class Node:
 
 
 class FoamInputFile(Node):
-    def __init__(self, info, children, header=None, comments=None):
+    def __init__(self, info, children=None, header=None, comments=None):
         self.info = info
+        if children is None:
+            children = {}
         self.children = children
         self.header = header
         self.comments = comments
@@ -114,6 +117,11 @@ class FoamInputFile(Node):
             raise NotImplementedError
 
         self.children[key] = child
+
+    def set_value(self, name, value, dimension=None):
+        if isinstance(value, Number) or dimension is not None:
+            value = Value(value, name, dimension=dimension)
+        self.children[name] = value
 
 
 @dataclass

@@ -1,5 +1,8 @@
 from textwrap import dedent
 
+from inflection import underscore
+
+from fluidsimfoam.foam_input_files import FoamInputFile
 from fluidsimfoam.foam_input_files.blockmeshhelper import BlockMeshDict
 from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
 from fluidsimfoam.output import Output
@@ -198,3 +201,38 @@ class OutputSED(Output):
             "bottom", "fixedFluxPressure", gradient="$internalField"
         )
         return field
+
+    default_pp_prop = {
+        "alphaMax": 0.635,
+        "alphaMinFriction": 0.57,
+        "Fr": 5e-2,
+        "eta0": 3,
+        "eta1": 5,
+    }
+
+    @classmethod
+    def _complete_params_pp_properties(cls, params):
+        params._set_attribs(
+            {
+                underscore(name): value
+                for name, value in cls.default_pp_prop.items()
+            }
+        )
+
+    def make_tree_pp_properties(self, params):
+        tree = FoamInputFile(
+            info={
+                "version": "2.0",
+                "format": "ascii",
+                "class": "dictionary",
+                "location": '"constant"',
+                "object": "ppProperties",
+            }
+        )
+        tree.set_value("ppModel", "JohnsonJackson")
+        for name in self.default_pp_prop.keys():
+            key = underscore(name)
+            dimension = "" if name != "Fr" else "kg/m/s^2"
+            tree.set_value(name, params[key], dimension=dimension)
+        tree.set_value("packingLimiter", "no")
+        return tree
