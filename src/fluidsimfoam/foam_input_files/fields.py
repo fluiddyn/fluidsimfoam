@@ -84,13 +84,17 @@ class FieldABC(ABC):
             data, name="internalField", directive="#codeStream"
         )
 
-    def set_boundary(self, name, type_, value=None):
+    def set_boundary(self, name, type_, value=None, gradient=None):
         boundaries = self.tree.children["boundaryField"]
         data = {"type": type_}
         if value is not None:
             data["value"] = value
-
+        if gradient is not None:
+            data["gradient"] = gradient
         boundaries[name] = Dict(data, name=name)
+
+    def set_name(self, name):
+        self.tree.info["object"] = name
 
 
 class VolScalarField(FieldABC):
@@ -113,7 +117,10 @@ class VolVectorField(FieldABC):
     def set_values(self, values):
         n_elem = len(values)
         if n_elem == 3 and isinstance(values[0], Number):
-            value = Value(List(values), name="uniform")
+            value = Value(
+                "(" + " ".join(str(value) for value in values) + ")",
+                name="uniform",
+            )
         else:
             value = List(
                 [List(value) for value in values],

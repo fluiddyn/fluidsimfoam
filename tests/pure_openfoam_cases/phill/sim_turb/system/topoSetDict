@@ -9,16 +9,16 @@ FoamFile
 
 actions
 (
-	{
-		name    rotor;
-		type    cellSet;
-		action  new;
-		source  cylinderToCell;
-		sourceInfo
-		{
-			p1 (0 0 0);
-			p2 (0 0 0.5);
-			radius 6.5;
-		}
-	}
+    {
+        name    rotor;
+        type    cellSet;
+        action  new;
+        source  cylinderToCell;
+        sourceInfo
+        {
+            p1 (0 0 0);
+            p2 (0 0 0.5);
+            radius 6.5;
+        }
+    }
 );

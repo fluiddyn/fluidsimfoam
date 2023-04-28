@@ -25,7 +25,7 @@ boundaryField
 
     bottom
     {
-	    type            kqRWallFunction;
+        type            kqRWallFunction;
         value           $internalField;
     }
 
@@ -37,6 +37,6 @@ boundaryField
 
     frontandbackplanes
     {
-	    type		    empty;
+        type            empty;
     }
 }

@@ -9,9 +9,9 @@ FoamFile
 
 MRF1
 {
-	active          no;
-	selectionMode   cellZone;
-	cellZone        rotor;
+    active          no;
+    selectionMode   cellZone;
+    cellZone        rotor;
 
     origin          (0 0 0);
     axis            (0 0 1);

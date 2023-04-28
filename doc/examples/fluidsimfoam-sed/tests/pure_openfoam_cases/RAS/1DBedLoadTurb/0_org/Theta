@@ -8,28 +8,28 @@ FoamFile
 
 dimensions  [0 2 -2 0 0 0 0];
 
-internalField   uniform 0.;
+internalField  uniform 0.0;
 
 boundaryField
 {
     inlet
     {
-        type            cyclic;
+        type    cyclic;
     }
     outlet
     {
-        type            cyclic;
+        type    cyclic;
     }
     top
     {
-        type            zeroGradient;
+        type    zeroGradient;
     }
     bottom
     {
-        type            zeroGradient;
+        type    zeroGradient;
     }
     frontAndBackPlanes
     {
-        type            empty;
+        type    empty;
     }
 }

@@ -3,34 +3,34 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    object      nut;
+    object      nut.b;
 }
 
 dimensions  [0 2 -1 0 0 0 0];
 
-internalField   uniform 0.;
+internalField  uniform 0.0;
 
 boundaryField
 {
     inlet
     {
-        type            cyclic;
+        type    cyclic;
     }
     outlet
     {
-        type            cyclic;
+        type    cyclic;
     }
     top
     {
-        type            zeroGradient;
+        type    zeroGradient;
     }
     bottom
     {
-        type            fixedValue;
-	value		uniform 0.;
+        type     fixedValue;
+        value    uniform 0.0;
     }
     frontAndBackPlanes
     {
-        type            empty;
+        type    empty;
     }
 }
