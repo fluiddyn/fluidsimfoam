@@ -1,6 +1,42 @@
+from textwrap import dedent
+
 from fluidsimfoam.foam_input_files.blockmeshhelper import BlockMeshDict, Vertex
 from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
 from fluidsimfoam.output import Output
+
+
+def add_default_boundaries(field):
+    for name, type_ in (
+        ("inlet", "cyclic"),
+        ("outlet", "cyclic"),
+        ("top", "fixedValue"),
+        ("bottom", "zeroGradient"),
+        ("frontAndBackPlanes", "empty"),
+    ):
+        field.set_boundary(name, type_)
+
+
+code_init_alpha_a = dedent(
+    r"""
+    const IOdictionary& d = static_cast<const IOdictionary&>(dict);
+    const fvMesh& mesh = refCast<const fvMesh>(d.db());
+    scalarField alpha_a(mesh.nCells(), 0);
+    forAll(mesh.C(), i)
+    {
+        scalar y = mesh.C()[i].y();
+        alpha_a[i] = 0.305*(1.0+tanh((12.5*0.006-y)/0.005));
+    /*if (y < 12.5*0.006)
+    {
+    alpha_a[i] = 0.61;
+    }
+    else
+    {
+    alpha_a[i] = 0;
+    }*/
+    }
+    alpha_a.writeEntry("", os);
+"""
+)
 
 
 class OutputSED(Output):
@@ -100,3 +136,11 @@ class OutputSED(Output):
         )
 
         return bmd.format(sort_vortices="as_added")
+
+    def make_tree_alpha_a(self, params):
+        field = VolScalarField("alpha_a", dimension="")
+        add_default_boundaries(field)
+        boundaries = field.tree.children["boundaryField"]
+        boundaries["top"]["value"] = "uniform 0"
+        field.set_codestream(code_init_alpha_a)
+        return field

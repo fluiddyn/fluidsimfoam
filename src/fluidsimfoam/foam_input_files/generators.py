@@ -54,7 +54,7 @@ class FileGenerator(FileGeneratorABC):
 
     def __init__(self, output):
         super().__init__(output)
-        self._name = underscore(Path(self.rel_path).name)
+        self._name = underscore(Path(self.rel_path).name.replace(".", "_"))
 
     def generate_code(self):
         """Generate the code of the file from ...
