@@ -4,7 +4,7 @@ from fluidsimfoam_sed import Simul
 
 here = Path(__file__).absolute().parent
 
-path_pure_openfoam_case = here / "pure_openfoam_cases/RAS/1DBedLoadTurb"
+path_pure_openfoam_case = here / "saved_cases/RAS/1DBedLoadTurb"
 paths_in_sim = [
     path.relative_to(path_pure_openfoam_case)
     for path in path_pure_openfoam_case.rglob("*")
