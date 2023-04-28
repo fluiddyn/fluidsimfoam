@@ -19,7 +19,6 @@ class InfoSolverCBox(InfoSolver):
 
 
 class SimulCBox(SimulFoam):
-
     InfoSolver = InfoSolverCBox
 
 

@@ -27,6 +27,7 @@ class Output(OutputCore):
     variable_names = ["p", "U"]
     constant_files_names = ["transportProperties", "turbulenceProperties"]
     system_files_names = ["controlDict", "fvSchemes", "fvSolution"]
+    default_control_dict_params = DEFAULT_CONTROL_DICT
 
     @classmethod
     def _complete_info_solver(cls, info_solver):
@@ -217,7 +218,8 @@ class Output(OutputCore):
     @classmethod
     def _complete_params_control_dict(cls, params):
         attribs = {
-            underscore(key): value for key, value in DEFAULT_CONTROL_DICT.items()
+            underscore(key): value
+            for key, value in cls.default_control_dict_params.items()
         }
 
         params._set_child(
@@ -229,7 +231,7 @@ class Output(OutputCore):
     def make_tree_control_dict(self, params):
         children = {
             key: params.control_dict[underscore(key)]
-            for key in DEFAULT_CONTROL_DICT.keys()
+            for key in self.default_control_dict_params.keys()
         }
 
         tree = FoamInputFile(

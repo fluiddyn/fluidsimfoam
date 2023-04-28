@@ -19,7 +19,6 @@ class InfoSolverTGV(InfoSolver):
 
 
 class SimulTGV(SimulFoam):
-
     InfoSolver = InfoSolverTGV
 
 

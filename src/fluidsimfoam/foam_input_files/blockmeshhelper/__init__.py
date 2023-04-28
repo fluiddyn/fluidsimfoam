@@ -117,8 +117,8 @@ class HexBlock:
             1 = 'e' = 'xp' = '100' = (1 2 5 6)
             2 = 's' = 'ym' = '0-10' = (0 1 5 4)
             3 = 'n' = 'yp' = '010' = (2 3 7 6)
-            4 = 'b' = 'zm' = '00-1' = (0 3 2 1)
-            5 = 't' = zp' = '001' = (4 5 6 7)
+            4 = 'b' = 'zm' = '00-1' = (0 3 2 1) = "bottom"
+            5 = 't' = 'zp' = '001' = (4 5 6 7) = "top"
         name is given to Face instance. If omitted, name is automatically
             genaratied like ('f-' + self.name + '-w')
         """
@@ -136,9 +136,11 @@ class HexBlock:
             "yp": 3,
             "010": 3,
             "b": 4,
+            "bottom": 4,
             "zm": 4,
             "00-1": 4,
             "t": 5,
+            "top": 5,
             "zp": 5,
             "001": 5,
         }
@@ -327,7 +329,12 @@ class BlockMeshDict:
                 if v.name not in vnames_kept:
                     vnames_kept.add(v.name)
                     self._vertices_in_blockmesh.append(v)
-        if sort:
+        if sort == "as_added":
+            self._vertices_in_blockmesh = []
+            for vname, v in self.vertices.items():
+                if vname in vnames_kept:
+                    self._vertices_in_blockmesh.append(v)
+        elif sort:
             self._vertices_in_blockmesh = sorted(self._vertices_in_blockmesh)
         for i, v in enumerate(self._vertices_in_blockmesh):
             v.index = i

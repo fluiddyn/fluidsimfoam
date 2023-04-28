@@ -19,7 +19,6 @@ class InfoSolverSED(InfoSolver):
 
 
 class SimulSED(SimulFoam):
-
     InfoSolver = InfoSolverSED
 
 

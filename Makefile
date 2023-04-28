@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 test:
-	time pytest tests
+	time pytest tests doc/examples/fluidsimfoam-sed/tests
 
 bench_parser:
 	time pytest tests/test_parser_pure_openfoam_cases.py
