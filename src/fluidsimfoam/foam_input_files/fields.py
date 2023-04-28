@@ -35,7 +35,7 @@ class FieldABC(ABC):
 
         raise NotImplementedError
 
-    def __init__(self, name, dimension, tree=None):
+    def __init__(self, name, dimension, tree=None, values=None):
         if tree is not None:
             self.tree = tree
             return
@@ -55,6 +55,9 @@ class FieldABC(ABC):
         )
 
         self.tree.set_child("boundaryField", {})
+
+        if values is not None:
+            self.set_values(values)
 
     def dump(self):
         return self.tree.dump()
