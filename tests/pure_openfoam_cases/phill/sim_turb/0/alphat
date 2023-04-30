@@ -35,6 +35,6 @@ boundaryField
 
     frontandbackplanes
     {
-	    type		    empty;
+        type            empty;
     }
 }

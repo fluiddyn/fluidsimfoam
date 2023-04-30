@@ -27,6 +27,7 @@ class Output(OutputCore):
     variable_names = ["p", "U"]
     constant_files_names = ["transportProperties", "turbulenceProperties"]
     system_files_names = ["controlDict", "fvSchemes", "fvSolution"]
+    default_control_dict_params = DEFAULT_CONTROL_DICT
 
     @classmethod
     def _complete_info_solver(cls, info_solver):
@@ -217,7 +218,8 @@ class Output(OutputCore):
     @classmethod
     def _complete_params_control_dict(cls, params):
         attribs = {
-            underscore(key): value for key, value in DEFAULT_CONTROL_DICT.items()
+            underscore(key): value
+            for key, value in cls.default_control_dict_params.items()
         }
 
         params._set_child(
@@ -229,7 +231,7 @@ class Output(OutputCore):
     def make_tree_control_dict(self, params):
         children = {
             key: params.control_dict[underscore(key)]
-            for key in DEFAULT_CONTROL_DICT.keys()
+            for key in self.default_control_dict_params.keys()
         }
 
         tree = FoamInputFile(
@@ -270,54 +272,6 @@ class Output(OutputCore):
             },
             header=DEFAULT_HEADER,
         )
-
-    @classmethod
-    def _complete_params_fv_solution(cls, params):
-        params._set_child("fv_solution", doc="""TODO""")
-        solvers = params.fv_solution._set_child("solvers", doc="""TODO""")
-        attribs = {
-            "solver": "PCG",
-            "preconditioner": "DIC",
-            "tolerance": 1e-06,
-            "relTol": 0.01,
-        }
-
-        solvers._set_child("p", attribs=attribs)
-        solvers._set_child("pFinal", attribs=attribs)
-        solvers.pFinal.relTol = 0
-        solvers._set_child(
-            "U",
-            attribs={
-                "solver": "PBiCGStab",
-                "preconditioner": "DILU",
-                "tolerance": 1e-08,
-                "relTol": 0,
-            },
-        )
-
-        params.fv_solution._set_child(
-            "piso",
-            attribs={
-                "nCorrectors": 2,
-                "nNonOrthogonalCorrectors": 1,
-                "pRefPoint": "(0 0 0)",
-                "pRefValue": 0,
-            },
-        )
-
-    @classmethod
-    def _complete_params_fv_schemes(cls, params):
-        fv_schemes = params._set_child("fv_schemes", doc="""TODO""")
-        fv_schemes._set_child("ddtSchemes", attribs={"default": "backward"})
-        fv_schemes._set_child("gradSchemes", attribs={"default": "leastSquares"})
-        fv_schemes._set_child("divSchemes", attribs={"default": "none"})
-        fv_schemes._set_child(
-            "laplacianSchemes", attribs={"default": "Gauss linear corrected"}
-        )
-        fv_schemes._set_child(
-            "interpolationSchemes", attribs={"default": "linear"}
-        )
-        fv_schemes._set_child("snGradSchemes", attribs={"default": "corrected"})
 
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):

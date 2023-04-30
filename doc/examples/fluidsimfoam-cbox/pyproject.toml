@@ -12,7 +12,7 @@ authors = [
 ]
 description = 'simulation of the sidewall convection in a "convective box" with fluidsimfoam'
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {text = "BSD-3-Clause"}
 version = "0.0.1"
 dependencies = [
