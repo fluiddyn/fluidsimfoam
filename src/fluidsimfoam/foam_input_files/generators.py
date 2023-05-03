@@ -6,6 +6,8 @@ import jinja2
 from inflection import camelize, underscore
 
 from fluiddyn.util import import_class
+from fluidsimfoam.foam_input_files import parse
+from fluidsimfoam.foam_input_files.fields import read_field_file
 
 
 class InputFiles:
@@ -39,14 +41,31 @@ class FileGeneratorABC(ABC):
     def __init__(self, output):
         self.output = output
 
-    def generate_file(self):
+    def generate_file(self, params=None):
         """Generate the file"""
+        if params is None:
+            params = self.output.sim.params
         with open(self.output.path_run / self.rel_path, "w") as file:
-            file.write(self.generate_code())
+            file.write(self.generate_code(params))
 
     @abstractmethod
     def generate_code(self):
         """Generate the code of the file"""
+
+    def read(self):
+        path = self.output.path_run / self.rel_path
+        if any(
+            self.rel_path.startswith(start) for start in ["system", "constant"]
+        ):
+            tree = parse(path.read_text())
+            tree.path = path
+            return tree
+        else:
+            return read_field_file(path)
+
+    def overwrite(self, dumpable):
+        with open(self.output.path_run / self.rel_path, "w") as file:
+            file.write(dumpable.dump())
 
 
 class FileGenerator(FileGeneratorABC):
@@ -56,12 +75,15 @@ class FileGenerator(FileGeneratorABC):
         super().__init__(output)
         self._name = underscore(Path(self.rel_path).name.replace(".", "_"))
 
-    def generate_code(self):
+    def generate_code(self, params=None):
         """Generate the code of the file from ...
 
         - a method named like `sim.output.make_code_block_mesh_dict`,
         - or a Jinja template.
         """
+        if params is None:
+            params = self.output.sim.params
+
         try:
             method = getattr(self.output, "make_code_" + self._name)
             if method is None:
@@ -75,11 +97,11 @@ class FileGenerator(FileGeneratorABC):
                 template = self.output.input_files.get_template(
                     self.template_name
                 )
-                return template.render(params=self.output.sim.params)
+                return template.render(params=params)
             else:
 
-                def method(params):
-                    return make_tree(params).dump()
+                def method(params_):
+                    return make_tree(params_).dump()
 
         if (self.output.input_files.templates_dir / self.template_name).exists():
             raise RuntimeError(
@@ -90,7 +112,7 @@ class FileGenerator(FileGeneratorABC):
                 "Remove the file or the function (or make it equal to None)."
             )
 
-        return method(self.output.sim.params)
+        return method(params)
 
     @classmethod
     def _complete_params_with_default(cls, params, info_solver):

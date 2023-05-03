@@ -62,7 +62,10 @@ class FieldABC(ABC):
 
     @classmethod
     def from_path(cls, path: str or Path):
-        return cls.from_code(Path(path).read_text())
+        path = Path(path)
+        field = cls.from_code(path.read_text())
+        field.path = path
+        return field
 
     def __init__(self, name, dimension, tree=None, values=None):
         if tree is not None:
@@ -87,8 +90,16 @@ class FieldABC(ABC):
         if values is not None:
             self.set_values(values)
 
+        self.path = None
+
     def dump(self):
         return self.tree.dump()
+
+    def overwrite(self):
+        if self.path is None:
+            raise ValueError("self.path is None")
+        with open(self.path, "w") as file:
+            file.write(self.dump())
 
     @abstractmethod
     def set_values(self, values):
@@ -173,3 +184,23 @@ class VolVectorField(FieldABC):
                 name=f"internalField nonuniform\nList<vector>\n{n_elem}",
             )
         self.tree.children["internalField"] = value
+
+
+classes = {"volScalarField": VolScalarField, "volVectorField": VolVectorField}
+
+
+def read_field_file(path):
+    cls = None
+    with open(path, "r") as file:
+        for line in file:
+            line = line.strip()
+            if line.startswith("class "):
+                cls = line.split()[-1][:-1]
+                break
+
+    if cls is None:
+        raise RuntimeError
+
+    cls = classes[cls]
+
+    return cls.from_path(path)

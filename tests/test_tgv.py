@@ -1,10 +1,13 @@
 import shutil
 from pathlib import Path
 
+import numpy as np
 import pytest
 from fluidsimfoam_tgv import Simul
 
 from fluidsimfoam import load
+from fluidsimfoam.foam_input_files.ast import FoamInputFile
+from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
 
 here = Path(__file__).absolute().parent
 
@@ -80,6 +83,41 @@ def test_clean_load(sim_tgv):
     assert sim2.path_run == sim.path_run
 
 
+def test_read_files_overwrite(sim_tgv):
+    sim = sim_tgv
+    input_files = sim.output.input_files
+
+    field_p = input_files.p.read()
+    field_u = input_files.u.read()
+    tree_control_dict = input_files.control_dict.read()
+
+    assert isinstance(field_p, VolScalarField)
+    assert isinstance(field_u, VolVectorField)
+    assert isinstance(tree_control_dict, FoamInputFile)
+
+    field_p.tree.info["object"] = "bar"
+    input_files.p.overwrite(field_p)
+
+    field_p.tree.info["object"] = "foo"
+    field_p.overwrite()
+    field_p = input_files.p.read()
+    assert field_p.tree.info["object"] == "foo"
+
+    tree_control_dict.children["startTime"] = 10.0
+    input_files.control_dict.overwrite(tree_control_dict)
+
+    tree_control_dict.children["startTime"] = 1.0
+    tree_control_dict.overwrite()
+
+    tree_control_dict = input_files.control_dict.read()
+    assert tree_control_dict.children["startTime"] == 1.0
+
+    sim.params.control_dict.write_precision = precision = 6
+    sim.output.input_files.control_dict.generate_file()
+    tree_control_dict = input_files.control_dict.read()
+    assert tree_control_dict.children["writePrecision"] == precision
+
+
 path_blockmesh = shutil.which("blockMesh")
 
 
@@ -94,6 +132,17 @@ def test_get_cells_coords():
     nx = sim.params.block_mesh_dict.nx
     assert len(x) == nx**3
     assert x[1] - x[0] - 6.28318530718 / nx < 1e-10
+
+    input_files = sim.output.input_files
+    field_u = input_files.u.read()
+    arr = field_u.get_array()
+    arr.fill(10.0)
+    field_u.set_values(arr)
+    field_u.overwrite()
+
+    field_u = input_files.u.read()
+    arr1 = field_u.get_array()
+    assert np.allclose(arr1, arr)
 
 
 path_foam_executable = shutil.which("icoFoam")
