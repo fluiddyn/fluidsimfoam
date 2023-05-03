@@ -156,12 +156,11 @@ class Output(OutputCore):
         (self.path_run / "0").mkdir()
         (self.path_run / "constant").mkdir()
 
-        try:
-            file_generator = getattr(self.input_files, "block_mesh_dict")
-        except AttributeError:
-            pass
-        else:
-            file_generator.generate_file()
+        for file_generator in vars(self.input_files).values():
+            if hasattr(
+                file_generator, "generate_file"
+            ) and file_generator.rel_path.startswith("system"):
+                file_generator.generate_file()
 
     @classmethod
     def get_path_solver_package(cls):
@@ -200,13 +199,6 @@ class Output(OutputCore):
 
     def post_init_create_additional_source_files(self):
         """Create the files from their template"""
-        for name, file_generator in vars(self.input_files).items():
-            if name == "block_mesh_dict":
-                # already produced during __init__
-                continue
-            if hasattr(file_generator, "generate_file"):
-                file_generator.generate_file()
-
         path_tasks_py = self.input_files.templates_dir / "tasks.py"
         if not path_tasks_py.exists():
             raise RuntimeError(
@@ -214,6 +206,13 @@ class Output(OutputCore):
                 f"{self.input_files.templates_dir}"
             )
         shutil.copy(path_tasks_py, self.sim.path_run)
+
+        for file_generator in vars(self.input_files).values():
+            if hasattr(
+                file_generator, "generate_file"
+            ) and not file_generator.rel_path.startswith("system"):
+                # system files are already generated
+                file_generator.generate_file()
 
     @classmethod
     def _complete_params_control_dict(cls, params):

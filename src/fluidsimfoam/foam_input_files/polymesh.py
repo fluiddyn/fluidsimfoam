@@ -2,6 +2,7 @@
 
 """
 
+import re
 from functools import lru_cache
 from io import StringIO
 
@@ -9,8 +10,8 @@ import numpy as np
 
 
 @lru_cache(maxsize=1)
-def get_cells_coords(path):
-    """Get cells coordinates"""
+def get_points_coords(path):
+    """Get points coordinates"""
 
     with open(path) as file:
         for line in file:
@@ -27,7 +28,10 @@ def get_cells_coords(path):
         assert file.readline() == "(\n"
         txt = file.read()
 
-    txt = txt.replace("(", "").replace(")", "").strip()
+    if txt.startswith("("):
+        txt = re.sub("[()]", "", txt)
+
+    txt = txt.strip()
 
     index_last_comment = txt.rfind("\n//")
     txt = txt[:index_last_comment].strip()

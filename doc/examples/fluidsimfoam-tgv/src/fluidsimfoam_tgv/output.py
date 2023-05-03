@@ -1,5 +1,8 @@
 from textwrap import dedent
 
+import numpy as np
+from numpy import cos, sin
+
 from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
 from fluidsimfoam.output import Output
 
@@ -128,16 +131,43 @@ class OutputTGV(Output):
         )
         fv_schemes._set_child("snGradSchemes", attribs={"default": "corrected"})
 
+    @classmethod
+    def _complete_params_p(cls, params):
+        params._set_child(
+            "init_fields",
+            attribs={"type": "from_py", "amplitude": 1.0},
+            doc="""type have to be in ['from_py', 'codestream']""",
+        )
+
     def make_tree_p(self, params):
         field = VolScalarField("p", "m^2/s^2")
         for prefix in boundary_prefixes:
             field.set_boundary(prefix + "Boundary", "cyclic")
-        field.set_codestream(code_init_p)
+
+        if params.init_fields.type == "codestream":
+            field.set_codestream(code_init_p)
+        elif params.init_fields.type == "from_py":
+            x, y, z = self.sim.oper.get_cells_coords()
+            field.set_values(-0.0625 * (cos(2 * x) + cos(2 * y)) * cos(2 * z + 2))
+        else:
+            ValueError
+
         return field
 
     def make_tree_u(self, params):
         field = VolVectorField("U", "m/s")
         for prefix in boundary_prefixes:
             field.set_boundary(prefix + "Boundary", "cyclic")
-        field.set_codestream(code_init_u)
+
+        if params.init_fields.type == "codestream":
+            field.set_codestream(code_init_u)
+        elif params.init_fields.type == "from_py":
+            x, y, z = self.sim.oper.get_cells_coords()
+            vx = sin(x) * cos(y) * cos(z)
+            vy = -cos(x) * sin(y) * cos(z)
+            vz = np.zeros_like(x)
+            field.set_values(vx, vy, vz)
+        else:
+            ValueError
+
         return field
