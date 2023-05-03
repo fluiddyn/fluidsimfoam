@@ -268,7 +268,7 @@ class List(list, Node):
         return [self._dump_item(item, indent) for item in self]
 
     def _dump_item(self, item, indent=0):
-        if hasattr(item, "dump"):
+        if isinstance(item, (Node, Assignment)) and hasattr(item, "dump"):
             return item.dump(indent)
         else:
             return indent * " " + str(item)

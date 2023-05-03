@@ -26,6 +26,7 @@ def sim_tgv():
 
     params.fv_solution.solvers.p.solver = "PCG"
 
+    params.init_fields.type = "codestream"
     return Simul(params)
 
 
@@ -103,13 +104,8 @@ path_foam_executable = shutil.which("icoFoam")
 )
 def test_run():
     params = Simul.create_default_params()
-
     params.output.sub_directory = "tests_fluidsimfoam/tgv"
-
     params.control_dict.end_time = 0.02
-
     params.fv_solution.solvers.p.solver = "PCG"
-
     sim = Simul(params)
-
     sim.make.exec("run")
