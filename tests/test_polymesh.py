@@ -1,10 +1,9 @@
 import tempfile
-
 from pathlib import Path
 
 from fluidsimfoam.foam_input_files.polymesh import get_cells_coords
 
-example = """
+example = r"""
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
@@ -39,45 +38,17 @@ FoamFile
 )
 
 """
-from io import StringIO
-import numpy as np
-
-with tempfile.TemporaryDirectory() as tmpdirname:
-    path = Path(tmpdirname) / "points"
-
-    with open(path, "w") as file:
-        file.write(example)
-
-    with open(path) as file:
-        for line in file:
-            if line == "FoamFile\n":
-                break
-
-        for line in file:
-            if line == "}\n":
-                break
-
-        for line in file:
-            line = line[:-1]
-            if line.isdigit():
-                nb_cells = int(line)
-                break
-
-        assert file.readline() == "(\n"
-
-        txt = file.read()
-
-        txt = txt.replace("(", "").replace(")", "").strip()
-
-        coords = np.loadtxt(StringIO(txt))
-        x = coords[:, 0]
-        y = coords[:, 1]
-        z = coords[:, 2]
-
-        assert y.max() == 0.0
-        assert z.max() == 0.0
 
 
-# def test_get_cells_coords():
+def test_get_cells_coords():
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        path = Path(tmpdirname) / "points"
 
-#     pass
+        with open(path, "w") as file:
+            file.write(example)
+
+        x, y, z = get_cells_coords(path)
+
+    assert x.max() > 0.6
+    assert y.max() == 0.0
+    assert z.max() == 0.0
