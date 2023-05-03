@@ -1,13 +1,14 @@
-"""Read information on the mesh from the polymesh directory
+"""Read information on the mesh from the polyMesh directory
 
 """
 
-
+from functools import lru_cache
 from io import StringIO
 
 import numpy as np
 
 
+@lru_cache(maxsize=1)
 def get_cells_coords(path):
     """Get cells coordinates"""
 
@@ -27,6 +28,9 @@ def get_cells_coords(path):
         txt = file.read()
 
     txt = txt.replace("(", "").replace(")", "").strip()
+
+    index_last_comment = txt.rfind("\n//")
+    txt = txt[:index_last_comment].strip()
 
     coords = np.loadtxt(StringIO(txt))
     x = coords[:, 0]

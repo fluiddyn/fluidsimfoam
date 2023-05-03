@@ -77,6 +77,22 @@ def test_clean_load(sim_tgv):
     assert sim2.path_run == sim.path_run
 
 
+path_blockmesh = shutil.which("blockMesh")
+
+
+@pytest.mark.skipif(
+    path_blockmesh is None, reason="executable blockMesh not available"
+)
+def test_get_cells_coords():
+    params = Simul.create_default_params()
+    params.output.sub_directory = "tests_fluidsimfoam/tgv"
+    sim = Simul(params)
+    x, y, z = sim.oper.get_cells_coords()
+    assert len(x) == 41**3
+    assert x[0] == 0.0
+    assert x[1] - 6.28318530718 / 40 < 1e-10
+
+
 path_foam_executable = shutil.which("icoFoam")
 
 
