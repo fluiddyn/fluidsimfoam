@@ -1,6 +1,7 @@
 from textwrap import dedent
 
 import numpy as np
+from numpy import cos, sin
 
 from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
 from fluidsimfoam.output import Output
@@ -147,8 +148,7 @@ class OutputTGV(Output):
             field.set_codestream(code_init_p)
         elif params.init_fields.type == "from_py":
             x, y, z = self.sim.oper.get_cells_coords()
-            p = -0.0625 * (np.cos(2 * x) + np.cos(2 * y)) * np.cos(2 * z + 2)
-            field.set_values(list(p))
+            field.set_values(-0.0625 * (cos(2 * x) + cos(2 * y)) * cos(2 * z + 2))
         else:
             ValueError
 
@@ -163,11 +163,10 @@ class OutputTGV(Output):
             field.set_codestream(code_init_u)
         elif params.init_fields.type == "from_py":
             x, y, z = self.sim.oper.get_cells_coords()
-            vxs = np.sin(x) * np.cos(y) * np.cos(z)
-            vys = -np.cos(x) * np.sin(y) * np.cos(z)
-            vzs = np.zeros_like(x)
-            values = [(vx, vy, vz) for vx, vy, vz in zip(vxs, vys, vzs)]
-            field.set_values(values)
+            vx = sin(x) * cos(y) * cos(z)
+            vy = -cos(x) * sin(y) * cos(z)
+            vz = np.zeros_like(x)
+            field.set_values(vx, vy, vz)
         else:
             ValueError
 

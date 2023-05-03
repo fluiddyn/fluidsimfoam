@@ -145,7 +145,17 @@ class VolScalarField(FieldABC):
 class VolVectorField(FieldABC):
     cls = "volVectorField"
 
-    def set_values(self, values):
+    def set_values(self, values, vy=None, vz=None):
+        if vy is not None:
+            if vz is None:
+                raise ValueError
+            if not isinstance(values, np.ndarray):
+                raise ValueError
+            if values.ndim != 1 or values.size != vy.size != vz.size:
+                raise ValueError
+            vx = values
+            values = np.stack([vx, vy, vz]).T
+
         if isinstance(values, np.ndarray):
             if values.ndim != 2:
                 raise ValueError
