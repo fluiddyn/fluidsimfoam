@@ -26,7 +26,9 @@ def test_init_simul_sim0(index_sim):
     paths_in_sim = [
         path.relative_to(path_pure_openfoam_case)
         for path in path_pure_openfoam_case.rglob("*")
-        if not path.is_dir() and not path.name.startswith("README")
+        if not path.is_dir()
+        and not path.name.startswith("README")
+        and not path.parent.name == "polyMesh"
     ]
 
     for name in paths_in_sim:

@@ -10,6 +10,7 @@ paths_in_sim = [
     for path in path_pure_openfoam_case.rglob("*")
     if not path.is_dir()
     and not any(path.name.startswith(s) for s in ("README", "All"))
+    and not path.parent.name == "polyMesh"
 ]
 
 

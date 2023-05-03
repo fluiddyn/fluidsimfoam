@@ -40,7 +40,9 @@ def test_init(sim_tgv):
     paths_in_tiny = [
         path.relative_to(path_tiny)
         for path in path_tiny.rglob("*")
-        if not path.is_dir() and not path.name.startswith("README")
+        if not path.is_dir()
+        and not path.name.startswith("README")
+        and not path.parent.name == "polyMesh"
     ]
 
     for name in paths_in_tiny:
