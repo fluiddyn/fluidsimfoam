@@ -2,6 +2,7 @@
 
 """
 
+import re
 from functools import lru_cache
 from io import StringIO
 
@@ -27,7 +28,10 @@ def get_points_coords(path):
         assert file.readline() == "(\n"
         txt = file.read()
 
-    txt = txt.replace("(", "").replace(")", "").strip()
+    if txt.startswith("("):
+        txt = re.sub("[()]", "", txt)
+
+    txt = txt.strip()
 
     index_last_comment = txt.rfind("\n//")
     txt = txt[:index_last_comment].strip()
