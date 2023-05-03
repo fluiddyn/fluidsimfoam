@@ -9,8 +9,8 @@ import numpy as np
 
 
 @lru_cache(maxsize=1)
-def get_cells_coords(path):
-    """Get cells coordinates"""
+def get_points_coords(path):
+    """Get points coordinates"""
 
     with open(path) as file:
         for line in file:

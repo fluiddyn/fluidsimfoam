@@ -1,4 +1,4 @@
-from fluidsimfoam.foam_input_files.polymesh import get_cells_coords
+from fluidsimfoam.foam_input_files.polymesh import get_points_coords
 
 
 class Operators:
@@ -17,4 +17,4 @@ class Operators:
         if not path_points.exists():
             raise RuntimeError(f"{path_points} does not exists")
 
-        return get_cells_coords(path_points)
+        return get_points_coords(path_points)

@@ -1,7 +1,7 @@
 import tempfile
 from pathlib import Path
 
-from fluidsimfoam.foam_input_files.polymesh import get_cells_coords
+from fluidsimfoam.foam_input_files.polymesh import get_points_coords
 
 example = r"""
 /*--------------------------------*- C++ -*----------------------------------*\
@@ -48,7 +48,7 @@ def test_get_cells_coords():
         with open(path, "w") as file:
             file.write(example)
 
-        x, y, z = get_cells_coords(path)
+        x, y, z = get_points_coords(path)
 
     assert x.max() > 0.6
     assert y.max() == 0.0

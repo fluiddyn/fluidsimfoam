@@ -2,8 +2,12 @@
 
 """
 
+import re
 from abc import ABC, abstractmethod
+from io import StringIO
 from numbers import Number
+
+import numpy as np
 
 from fluidsimfoam.foam_input_files import parse
 from fluidsimfoam.foam_input_files.ast import (
@@ -33,28 +37,47 @@ class FieldABC(ABC):
             tree = parse(code)
             return cls(None, None, tree=tree)
 
-        raise NotImplementedError
+        index_nonuniform = code.index("nonuniform")
+        index_boundaryField = code.rindex("boundaryField", index_nonuniform)
+        index_opening_par = code.index("(", index_nonuniform, index_boundaryField)
+        index_closing_par = code.rindex(
+            ")", index_nonuniform, index_boundaryField
+        )
+
+        code_to_parse = (
+            code[:index_nonuniform] + ";\n\n" + code[index_boundaryField:]
+        )
+
+        tree = parse(code_to_parse)
+        code_data = code[index_opening_par + 1 : index_closing_par].strip()
+
+        if code_data.startswith("("):
+            code_data = re.sub("[()]", "", code_data)
+
+        data = np.loadtxt(StringIO(code_data))
+
+        tree.data = data
+        return cls("", "", tree=tree, values=data)
 
     def __init__(self, name, dimension, tree=None, values=None):
         if tree is not None:
             self.tree = tree
-            return
+        else:
+            info = {
+                "version": "2.0",
+                "format": "ascii",
+                "class": self.cls,
+                "object": name,
+            }
 
-        info = {
-            "version": "2.0",
-            "format": "ascii",
-            "class": self.cls,
-            "object": name,
-        }
+            if not isinstance(dimension, DimensionSet):
+                dimension = DimensionSet(str2foam_units(dimension))
 
-        if not isinstance(dimension, DimensionSet):
-            dimension = DimensionSet(str2foam_units(dimension))
+            self.tree = FoamInputFile(
+                info, children={"dimensions": dimension, "internalField": None}
+            )
 
-        self.tree = FoamInputFile(
-            info, children={"dimensions": dimension, "internalField": None}
-        )
-
-        self.tree.set_child("boundaryField", {})
+            self.tree.set_child("boundaryField", {})
 
         if values is not None:
             self.set_values(values)
@@ -96,6 +119,9 @@ class FieldABC(ABC):
     def set_name(self, name):
         self.tree.info["object"] = name
 
+    def get_array(self):
+        return np.array(self.tree.children["internalField"])
+
 
 class VolScalarField(FieldABC):
     cls = "volScalarField"
@@ -105,7 +131,7 @@ class VolScalarField(FieldABC):
             value = Value(values, name="uniform")
         else:
             value = List(
-                values,
+                list(values),
                 name=f"internalField nonuniform\nList<scalar>\n{len(values)}",
             )
         self.tree.children["internalField"] = value
@@ -115,6 +141,11 @@ class VolVectorField(FieldABC):
     cls = "volVectorField"
 
     def set_values(self, values):
+        if isinstance(values, np.ndarray):
+            if values.ndim != 2:
+                raise ValueError
+            values = [list(arr) for arr in values]
+
         n_elem = len(values)
         if n_elem == 3 and isinstance(values[0], Number):
             value = Value(
