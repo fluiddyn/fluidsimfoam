@@ -91,9 +91,9 @@ def test_get_cells_coords():
     params.output.sub_directory = "tests_fluidsimfoam/tgv"
     sim = Simul(params)
     x, y, z = sim.oper.get_cells_coords()
-    assert len(x) == 41**3
-    assert x[0] == 0.0
-    assert x[1] - 6.28318530718 / 40 < 1e-10
+    nx = sim.params.block_mesh_dict.nx
+    assert len(x) == nx**3
+    assert x[1] - x[0] - 6.28318530718 / nx < 1e-10
 
 
 path_foam_executable = shutil.which("icoFoam")

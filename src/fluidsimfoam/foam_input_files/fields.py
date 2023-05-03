@@ -6,6 +6,7 @@ import re
 from abc import ABC, abstractmethod
 from io import StringIO
 from numbers import Number
+from pathlib import Path
 
 import numpy as np
 
@@ -58,6 +59,10 @@ class FieldABC(ABC):
 
         tree.data = data
         return cls("", "", tree=tree, values=data)
+
+    @classmethod
+    def from_path(cls, path: str or Path):
+        return cls.from_code(Path(path).read_text())
 
     def __init__(self, name, dimension, tree=None, values=None):
         if tree is not None:
