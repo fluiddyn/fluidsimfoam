@@ -18,6 +18,11 @@ def block_mesh(context):
 
 
 @task(block_mesh)
+def polymesh(context):
+    pass
+
+
+@task(polymesh)
 def run(context):
     with open("system/controlDict") as file:
         for line in file:
