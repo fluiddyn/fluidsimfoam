@@ -68,6 +68,7 @@ class FoamInputFile(Node):
         self.children = children
         self.header = header
         self.comments = comments
+        self.path = None
 
     def __repr__(self):
         tmp = ["InputFile(\n"]
@@ -122,6 +123,12 @@ class FoamInputFile(Node):
         if isinstance(value, Number) or dimension is not None:
             value = Value(value, name, dimension=dimension)
         self.children[name] = value
+
+    def overwrite(self):
+        if self.path is None:
+            raise ValueError("self.path is None")
+        with open(self.path, "w") as file:
+            file.write(self.dump())
 
 
 @dataclass
