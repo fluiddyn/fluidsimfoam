@@ -40,6 +40,7 @@ class FileGeneratorABC(ABC):
 
     def __init__(self, output):
         self.output = output
+        self.input_files = output.input_files
 
     def generate_file(self, params=None):
         """Generate the file"""
@@ -73,7 +74,6 @@ class FileGenerator(FileGeneratorABC):
 
     def __init__(self, output):
         super().__init__(output)
-        self._name = underscore(Path(self.rel_path).name.replace(".", "_"))
 
     def generate_code(self, params=None):
         """Generate the code of the file from ...
@@ -94,20 +94,18 @@ class FileGenerator(FileGeneratorABC):
                 if make_tree is None:
                     raise AttributeError
             except AttributeError:
-                template = self.output.input_files.get_template(
-                    self.template_name
-                )
+                template = self.input_files.get_template(self.template_name)
                 return template.render(params=params)
             else:
 
                 def method(params_):
                     return make_tree(params_).dump()
 
-        if (self.output.input_files.templates_dir / self.template_name).exists():
+        if (self.input_files.templates_dir / self.template_name).exists():
             raise RuntimeError(
                 "Fluidsimfoam solver issue: "
                 f"2 concurrent methods to produce {self.rel_path}:\n"
-                f"- template in {self.output.input_files.templates_dir},\n"
+                f"- template in {self.input_files.templates_dir},\n"
                 f"- function output.make_code_{self._name}.\n"
                 "Remove the file or the function (or make it equal to None)."
             )
@@ -139,6 +137,6 @@ def new_file_generator_class(file_name, dir_name="0"):
         {
             "rel_path": f"{dir_name}/{file_name}",
             "template_name": f"{file_name}.jinja",
-            "_name": underscore(file_name),
+            "_name": underscore(file_name.replace(".", "_")),
         },
     )

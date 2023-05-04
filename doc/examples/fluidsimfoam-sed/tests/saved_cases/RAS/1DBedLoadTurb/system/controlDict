@@ -14,7 +14,7 @@ FoamFile
     object      controlDict;
 }
 
-application     sedFoam;
+application     sedFoam_rbgh;
 
 startFrom       latestTime;
 

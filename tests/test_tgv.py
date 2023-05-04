@@ -85,7 +85,7 @@ def test_clean_load(sim_tgv):
 
 def test_read_files_overwrite(sim_tgv):
     sim = sim_tgv
-    input_files = sim.output.input_files
+    input_files = sim.input_files
 
     field_p = input_files.p.read()
     field_u = input_files.u.read()
@@ -113,7 +113,7 @@ def test_read_files_overwrite(sim_tgv):
     assert tree_control_dict.children["startTime"] == 1.0
 
     sim.params.control_dict.write_precision = precision = 6
-    sim.output.input_files.control_dict.generate_file()
+    input_files.control_dict.generate_file()
     tree_control_dict = input_files.control_dict.read()
     assert tree_control_dict.children["writePrecision"] == precision
 
@@ -133,7 +133,7 @@ def test_get_cells_coords():
     assert len(x) == nx**3
     assert x[1] - x[0] - 6.28318530718 / nx < 1e-10
 
-    input_files = sim.output.input_files
+    input_files = sim.input_files
     field_u = input_files.u.read()
     arr = field_u.get_array()
     arr.fill(10.0)

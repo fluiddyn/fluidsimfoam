@@ -1,5 +1,7 @@
+import shutil
 from pathlib import Path
 
+import pytest
 from fluidsimfoam_sed import Simul
 
 here = Path(__file__).absolute().parent
@@ -18,6 +20,7 @@ def test_ras_1dbedloadturb():
     params = Simul.create_default_params()
 
     params.output.sub_directory = "tests_fluidsimfoam/sed"
+    params.init_fields.type = "codestream"
 
     sim = Simul(params)
 
@@ -32,3 +35,18 @@ def test_ras_1dbedloadturb():
         assert path_produced.exists(), relative_path
         text_produced = path_produced.read_text()
         assert text_produced == text_manual, relative_path
+
+
+path_foam_executable = shutil.which("sedFoam_rbgh")
+
+
+@pytest.mark.skipif(
+    path_foam_executable is None, reason="executable sedFoam_rbgh not available"
+)
+def test_run():
+    params = Simul.create_default_params()
+    params.output.sub_directory = "tests_fluidsimfoam/sed"
+    params.init_fields.type = "tanh"
+    params.control_dict.end_time = 0.001
+    sim = Simul(params)
+    sim.make.exec("run")

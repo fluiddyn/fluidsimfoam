@@ -51,3 +51,5 @@ class SimulFoam(SimulCore):
             self.path_run = None
             if mpi.rank == 0:
                 logger.warning("No output class initialized!")
+
+        self.input_files = self.output.input_files

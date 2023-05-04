@@ -1,5 +1,6 @@
 from textwrap import dedent
 
+import numpy as np
 from inflection import underscore
 
 from fluidsimfoam.foam_input_files import FoamInputFile
@@ -83,7 +84,7 @@ class OutputSED(Output):
     default_control_dict_params = Output.default_control_dict_params.copy()
     default_control_dict_params.update(
         {
-            "application": "sedFoam",
+            "application": "sedFoam_rbgh",
             "startFrom": "latestTime",
             "endTime": 20,
             "deltaT": 1e-5,
@@ -146,10 +147,27 @@ class OutputSED(Output):
 
         return bmd.format(sort_vortices="as_added")
 
+    @classmethod
+    def _complete_params_alpha_a(cls, params):
+        params._set_child(
+            "init_fields",
+            attribs={"type": "tanh", "width": 0.005},
+            doc="""type have to be in ['tanh', 'codestream']""",
+        )
+
     def make_tree_alpha_a(self, params):
         field = make_scalar_field("alpha_a", dimension="")
         field.set_boundary("top", "fixedValue", "uniform 0")
-        field.set_codestream(code_init_alpha_a)
+
+        if params.init_fields.type == "codestream":
+            field.set_codestream(code_init_alpha_a)
+        elif params.init_fields.type == "tanh":
+            x, y, z = self.sim.oper.get_cells_coords()
+            width = params.init_fields.width
+            field.set_values(0.305 * (1.0 + np.tanh((12.5 * 0.006 - y) / width)))
+        else:
+            raise ValueError(f"Unsupported {params.init_fields.type = }")
+
         return field
 
     def make_tree_alpha_plastic(self, params):
