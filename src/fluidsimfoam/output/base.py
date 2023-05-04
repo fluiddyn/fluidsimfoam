@@ -48,7 +48,9 @@ class Output(OutputCore):
     def _setup_file_generators_classes(cls):
         classes = cls._file_generators_classes = {}
         for variable_name in cls.variable_names:
-            classes[variable_name] = new_file_generator_class(variable_name)
+            classes[variable_name.replace(".", "_")] = new_file_generator_class(
+                variable_name
+            )
 
         for file_name in cls.constant_files_names:
             classes[file_name] = new_file_generator_class(file_name, "constant")
