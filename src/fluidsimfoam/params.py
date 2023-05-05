@@ -37,3 +37,9 @@ class Parameters(_Parameters):
     def _del_attrib(self, key):
         del self.__dict__[key]
         self._key_attribs.remove(key)
+
+    def __getitem__(self, key):
+        try:
+            return self.__getattribute__(key)
+        except AttributeError:
+            return super().__getitem__(key)

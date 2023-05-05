@@ -26,9 +26,10 @@ result = dedent(
 
     divSchemes
     {
-        div(phi,T)    Gauss limitedLinear 1;
-        div(phi,U)    foo;
-        div(phi,k)    $turbulence;
+        div(phi,T)        Gauss limitedLinear 1;
+        div(phi,U)        foo;
+        div(phi.b,k.b)    Gauss limitedLinear 1;
+        div(phi,k)        $turbulence;
     }
 
     laplacianSchemes
@@ -42,6 +43,12 @@ result = dedent(
     snGradSchemes
     {
     }
+
+    fluxRequired
+    {
+        default    no;
+        p_rbgh;
+    }
 """
 )
 
@@ -49,15 +56,20 @@ result = dedent(
 def test_simple():
     params = Parameters("params")
 
-    fv_scheme_helper = FvSchemesHelper(
+    fv_schemes_helper = FvSchemesHelper(
         ddt={"default": "Euler"},
-        div={
-            "default": "none",
-            "div(phi,U)": "Gauss linearUpwind grad(U)",
-            "div(phi,T)": "Gauss limitedLinear 1",
-        },
+        div="""
+            default  none
+            div(phi.b,k.b)  Gauss limitedLinear 1
+            # super comment
+            div(phi,U)  Gauss linearUpwind grad(U)
+            // great comment
+            div(phi,T)  Gauss limitedLinear 1
+        """,
     )
-    fv_scheme_helper.complete_params(params)
+    fv_schemes_helper.add_dict("fluxRequired", {"default": "no", "p_rbgh": ""})
+
+    fv_schemes_helper.complete_params(params)
 
     with TemporaryDirectory() as path_tmp_dir:
         path_tmp_dir = Path(path_tmp_dir)
@@ -81,5 +93,5 @@ def test_simple():
     # del a div scheme
     params.fv_schemes.div._del_attrib("default")
 
-    tree = fv_scheme_helper.make_tree(params)
+    tree = fv_schemes_helper.make_tree(params)
     assert tree.dump().strip() == result.strip()
