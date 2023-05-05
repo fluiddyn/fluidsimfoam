@@ -14,15 +14,15 @@ kernelspec:
 
 # Demo Taylor-Green vortex (`fluidsimfoam-tgv` solver)
 
-fluidsimfoam repository contains a
-[simple example solver](https://foss.heptapod.net/fluiddyn/fluidsimfoam/tree/main/doc/examples/fluidsimfoam-tgv)
-for the Taylor-Green vortex flow. We are going to show how it can be used on a very
-small and short simulation.
+Fluidsimfoam repository contains a [simple example
+solver](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-tgv)
+for the Taylor-Green vortex flow. We are going to show how it can be used on a
+very small and short simulation.
 
 ## Run a simulation by executing a script
 
 We will run the simulation by executing the script
-[doc/examples/scripts/tuto_tgv.py](https://foss.heptapod.net/fluiddyn/fluidsimfoam/tree/main/doc/examples/scripts/tuto_tgv.py),
+[doc/examples/scripts/tuto_tgv.py](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/scripts/tuto_tgv.py),
 which contains:
 
 ```{eval-rst}

@@ -36,10 +36,12 @@ documentation](https://fluidsimfoam.readthedocs.org).
 
 Currently, it still makes sense to install fluidsimfoam like we, the
 fluidsimfoam developers, install it, i.e. in a dedicated controlled virtual
-environment by using Poetry:
+environment created by [Poetry]:
 
 ```sh
 pip install poetry
+hg clone https://foss.heptapod.net/fluiddyn/fluidsimfoam
+cd fluidsimfoam
 poetry install
 poetry shell
 ```
@@ -65,3 +67,4 @@ poetry shell
 [snek5000]: https://snek5000.readthedocs.io
 [PythonFlu]: http://pythonflu.wikidot.com/
 [Swak4Foam]: https://openfoamwiki.net/index.php/Contrib/swak4Foam
+[Poetry]: https://python-poetry.org/docs/
