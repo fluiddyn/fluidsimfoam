@@ -36,6 +36,7 @@ __all__ = [
     "VolVectorField",
     "FvSchemesHelper",
     "Vertex",
+    "read_field_file",
 ]
 
 DEFAULT_HEADER = r"""
@@ -70,5 +71,5 @@ DEFAULT_CONTROL_DICT = dict(
 )
 
 from .blockmesh import BlockMeshDict, Vertex
-from .fields import VolScalarField, VolVectorField
+from .fields import VolScalarField, VolVectorField, read_field_file
 from .fv_schemes import FvSchemesHelper

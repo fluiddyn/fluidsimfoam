@@ -6,8 +6,7 @@ import jinja2
 from inflection import camelize, underscore
 
 from fluiddyn.util import import_class
-from fluidsimfoam.foam_input_files import parse
-from fluidsimfoam.foam_input_files.fields import read_field_file
+from fluidsimfoam.foam_input_files import parse, read_field_file
 
 
 class InputFiles:
