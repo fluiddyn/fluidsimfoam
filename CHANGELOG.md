@@ -35,4 +35,4 @@ Security in case of vulnerabilities.
 - Unstable API to define solvers
 - Can setup, run and reload simulations
 - Parser for OpenFOAM input files (:mod:`fluidsimfoam.foam_input_files`)
-- Utility to create blockMeshDict files (:mod:`fluidsimfoam.foam_input_files.blockmeshhelper`)
+- Utility to create blockMeshDict files (:mod:`fluidsimfoam.foam_input_files.blockmesh`)

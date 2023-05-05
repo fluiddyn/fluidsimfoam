@@ -40,9 +40,8 @@ exclude_patterns = [
     "_build",
     "Thumbs.db",
     ".DS_Store",
-    "examples/fluidsimfoam-tgv/README.md",
-    "examples/fluidsimfoam-cbox/README.md",
-    "examples/.pytest_cache/*",
+    "examples/fluidsimfoam-*/README.md",
+    "**/.pytest_cache/*",
 ]
 
 

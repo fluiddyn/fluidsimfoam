@@ -14,8 +14,9 @@
 .. autosummary::
    :toctree:
 
-    blockmeshhelper
+    blockmesh
     fields
+    fv_schemes
 
 """
 

@@ -1,6 +1,10 @@
+"""Helper to create fvSchemes files
+
+"""
+
 from inflection import underscore
 
-from fluidsimfoam.foam_input_files import Dict, FoamInputFile
+from fluidsimfoam.foam_input_files import FoamInputFile
 
 
 class FvSchemesHelper:

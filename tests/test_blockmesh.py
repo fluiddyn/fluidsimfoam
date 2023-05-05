@@ -2,7 +2,7 @@
 To see the coverage, run as:
 
 ```
-pytest tests/test_blockmeshhelper.py -vv --cov --cov-report term --cov-report html
+pytest tests/test_blockmesh.py -vv --cov --cov-report term --cov-report html
 firefox htmlcov/index.html
 ```
 """
@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 from fluidsimfoam.foam_input_files import dump, parse
-from fluidsimfoam.foam_input_files.blockmeshhelper import (
+from fluidsimfoam.foam_input_files.blockmesh import (
     BlockMeshDict,
     EdgeGrading,
     Point,
@@ -170,7 +170,7 @@ def create_code_tgv():
     return bmd.format(sort_vortices=False)
 
 
-path_data = Path(__file__).absolute().parent / "data_blockmeshhelper"
+path_data = Path(__file__).absolute().parent / "data_blockmesh"
 
 
 @pytest.mark.parametrize(

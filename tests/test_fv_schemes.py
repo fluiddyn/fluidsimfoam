@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from textwrap import dedent
 
-from fluidsimfoam.foam_input_files.fv_schemes_helper import FvSchemesHelper
+from fluidsimfoam.foam_input_files.fv_schemes import FvSchemesHelper
 from fluidsimfoam.params import Parameters
 
 result = dedent(
