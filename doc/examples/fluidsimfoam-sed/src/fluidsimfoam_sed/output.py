@@ -3,9 +3,13 @@ from textwrap import dedent
 import numpy as np
 from inflection import underscore
 
-from fluidsimfoam.foam_input_files import FoamInputFile
-from fluidsimfoam.foam_input_files.blockmeshhelper import BlockMeshDict
-from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
+from fluidsimfoam.foam_input_files import (
+    BlockMeshDict,
+    FoamInputFile,
+    FvSchemesHelper,
+    VolScalarField,
+    VolVectorField,
+)
 from fluidsimfoam.output import Output
 
 
@@ -96,11 +100,67 @@ class OutputSED(Output):
             "maxDeltaT": 1e-3,
         }
     )
+    fv_schemes_helper = FvSchemesHelper(
+        ddt="default  Euler implicit",
+        grad="default  Gauss linear",
+        div="""
+            default         none
+            // alphaEqn
+            div(phi,alpha)  Gauss limitedLinear01 1
+            div(phir,alpha) Gauss limitedLinear01 1
+            // UEqn
+            div(phi.a,U.a)    Gauss limitedLinearV 1
+            div(phi.b,U.b)    Gauss limitedLinearV 1
+            div(phiRa,Ua)   Gauss limitedLinear 1
+            div(phiRb,Ub)   Gauss limitedLinear 1
+            div(Rca)        Gauss linear
+            div(Rcb)        Gauss linear
+            // pEqn
+            div(alpha,nu)   Gauss linear
+            // k and EpsilonEqn
+            div(phi.b,k.b)     Gauss limitedLinear 1
+            div(phi.b,epsilon.b) Gauss limitedLinear 1
+            div(phi.b,omega.b) Gauss limitedLinear 1
+            // ThetaEqn
+            div(phi,Theta)  Gauss limitedLinear 1
+            // alphaPlastic
+            div(phia,alphaPlastic)  Gauss limitedLinear01 1
+            div(phia,pa_new_value)  Gauss limitedLinear 1
+""",
+        laplacian="""
+            default         none
+            laplacian(nuEffa,U.a) Gauss linear corrected
+            laplacian(nuEffb,U.b) Gauss linear corrected
+            laplacian(nuFra,U.a)  Gauss linear corrected
+            laplacian((rho*(1|A(U))),p_rbgh) Gauss linear corrected
+            laplacian(DkEff,k.b) Gauss linear corrected
+            laplacian(DkEff,beta) Gauss linear corrected
+            laplacian(DepsilonEff,epsilon.b) Gauss linear corrected
+            laplacian(DepsilonEff,beta) Gauss linear corrected
+            laplacian(DomegaEff,omega.b) Gauss linear corrected
+            laplacian(kappa,Theta) Gauss linear corrected
+            laplacian(kappaAlpha,alpha) Gauss linear corrected
+""",
+        interpolation={
+            "default": "linear",
+        },
+        sn_grad={
+            "default": "corrected",
+        },
+    )
+    fv_schemes_helper.add_dict("fluxRequired", {"default": "no", "p_rbgh": ""})
 
     # @classmethod
     # def _set_info_solver_classes(cls, classes):
     #     """Set the the classes for info_solver.classes.Output"""
     #     super()._set_info_solver_classes(classes)
+
+    @classmethod
+    def _complete_params_fv_schemes(cls, params):
+        cls.fv_schemes_helper.complete_params(params)
+
+    def make_tree_fv_schemes(self, params):
+        return self.fv_schemes_helper.make_tree(params)
 
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):

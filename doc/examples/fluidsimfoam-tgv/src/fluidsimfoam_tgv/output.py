@@ -3,7 +3,11 @@ from textwrap import dedent
 import numpy as np
 from numpy import cos, sin
 
-from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
+from fluidsimfoam.foam_input_files import (
+    FvSchemesHelper,
+    VolScalarField,
+    VolVectorField,
+)
 from fluidsimfoam.output import Output
 
 code_control_dict_functions = dedent(
@@ -74,10 +78,29 @@ class OutputTGV(Output):
 
     system_files_names = Output.system_files_names + ["blockMeshDict"]
 
+    fv_schemes_helper = FvSchemesHelper(
+        ddt="default   backward",
+        grad="default  leastSquares",
+        div="""
+            default         none
+            div(phi,U)      Gauss linear
+            div((nuEff*dev2(T(grad(U))))) Gauss linear""",
+        laplacian="default  Gauss linear corrected",
+        interpolation="default  linear",
+        sn_grad="default  corrected",
+    )
+
     # @classmethod
     # def _set_info_solver_classes(cls, classes):
     #     """Set the the classes for info_solver.classes.Output"""
     #     super()._set_info_solver_classes(classes)
+
+    @classmethod
+    def _complete_params_fv_schemes(cls, params):
+        cls.fv_schemes_helper.complete_params(params)
+
+    def make_tree_fv_schemes(self, params):
+        return self.fv_schemes_helper.make_tree(params)
 
     def make_code_control_dict(self, params):
         code = super().make_code_control_dict(params)
@@ -116,20 +139,6 @@ class OutputTGV(Output):
                 "pRefValue": 0,
             },
         )
-
-    @classmethod
-    def _complete_params_fv_schemes(cls, params):
-        fv_schemes = params._set_child("fv_schemes", doc="""TODO""")
-        fv_schemes._set_child("ddtSchemes", attribs={"default": "backward"})
-        fv_schemes._set_child("gradSchemes", attribs={"default": "leastSquares"})
-        fv_schemes._set_child("divSchemes", attribs={"default": "none"})
-        fv_schemes._set_child(
-            "laplacianSchemes", attribs={"default": "Gauss linear corrected"}
-        )
-        fv_schemes._set_child(
-            "interpolationSchemes", attribs={"default": "linear"}
-        )
-        fv_schemes._set_child("snGradSchemes", attribs={"default": "corrected"})
 
     @classmethod
     def _complete_params_p(cls, params):

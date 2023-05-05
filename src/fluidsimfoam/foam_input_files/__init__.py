@@ -14,8 +14,9 @@
 .. autosummary::
    :toctree:
 
-    blockmeshhelper
+    blockmesh
     fields
+    fv_schemes
 
 """
 
@@ -30,6 +31,11 @@ __all__ = [
     "Dict",
     "List",
     "Value",
+    "BlockMeshDict",
+    "VolScalarField",
+    "VolVectorField",
+    "FvSchemesHelper",
+    "Vertex",
 ]
 
 DEFAULT_HEADER = r"""
@@ -62,3 +68,7 @@ DEFAULT_CONTROL_DICT = dict(
     timePrecision=6,
     runTimeModifiable="true",
 )
+
+from .blockmesh import BlockMeshDict, Vertex
+from .fields import VolScalarField, VolVectorField
+from .fv_schemes import FvSchemesHelper

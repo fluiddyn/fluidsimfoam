@@ -1,4 +1,4 @@
-"""Utility to create blockMeshDict files
+"""Helper to create blockMeshDict files
 
 Taken from https://github.com/takaakiaoki/ofblockmeshdicthelper (Git commit
 58589f1) and modified as follow:

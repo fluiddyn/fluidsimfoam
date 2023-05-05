@@ -2,8 +2,13 @@ from textwrap import dedent
 
 from inflection import underscore
 
-from fluidsimfoam.foam_input_files import DEFAULT_HEADER, FoamInputFile
-from fluidsimfoam.foam_input_files.blockmeshhelper import BlockMeshDict, Vertex
+from fluidsimfoam.foam_input_files import (
+    DEFAULT_HEADER,
+    BlockMeshDict,
+    FoamInputFile,
+    FvSchemesHelper,
+    Vertex,
+)
 from fluidsimfoam.output import Output
 
 code_control_dict_functions = dedent(
@@ -37,6 +42,29 @@ class OutputCBox(Output):
     ]
     constant_files_names = Output.constant_files_names + ["g"]
 
+    fv_schemes_helper = FvSchemesHelper(
+        ddt={"default": "Euler"},
+        grad={"default": "Gauss linear"},
+        div={
+            "default": "none",
+            "div(phi,U)": "Gauss linearUpwind grad(U)",
+            "div(phi,T)": "Gauss limitedLinear 1",
+            "turbulence": "Gauss limitedLinear 1",
+            "div(phi,k)": "$turbulence",
+            "div(phi,epsilon)": "$turbulence",
+            "div((nuEff*dev2(T(grad(U)))))": "Gauss linear",
+        },
+        laplacian={
+            "default": "Gauss linear corrected",
+        },
+        interpolation={
+            "default": "linear",
+        },
+        sn_grad={
+            "default": "corrected",
+        },
+    )
+
     # @classmethod
     # def _set_info_solver_classes(cls, classes):
     #     """Set the the classes for info_solver.classes.Output"""
@@ -62,6 +90,13 @@ class OutputCBox(Output):
     def make_code_control_dict(self, params):
         code = super().make_code_control_dict(params)
         return code + code_control_dict_functions
+
+    @classmethod
+    def _complete_params_fv_schemes(cls, params):
+        cls.fv_schemes_helper.complete_params(params)
+
+    def make_tree_fv_schemes(self, params):
+        return self.fv_schemes_helper.make_tree(params)
 
     @classmethod
     def _complete_params_transport_properties(cls, params):

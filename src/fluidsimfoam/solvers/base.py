@@ -5,10 +5,13 @@ from inflection import underscore
 from fluiddyn.util import mpi  # noqa: F401
 from fluidsim_core.solver import SimulCore
 from fluidsimfoam.log import logger
+from fluidsimfoam.params import Parameters
 
 
 class SimulFoam(SimulCore):
     """Base OpenFOAM solver."""
+
+    Parameters = Parameters
 
     @classmethod
     def _complete_params_with_default(cls, params):
