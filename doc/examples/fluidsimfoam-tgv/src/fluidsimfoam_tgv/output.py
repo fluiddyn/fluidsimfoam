@@ -3,7 +3,7 @@ from textwrap import dedent
 import numpy as np
 from numpy import cos, sin
 
-from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
+from fluidsimfoam.foam_input_files import VolScalarField, VolVectorField
 from fluidsimfoam.output import Output
 
 code_control_dict_functions = dedent(

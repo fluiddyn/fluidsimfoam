@@ -3,10 +3,13 @@ from textwrap import dedent
 import numpy as np
 from inflection import underscore
 
-from fluidsimfoam.foam_input_files import FoamInputFile
-from fluidsimfoam.foam_input_files.blockmesh import BlockMeshDict
-from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
-from fluidsimfoam.foam_input_files.fv_schemes import FvSchemesHelper
+from fluidsimfoam.foam_input_files import (
+    BlockMeshDict,
+    FoamInputFile,
+    FvSchemesHelper,
+    VolScalarField,
+    VolVectorField,
+)
 from fluidsimfoam.output import Output
 
 

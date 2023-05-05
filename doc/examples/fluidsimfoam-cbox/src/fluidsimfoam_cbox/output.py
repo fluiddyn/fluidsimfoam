@@ -2,9 +2,13 @@ from textwrap import dedent
 
 from inflection import underscore
 
-from fluidsimfoam.foam_input_files import DEFAULT_HEADER, FoamInputFile
-from fluidsimfoam.foam_input_files.blockmesh import BlockMeshDict, Vertex
-from fluidsimfoam.foam_input_files.fv_schemes import FvSchemesHelper
+from fluidsimfoam.foam_input_files import (
+    DEFAULT_HEADER,
+    BlockMeshDict,
+    FoamInputFile,
+    FvSchemesHelper,
+    Vertex,
+)
 from fluidsimfoam.output import Output
 
 code_control_dict_functions = dedent(
