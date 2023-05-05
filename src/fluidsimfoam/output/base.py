@@ -120,32 +120,33 @@ class Output(OutputCore):
         self.input_files = InputFiles(self)
         # initialize objects
         dict_classes = sim.info.solver.classes.Output.import_classes()
-
-        if not hasattr(self, "_file_generators_classes"):
-            self._setup_file_generators_classes()
-        dict_classes.update(self._file_generators_classes)
-
-        for_str_input_files = []
         for cls_name, Class in dict_classes.items():
             if isinstance(self, Class):
                 continue
             obj_name = underscore(cls_name)
+            self.sim._objects_to_print += "{:28s}{}\n".format(
+                f"sim.output.{obj_name}: ", Class
+            )
+            setattr(self, obj_name, Class(self))
 
-            if issubclass(Class, FileGeneratorABC):
-                obj_containing = self.input_files
-                for_str_input_files.append(cls_name)
+        if not hasattr(self, "_file_generators_classes"):
+            self._setup_file_generators_classes()
+        for_str_input_files = {}
+        for cls_name, Class in self._file_generators_classes.items():
+            obj_name = underscore(cls_name)
+
+            if Class.dir_name not in for_str_input_files:
+                for_str_input_files[Class.dir_name] = [cls_name]
             else:
-                obj_containing = self
-                self.sim._objects_to_print += "{:28s}{}\n".format(
-                    f"sim.output.{obj_name}: ", Class
-                )
-
-            setattr(obj_containing, obj_name, Class(self))
+                for_str_input_files[Class.dir_name].append(cls_name)
+            setattr(self.input_files, obj_name, Class(self))
 
         if for_str_input_files:
-            self.sim._objects_to_print += (
-                f"{'input files:':28s}{' '.join(for_str_input_files)}\n"
-            )
+            self.sim._objects_to_print += "input_files:\n"
+            for dir_name, input_files in for_str_input_files.items():
+                self.sim._objects_to_print += (
+                    f"  - in {dir_name + ':':12s}{' '.join(input_files)}\n"
+                )
 
         if not (
             mpi.rank == 0

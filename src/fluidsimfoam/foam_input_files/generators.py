@@ -6,8 +6,7 @@ import jinja2
 from inflection import camelize, underscore
 
 from fluiddyn.util import import_class
-from fluidsimfoam.foam_input_files import parse
-from fluidsimfoam.foam_input_files.fields import read_field_file
+from fluidsimfoam.foam_input_files import parse, read_field_file
 
 
 class InputFiles:
@@ -135,6 +134,7 @@ def new_file_generator_class(file_name, dir_name="0"):
         cls_name,
         (FileGenerator,),
         {
+            "dir_name": dir_name,
             "rel_path": f"{dir_name}/{file_name}",
             "template_name": f"{file_name}.jinja",
             "_name": underscore(file_name.replace(".", "_")),
