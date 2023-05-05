@@ -5,11 +5,11 @@
 [![PyPI](https://img.shields.io/pypi/v/fluidsimfoam)](https://pypi.org/project/fluidsimfoam/)
 [![Documentation Status](https://readthedocs.org/projects/fluidsimfoam/badge/?version=latest)](https://fluidsimfoam.readthedocs.io/en/latest/?badge=latest)
 
-<!-- badges -->
-
 Python framework for [OpenFOAM]
 
 </div>
+
+<!-- badges -->
 
 Fluidsimfoam is a Python package which **will** allow one to write [Fluidsim]
 solvers based for the simulations on the C++ CFD code [OpenFOAM]. There
@@ -31,6 +31,18 @@ equivalent of [Snek5000], our Fluidsim framework for [Nek5000].
 
 We currently target OpenFOAM v2206. See more in [Fluidsimfoam
 documentation](https://fluidsimfoam.readthedocs.org).
+
+## Install
+
+Currently, it still makes sense to install fluidsimfoam like we, the
+fluidsimfoam developers, install it, i.e. in a dedicated controlled virtual
+environment by using Poetry:
+
+```sh
+pip install poetry
+poetry install
+poetry shell
+```
 
 ## Related projects
 
