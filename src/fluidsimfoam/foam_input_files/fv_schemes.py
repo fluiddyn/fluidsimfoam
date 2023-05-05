@@ -26,7 +26,7 @@ class FvSchemesHelper:
                 loc[arg_name] = {}
             setattr(self, arg_name, loc[arg_name])
 
-    def modif_params(self, params):
+    def complete_params(self, params):
         fv_schemes = params._set_child("fv_schemes", doc="""TODO""")
         for key in self.keys:
             name = underscore(key)
@@ -46,6 +46,6 @@ class FvSchemesHelper:
             params_key = params.fv_schemes[underscore(key)]
             attribs = {k: params_key[k] for k in params_key._key_attribs}
             attribs = {k: v for k, v in attribs.items() if v is not False}
-            tree.set_child(key, attribs)
+            tree.set_child(key + "Schemes", attribs)
 
         return tree

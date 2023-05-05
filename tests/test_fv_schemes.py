@@ -15,31 +15,31 @@ result = dedent(
         object      fvSchemes;
     }
 
-    ddt
+    ddtSchemes
     {
         default    Euler;
     }
 
-    grad
+    gradSchemes
     {
     }
 
-    div
+    divSchemes
     {
         div(phi,T)    Gauss limitedLinear 1;
         div(phi,U)    foo;
         div(phi,k)    $turbulence;
     }
 
-    laplacian
+    laplacianSchemes
     {
     }
 
-    interpolation
+    interpolationSchemes
     {
     }
 
-    snGrad
+    snGradSchemes
     {
     }
 """
@@ -57,7 +57,7 @@ def test_simple():
             "div(phi,T)": "Gauss limitedLinear 1",
         },
     )
-    fv_scheme_helper.modif_params(params)
+    fv_scheme_helper.complete_params(params)
 
     with TemporaryDirectory() as path_tmp_dir:
         path_tmp_dir = Path(path_tmp_dir)
