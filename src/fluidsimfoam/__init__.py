@@ -28,7 +28,7 @@ Fluidsimfoam API reference
 """
 import importlib.metadata
 
-from fluidsim_core.params import Parameters
+from fluidsimfoam.params import Parameters
 
 from .next_fluidsim_core import path_try_from_fluidsim_path
 
