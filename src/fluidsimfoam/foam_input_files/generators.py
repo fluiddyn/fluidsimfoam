@@ -134,6 +134,7 @@ def new_file_generator_class(file_name, dir_name="0"):
         cls_name,
         (FileGenerator,),
         {
+            "dir_name": dir_name,
             "rel_path": f"{dir_name}/{file_name}",
             "template_name": f"{file_name}.jinja",
             "_name": underscore(file_name.replace(".", "_")),
