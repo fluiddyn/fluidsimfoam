@@ -121,15 +121,12 @@ class FileGenerator(FileGeneratorABC):
             info_solver.classes.Output.module_name,
             info_solver.classes.Output.class_name,
         )
-
         try:
-            method = getattr(output_cls, "_complete_params_" + cls._name)
-            if method is None:
-                raise AttributeError
+            complete_params = getattr(output_cls, "_complete_params_" + cls._name)
         except AttributeError:
-            pass
-        else:
-            method(params)
+            complete_params = None
+        if complete_params is not None:
+            complete_params(params)
 
 
 def new_file_generator_class(file_name, dir_name="0"):
