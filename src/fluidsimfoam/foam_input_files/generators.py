@@ -83,22 +83,26 @@ class FileGenerator(FileGeneratorABC):
         if params is None:
             params = self.output.sim.params
 
+        make_code = None
         try:
-            method = getattr(self.output, "make_code_" + self._name)
-            if method is None:
-                raise AttributeError
+            make_code = getattr(self.output, "make_code_" + self._name)
         except AttributeError:
+            pass
+
+        if make_code is None:
             try:
                 make_tree = getattr(self.output, "make_tree_" + self._name)
-                if make_tree is None:
-                    raise AttributeError
             except AttributeError:
-                template = self.input_files.get_template(self.template_name)
-                return template.render(params=params)
+                pass
             else:
+                if make_tree is not None:
 
-                def method(params_):
-                    return make_tree(params_).dump()
+                    def make_code(params_):
+                        return make_tree(params_).dump()
+
+        if make_code is None:
+            template = self.input_files.get_template(self.template_name)
+            return template.render(params=params)
 
         if (self.input_files.templates_dir / self.template_name).exists():
             raise RuntimeError(
@@ -109,7 +113,7 @@ class FileGenerator(FileGeneratorABC):
                 "Remove the file or the function (or make it equal to None)."
             )
 
-        return method(params)
+        return make_code(params)
 
     @classmethod
     def _complete_params_with_default(cls, params, info_solver):
