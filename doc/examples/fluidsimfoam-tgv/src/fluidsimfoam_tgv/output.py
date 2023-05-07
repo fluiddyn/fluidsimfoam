@@ -78,7 +78,7 @@ class OutputTGV(Output):
 
     system_files_names = Output.system_files_names + ["blockMeshDict"]
 
-    fv_schemes_helper = FvSchemesHelper(
+    helper_fv_schemes = FvSchemesHelper(
         ddt="default   backward",
         grad="default  leastSquares",
         div="""
@@ -94,13 +94,6 @@ class OutputTGV(Output):
     # def _set_info_solver_classes(cls, classes):
     #     """Set the the classes for info_solver.classes.Output"""
     #     super()._set_info_solver_classes(classes)
-
-    @classmethod
-    def _complete_params_fv_schemes(cls, params):
-        cls.fv_schemes_helper.complete_params(params)
-
-    def make_tree_fv_schemes(self, params):
-        return self.fv_schemes_helper.make_tree(params)
 
     def make_code_control_dict(self, params):
         code = super().make_code_control_dict(params)

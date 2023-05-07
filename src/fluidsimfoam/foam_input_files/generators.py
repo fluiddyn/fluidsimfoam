@@ -6,7 +6,7 @@ import jinja2
 from inflection import camelize, underscore
 
 from fluiddyn.util import import_class
-from fluidsimfoam.foam_input_files import parse, read_field_file
+from fluidsimfoam.foam_input_files import FileHelper, parse, read_field_file
 
 
 class InputFiles:
@@ -83,22 +83,30 @@ class FileGenerator(FileGeneratorABC):
         if params is None:
             params = self.output.sim.params
 
-        make_code = None
         try:
             make_code = getattr(self.output, "make_code_" + self._name)
         except AttributeError:
-            pass
+            make_code = None
 
         if make_code is None:
             try:
                 make_tree = getattr(self.output, "make_tree_" + self._name)
             except AttributeError:
-                pass
-            else:
-                if make_tree is not None:
+                make_tree = None
 
-                    def make_code(params_):
-                        return make_tree(params_).dump()
+            if make_tree is None:
+                try:
+                    helper = getattr(self.output, "helper_" + self._name)
+                except AttributeError:
+                    pass
+                else:
+                    if isinstance(helper, FileHelper):
+                        make_tree = helper.make_tree
+
+            if make_tree is not None:
+
+                def make_code(params_):
+                    return make_tree(params_).dump()
 
         if make_code is None:
             template = self.input_files.get_template(self.template_name)
@@ -125,6 +133,16 @@ class FileGenerator(FileGeneratorABC):
             complete_params = getattr(output_cls, "_complete_params_" + cls._name)
         except AttributeError:
             complete_params = None
+
+        if complete_params is None:
+            try:
+                helper = getattr(output_cls, "helper_" + cls._name)
+            except AttributeError:
+                pass
+            else:
+                if isinstance(helper, FileHelper):
+                    complete_params = helper.complete_params
+
         if complete_params is not None:
             complete_params(params)
 
