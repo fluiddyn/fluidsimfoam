@@ -20,6 +20,8 @@
 
 """
 
+from abc import ABC, abstractmethod
+
 from .ast import Dict, FoamInputFile, List, Value
 from .parser import dump, parse
 
@@ -37,7 +39,19 @@ __all__ = [
     "FvSchemesHelper",
     "Vertex",
     "read_field_file",
+    "FileHelper",
 ]
+
+
+class FileHelper(ABC):
+    @abstractmethod
+    def complete_params(self, params):
+        """Complete the params object"""
+
+    @abstractmethod
+    def make_tree(self, params):
+        """Make the AST corresponding to a file"""
+
 
 DEFAULT_HEADER = r"""
 /*--------------------------------*- C++ -*----------------------------------*\

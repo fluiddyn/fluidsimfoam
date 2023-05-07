@@ -42,7 +42,7 @@ class OutputCBox(Output):
     ]
     constant_files_names = Output.constant_files_names + ["g"]
 
-    fv_schemes_helper = FvSchemesHelper(
+    helper_fv_schemes = FvSchemesHelper(
         ddt={"default": "Euler"},
         grad={"default": "Gauss linear"},
         div={
@@ -90,13 +90,6 @@ class OutputCBox(Output):
     def make_code_control_dict(self, params):
         code = super().make_code_control_dict(params)
         return code + code_control_dict_functions
-
-    @classmethod
-    def _complete_params_fv_schemes(cls, params):
-        cls.fv_schemes_helper.complete_params(params)
-
-    def make_tree_fv_schemes(self, params):
-        return self.fv_schemes_helper.make_tree(params)
 
     @classmethod
     def _complete_params_transport_properties(cls, params):

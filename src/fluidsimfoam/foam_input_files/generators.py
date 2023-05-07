@@ -6,7 +6,7 @@ import jinja2
 from inflection import camelize, underscore
 
 from fluiddyn.util import import_class
-from fluidsimfoam.foam_input_files import parse, read_field_file
+from fluidsimfoam.foam_input_files import FileHelper, parse, read_field_file
 
 
 class InputFiles:
@@ -84,21 +84,33 @@ class FileGenerator(FileGeneratorABC):
             params = self.output.sim.params
 
         try:
-            method = getattr(self.output, "make_code_" + self._name)
-            if method is None:
-                raise AttributeError
+            make_code = getattr(self.output, "make_code_" + self._name)
         except AttributeError:
+            make_code = None
+
+        if make_code is None:
             try:
                 make_tree = getattr(self.output, "make_tree_" + self._name)
-                if make_tree is None:
-                    raise AttributeError
             except AttributeError:
-                template = self.input_files.get_template(self.template_name)
-                return template.render(params=params)
-            else:
+                make_tree = None
 
-                def method(params_):
+            if make_tree is None:
+                try:
+                    helper = getattr(self.output, "helper_" + self._name)
+                except AttributeError:
+                    pass
+                else:
+                    if isinstance(helper, FileHelper):
+                        make_tree = helper.make_tree
+
+            if make_tree is not None:
+
+                def make_code(params_):
                     return make_tree(params_).dump()
+
+        if make_code is None:
+            template = self.input_files.get_template(self.template_name)
+            return template.render(params=params)
 
         if (self.input_files.templates_dir / self.template_name).exists():
             raise RuntimeError(
@@ -109,7 +121,7 @@ class FileGenerator(FileGeneratorABC):
                 "Remove the file or the function (or make it equal to None)."
             )
 
-        return method(params)
+        return make_code(params)
 
     @classmethod
     def _complete_params_with_default(cls, params, info_solver):
@@ -117,15 +129,22 @@ class FileGenerator(FileGeneratorABC):
             info_solver.classes.Output.module_name,
             info_solver.classes.Output.class_name,
         )
-
         try:
-            method = getattr(output_cls, "_complete_params_" + cls._name)
-            if method is None:
-                raise AttributeError
+            complete_params = getattr(output_cls, "_complete_params_" + cls._name)
         except AttributeError:
-            pass
-        else:
-            method(params)
+            complete_params = None
+
+        if complete_params is None:
+            try:
+                helper = getattr(output_cls, "helper_" + cls._name)
+            except AttributeError:
+                pass
+            else:
+                if isinstance(helper, FileHelper):
+                    complete_params = helper.complete_params
+
+        if complete_params is not None:
+            complete_params(params)
 
 
 def new_file_generator_class(file_name, dir_name="0"):

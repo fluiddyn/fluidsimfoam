@@ -100,7 +100,7 @@ class OutputSED(Output):
             "maxDeltaT": 1e-3,
         }
     )
-    fv_schemes_helper = FvSchemesHelper(
+    helper_fv_schemes = FvSchemesHelper(
         ddt="default  Euler implicit",
         grad="default  Gauss linear",
         div="""
@@ -148,19 +148,12 @@ class OutputSED(Output):
             "default": "corrected",
         },
     )
-    fv_schemes_helper.add_dict("fluxRequired", {"default": "no", "p_rbgh": ""})
+    helper_fv_schemes.add_dict("fluxRequired", {"default": "no", "p_rbgh": ""})
 
     # @classmethod
     # def _set_info_solver_classes(cls, classes):
     #     """Set the the classes for info_solver.classes.Output"""
     #     super()._set_info_solver_classes(classes)
-
-    @classmethod
-    def _complete_params_fv_schemes(cls, params):
-        cls.fv_schemes_helper.complete_params(params)
-
-    def make_tree_fv_schemes(self, params):
-        return self.fv_schemes_helper.make_tree(params)
 
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):

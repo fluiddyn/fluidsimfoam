@@ -4,10 +4,10 @@
 
 from inflection import underscore
 
-from fluidsimfoam.foam_input_files import FoamInputFile
+from fluidsimfoam.foam_input_files import FileHelper, FoamInputFile
 
 
-class FvSchemesHelper:
+class FvSchemesHelper(FileHelper):
     keys = ["ddt", "grad", "div", "laplacian", "interpolation", "snGrad"]
 
     def __init__(
