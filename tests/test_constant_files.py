@@ -66,7 +66,7 @@ gradPMEAN  gradPMEAN [1 -2 -2 0 0 0 0] (490.5 0 0);
 // To impose same gravity term to both phases
 tilt  tilt [0 0 0 0 0 0 0] 1;
 
-debugInfo  true;
+debugInfo       true;
 """
 
 
@@ -86,7 +86,7 @@ def test_with_list():
     helper.complete_params(params)
     assert params.force_properties.grad_pmean == [1000, 0, 0]
 
-    params.force_properties.grad_pmean == [490.5, 0, 0]
+    params.force_properties.grad_pmean = [490.5, 0, 0]
     tree = helper.make_tree(params)
     assert tree.dump() == result_with_list
 

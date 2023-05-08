@@ -77,11 +77,13 @@ class NodeLikePyDict(ABC):
         for key, value in data.items():
             if isinstance(value, (type(None), str)):
                 self.set_child(key, value)
-            elif isinstance(value, Number):
+            elif isinstance(value, (Number, list)):
                 if default_dimension is False:
                     self.set_child(key, value)
                 else:
                     dimension = dimensions.get(key, default_dimension)
+                    if isinstance(value, list):
+                        value = List(value)
                     self.set_value(key, value, dimension)
             elif isinstance(value, dict):
                 dimensions_dict = dimensions.get(key, None)
@@ -94,16 +96,16 @@ class NodeLikePyDict(ABC):
                     comments=comments_dict,
                 )
                 self._set_item(key, obj)
-            elif isinstance(value, list):
-                raise NotImplementedError
             else:
-                raise NotImplementedError
+                raise NotImplementedError(type(value))
 
     def set_child(self, key, child):
         if isinstance(child, (type(None), str, Number)):
             pass
         elif isinstance(child, dict):
             child = Dict(child, name=key)
+        elif isinstance(child, list):
+            child = List(child, name=key)
         else:
             raise NotImplementedError
         self._set_item(key, child)
@@ -226,14 +228,20 @@ class Value(Node):
         if self.dimension is not None:
             dimension_list = str2foam_units(self.dimension)
             dimension_dumped = " ".join(str(number) for number in dimension_list)
-        if self.dimension is not None and self.name is not None:
-            return f"{self.name} [{dimension_dumped}] {self.value}"
-        elif self.dimension is None and self.name is not None:
-            return f"{self.name} {self.value}"
-        elif self.dimension is not None and self.name is None:
-            return f"[{dimension_dumped}] {self.value}"
+
+        if isinstance(self.value, Node) and hasattr(self.value, "dump"):
+            value_dumped = self.value.dump()
         else:
-            return f"{self.value}"
+            value_dumped = str(self.value)
+
+        if self.dimension is not None and self.name is not None:
+            return f"{self.name} [{dimension_dumped}] {value_dumped}"
+        elif self.dimension is None and self.name is not None:
+            return f"{self.name} {value_dumped}"
+        elif self.dimension is not None and self.name is None:
+            return f"[{dimension_dumped}] {value_dumped}"
+        else:
+            return f"{value_dumped}"
 
 
 class DimensionSet(list, Node):
