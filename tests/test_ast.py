@@ -3,6 +3,7 @@ from textwrap import dedent
 import pytest
 
 from fluidsimfoam.foam_input_files.ast import (
+    Dict,
     FoamInputFile,
     Value,
     foam_units2str,
@@ -71,3 +72,25 @@ def test_dump_file():
     )[1:]
 
     assert tree.dump() == result
+
+
+def test_init_from_py_objects():
+    tree = FoamInputFile(info={})
+
+    tree.init_from_py_objects(
+        {
+            "simulationType": "RAS",
+            "RAS": {
+                "RASModel": "twophaseMixingLength",
+                "twophaseMixingLengthCoeffs": {
+                    "expoLM": 1.5,
+                    "alphaMaxLM": 0.61,
+                    "kappaLM": 0.41,
+                },
+            },
+        }
+    )
+
+    ras = tree.children["RAS"]
+    assert isinstance(ras, Dict)
+    assert ras["twophaseMixingLengthCoeffs"]["expoLM"] == 1.5

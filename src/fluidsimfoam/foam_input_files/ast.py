@@ -1,7 +1,9 @@
 import re
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from numbers import Number
 from textwrap import dedent
+from typing import Optional
 
 from inflection import underscore
 
@@ -60,7 +62,63 @@ class Node:
         return False
 
 
-class FoamInputFile(Node):
+class NodeLikePyDict(ABC):
+    def init_from_py_objects(
+        self,
+        data: dict,
+        dimensions: Optional[dict] = None,
+        default_dimension=False,
+        comments: Optional[dict] = None,
+    ):
+        if dimensions is None:
+            dimensions = {}
+        if comments is None:
+            comments = {}
+        for key, value in data.items():
+            if isinstance(value, (type(None), str)):
+                self.set_child(key, value)
+            elif isinstance(value, Number):
+                if default_dimension is False:
+                    self.set_child(key, value)
+                else:
+                    dimension = dimensions.get(key, default_dimension)
+                    self.set_value(key, value, dimension)
+            elif isinstance(value, dict):
+                dimensions_dict = dimensions.get(key, None)
+                comments_dict = comments.get(key, None)
+                obj = Dict({}, name=key, comments=comments_dict)
+                obj.init_from_py_objects(
+                    value,
+                    dimensions=dimensions_dict,
+                    default_dimension=default_dimension,
+                    comments=comments_dict,
+                )
+                self._set_item(key, obj)
+            elif isinstance(value, list):
+                raise NotImplementedError
+            else:
+                raise NotImplementedError
+
+    def set_child(self, key, child):
+        if isinstance(child, (type(None), str, Number)):
+            pass
+        elif isinstance(child, dict):
+            child = Dict(child, name=key)
+        else:
+            raise NotImplementedError
+        self._set_item(key, child)
+
+    def set_value(self, name, value, dimension=None):
+        if isinstance(value, Number) or dimension is not None:
+            value = Value(value, name, dimension=dimension)
+        self._set_item(name, value)
+
+    @abstractmethod
+    def _set_item(self, key, value):
+        """Set an item"""
+
+
+class FoamInputFile(Node, NodeLikePyDict):
     def __init__(self, info, children=None, header=None, comments=None):
         self.info = info
         if children is None:
@@ -99,8 +157,10 @@ class FoamInputFile(Node):
             else:
                 code_node = f"{key:14s}  {node};"
             if self.comments is not None and key in self.comments:
-                comment = "// " + self.comments[key].replace("\n", "\n// ")
-                code_node = comment + "\n" + code_node
+                comment = self.comments[key]
+                if isinstance(comment, str):
+                    comment = "// " + comment.replace("\n", "\n// ")
+                    code_node = comment + "\n" + code_node
             tmp.append(code_node)
         result = "\n\n".join(tmp)
         if self.header is not None:
@@ -109,26 +169,14 @@ class FoamInputFile(Node):
             result += "\n"
         return result
 
-    def set_child(self, key, child):
-        if isinstance(child, (type(None), str, int, float)):
-            pass
-        elif isinstance(child, dict):
-            child = Dict(child, name=key)
-        else:
-            raise NotImplementedError
-
-        self.children[key] = child
-
-    def set_value(self, name, value, dimension=None):
-        if isinstance(value, Number) or dimension is not None:
-            value = Value(value, name, dimension=dimension)
-        self.children[name] = value
-
     def overwrite(self):
         if self.path is None:
             raise ValueError("self.path is None")
         with open(self.path, "w") as file:
             file.write(self.dump())
+
+    def _set_item(self, key, value):
+        self.children[key] = value
 
 
 @dataclass
@@ -201,10 +249,11 @@ class DimensionSet(list, Node):
         return "[" + " ".join(str(number) for number in self) + "]"
 
 
-class Dict(dict, Node):
-    def __init__(self, data, name=None, directive=None):
+class Dict(dict, Node, NodeLikePyDict):
+    def __init__(self, data, name=None, directive=None, comments=None):
         self._name = name
         self._directive = directive
+        self.comments = comments
         super().__init__(**data)
 
     def get_name(self):
@@ -230,6 +279,11 @@ class Dict(dict, Node):
         default_space = 4
         num_spaces = max_length + default_space
         for key, node in self.items():
+            if self.comments is not None and key in self.comments:
+                comment = self.comments[key]
+                if isinstance(comment, str):
+                    tmp.append("    // " + comment.replace("\n", "\n    // "))
+
             if hasattr(node, "dump"):
                 tmp.append(node.dump(indent + 4))
             elif hasattr(node, "dump_without_assignment"):
@@ -247,6 +301,9 @@ class Dict(dict, Node):
             tmp[-1] += ";"
 
         return "\n".join(tmp)
+
+    def _set_item(self, key, value):
+        self[key] = value
 
 
 class List(list, Node):

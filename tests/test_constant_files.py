@@ -105,7 +105,7 @@ simulationType  RAS;
 RAS
 {
     // can be twophaseMixingLength, twophasekEpsilon or twophasekOmega
-    RASModel  twophaseMixingLength;
+    RASModel                      twophaseMixingLength;
     twophaseMixingLengthCoeffs
     {
         expoLM        1.0;
@@ -142,6 +142,6 @@ def test_with_dict():
     p_tp = params.turbulence_properties
     assert p_tp.ras.twophase_mixing_length_coeffs.expo_lm == 1.5
 
-    p_tp.ras.twophase_mixing_length_coeffs.expo_lm == 1.0
+    p_tp.ras.twophase_mixing_length_coeffs.expo_lm = 1.0
     tree = helper.make_tree(params)
-    assert tree.dump() == result_with_list
+    assert tree.dump() == result_with_dict

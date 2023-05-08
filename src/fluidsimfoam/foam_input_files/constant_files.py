@@ -1,8 +1,19 @@
 """Constant files helper"""
 
+from copy import deepcopy
+
 from inflection import underscore
 
 from fluidsimfoam.foam_input_files import FileHelper, FoamInputFile
+
+
+def _update_dict_with_params(data, params_data):
+    for key, value in data.items():
+        name = underscore(key)
+        if isinstance(value, dict):
+            _update_dict_with_params(value, params_data[name])
+        else:
+            data[key] = params_data[name]
 
 
 class ConstantFileHelper(FileHelper):
@@ -48,18 +59,16 @@ class ConstantFileHelper(FileHelper):
             comments=self.comments,
         )
 
-        subparams = params[underscore(self.file_name)]
+        params_file = params[underscore(self.file_name)]
 
-        for key in self.default.keys():
-            if self.dimensions is not None:
-                try:
-                    dimension = self.dimensions[key]
-                except KeyError:
-                    dimension = self.default_dimension
-            else:
-                dimension = self.default_dimension
+        default = deepcopy(self.default)
+        _update_dict_with_params(default, params_file)
 
-            name = underscore(key)
-            tree.set_value(key, subparams[name], dimension=dimension)
+        tree.init_from_py_objects(
+            default,
+            dimensions=self.dimensions,
+            default_dimension=self.default_dimension,
+            comments=self.comments,
+        )
 
         return tree
