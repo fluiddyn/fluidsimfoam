@@ -5,6 +5,7 @@ from inflection import underscore
 
 from fluidsimfoam.foam_input_files import (
     BlockMeshDict,
+    ConstantFileHelper,
     FoamInputFile,
     FvSchemesHelper,
     VolScalarField,
@@ -149,6 +150,45 @@ class OutputSED(Output):
         },
     )
     helper_fv_schemes.add_dict("fluxRequired", {"default": "no", "p_rbgh": ""})
+
+    helper_transport_properties = ConstantFileHelper(
+        "transportProperties",
+        {
+            "phasea": {
+                "rho": 2500,
+                "nu": 1e-6,
+                "d": 6e-3,
+                "sF": 1,
+                "hExp": 3.1,
+            },
+            "phaseb": {
+                "rho": 1000,
+                "nu": 1e-6,
+                "d": 3e-3,
+                "sF": 0.5,
+                "hExp": 3.1,
+            },
+            "transportModel": "Newtonian",
+            "nu": 1.0e-6,
+            "nuMax": 1e2,
+            "alphaSmall": 1e-5,
+        },
+        dimensions={
+            "phasea": {"rho": "kg/m^3", "nu": "m^2/s", "d": "m"},
+            "phaseb": {"rho": "kg/m^3", "nu": "m^2/s", "d": "m"},
+            "nu": "m^2/s",
+            "nuMax": "m^2/s",
+        },
+        default_dimension="",
+        comments={
+            "phasea": {
+                "sF": "shape Factor to adjust settling velocity for non-spherical particles",
+                "hExp": "hindrance exponent for drag: beta^(-hExp) (2.65 by default)",
+            },
+            "nuMax": "viscosity limiter for the Frictional model (required for stability)",
+            "alphaSmall": "minimum volume fraction (phase a) for division by alpha",
+        },
+    )
 
     # @classmethod
     # def _set_info_solver_classes(cls, classes):
