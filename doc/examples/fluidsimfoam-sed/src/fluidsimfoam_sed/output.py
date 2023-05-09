@@ -212,6 +212,26 @@ class OutputSED(Output):
         },
     )
 
+    helper_twophase_ras_properties = ConstantFileHelper(
+        "twophaseRASProperties",
+        {
+            "SUS": 0,
+            "KE1": 0,
+            "KE3": 0,
+            "B": 0.15,
+            "Tpsmall": 1e-6,
+        },
+        dimensions={"Tpsmall": "kg/m^3/s"},
+        default_dimension="",
+        comments={
+            "SUS": "Shared coefficients",
+            "KE1": "density stra (Uf-Us)",
+            "KE3": "turb generation",
+            "B": "turb modulation coeff",
+            "Tpsmall": "Limiters",
+        },
+    )
+
     # @classmethod
     # def _set_info_solver_classes(cls, classes):
     #     """Set the the classes for info_solver.classes.Output"""
