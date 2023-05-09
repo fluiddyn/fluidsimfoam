@@ -23,6 +23,7 @@ Fluidsimfoam API reference
    operators
    log
    tasks
+   testing
    next_fluidsim_core
 
 """

@@ -183,8 +183,7 @@ def test_blockmesh(name):
 
     if name == "cbox":
         path_saved_file = (
-            path_data.parent
-            / "saved_cases/cbox/sim0/system/blockMeshDict"
+            path_data.parent / "saved_cases/cbox/sim0/system/blockMeshDict"
         )
     elif name == "tgv":
         path_saved_file = (

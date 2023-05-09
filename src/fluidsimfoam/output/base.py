@@ -266,8 +266,7 @@ class Output(OutputCore):
             "lx": 1.0,
             "ly": 1.0,
             "lz": 1.0,
-            "metric": "m",
-            "scale": None,
+            "scale": 1,
         }
 
         params._set_child(

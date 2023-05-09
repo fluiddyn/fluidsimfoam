@@ -1,0 +1,23 @@
+[build-system]
+requires = [
+    "setuptools>=49.5.0",
+    "wheel",
+    ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fluidsimfoam-cavity"
+authors = [
+    {name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr"},
+]
+description = "Lid-driven cavity flow"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "BSD-3-Clause"}
+version = "0.0.1"
+dependencies = [
+    "fluidsimfoam >= 0.0.3",
+]
+
+[project.entry-points."fluidsimfoam.solvers"]
+cavity = "fluidsimfoam_cavity.solver"

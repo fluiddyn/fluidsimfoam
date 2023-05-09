@@ -8,10 +8,11 @@ from fluidsimfoam_tgv import Simul
 from fluidsimfoam import load
 from fluidsimfoam.foam_input_files.ast import FoamInputFile
 from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
+from fluidsimfoam.testing import check_saved_case
 
 here = Path(__file__).absolute().parent
 
-path_tiny = here / "saved_cases/tiny-tgv"
+path_saved_case = here / "saved_cases/tiny-tgv"
 
 
 @pytest.fixture(scope="function")
@@ -35,27 +36,11 @@ def sim_tgv():
 
 def test_init(sim_tgv):
     sim = sim_tgv
-
     assert all(
         (sim.path_run / name).exists()
         for name in ("info_solver.xml", "params_simul.xml")
     )
-
-    paths_in_tiny = [
-        path.relative_to(path_tiny)
-        for path in path_tiny.rglob("*")
-        if not path.is_dir()
-        and not path.name.startswith("README")
-        and not path.parent.name == "polyMesh"
-    ]
-
-    for name in paths_in_tiny:
-        path_manual = path_tiny / name
-        text_manual = path_manual.read_text()
-        path_produced = sim.path_run / name
-        assert path_produced.exists()
-        text_produced = path_produced.read_text()
-        assert text_produced == text_manual, name
+    check_saved_case(path_saved_case, sim.path_run)
 
 
 def test_list(sim_tgv):
