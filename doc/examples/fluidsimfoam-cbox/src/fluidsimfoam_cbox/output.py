@@ -3,10 +3,8 @@ from textwrap import dedent
 from inflection import underscore
 
 from fluidsimfoam.foam_input_files import (
-    DEFAULT_HEADER,
     BlockMeshDict,
     ConstantFileHelper,
-    FoamInputFile,
     FvSchemesHelper,
     Vertex,
 )

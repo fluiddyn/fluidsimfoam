@@ -1,7 +1,10 @@
+"""Base class for ``Simul.InfoSolver``"""
+
 from fluidsim_core.info import InfoSolverCore
 
 
 class InfoSolver(InfoSolverCore):
+    """Contains the information on which classes are used in a solver"""
     def _init_root(self):
         super()._init_root()
 

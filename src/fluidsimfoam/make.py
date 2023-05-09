@@ -1,4 +1,8 @@
-from pathlib import Path
+"""Base class for the ``sim.make`` object
+
+"""
+
+
 from subprocess import run
 
 

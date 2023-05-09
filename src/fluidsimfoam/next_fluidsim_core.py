@@ -1,3 +1,5 @@
+"""Code that should be part of the next ``fluidsim_core`` release"""
+
 from pathlib import Path
 from textwrap import dedent
 

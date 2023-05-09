@@ -1,3 +1,5 @@
+"""Abstract Syntax Trees for OpenFOAM input files"""
+
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass

@@ -1,3 +1,7 @@
+"""Subpackage containing potential templates (actually empty for now)
+
+"""
+
 import jinja2
 
 

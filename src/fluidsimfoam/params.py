@@ -1,3 +1,5 @@
+"""Base class for the ``params`` object"""
+
 from fluidsim_core.params import Parameters as _Parameters
 
 table = {"(": "__opar__", ")": "__cpar__", ",": "__comma__", "*": "__mul__"}

@@ -1,6 +1,6 @@
-"""Logging
-==========
-A logger instance (variable :code:`logger`).
+"""Fluidsimfoam logging
+
+Define a logger instance (variable :code:`logger`).
 
 """
 

@@ -1,3 +1,5 @@
+"""Internal machinery to generate the OpenFOAM input files"""
+
 from abc import ABC, abstractmethod
 from inspect import getmodule
 from pathlib import Path

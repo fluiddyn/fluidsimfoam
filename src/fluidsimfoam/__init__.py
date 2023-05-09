@@ -7,10 +7,10 @@ Fluidsimfoam API reference
    :toctree:
 
    foam_input_files
-   output
-   resources
    solvers
+   output
    util
+   resources
 
 .. rubric:: Modules
 
@@ -18,12 +18,12 @@ Fluidsimfoam API reference
    :toctree:
 
    info
-   init_fields
-   log
    make
-   next_fluidsim_core
+   init_fields
    operators
+   log
    tasks
+   next_fluidsim_core
 
 """
 import importlib.metadata
@@ -69,7 +69,7 @@ def load_simul(path_dir="."):
 
 
 def load_params(path_dir="."):
-    """Load a :class:`fluidsim_core.params.Parameters` instance from `path_dir`.
+    """Load a :class:`fluidsim_core.params.Parameters` instance from ``path_dir``
 
     Parameters
     ----------

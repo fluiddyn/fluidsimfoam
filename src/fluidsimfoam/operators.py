@@ -1,3 +1,5 @@
+"""Base class for the ``sim.oper`` object"""
+
 import shutil
 from subprocess import run
 

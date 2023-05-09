@@ -1,5 +1,5 @@
 """
-Solver framework
+Define and use solvers
 
 .. autosummary::
    :toctree:
