@@ -190,6 +190,28 @@ class OutputSED(Output):
         },
     )
 
+    helper_turbulence_properties_b = ConstantFileHelper(
+        "turbulenceProperties.b",
+        {
+            "simulationType": "RAS",
+            "RAS": {
+                "RASModel": "twophaseMixingLength",
+                "turbulence": "on",
+                "printCoeffs": "on",
+                "twophaseMixingLengthCoeffs": {
+                    "expoLM": 1.0,
+                    "alphaMaxLM": 0.61,
+                    "kappaLM": 0.41,
+                },
+            },
+        },
+        comments={
+            "RAS": {
+                "RASModel": "can be twophaseMixingLength, twophasekEpsilon or twophasekOmega"
+            }
+        },
+    )
+
     # @classmethod
     # def _set_info_solver_classes(cls, classes):
     #     """Set the the classes for info_solver.classes.Output"""
