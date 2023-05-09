@@ -105,7 +105,7 @@ simulationType  RAS;
 RAS
 {
     // can be twophaseMixingLength, twophasekEpsilon or twophasekOmega
-    RASModel                      twophaseMixingLength;
+    RASModel    twophaseMixingLength;
     twophaseMixingLengthCoeffs
     {
         expoLM        1.0;

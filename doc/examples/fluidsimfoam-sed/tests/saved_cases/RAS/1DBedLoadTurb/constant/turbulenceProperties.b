@@ -12,9 +12,9 @@ simulationType  RAS;
 RAS
 {
     // can be twophaseMixingLength, twophasekEpsilon or twophasekOmega
-    RASModel                      twophaseMixingLength;
-    turbulence                    on;
-    printCoeffs                   on;
+    RASModel       twophaseMixingLength;
+    turbulence     on;
+    printCoeffs    on;
     twophaseMixingLengthCoeffs
     {
         expoLM        1.0;

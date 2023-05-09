@@ -280,7 +280,14 @@ class Dict(dict, Node, NodeLikePyDict):
             tmp.append(line + f"\n{indentation}" + "{")
 
         try:
-            max_length = max(len(key) for key in self)
+            max_length = min(
+                20,
+                max(
+                    len(key)
+                    for key, value in self.items()
+                    if not isinstance(value, Dict)
+                ),
+            )
         except ValueError:
             max_length = 0
 
@@ -300,7 +307,7 @@ class Dict(dict, Node, NodeLikePyDict):
                 if node == "":
                     s = ""
                 else:
-                    s = (num_spaces - len(key)) * " "
+                    s = max(2, (num_spaces - len(key))) * " "
                 tmp.append(indentation + f"    {key}{s}{node};")
         tmp.append(indentation + "}")
 
