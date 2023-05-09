@@ -12,10 +12,10 @@ from fluidsim_core.params import iter_complete_params
 from fluidsimfoam.foam_input_files import (
     DEFAULT_CONTROL_DICT,
     DEFAULT_HEADER,
+    ConstantFileHelper,
     FoamInputFile,
 )
 from fluidsimfoam.foam_input_files.generators import (
-    FileGeneratorABC,
     InputFiles,
     new_file_generator_class,
 )
@@ -28,6 +28,10 @@ class Output(OutputCore):
     constant_files_names = ["transportProperties", "turbulenceProperties"]
     system_files_names = ["controlDict", "fvSchemes", "fvSolution"]
     default_control_dict_params = DEFAULT_CONTROL_DICT
+
+    helper_turbulence_properties = ConstantFileHelper(
+        "turbulenceProperties", {"simulationType": "laminar"}
+    )
 
     @classmethod
     def _complete_info_solver(cls, info_solver):
@@ -252,28 +256,6 @@ class Output(OutputCore):
     def make_code_control_dict(self, params):
         tree = self.make_tree_control_dict(params)
         return tree.dump()
-
-    @classmethod
-    def _complete_params_turbulence_properties(cls, params):
-        params._set_child(
-            "turbulence_properties",
-            attribs={"simulation_type": "laminar"},
-            doc="""TODO""",
-        )
-
-    def make_tree_turbulence_properties(self, params):
-        return FoamInputFile(
-            info={
-                "version": "2.0",
-                "format": "ascii",
-                "class": "dictionary",
-                "object": "turbulenceProperties",
-            },
-            children={
-                "simulationType": params.turbulence_properties.simulation_type
-            },
-            header=DEFAULT_HEADER,
-        )
 
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):

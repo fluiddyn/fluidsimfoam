@@ -6,9 +6,9 @@ FoamFile
     object      epsilon;
 }
 
-dimensions  [0 2 -3 0 0 0 0];
+dimensions       [0 2 -3 0 0 0 0];
 
-internalField  uniform 1e-08;
+internalField    uniform 1e-08;
 
 boundaryField
 {

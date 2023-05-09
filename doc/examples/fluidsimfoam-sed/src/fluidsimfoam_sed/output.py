@@ -5,6 +5,7 @@ from inflection import underscore
 
 from fluidsimfoam.foam_input_files import (
     BlockMeshDict,
+    ConstantFileHelper,
     FoamInputFile,
     FvSchemesHelper,
     VolScalarField,
@@ -149,6 +150,109 @@ class OutputSED(Output):
         },
     )
     helper_fv_schemes.add_dict("fluxRequired", {"default": "no", "p_rbgh": ""})
+
+    helper_transport_properties = ConstantFileHelper(
+        "transportProperties",
+        {
+            "phasea": {
+                "rho": 2500,
+                "nu": 1e-6,
+                "d": 6e-3,
+                "sF": 1,
+                "hExp": 3.1,
+            },
+            "phaseb": {
+                "rho": 1000,
+                "nu": 1e-6,
+                "d": 3e-3,
+                "sF": 0.5,
+                "hExp": 3.1,
+            },
+            "transportModel": "Newtonian",
+            "nu": 1.0e-6,
+            "nuMax": 1e2,
+            "alphaSmall": 1e-5,
+        },
+        dimensions={
+            "phasea": {"rho": "kg/m^3", "nu": "m^2/s", "d": "m"},
+            "phaseb": {"rho": "kg/m^3", "nu": "m^2/s", "d": "m"},
+            "nu": "m^2/s",
+            "nuMax": "m^2/s",
+        },
+        default_dimension="",
+        comments={
+            "phasea": {
+                "sF": "shape Factor to adjust settling velocity for non-spherical particles",
+                "hExp": "hindrance exponent for drag: beta^(-hExp) (2.65 by default)",
+            },
+            "nuMax": "viscosity limiter for the Frictional model (required for stability)",
+            "alphaSmall": "minimum volume fraction (phase a) for division by alpha",
+        },
+    )
+
+    helper_turbulence_properties_b = ConstantFileHelper(
+        "turbulenceProperties.b",
+        {
+            "simulationType": "RAS",
+            "RAS": {
+                "RASModel": "twophaseMixingLength",
+                "turbulence": "on",
+                "printCoeffs": "on",
+                "twophaseMixingLengthCoeffs": {
+                    "expoLM": 1.0,
+                    "alphaMaxLM": 0.61,
+                    "kappaLM": 0.41,
+                },
+            },
+        },
+        comments={
+            "RAS": {
+                "RASModel": "can be twophaseMixingLength, twophasekEpsilon or twophasekOmega"
+            }
+        },
+    )
+
+    helper_twophase_ras_properties = ConstantFileHelper(
+        "twophaseRASProperties",
+        {
+            "SUS": 0,
+            "KE1": 0,
+            "KE3": 0,
+            "B": 0.15,
+            "Tpsmall": 1e-6,
+        },
+        dimensions={"Tpsmall": "kg/m^3/s"},
+        default_dimension="",
+        comments={
+            "SUS": "Shared coefficients",
+            "KE1": "density stra (Uf-Us)",
+            "KE3": "turb generation",
+            "B": "turb modulation coeff",
+            "Tpsmall": "Limiters",
+        },
+    )
+
+    helper_force_properties = ConstantFileHelper(
+        "forceProperties",
+        {
+            "gradPMEAN": [490.5, 0, 0],
+            "tilt": 1,
+            "Cvm": 0,
+            "Cl": 0,
+            "Ct": 0,
+            "debugInfo": "true",
+            "writeTau": "true",
+        },
+        dimensions={"gradPMEAN": "kg/m^2/s^2"},
+        default_dimension="",
+        comments={
+            "gradPMEAN": "mean pressure",
+            "tilt": "To impose same gravity term to both phases",
+            "Cvm": "Virtual/Added Mass coefficient",
+            "Cl": "Lift force coefficient",
+            "Ct": "Eddy diffusivity coefficient for phase a",
+        },
+    )
 
     # @classmethod
     # def _set_info_solver_classes(cls, classes):

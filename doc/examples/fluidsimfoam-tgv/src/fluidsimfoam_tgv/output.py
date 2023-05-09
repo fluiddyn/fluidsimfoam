@@ -4,6 +4,7 @@ import numpy as np
 from numpy import cos, sin
 
 from fluidsimfoam.foam_input_files import (
+    ConstantFileHelper,
     FvSchemesHelper,
     VolScalarField,
     VolVectorField,
@@ -88,6 +89,12 @@ class OutputTGV(Output):
         laplacian="default  Gauss linear corrected",
         interpolation="default  linear",
         sn_grad="default  corrected",
+    )
+
+    helper_transport_properties = ConstantFileHelper(
+        "transportProperties",
+        {"transportModel": "Newtonian", "nu": 0.000625},
+        default_dimension="m^2/s",
     )
 
     # @classmethod

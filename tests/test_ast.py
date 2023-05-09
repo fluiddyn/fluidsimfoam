@@ -3,7 +3,9 @@ from textwrap import dedent
 import pytest
 
 from fluidsimfoam.foam_input_files.ast import (
+    Dict,
     FoamInputFile,
+    List,
     Value,
     foam_units2str,
     str2foam_units,
@@ -63,11 +65,45 @@ def test_dump_file():
             version     2.0;
         }
 
-        transportModel  Newtonian;
+        transportModel    Newtonian;
 
         // Laminar viscosity
-        nu              0.001;
+        nu                0.001;
     """
     )[1:]
 
     assert tree.dump() == result
+
+
+def test_init_from_py_objects():
+    tree = FoamInputFile(info={})
+
+    tree.init_from_py_objects(
+        {
+            "simulationType": "RAS",
+            "RAS": {
+                "RASModel": "twophaseMixingLength",
+                "twophaseMixingLengthCoeffs": {
+                    "expoLM": 1.5,
+                    "alphaMaxLM": 0.61,
+                    "kappaLM": 0.41,
+                },
+            },
+        }
+    )
+
+    ras = tree.children["RAS"]
+    assert isinstance(ras, Dict)
+    assert ras["twophaseMixingLengthCoeffs"]["expoLM"] == 1.5
+
+
+def test_init_from_py_objects_list():
+    tree = FoamInputFile(info={})
+
+    tree.init_from_py_objects(
+        {"gradPMEAN": [1000, 0, 0], "tilt": 1, "debugInfo": "true"}
+    )
+    grad = tree.children["gradPMEAN"]
+
+    assert isinstance(grad, List)
+    assert grad[0] == 1000

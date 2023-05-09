@@ -1,7 +1,9 @@
 import re
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from numbers import Number
 from textwrap import dedent
+from typing import Optional
 
 from inflection import underscore
 
@@ -53,6 +55,23 @@ def foam_units2str(foam_units):
     return result
 
 
+def _compute_spaces_to_align(data, max_length=20):
+    try:
+        max_length = min(
+            max_length,
+            max(
+                len(key)
+                for key, value in data.items()
+                if not isinstance(value, (Dict, List))
+            ),
+        )
+    except ValueError:
+        max_length = 0
+
+    default_space = 4
+    return max_length + default_space
+
+
 class Node:
     def __eq__(self, other):
         if type(other) is type(self):
@@ -60,7 +79,65 @@ class Node:
         return False
 
 
-class FoamInputFile(Node):
+class NodeLikePyDict(ABC):
+    def init_from_py_objects(
+        self,
+        data: dict,
+        dimensions: Optional[dict] = None,
+        default_dimension=False,
+        comments: Optional[dict] = None,
+    ):
+        if dimensions is None:
+            dimensions = {}
+        if comments is None:
+            comments = {}
+        for key, value in data.items():
+            if isinstance(value, (type(None), str)):
+                self.set_child(key, value)
+            elif isinstance(value, (Number, list)):
+                if default_dimension is False:
+                    self.set_child(key, value)
+                else:
+                    dimension = dimensions.get(key, default_dimension)
+                    if isinstance(value, list):
+                        value = List(value)
+                    self.set_value(key, value, dimension)
+            elif isinstance(value, dict):
+                dimensions_dict = dimensions.get(key, None)
+                comments_dict = comments.get(key, None)
+                obj = Dict({}, name=key, comments=comments_dict)
+                obj.init_from_py_objects(
+                    value,
+                    dimensions=dimensions_dict,
+                    default_dimension=default_dimension,
+                    comments=comments_dict,
+                )
+                self._set_item(key, obj)
+            else:
+                raise NotImplementedError(type(value))
+
+    def set_child(self, key, child):
+        if isinstance(child, (type(None), str, Number)):
+            pass
+        elif isinstance(child, dict):
+            child = Dict(child, name=key)
+        elif isinstance(child, list):
+            child = List(child, name=key)
+        else:
+            raise NotImplementedError
+        self._set_item(key, child)
+
+    def set_value(self, name, value, dimension=None):
+        if isinstance(value, Number) or dimension is not None:
+            value = Value(value, name, dimension=dimension)
+        self._set_item(name, value)
+
+    @abstractmethod
+    def _set_item(self, key, value):
+        """Set an item"""
+
+
+class FoamInputFile(Node, NodeLikePyDict):
     def __init__(self, info, children=None, header=None, comments=None):
         self.info = info
         if children is None:
@@ -86,21 +163,31 @@ class FoamInputFile(Node):
                 tmp1.append(f"    {key}{s}{node};")
             tmp1.append("}")
             tmp.append("\n".join(tmp1))
+
+        num_spaces = _compute_spaces_to_align(self.children, max_length=14)
         for key, node in self.children.items():
             if hasattr(node, "dump"):
                 code_node = node.dump()
                 # special for isolated list
                 if key is None and isinstance(node, List):
                     code_node += ";"
-            elif hasattr(node, "dump_without_assignment"):
-                code_node = f"{key}  {node.dump_without_assignment()};"
             elif node is None:
                 code_node = f"{key}"
             else:
-                code_node = f"{key:14s}  {node};"
+                if hasattr(node, "dump_without_assignment"):
+                    node_dumped = node.dump_without_assignment()
+                else:
+                    node_dumped = node
+                if node_dumped == "":
+                    s = ""
+                else:
+                    s = max(2, (num_spaces - len(key))) * " "
+                code_node = f"{key}{s}{node_dumped};"
             if self.comments is not None and key in self.comments:
-                comment = "// " + self.comments[key].replace("\n", "\n// ")
-                code_node = comment + "\n" + code_node
+                comment = self.comments[key]
+                if isinstance(comment, str):
+                    comment = "// " + comment.replace("\n", "\n// ")
+                    code_node = comment + "\n" + code_node
             tmp.append(code_node)
         result = "\n\n".join(tmp)
         if self.header is not None:
@@ -109,26 +196,14 @@ class FoamInputFile(Node):
             result += "\n"
         return result
 
-    def set_child(self, key, child):
-        if isinstance(child, (type(None), str, int, float)):
-            pass
-        elif isinstance(child, dict):
-            child = Dict(child, name=key)
-        else:
-            raise NotImplementedError
-
-        self.children[key] = child
-
-    def set_value(self, name, value, dimension=None):
-        if isinstance(value, Number) or dimension is not None:
-            value = Value(value, name, dimension=dimension)
-        self.children[name] = value
-
     def overwrite(self):
         if self.path is None:
             raise ValueError("self.path is None")
         with open(self.path, "w") as file:
             file.write(self.dump())
+
+    def _set_item(self, key, value):
+        self.children[key] = value
 
 
 @dataclass
@@ -178,14 +253,20 @@ class Value(Node):
         if self.dimension is not None:
             dimension_list = str2foam_units(self.dimension)
             dimension_dumped = " ".join(str(number) for number in dimension_list)
-        if self.dimension is not None and self.name is not None:
-            return f"{self.name} [{dimension_dumped}] {self.value}"
-        elif self.dimension is None and self.name is not None:
-            return f"{self.name} {self.value}"
-        elif self.dimension is not None and self.name is None:
-            return f"[{dimension_dumped}] {self.value}"
+
+        if isinstance(self.value, Node) and hasattr(self.value, "dump"):
+            value_dumped = self.value.dump()
         else:
-            return f"{self.value}"
+            value_dumped = str(self.value)
+
+        if self.dimension is not None and self.name is not None:
+            return f"{self.name} [{dimension_dumped}] {value_dumped}"
+        elif self.dimension is None and self.name is not None:
+            return f"{self.name} {value_dumped}"
+        elif self.dimension is not None and self.name is None:
+            return f"[{dimension_dumped}] {value_dumped}"
+        else:
+            return f"{value_dumped}"
 
 
 class DimensionSet(list, Node):
@@ -201,10 +282,11 @@ class DimensionSet(list, Node):
         return "[" + " ".join(str(number) for number in self) + "]"
 
 
-class Dict(dict, Node):
-    def __init__(self, data, name=None, directive=None):
+class Dict(dict, Node, NodeLikePyDict):
+    def __init__(self, data, name=None, directive=None, comments=None):
         self._name = name
         self._directive = directive
+        self.comments = comments
         super().__init__(**data)
 
     def get_name(self):
@@ -222,24 +304,25 @@ class Dict(dict, Node):
                 line += "  " + self._directive
             tmp.append(line + f"\n{indentation}" + "{")
 
-        try:
-            max_length = max(len(key) for key in self)
-        except ValueError:
-            max_length = 0
-
-        default_space = 4
-        num_spaces = max_length + default_space
+        num_spaces = _compute_spaces_to_align(self)
         for key, node in self.items():
+            if self.comments is not None and key in self.comments:
+                comment = self.comments[key]
+                if isinstance(comment, str):
+                    tmp.append("    // " + comment.replace("\n", "\n    // "))
+
             if hasattr(node, "dump"):
                 tmp.append(node.dump(indent + 4))
-            elif hasattr(node, "dump_without_assignment"):
-                tmp.append(f"    {key}  {node.dump_without_assignment()};")
             else:
+                if hasattr(node, "dump_without_assignment"):
+                    code_node = node.dump_without_assignment()
+                else:
+                    code_node = node
                 if node == "":
                     s = ""
                 else:
-                    s = (num_spaces - len(key)) * " "
-                tmp.append(indentation + f"    {key}{s}{node};")
+                    s = max(2, (num_spaces - len(key))) * " "
+                tmp.append(indentation + f"    {key}{s}{code_node};")
         tmp.append(indentation + "}")
 
         # because OpenFOAM inconsistency
@@ -247,6 +330,9 @@ class Dict(dict, Node):
             tmp[-1] += ";"
 
         return "\n".join(tmp)
+
+    def _set_item(self, key, value):
+        self[key] = value
 
 
 class List(list, Node):
