@@ -5,6 +5,7 @@ from inflection import underscore
 from fluidsimfoam.foam_input_files import (
     DEFAULT_HEADER,
     BlockMeshDict,
+    ConstantFileHelper,
     FoamInputFile,
     FvSchemesHelper,
     Vertex,
@@ -65,6 +66,18 @@ class OutputCBox(Output):
         },
     )
 
+    helper_turbulence_properties = ConstantFileHelper(
+        "turbulenceProperties",
+        {
+            "simulationType": "laminar",
+            "RAS": {
+                "RASModel": "kEpsilon",
+                "turbulence": "on",
+                "printCoeffs": "on",
+            },
+        },
+    )
+
     # @classmethod
     # def _set_info_solver_classes(cls, classes):
     #     """Set the the classes for info_solver.classes.Output"""
@@ -120,14 +133,6 @@ class OutputCBox(Output):
                 "Prt": "Turbulent Prandtl number",
             },
         )
-
-    def make_tree_turbulence_properties(self, params):
-        tree = super().make_tree_turbulence_properties(params)
-        tree.set_child(
-            "RAS",
-            {"RASModel": "kEpsilon", "turbulence": "on", "printCoeffs": "on"},
-        )
-        return tree
 
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
