@@ -1,3 +1,5 @@
+"""Parser for OpenFOAM input files"""
+
 from dataclasses import dataclass
 from pathlib import Path
 

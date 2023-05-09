@@ -17,6 +17,7 @@
     blockmesh
     fields
     fv_schemes
+    constant_files
 
 """
 
@@ -44,6 +45,7 @@ __all__ = [
 
 
 class FileHelper(ABC):
+    """Abstract class for "Helper" objects"""
     @abstractmethod
     def complete_params(self, params):
         """Complete the params object"""

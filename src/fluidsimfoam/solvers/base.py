@@ -1,3 +1,5 @@
+"""Base class for the ``sim`` object"""
+
 from pathlib import Path
 
 from inflection import underscore
@@ -9,7 +11,7 @@ from fluidsimfoam.params import Parameters
 
 
 class SimulFoam(SimulCore):
-    """Base OpenFOAM solver."""
+    """Base OpenFOAM Fluidsim solver."""
 
     Parameters = Parameters
 

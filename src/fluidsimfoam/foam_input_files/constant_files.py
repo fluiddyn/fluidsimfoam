@@ -1,4 +1,4 @@
-"""Constant files helper"""
+"""Helper to create constant files"""
 
 from copy import deepcopy
 
