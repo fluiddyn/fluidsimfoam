@@ -22,15 +22,6 @@ code_control_dict_functions = dedent(
 """
 )
 
-_attribs_transport_prop = {
-    "transportModel": "Newtonian",
-    "nu": 0.001,
-    "beta": 1.88583,
-    "TRef": 300,
-    "Pr": 1.0,
-    "Prt": 1.0,
-}
-
 
 class OutputCBox(Output):
     """Output for the cbox solver"""
@@ -77,6 +68,24 @@ class OutputCBox(Output):
             },
         },
     )
+    helper_transport_properties = ConstantFileHelper(
+        "transportProperties",
+        {
+            "transportModel": "Newtonian",
+            "nu": 0.001,
+            "beta": 1.88583,
+            "TRef": 300,
+            "Pr": 1.0,
+            "Prt": 1.0,
+        },
+        comments={
+            "nu": "Laminar viscosity",
+            "beta": "Thermal expansion coefficient",
+            "TRef": "Reference temperature",
+            "Pr": "Laminar Prandtl number",
+            "Prt": "Turbulent Prandtl number",
+        },
+    )
 
     # @classmethod
     # def _set_info_solver_classes(cls, classes):
@@ -103,36 +112,6 @@ class OutputCBox(Output):
     def make_code_control_dict(self, params):
         code = super().make_code_control_dict(params)
         return code + code_control_dict_functions
-
-    @classmethod
-    def _complete_params_transport_properties(cls, params):
-        params._set_child(
-            "transport_properties",
-            attribs=_attribs_transport_prop,
-            doc="""TODO""",
-        )
-
-    def make_tree_transport_properties(self, params):
-        return FoamInputFile(
-            info={
-                "version": "2.0",
-                "format": "ascii",
-                "class": "dictionary",
-                "object": "transportProperties",
-            },
-            children={
-                key: params.transport_properties[key]
-                for key in _attribs_transport_prop.keys()
-            },
-            header=DEFAULT_HEADER,
-            comments={
-                "nu": "Laminar viscosity",
-                "beta": "Thermal expansion coefficient",
-                "TRef": "Reference temperature",
-                "Pr": "Laminar Prandtl number",
-                "Prt": "Turbulent Prandtl number",
-            },
-        )
 
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
