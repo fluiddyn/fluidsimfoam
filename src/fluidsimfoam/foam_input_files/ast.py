@@ -301,14 +301,16 @@ class Dict(dict, Node, NodeLikePyDict):
 
             if hasattr(node, "dump"):
                 tmp.append(node.dump(indent + 4))
-            elif hasattr(node, "dump_without_assignment"):
-                tmp.append(f"    {key}  {node.dump_without_assignment()};")
             else:
+                if hasattr(node, "dump_without_assignment"):
+                    code_node = node.dump_without_assignment()
+                else:
+                    code_node = node
                 if node == "":
                     s = ""
                 else:
                     s = max(2, (num_spaces - len(key))) * " "
-                tmp.append(indentation + f"    {key}{s}{node};")
+                tmp.append(indentation + f"    {key}{s}{code_node};")
         tmp.append(indentation + "}")
 
         # because OpenFOAM inconsistency

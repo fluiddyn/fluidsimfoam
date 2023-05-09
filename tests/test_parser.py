@@ -471,7 +471,7 @@ def test_dimension_set(grammar):
 
         SIMPLE
         {
-            rhoMin  rhoMin [1 -3 0 0 0 0 0] 0.3;
+            rhoMin    rhoMin [1 -3 0 0 0 0 0] 0.3;
         }
         """,
         grammar=grammar,
