@@ -232,6 +232,28 @@ class OutputSED(Output):
         },
     )
 
+    helper_force_properties = ConstantFileHelper(
+        "forceProperties",
+        {
+            "gradPMEAN": [490.5, 0, 0],
+            "tilt": 1,
+            "Cvm": 0,
+            "Cl": 0,
+            "Ct": 0,
+            "debugInfo": "true",
+            "writeTau": "true",
+        },
+        dimensions={"gradPMEAN": "kg/m^2/s^2"},
+        default_dimension="",
+        comments={
+            "gradPMEAN": "mean pressure",
+            "tilt": "To impose same gravity term to both phases",
+            "Cvm": "Virtual/Added Mass coefficient",
+            "Cl": "Lift force coefficient",
+            "Ct": "Eddy diffusivity coefficient for phase a",
+        },
+    )
+
     # @classmethod
     # def _set_info_solver_classes(cls, classes):
     #     """Set the the classes for info_solver.classes.Output"""
