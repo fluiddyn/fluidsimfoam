@@ -43,9 +43,7 @@ class Vertex:
         comment = f"{self.index} {self.name}"
         if len(self.alias) > 1:
             comment += " : " + " ".join(sorted(self.alias))
-        return (
-            f"( {self.x:18.15g} {self.y:18.15g} {self.z:18.15g} )  // {comment}"
-        )
+        return f"( {self.x: .15g} {self.y: .15g} {self.z: .15g} )  // {comment}"
 
     def __lt__(self, rhs):
         return (self.z, self.y, self.x) < (rhs.z, rhs.y, rhs.x)
@@ -152,21 +150,18 @@ class HexBlock:
             (0, 3, 2, 1),
             (4, 5, 6, 7),
         ]
-        index_to_defaultsuffix = [
-            "f-{}-w",
-            "f-{}-e",
-            "f-{}-s",
-            "f-{}-n",
-            "f-{}-b",
-            "f-{}-t",
-        ]
+        index_to_defaultsuffix = "wesnbt"
 
         if isinstance(index, str):
             index = kw_to_index[index]
 
         vnames = tuple([self.vnames[i] for i in index_to_vertex[index]])
         if name is None:
-            name = index_to_defaultsuffix[index].format(self.name)
+            parts = ["f"]
+            if self.name:
+                parts.append(self.name)
+            parts.append(index_to_defaultsuffix[index])
+            name = "-".join(parts)
         return Face(vnames, name)
 
 
@@ -289,7 +284,11 @@ class BlockMeshDict:
             names = [v[0] for v in group]
             self.reduce_vertex(*names)
 
-    def add_hexblock(self, vnames, cells, name, grading=SimpleGrading(1, 1, 1)):
+    def add_hexblock(
+        self, vnames, cells, name=None, grading=SimpleGrading(1, 1, 1)
+    ):
+        if name is None:
+            name = f"b{len(self.blocks)}"
         b = HexBlock(vnames, cells, name, grading)
         self.blocks[name] = b
         return b
@@ -392,10 +391,11 @@ class BlockMeshDict:
     def format_mergepatchpairs_section(self):
         # not yet implemented
         return ""
-#         return """\
-# mergePatchPairs
-# (
-# );"""
+
+    #         return """\
+    # mergePatchPairs
+    # (
+    # );"""
 
     def format(self, header=DEFAULT_HEADER, sort_vortices=True):
         self.assign_vertexid(sort=sort_vortices)
@@ -433,3 +433,27 @@ $mergepatchpairs
             boundary=self.format_boundary_section(),
             mergepatchpairs=self.format_mergepatchpairs_section(),
         )
+
+
+class BlockMeshDictRectilinear(BlockMeshDict):
+    def __init__(self, lx, ly, lz, nx, ny, nz, scale):
+        super().__init__()
+
+        self.set_scale(scale)
+
+        basevs = [
+            Vertex(0, 0, 0, "v0"),
+            Vertex(lx, 0, 0, "v1"),
+            Vertex(lx, ly, 0, "v2"),
+            Vertex(0, ly, 0, "v3"),
+        ]
+
+        for v in basevs:
+            self.add_vertex(v.x, v.y, 0, v.name + "-bot")
+            self.add_vertex(v.x, v.y, lz, v.name + "-top")
+
+        vertex_names = [
+            f"v{index}{post}" for post in ("-bot", "-top") for index in range(4)
+        ]
+
+        self.block = self.add_hexblock(vertex_names, (nx, ny, nz), name="")

@@ -3,7 +3,6 @@ from fluidsimfoam.solvers.base import SimulFoam
 
 
 class InfoSolverCavity(InfoSolver):
-
     def _init_root(self):
         super()._init_root()
         self.module_name = "fluidsimfoam_cavity.solver"

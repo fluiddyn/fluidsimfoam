@@ -45,7 +45,7 @@ boundary
         neighbourPatch  lowerBoundary;
         faces
         (
-            (2 3 7 6)  // f--n (v2-z v3-z v3+z v2+z)
+            (2 3 7 6)  // f-n (v2-z v3-z v3+z v2+z)
         );
     }
     lowerBoundary
@@ -54,7 +54,7 @@ boundary
         neighbourPatch  upperBoundary;
         faces
         (
-            (0 1 5 4)  // f--s (v0-z v1-z v1+z v0+z)
+            (0 1 5 4)  // f-s (v0-z v1-z v1+z v0+z)
         );
     }
     leftBoundary
@@ -63,7 +63,7 @@ boundary
         neighbourPatch  rightBoundary;
         faces
         (
-            (0 4 7 3)  // f--w (v0-z v0+z v3+z v3-z)
+            (0 4 7 3)  // f-w (v0-z v0+z v3+z v3-z)
         );
     }
     rightBoundary
@@ -72,7 +72,7 @@ boundary
         neighbourPatch  leftBoundary;
         faces
         (
-            (1 2 6 5)  // f--n (v1-z v2-z v2+z v1+z)
+            (1 2 6 5)  // f-n (v1-z v2-z v2+z v1+z)
         );
     }
     frontBoundary
@@ -81,7 +81,7 @@ boundary
         neighbourPatch  backBoundary;
         faces
         (
-            (4 5 6 7)  // f--t (v0+z v1+z v2+z v3+z)
+            (4 5 6 7)  // f-t (v0+z v1+z v2+z v3+z)
         );
     }
     backBoundary
@@ -90,7 +90,7 @@ boundary
         neighbourPatch  frontBoundary;
         faces
         (
-            (0 3 2 1)  // f--b (v0-z v3-z v2-z v1-z)
+            (0 3 2 1)  // f-b (v0-z v3-z v2-z v1-z)
         );
     }
 );

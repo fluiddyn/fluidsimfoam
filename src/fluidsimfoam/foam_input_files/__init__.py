@@ -41,11 +41,14 @@ __all__ = [
     "Vertex",
     "read_field_file",
     "FileHelper",
+    "ConstantFileHelper",
+    "BlockMeshDictRectilinear",
 ]
 
 
 class FileHelper(ABC):
     """Abstract class for "Helper" objects"""
+
     @abstractmethod
     def complete_params(self, params):
         """Complete the params object"""
@@ -86,7 +89,7 @@ DEFAULT_CONTROL_DICT = dict(
     runTimeModifiable="true",
 )
 
-from .blockmesh import BlockMeshDict, Vertex
+from .blockmesh import BlockMeshDict, BlockMeshDictRectilinear, Vertex
 from .constant_files import ConstantFileHelper
 from .fields import VolScalarField, VolVectorField, read_field_file
 from .fv_schemes import FvSchemesHelper

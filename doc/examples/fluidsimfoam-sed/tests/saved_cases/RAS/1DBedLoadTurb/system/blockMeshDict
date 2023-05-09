@@ -18,14 +18,14 @@ scale   0.183;
 
 vertices
 (
-    (             -0.005                  0              0.005 )  // 0 v0
-    (              0.005                  0              0.005 )  // 1 v1
-    (              0.005                  1              0.005 )  // 2 v2
-    (             -0.005                  1              0.005 )  // 3 v3
-    (             -0.005                  0             -0.005 )  // 4 v4
-    (              0.005                  0             -0.005 )  // 5 v5
-    (              0.005                  1             -0.005 )  // 6 v6
-    (             -0.005                  1             -0.005 )  // 7 v7
+    ( -0.005  0  0.005 )  // 0 v0
+    (  0.005  0  0.005 )  // 1 v1
+    (  0.005  1  0.005 )  // 2 v2
+    ( -0.005  1  0.005 )  // 3 v3
+    ( -0.005  0 -0.005 )  // 4 v4
+    (  0.005  0 -0.005 )  // 5 v5
+    (  0.005  1 -0.005 )  // 6 v6
+    ( -0.005  1 -0.005 )  // 7 v7
 );
 
 blocks
@@ -45,7 +45,7 @@ boundary
         neighbourPatch  outlet;
         faces
         (
-            (0 3 7 4)  // f--w (v0 v3 v7 v4)
+            (0 3 7 4)  // f-w (v0 v3 v7 v4)
         );
     }
     outlet
@@ -54,7 +54,7 @@ boundary
         neighbourPatch  inlet;
         faces
         (
-            (1 5 6 2)  // f--e (v1 v5 v6 v2)
+            (1 5 6 2)  // f-e (v1 v5 v6 v2)
         );
     }
     top
@@ -62,7 +62,7 @@ boundary
         type wall;
         faces
         (
-            (3 2 6 7)  // f--t (v3 v2 v6 v7)
+            (3 2 6 7)  // f-t (v3 v2 v6 v7)
         );
     }
     bottom
@@ -70,7 +70,7 @@ boundary
         type wall;
         faces
         (
-            (0 4 5 1)  // f--b (v0 v4 v5 v1)
+            (0 4 5 1)  // f-b (v0 v4 v5 v1)
         );
     }
     frontAndBackPlanes
@@ -78,8 +78,8 @@ boundary
         type empty;
         faces
         (
-            (0 1 2 3)  // f--s (v0 v1 v2 v3)
-            (5 4 7 6)  // f--n (v5 v4 v7 v6)
+            (0 1 2 3)  // f-s (v0 v1 v2 v3)
+            (5 4 7 6)  // f-n (v5 v4 v7 v6)
         );
     }
 );

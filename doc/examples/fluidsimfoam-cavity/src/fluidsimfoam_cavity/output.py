@@ -1,8 +1,7 @@
 from fluidsimfoam.foam_input_files import (
-    BlockMeshDict,
+    BlockMeshDictRectilinear,
     ConstantFileHelper,
     FvSchemesHelper,
-    Vertex,
     VolScalarField,
     VolVectorField,
 )
@@ -62,38 +61,18 @@ class OutputCavity(Output):
         params.block_mesh_dict.scale = 0.1
 
     def make_code_block_mesh_dict(self, params):
-        nx = params.block_mesh_dict.nx
-        ny = params.block_mesh_dict.ny
-        nz = params.block_mesh_dict.nz
-
         lx = params.block_mesh_dict.lx
         ly = params.block_mesh_dict.ly
         lz = params.block_mesh_dict.lz
 
-        bmd = BlockMeshDict()
+        nx = params.block_mesh_dict.nx
+        ny = params.block_mesh_dict.ny
+        nz = params.block_mesh_dict.nz
 
-        bmd.set_scale(params.block_mesh_dict.scale)
-
-        basevs = [
-            Vertex(0, 0, lz, "v0"),
-            Vertex(lx, 0, lz, "v1"),
-            Vertex(lx, ly, lz, "v2"),
-            Vertex(0, ly, lz, "v3"),
-        ]
-
-        for v in basevs:
-            bmd.add_vertex(v.x, v.y, 0, v.name + "-0")
-            bmd.add_vertex(v.x, v.y, v.z, v.name + "+z")
-
-        vertex_names = [
-            f"v{index}{post}" for post in ("-0", "+z") for index in range(4)
-        ]
-
-        b0 = bmd.add_hexblock(
-            vertex_names,
-            (nx, ny, nz),
-            name="",
+        bmd = BlockMeshDictRectilinear(
+            lx, ly, lz, nx, ny, nz, params.block_mesh_dict.scale
         )
+        b0 = bmd.block
 
         bmd.add_boundary("wall", "movingWall", b0.face("n"))
         bmd.add_boundary(
