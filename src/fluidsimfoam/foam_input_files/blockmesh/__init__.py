@@ -390,10 +390,12 @@ class BlockMeshDict:
         return "\n".join(tmp)
 
     def format_mergepatchpairs_section(self):
-        return """\
-mergePatchPairs
-(
-);"""
+        # not yet implemented
+        return ""
+#         return """\
+# mergePatchPairs
+# (
+# );"""
 
     def format(self, header=DEFAULT_HEADER, sort_vortices=True):
         self.assign_vertexid(sort=sort_vortices)
@@ -417,7 +419,6 @@ $blocks
 $edges
 
 $boundary
-
 $mergepatchpairs
 
 // ************************************************************************* //
