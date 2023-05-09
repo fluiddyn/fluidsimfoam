@@ -28,11 +28,32 @@ Security in case of vulnerabilities.
 
 <!-- (changelog/unreleased)= -->
 
-## [Unreleased]
+<!-- ## [Unreleased] -->
 
-## [0.0.2] - 2023-04-26
+## [0.0.3] - 2023-05-09
+
+- Improve formatting input files
+
+- Utilities to define solvers and input files
+
+  - {class}`fluidsimfoam.foam_input_files.FileHelper`
+
+  - {class}`fluidsimfoam.foam_input_files.fields.VolScalarField` and
+    {class}`fluidsimfoam.foam_input_files.fields.VolVectorField` and
+    {func}`fluidsimfoam.foam_input_files.fields.read_field_file`
+
+  - {class}`fluidsimfoam.foam_input_files.fv_schemes.FvSchemesHelper`
+
+  - {class}`fluidsimfoam.foam_input_files.constant_files.ConstantFileHelper`
+
+  - {func}`fluidsimfoam.foam_input_files.ast.FoamInputFile.init_from_py_objects`
+
+## 0.0.2 - 2023-04-26
 
 - Unstable API to define solvers
 - Can setup, run and reload simulations
-- Parser for OpenFOAM input files (:mod:`fluidsimfoam.foam_input_files`)
-- Utility to create blockMeshDict files (:mod:`fluidsimfoam.foam_input_files.blockmesh`)
+- Parser for OpenFOAM input files ({mod}`fluidsimfoam.foam_input_files`)
+- Utility to create blockMeshDict files ({mod}`fluidsimfoam.foam_input_files.blockmesh`)
+
+<!-- [Unreleased]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.3...branch%2Fdefault -->
+[0.0.3]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.2...0.0.3
