@@ -22,7 +22,7 @@ def test_init_simul_sim0(index_sim):
 
     sim = Simul(params)
 
-    path_pure_openfoam_case = here / f"pure_openfoam_cases/cbox/sim{index_sim}"
+    path_pure_openfoam_case = here / f"saved_cases/cbox/sim{index_sim}"
     paths_in_sim = [
         path.relative_to(path_pure_openfoam_case)
         for path in path_pure_openfoam_case.rglob("*")

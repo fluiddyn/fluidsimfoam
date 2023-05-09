@@ -11,7 +11,7 @@ from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
 
 here = Path(__file__).absolute().parent
 
-path_tiny = here / "pure_openfoam_cases/tiny-tgv"
+path_tiny = here / "saved_cases/tiny-tgv"
 
 
 @pytest.fixture(scope="function")

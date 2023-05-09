@@ -4,7 +4,7 @@ import pytest
 from test_parser import base_test
 
 here = Path(__file__).absolute().parent
-path_cases = here / "pure_openfoam_cases/"
+path_cases = here / "saved_cases/"
 
 
 def get_paths_input_files(directory):
