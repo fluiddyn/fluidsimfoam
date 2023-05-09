@@ -154,7 +154,7 @@ class HexBlock:
         ]
         index_to_defaultsuffix = [
             "f-{}-w",
-            "f-{}-n",
+            "f-{}-e",
             "f-{}-s",
             "f-{}-n",
             "f-{}-b",
@@ -420,7 +420,6 @@ $edges
 
 $boundary
 $mergepatchpairs
-
 // ************************************************************************* //
 """
         )
