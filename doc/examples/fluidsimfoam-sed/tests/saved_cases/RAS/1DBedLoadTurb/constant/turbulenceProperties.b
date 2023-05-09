@@ -7,7 +7,7 @@ FoamFile
     object      turbulenceProperties.b;
 }
 
-simulationType  RAS;
+simulationType    RAS;
 
 RAS
 {

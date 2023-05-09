@@ -55,6 +55,23 @@ def foam_units2str(foam_units):
     return result
 
 
+def _compute_spaces_to_align(data, max_length=20):
+    try:
+        max_length = min(
+            max_length,
+            max(
+                len(key)
+                for key, value in data.items()
+                if not isinstance(value, (Dict, List))
+            ),
+        )
+    except ValueError:
+        max_length = 0
+
+    default_space = 4
+    return max_length + default_space
+
+
 class Node:
     def __eq__(self, other):
         if type(other) is type(self):
@@ -146,18 +163,26 @@ class FoamInputFile(Node, NodeLikePyDict):
                 tmp1.append(f"    {key}{s}{node};")
             tmp1.append("}")
             tmp.append("\n".join(tmp1))
+
+        num_spaces = _compute_spaces_to_align(self.children, max_length=14)
         for key, node in self.children.items():
             if hasattr(node, "dump"):
                 code_node = node.dump()
                 # special for isolated list
                 if key is None and isinstance(node, List):
                     code_node += ";"
-            elif hasattr(node, "dump_without_assignment"):
-                code_node = f"{key}  {node.dump_without_assignment()};"
             elif node is None:
                 code_node = f"{key}"
             else:
-                code_node = f"{key:14s}  {node};"
+                if hasattr(node, "dump_without_assignment"):
+                    node_dumped = node.dump_without_assignment()
+                else:
+                    node_dumped = node
+                if node_dumped == "":
+                    s = ""
+                else:
+                    s = max(2, (num_spaces - len(key))) * " "
+                code_node = f"{key}{s}{node_dumped};"
             if self.comments is not None and key in self.comments:
                 comment = self.comments[key]
                 if isinstance(comment, str):
@@ -279,20 +304,7 @@ class Dict(dict, Node, NodeLikePyDict):
                 line += "  " + self._directive
             tmp.append(line + f"\n{indentation}" + "{")
 
-        try:
-            max_length = min(
-                20,
-                max(
-                    len(key)
-                    for key, value in self.items()
-                    if not isinstance(value, Dict)
-                ),
-            )
-        except ValueError:
-            max_length = 0
-
-        default_space = 4
-        num_spaces = max_length + default_space
+        num_spaces = _compute_spaces_to_align(self)
         for key, node in self.items():
             if self.comments is not None and key in self.comments:
                 comment = self.comments[key]

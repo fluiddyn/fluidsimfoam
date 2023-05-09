@@ -27,12 +27,12 @@ phaseb
     hExp    hExp [0 0 0 0 0 0 0] 3.1;
 }
 
-transportModel  Newtonian;
+transportModel    Newtonian;
 
-nu  nu [0 2 -1 0 0 0 0] 1e-06;
+nu                nu [0 2 -1 0 0 0 0] 1e-06;
 
 // viscosity limiter for the Frictional model (required for stability)
-nuMax  nuMax [0 2 -1 0 0 0 0] 100.0;
+nuMax             nuMax [0 2 -1 0 0 0 0] 100.0;
 
 // minimum volume fraction (phase a) for division by alpha
-alphaSmall  alphaSmall [0 0 0 0 0 0 0] 1e-05;
+alphaSmall        alphaSmall [0 0 0 0 0 0 0] 1e-05;

@@ -6,9 +6,9 @@ FoamFile
     object      nut.b;
 }
 
-dimensions  [0 2 -1 0 0 0 0];
+dimensions       [0 2 -1 0 0 0 0];
 
-internalField  uniform 0.0;
+internalField    uniform 0.0;
 
 boundaryField
 {

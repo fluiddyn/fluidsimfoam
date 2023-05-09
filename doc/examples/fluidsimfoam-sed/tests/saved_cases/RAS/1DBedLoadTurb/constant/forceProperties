@@ -8,20 +8,20 @@ FoamFile
 }
 
 // mean pressure
-gradPMEAN  gradPMEAN [1 -2 -2 0 0 0 0] (490.5 0 0);
+gradPMEAN    gradPMEAN [1 -2 -2 0 0 0 0] (490.5 0 0);
 
 // To impose same gravity term to both phases
-tilt  tilt [0 0 0 0 0 0 0] 1;
+tilt         tilt [0 0 0 0 0 0 0] 1;
 
 // Virtual/Added Mass coefficient
-Cvm  Cvm [0 0 0 0 0 0 0] 0;
+Cvm          Cvm [0 0 0 0 0 0 0] 0;
 
 // Lift force coefficient
-Cl  Cl [0 0 0 0 0 0 0] 0;
+Cl           Cl [0 0 0 0 0 0 0] 0;
 
 // Eddy diffusivity coefficient for phase a
-Ct  Ct [0 0 0 0 0 0 0] 0;
+Ct           Ct [0 0 0 0 0 0 0] 0;
 
-debugInfo       true;
+debugInfo    true;
 
-writeTau        true;
+writeTau     true;

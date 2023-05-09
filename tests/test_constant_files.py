@@ -11,19 +11,19 @@ result = """FoamFile
 }
 
 // Shared coefficients
-SUS  SUS [0 0 0 0 0 0 0] 1;
+SUS        SUS [0 0 0 0 0 0 0] 1;
 
 // density stra (Uf-Us)
-KE1  KE1 [0 0 0 0 0 0 0] 0;
+KE1        KE1 [0 0 0 0 0 0 0] 0;
 
 // turb generation
-KE3  KE3 [0 0 0 0 0 0 0] 0;
+KE3        KE3 [0 0 0 0 0 0 0] 0;
 
 // turb modulation coeff
-B  B [0 0 0 0 0 0 0] 0.15;
+B          B [0 0 0 0 0 0 0] 0.15;
 
 // Limiters
-Tpsmall  Tpsmall [1 -3 -1 0 0 0 0] 1e-06;
+Tpsmall    Tpsmall [1 -3 -1 0 0 0 0] 1e-06;
 """
 
 
@@ -61,12 +61,12 @@ result_with_list = """FoamFile
 }
 
 // mean pressure
-gradPMEAN  gradPMEAN [1 -2 -2 0 0 0 0] (490.5 0 0);
+gradPMEAN    gradPMEAN [1 -2 -2 0 0 0 0] (490.5 0 0);
 
 // To impose same gravity term to both phases
-tilt  tilt [0 0 0 0 0 0 0] 1;
+tilt         tilt [0 0 0 0 0 0 0] 1;
 
-debugInfo       true;
+debugInfo    true;
 """
 
 
@@ -100,7 +100,7 @@ result_with_dict = """FoamFile
     object      turbulenceProperties;
 }
 
-simulationType  RAS;
+simulationType    RAS;
 
 RAS
 {

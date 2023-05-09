@@ -6,9 +6,9 @@ FoamFile
     object      omega.b;
 }
 
-dimensions  [0 0 -1 0 0 0 0];
+dimensions       [0 0 -1 0 0 0 0];
 
-internalField  uniform 1e-20;
+internalField    uniform 1e-20;
 
 boundaryField
 {

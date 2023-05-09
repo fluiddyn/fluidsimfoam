@@ -14,7 +14,7 @@ code_p = dedent(
         object      p;
     }}
 
-    dimensions  [0 2 -2 0 0 0 0];
+    dimensions    {}[0 2 -2 0 0 0 0];
 
     internalField{}
 
@@ -28,14 +28,14 @@ code_p = dedent(
 def test_p():
     field = VolScalarField("p", "m^2.s^-2")
 
-    assert field.dump().strip() == code_p.format("")
+    assert field.dump().strip() == code_p.format("   ", "")
 
     field.set_values(2.0)
-    assert field.dump().strip() == code_p.format("  uniform 2.0;")
+    assert field.dump().strip() == code_p.format("   ", "    uniform 2.0;")
 
     field.set_values([1.0, 2.0, 3.0])
     result = " nonuniform\nList<scalar>\n3\n(\n    1.0\n    2.0\n    3.0\n);"
-    assert field.dump().strip() == code_p.format(result)
+    assert field.dump().strip() == code_p.format("", result)
 
 
 code_nut = dedent(
@@ -48,9 +48,9 @@ code_nut = dedent(
         object      nut;
     }
 
-    dimensions  [0 2 -1 0 0 0 0];
+    dimensions       [0 2 -1 0 0 0 0];
 
-    internalField  uniform 0;
+    internalField    uniform 0;
 
     boundaryField
     {
@@ -87,7 +87,7 @@ code_u = dedent(
         object      U;
     }
 
-    dimensions  [0 1 -1 0 0 0 0];
+    dimensions    [0 1 -1 0 0 0 0];
 
     internalField  #codeStream
     {
@@ -193,7 +193,7 @@ code_vector = dedent(
         object      U;
     }
 
-    dimensions  [0 1 -1 0 0 0 0];
+    dimensions    [0 1 -1 0 0 0 0];
 
     internalField nonuniform
     List<vector>
