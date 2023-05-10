@@ -207,6 +207,12 @@ class FoamInputFile(Node, NodeLikePyDict):
     def _set_item(self, key, value):
         self.children[key] = value
 
+    def __setitem__(self, key, item):
+        self.children[key] = item
+
+    def __getitem__(self, key):
+        return self.children[key]
+
 
 @dataclass
 class Assignment:
