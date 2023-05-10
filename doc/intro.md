@@ -4,6 +4,7 @@
 
 ```{include} ../README.md
 ---
-start-after: <!-- badges -->
+start-after: <!-- start-intro -->
+end-before: <!-- end-intro -->
 ---
 ```
