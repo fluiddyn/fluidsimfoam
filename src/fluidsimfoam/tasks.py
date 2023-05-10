@@ -38,10 +38,12 @@ def run(context):
 
     application = ctr_dict.children["application"]
     end_time = ctr_dict["endTime"]
+    start_time = ctr_dict["startTime"]
 
     path_run = Path.cwd()
     print(f"Starting simulation in \n{path_run}")
     with open(f"log_{time_as_str()}.txt", "w") as file_log:
+        file_log.write(f"{start_time = }\n{end_time = }\n")
         str_io = io.StringIO()
         out_stream = MultiFile([str_io, file_log])
 
