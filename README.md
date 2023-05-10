@@ -9,7 +9,7 @@ Python framework for [OpenFOAM]
 
 </div>
 
-<!-- badges -->
+<!-- start-intro -->
 
 [OpenFOAM] is a very popular open-source C++ CFD framework. Working with [OpenFOAM]
 implies writting and modifying a lot of input files describing a simulation.
@@ -45,9 +45,23 @@ allow.
 For our examples, we currently target OpenFOAM v2206 but it should be possible
 to write Fluidsimfoam solvers targeting any recent OpenFOAM versions.
 
+[fluiddyn]: https://fluiddyn.readthedocs.io
+[fluidsim]: https://fluidsim.readthedocs.io
+[fluidfoam]: https://fluidfoam.readthedocs.io
+[fluidsimfoam-tgv]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-tgv
+[fluidsimfoam-cbox]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cbox
+[fluidsimfoam-sed]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-sed
+[openfoam]: https://openfoam.org/
+[nek5000]: https://nek5000.mcs.anl.gov/
+[snek5000]: https://snek5000.readthedocs.io
+
+<!-- end-intro -->
+
 See more in [Fluidsimfoam documentation](https://fluidsimfoam.readthedocs.org).
 
 ## Install
+
+<!-- start-install -->
 
 Currently, it still makes sense to install Fluidsimfoam like we, the
 fluidsimfoam developers, install it, i.e. in a dedicated controlled virtual
@@ -61,6 +75,10 @@ cd fluidsimfoam
 poetry install
 poetry shell
 ```
+
+[Poetry]: https://python-poetry.org/docs/
+
+<!-- end-install -->
 
 ## Related projects
 
@@ -77,15 +95,5 @@ poetry shell
   Fluidsimfoam solvers.
 
 [PyFoam]: https://openfoamwiki.net/index.php/Contrib/PyFoam
-[fluiddyn]: https://fluiddyn.readthedocs.io
-[fluidsim]: https://fluidsim.readthedocs.io
-[fluidfoam]: https://fluidfoam.readthedocs.io
-[fluidsimfoam-tgv]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-tgv
-[fluidsimfoam-cbox]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cbox
-[fluidsimfoam-sed]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-sed
-[openfoam]: https://openfoam.org/
-[nek5000]: https://nek5000.mcs.anl.gov/
-[snek5000]: https://snek5000.readthedocs.io
 [PythonFlu]: http://pythonflu.wikidot.com/
 [Swak4Foam]: https://openfoamwiki.net/index.php/Contrib/swak4Foam
-[Poetry]: https://python-poetry.org/docs/

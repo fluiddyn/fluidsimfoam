@@ -18,6 +18,7 @@ caption: User guide
 maxdepth: 1
 ---
 intro
+install
 tutorials
 ```
 
