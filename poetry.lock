@@ -903,6 +903,23 @@ type = "directory"
 url = "doc/examples/fluidsimfoam-cbox"
 
 [[package]]
+name = "fluidsimfoam-phill"
+version = "0.0.1"
+description = "Simulations of the flow over periodic hills (phill)"
+category = "dev"
+optional = false
+python-versions = ">=3.8"
+files = []
+develop = true
+
+[package.dependencies]
+fluidsimfoam = ">=0.0.1"
+
+[package.source]
+type = "directory"
+url = "doc/examples/fluidsimfoam-phill"
+
+[[package]]
 name = "fluidsimfoam-sed"
 version = "0.0.1"
 description = "SedFOAM simulations with fluidsimfoam"
