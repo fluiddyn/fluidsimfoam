@@ -3,7 +3,7 @@ from textwrap import dedent
 from inflection import underscore
 
 from fluidsimfoam.foam_input_files import DEFAULT_HEADER, Dict, FoamInputFile
-from fluidsimfoam.foam_input_files.blockmeshhelper import (
+from fluidsimfoam.foam_input_files.blockmesh import (
     BlockMeshDict,
     Point,
     SimpleGrading,
@@ -123,18 +123,6 @@ class OutputPHill(Output):
         )
 
     @classmethod
-    def _complete_params_turbulence_properties(cls, params):
-        params._set_child(
-            "turbulence_properties",
-            attribs={"simulation_type": "laminar"},
-            doc="""TODO""",
-        )
-
-    def make_tree_turbulence_properties(self, params):
-        tree = super().make_tree_turbulence_properties(params)
-        return tree
-
-    @classmethod
     def _complete_params_block_mesh_dict(cls, params):
         super()._complete_params_block_mesh_dict(params)
         default = {"nx": 20, "ny": 30, "nz": 1}
@@ -153,7 +141,6 @@ class OutputPHill(Output):
 
         bmd = BlockMeshDict()
         bmd.set_scale(params.block_mesh_dict.scale)
-        bmd.set_metric(params.block_mesh_dict.metric)
 
         basevs = [
             Vertex(0, ly, 0, "v0"),
