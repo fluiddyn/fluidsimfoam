@@ -1,7 +1,7 @@
 """Base class for the ``sim.oper`` object"""
 
 import shutil
-from subprocess import run
+from subprocess import run, PIPE
 
 from fluidsimfoam.foam_input_files.fields import VolScalarField
 
@@ -20,7 +20,7 @@ class Operators:
             path_polymesh = self.sim.path_run / "constant/polyMesh/points"
 
             if not path_polymesh.exists():
-                self.sim.make.exec("polymesh")
+                self.sim.make.exec("polymesh", stdout=PIPE)
 
             if not path_polymesh.exists():
                 raise RuntimeError(f"{path_polymesh} does not exists")
@@ -33,6 +33,7 @@ class Operators:
             run(
                 ["postProcess", "-func", "writeCellCentres"],
                 cwd=self.sim.path_run,
+                stdout=PIPE
             )
 
         def get_arr(path):
