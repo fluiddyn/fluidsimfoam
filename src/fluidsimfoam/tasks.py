@@ -26,11 +26,32 @@ def block_mesh(context):
 
 
 @task(block_mesh)
+def topo_set(context):
+    if not Path("system/topoSetDict").exists():
+        print("topoSet not found!")
+    else:
+        context.run("topoSet")
+
+
+@task(topo_set)
+def sets_to_zones(context):
+    context.run("setsToZones")
+
+
+@task(sets_to_zones)
+def funky_set_fields(context):
+    if not Path("system/funkySetFieldsDict").exists():
+        print("funkySetFields not found!")
+    else:
+        context.run("funkySetFields -time 0")
+
+
+@task(block_mesh)
 def polymesh(context):
     pass
 
 
-@task(polymesh)
+@task(block_mesh)
 def run(context):
     """Main target to launch a simulation"""
     with open("system/controlDict") as file:

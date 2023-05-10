@@ -33,6 +33,7 @@ fluidsimfoam-tgv = { path = "./doc/examples/fluidsimfoam-tgv/", develop = true }
 fluidsimfoam-cbox = { path = "./doc/examples/fluidsimfoam-cbox/", develop = true }
 fluidsimfoam-sed = { path = "./doc/examples/fluidsimfoam-sed/", develop = true }
 fluidsimfoam-cavity = { path = "./doc/examples/fluidsimfoam-cavity/", develop = true }
+fluidsimfoam-phill = { path = "./doc/examples/fluidsimfoam-phill/", develop = true }
 pytest-mock = "^3.10.0"
 pytest-cov = "^4.0.0"
 

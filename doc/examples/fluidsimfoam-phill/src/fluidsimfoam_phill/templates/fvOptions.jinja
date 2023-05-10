@@ -1,0 +1,50 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      fvOptions;
+}
+
+/*
+pressureGradient
+{
+    type                vectorSemiImplicitSource;
+    selectionMode       all;
+    volumeMode          specific;
+    sources
+    {
+        U ((0 1.978046e-03 0) 0);
+    }
+}
+/*
+
+
+atmCoriolisUSource1
+{
+    type            atmCoriolisUSource;
+    atmCoriolisUSourceCoeffs
+    {
+        selectionMode   all;
+        // Omega           (0 0 5.65156e-5);
+        latitude                   45.188;
+        planetaryRotationPeriod    23.9344694;
+    }
+}
+
+
+/*
+momentumSource
+{
+    type            meanVelocityForce;
+    active          yes;
+
+    meanVelocityForceCoeffs
+    {
+        selectionMode   all;
+        fields          (U);
+        Ubar            (1.0 0 0);
+    }
+}
+*/
