@@ -1,0 +1,45 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      T;
+}
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 300;
+
+boundaryField
+{
+    outlet
+    {
+        type            cyclic;
+    }
+
+    inlet
+    {
+        type            cyclic;
+    }
+
+    bottom
+    {
+        type            atmTurbulentHeatFluxTemperature;
+        heatSource      flux;
+        alphaEff        alphaEff;
+        Cp0             1005.0;
+        q               uniform 0;
+        value           uniform 300;
+
+    }
+
+    top
+    {
+        type            zeroGradient;
+    }
+
+    frontandbackplanes
+    {
+        type            empty;
+    }
+}
