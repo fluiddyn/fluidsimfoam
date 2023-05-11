@@ -1,5 +1,5 @@
 from textwrap import dedent
-
+from math import cos, pi
 from inflection import underscore
 
 from fluidsimfoam.foam_input_files import DEFAULT_HEADER, Dict, FoamInputFile
@@ -125,8 +125,8 @@ class OutputPHill(Output):
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
         super()._complete_params_block_mesh_dict(params)
-        default = {"nx": 20, "ny": 30, "nz": 1}
-        default.update({"lx": 1.0, "ly": 1.0, "lz": 0.01, "scale": 1})
+        default = {"nx": 30, "ny": 30, "nz": 1}
+        default.update({"lx": 2000, "ly": 2000, "lz": 0.01, "scale": 1})
         for key, value in default.items():
             params.block_mesh_dict[key] = value
 
@@ -142,93 +142,59 @@ class OutputPHill(Output):
         bmd = BlockMeshDict()
         bmd.set_scale(params.block_mesh_dict.scale)
 
+        h_max = 80
         basevs = [
-            Vertex(0, ly, 0, "v0"),
-            Vertex(0.5, ly, 0, "v1"),
-            Vertex(1.5, ly, 0, "v2"),
-            Vertex(6, ly, 0, "v3"),
-            Vertex(6, ly, lz, "v4"),
-            Vertex(1.5, ly, lz, "v5"),
-            Vertex(0.5, ly, lz, "v6"),
-            Vertex(0, ly, lz, "v7"),
+            Vertex(0, h_max, lz, "v0"),
+            Vertex(lx, h_max, lz, "v1"),
+            Vertex(lx, ly, lz, "v2"),
+            Vertex(0, ly, lz, "v3"),
         ]
 
         for v in basevs:
-            bmd.add_vertex(v.x, 0, v.z, v.name + "-0")
-            bmd.add_vertex(v.x, v.y, v.z, v.name + "+y")
+            bmd.add_vertex(v.x, v.y, 0, v.name + "-0")
+        for v in basevs:
+            bmd.add_vertex(v.x, v.y, v.z, v.name + "+z")
 
         b0 = bmd.add_hexblock(
-            ("v0-0", "v1-0", "v1+y", "v0+y", "v7-0", "v6-0", "v6+y", "v7+y"),
-            (nx, ny, nz),
+            ("v0-0", "v1-0", "v2-0", "v3-0", "v0+z", "v1+z", "v2+z", "v3+z"),
+            (nx + 1, ny, nz),
             "b0",
             SimpleGrading(1, [[0.1, 0.25, 41.9], [0.9, 0.75, 1]], 1),
         )
 
-        b1 = bmd.add_hexblock(
-            ("v1-0", "v2-0", "v2+y", "v1+y", "v6-0", "v5-0", "v5+y", "v6+y"),
-            (nx, ny, nz),
-            "b1",
-            SimpleGrading(1, [[0.1, 0.25, 41.9], [0.9, 0.75, 1]], 1),
-        )
-
-        b2 = bmd.add_hexblock(
-            ("v2-0", "v3-0", "v3+y", "v2+y", "v5-0", "v4-0", "v4+y", "v5+y"),
-            (225, ny, nz),
-            "b2",
-            SimpleGrading(1, [[0.1, 0.25, 41.9], [0.9, 0.75, 1]], 1),
-        )
+        x_dot = []
+        y_dot = []
+        dots = []
+        h_max = 80
+        for dot in range(nx + 1):
+            x_dot.append(dot * lx / nx)
+            y_dot.append(
+                (h_max / 2)
+                * (1 - cos(2 * pi * min(abs((x_dot[dot] - (lx / 2)) / lx), 1)))
+            )
+            dots.append([x_dot[dot], y_dot[dot]])
 
         bmd.add_splineedge(
-            ["v1-0", "v2-0"],
+            ["v0-0", "v1-0"],
             "spline0",
-            [
-                Point(0.6, 0.0124, 0),
-                Point(0.7, 0.0395, 0),
-                Point(0.8, 0.0724, 0),
-                Point(0.9, 0.132, 0),
-                Point(1, 0.172, 0),
-                Point(1.1, 0.132, 0),
-                Point(1.2, 0.0724, 0),
-                Point(1.3, 0.0395, 0),
-                Point(1.4, 0.0124, 0),
-            ],
+            [Point(dot[0], dot[1], 0) for dot in dots],
         )
         bmd.add_splineedge(
-            ["v6-0", "v5-0"],
+            ["v0+z", "v1+z"],
             "spline1",
-            [
-                Point(0.6, 0.0124, lz),
-                Point(0.7, 0.0395, lz),
-                Point(0.8, 0.0724, lz),
-                Point(0.9, 0.132, lz),
-                Point(1, 0.172, lz),
-                Point(1.1, 0.132, lz),
-                Point(1.2, 0.0724, lz),
-                Point(1.3, 0.0395, lz),
-                Point(1.4, 0.0124, lz),
-            ],
+            [Point(dot[0], dot[1], lz) for dot in dots],
         )
 
-        bmd.add_boundary(
-            "wall", "top", [b0.face("n"), b1.face("n"), b2.face("n")]
-        )
-        bmd.add_boundary(
-            "wall", "bottom", [b0.face("s"), b1.face("s"), b2.face("s")]
-        )
-        bmd.add_cyclic_boundaries("outlet", "inlet", b2.face("e"), b0.face("w"))
-        # bmd.add_boundary("inlet", "inlet", [b2.face("e")])
-        # bmd.add_boundary("outlet", "outlet", [b0.face("w")])
+        bmd.add_boundary("wall", "top", [b0.face("n")])
+        bmd.add_boundary("wall", "bottom", [b0.face("s")])
+        bmd.add_cyclic_boundaries("outlet", "inlet", b0.face("e"), b0.face("w"))
         bmd.add_boundary(
             "empty",
             "frontandbackplanes",
             [
                 b0.face("b"),
-                b1.face("b"),
-                b2.face("b"),
                 b0.face("t"),
-                b1.face("t"),
-                b2.face("t"),
             ],
         )
 
-        return bmd.format()
+        return bmd.format(sort_vortices="as_added")
