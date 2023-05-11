@@ -167,11 +167,6 @@ class VolVectorField(FieldABC):
             vx = values
             values = np.stack([vx, vy, vz]).T
 
-        if isinstance(values, np.ndarray):
-            if values.ndim != 2:
-                raise ValueError
-            values = [list(arr) for arr in values]
-
         n_elem = len(values)
         if n_elem == 3 and isinstance(values[0], Number):
             value = Value(
@@ -179,14 +174,25 @@ class VolVectorField(FieldABC):
                 name="uniform",
             )
         else:
-            value = List(
-                [List(value) for value in values],
-                name=f"internalField nonuniform\nList<vector>\n{n_elem}",
+            value = values
+        self.tree.set_child("internalField", value)
+
+
+class VolTensorField(FieldABC):
+    def set_values(self, values):
+        if not isinstance(values, np.ndarray) or values.ndim != 2:
+            raise NotImplementedError(
+                "not isinstance(values, np.ndarray) or values.ndim != 2"
             )
-        self.tree.children["internalField"] = value
+
+        self.tree.set_child("internalField", values)
 
 
-classes = {"volScalarField": VolScalarField, "volVectorField": VolVectorField}
+classes = {
+    "volScalarField": VolScalarField,
+    "volVectorField": VolVectorField,
+    "volTensorField": VolTensorField,
+}
 
 
 def read_field_file(path):

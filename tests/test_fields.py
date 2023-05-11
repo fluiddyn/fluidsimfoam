@@ -195,8 +195,7 @@ code_vector = dedent(
 
     dimensions    [0 1 -1 0 0 0 0];
 
-    internalField nonuniform
-    List<vector>
+    internalField   nonuniform List<vector>
     3
     (
         (-1 2 3)
