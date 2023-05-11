@@ -72,6 +72,7 @@ class Log(RemainingClockTime):
             if logfiles:
                 self._path_file = logfiles[-1]
             else:
+                print("No log file found")
                 return None
 
         return self._path_file.resolve()
@@ -95,6 +96,7 @@ class Log(RemainingClockTime):
         text = self.text[-1000:]
         index = text.rfind("\nTime = ")
         if index == -1:
+            print("'Time = ' not found")
             return None
         text = text[index + 8 :]
         return float(text.split(None, 1)[0])

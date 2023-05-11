@@ -55,6 +55,14 @@ class Output(OutputCore):
             ),
         )
 
+        classes._set_child(
+            "Fields",
+            dict(
+                module_name="fluidsimfoam.output.fields",
+                class_name="Fields",
+            ),
+        )
+
     @classmethod
     def _setup_file_generators_classes(cls):
         classes = cls._file_generators_classes = {}
