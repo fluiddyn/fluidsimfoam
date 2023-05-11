@@ -18,11 +18,12 @@ class Fields:
         )
 
         path_dir = path_times[-1]
-
-        return read_field_file(path_dir / name)
+        field = read_field_file(path_dir / name)
+        field.time = float(path_dir.name)
+        return field
 
     def plot_field(self, name, time_approx="last"):
-        field= self.read_field(name, time_approx)
+        field = self.read_field(name, time_approx)
 
         x, y, z = self.output.sim.oper.get_cells_coords()
 
