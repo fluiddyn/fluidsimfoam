@@ -71,6 +71,8 @@ class Log(RemainingClockTime):
             logfiles = sorted(path_run.glob("log*.txt"))
             if logfiles:
                 self._path_file = logfiles[-1]
+            else:
+                return None
 
         return self._path_file.resolve()
 
@@ -80,5 +82,19 @@ class Log(RemainingClockTime):
 
     @property
     def text(self):
+        if self.path_file is None:
+            return None
+
         with open(self.path_file) as file:
             return file.read()
+
+    @property
+    def time_last(self):
+        if self.text is None:
+            return None
+        text = self.text[-1000:]
+        index = text.rfind("\nTime = ")
+        if index == -1:
+            return None
+        text = text[index + 8 :]
+        return float(text.split(None, 1)[0])

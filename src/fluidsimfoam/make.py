@@ -3,7 +3,7 @@
 """
 
 
-from subprocess import run, Popen, PIPE
+from subprocess import PIPE, Popen, run
 
 
 class MakeInvoke:

@@ -1,7 +1,7 @@
 """Base class for the ``sim.oper`` object"""
 
 import shutil
-from subprocess import run, PIPE
+from subprocess import PIPE, run
 
 from fluidsimfoam.foam_input_files.fields import VolScalarField
 
@@ -33,7 +33,7 @@ class Operators:
             run(
                 ["postProcess", "-func", "writeCellCentres"],
                 cwd=self.sim.path_run,
-                stdout=PIPE
+                stdout=PIPE,
             )
 
         def get_arr(path):
