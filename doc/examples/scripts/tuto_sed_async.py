@@ -38,9 +38,9 @@ nb_saved_times = 1
 plt.ion()
 fig, ax = plt.subplots()
 
-ax.axvline(gradp)
+ax.axvline(gradp, "r")
 grad_tau, t_now = get_grad_tau()
-ax.plot(grad_tau, y, label=t_now)
+(line,) = ax.plot(grad_tau, y)
 
 plt.show(block=False)
 plt.draw()
@@ -49,7 +49,7 @@ plt.pause(0.01)
 cond = True
 
 while cond:
-    sleep(0.2)
+    plt.pause(0.5)
     saved_times = sorted(
         path
         for path in sim.output.path_run.glob("*")
@@ -58,13 +58,11 @@ while cond:
     if len(saved_times) > nb_saved_times:
         nb_saved_times = len(saved_times)
         grad_tau, t_now = get_grad_tau()
-        ax.plot(-0.5 * grad_tau, y, label=t_now)
-        print(f"New saved time: {t_now}")
+        line.set_xdata(-0.5 * grad_tau)
+        ax.set_title(f"t = {t_now}")
         fig.canvas.draw()
-        plt.pause(0.01)
-
-        percentage = 100 * abs(0.5 * grad_tau[y < 0.04] + gradp).max() / gradp
-        print(f"{percentage = :.3f} %")
+        percentage = 100 * abs(0.5 * grad_tau[y < 0.04] + gradp).mean() / gradp
+        print(f"New saved time: {t_now}, condition: {percentage:.3f} %")
         cond = percentage > 2.0
 
 print("Stationnary reached...")

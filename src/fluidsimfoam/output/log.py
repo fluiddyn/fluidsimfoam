@@ -24,37 +24,38 @@ class Log(RemainingClockTime):
         """
         text = self.text
 
-        match = re.search(r"start_time = [\d\.]+\n", text)
+        match = re.search(r"start_time = ([\d\.]+)\n", text)
         if match is not None:
-            equation_time_start = float(match.group().rsplit(None, 1)[-1])
+            equation_time_start = float(match.groups()[0])
         else:
             equation_time_start = 0.0
 
-        match = re.search(r"end_time = [\d\.]+\n", text)
+        match = re.search(r"end_time = ([\d\.]+)\n", text)
         if match is not None:
-            eq_time_end = float(match.group().rsplit(None, 1)[-1])
+            eq_time_end = float(match.groups()[0])
         else:
             raise RuntimeError
 
-        eq_times = re.findall(r"\nTime = [\d\.]+", text)
-        eq_times = np.array([float(word.rsplit(" ", 1)[-1]) for word in eq_times])
+        eq_times = re.findall(r"\nTime = ([\d\.]+)", text)
+        clock_times = re.findall(r"\nExecutionTime = ([\d\.]+)", text)
+        eq_times = eq_times[: len(clock_times)]
 
-        clock_times = re.findall(r"\nExecutionTime = [\d\.]+", text)
-        clock_times = np.array(
-            [float(word.rsplit(" ", 1)[-1]) for word in clock_times]
-        )
+        eq_times = np.array([float(word) for word in eq_times])
+        clock_times = np.array([float(word) for word in clock_times])
 
+        delta_eq_times = np.diff(eq_times)
+
+        eq_times = eq_times[:-1]
         remaining_eq_times = eq_time_end - eq_times
 
         delta_clock_times = np.diff(clock_times)
-        delta_eq_times = np.diff(eq_times)
 
         remaining_clock_times = (
-            remaining_eq_times[:-1] / delta_eq_times * delta_clock_times
+            remaining_eq_times / delta_eq_times * delta_clock_times
         )
 
         data = {
-            "equation_times": eq_times[:-1],
+            "equation_times": eq_times,
             "remaining_clock_times": remaining_clock_times,
             "clock_times_per_timestep": delta_clock_times,
             "equation_time_start": equation_time_start,
