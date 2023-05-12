@@ -3,131 +3,140 @@ from textwrap import dedent
 
 from inflection import underscore
 
-from fluidsimfoam.foam_input_files import DEFAULT_HEADER, Dict, FoamInputFile
-from fluidsimfoam.foam_input_files.blockmesh import (
+from fluidsimfoam.foam_input_files import (
     BlockMeshDict,
+    ConstantFileHelper,
+    FoamInputFile,
+    FvSchemesHelper,
+    VolScalarField,
+    VolVectorField,
+)
+
+from fluidsimfoam.foam_input_files.blockmesh import (
     Point,
     SimpleGrading,
     Vertex,
 )
 from fluidsimfoam.output import Output
 
-code_control_dict_functions = dedent(
-    """
-    adjustTimeStep   yes;
-    libs            (atmosphericModels);
 
-    functions
+def add_default_boundaries(field):
+    for name, type_ in (
+        ("inlet", "cyclic"),
+        ("outlet", "cyclic"),
+        ("top", "zeroGradient"),
+        ("bottom", "zeroGradient"),
+        ("frontAndBackPlanes", "empty"),
+    ):
+        field.set_boundary(name, type_)
+
+
+def make_scalar_field(name, dimension, values=None):
+    field = VolScalarField(name, dimension, values=values)
+    add_default_boundaries(field)
+    return field
+
+
+def make_vector_field(name, dimension, values=None):
+    field = VolVectorField(name, dimension, values=values)
+    add_default_boundaries(field)
+    return field
+
+
+code_fv_options = dedent(
+    r"""
+atmCoriolisUSource1
+{
+    type            atmCoriolisUSource;
+    atmCoriolisUSourceCoeffs
     {
-        fieldAverage1
-        {
-            type            fieldAverage;
-            libs            (fieldFunctionObjects);
-            writeControl    writeTime;
-
-            fields
-            (
-                U
-                {
-                    mean        on;
-                    prime2Mean  off;
-                    base        time;
-                }
-            );
-        }
+        selectionMode   all;
+        Omega           (0 7.2921e-5 0);
     }
-
+}
 """
 )
-
-_attribs_transport_prop = {
-    "transportModel": "Newtonian",
-    "nu            nu  [0 2 -1 0 0 0 0]": 0.0001,
-    "Pr            Pr [0 0 0 0 0 0 0]": 10,
-    "beta": 3e-03,
-    "TRef": 300,
-    "Prt": 0.85,
-}
 
 
 class OutputPHill(Output):
     """Output for the phill solver"""
 
     variable_names = ["U", "rhok", "p_rgh", "T", "alphat"]
-    system_files_names = Output.system_files_names + [
-        "blockMeshDict",
-        "topoSetDict",
-        "funkySetFieldsDict",
-    ]
-    constant_files_names = Output.constant_files_names + [
+    system_files_names = Output.system_files_names + ["blockMeshDict"]
+    constant_files_names = [
         "g",
         "fvOptions",
         "MRFProperties",
+        "transportProperties",
+        "turbulenceProperties",
     ]
 
-    # @classmethod
-    # def _set_info_solver_classes(cls, classes):
-    #     """Set the the classes for info_solver.classes.Output"""
-    #     super()._set_info_solver_classes(classes)
-
-    @classmethod
-    def _complete_params_control_dict(cls, params):
-        super()._complete_params_control_dict(params)
-
-        default = {
+    default_control_dict_params = Output.default_control_dict_params.copy()
+    default_control_dict_params.update(
+        {
             "application": "buoyantBoussinesqPimpleFoam",
-            "startFrom": "startTime",
-            "endTime": 60,
-            "deltaT": 0.05,
+            "startFrom": "latestTime",
+            "endTime": 1200000,
+            "deltaT": 10,
             "writeControl": "adjustableRunTime",
-            "writeInterval": 1,
-            "writeFormat": "ascii",
-            "writeCompression": "off",
-            "runTimeModifiable": "yes",
-            "adjustTimeStep": "yes",
+            "writeInterval": 5000,
+            "adjustTimeStep": "on",
             "maxCo": 0.6,
             "maxAlphaCo": 0.6,
             "maxDeltaT": 1,
         }
-        for key, value in default.items():
-            try:
-                params.control_dict[underscore(key)] = value
-            except AttributeError:
-                # TODO: Fix adding keys which are not in DEFAULT_CONTROL_DICT
-                params.control_dict._set_attribs({underscore(key): value})
+    )
 
-    def make_code_control_dict(self, params):
-        code = super().make_code_control_dict(params)
-        return code + code_control_dict_functions
+    helper_fv_schemes = FvSchemesHelper(
+        ddt="default         Euler implicit",
+        grad="default         Gauss linear",
+        div="""
+        default         none
+        div(phi,U)      Gauss upwind
+        div(phi,T)      Gauss upwind
+        div(phi,rhok)      Gauss upwind
+        div(phi,R)      Gauss upwind
+        div(R)          Gauss linear
+        div((nuEff*dev2(T(grad(U))))) Gauss linear
+        div((nuEff*dev(T(grad(U))))) Gauss linear
+""",
+        laplacian="""
+        default         Gauss linear corrected
+""",
+        interpolation={
+            "default": "linear",
+        },
+        sn_grad={
+            "default": "uncorrected",
+        },
+    )
 
-    @classmethod
-    def _complete_params_transport_properties(cls, params):
-        params._set_child(
-            "transport_properties",
-            attribs=_attribs_transport_prop,
-            doc="""TODO""",
-        )
-
-    def make_tree_transport_properties(self, params):
-        return FoamInputFile(
-            info={
-                "version": "2.0",
-                "format": "ascii",
-                "class": "dictionary",
-                "object": "transportProperties",
-            },
-            children={
-                key: params.transport_properties[key]
-                for key in _attribs_transport_prop.keys()
-            },
-            header=DEFAULT_HEADER,
-        )
+    helper_transport_properties = ConstantFileHelper(
+        "transportProperties",
+        {
+            "transportModel": "Newtonian",
+            "nu": 1.0e-2,
+            "Pr": 10,
+            "beta": 2.23e-4,
+            "TRef": 1.0e-2,
+            "Prt": 1e2,
+        },
+        dimensions={
+            "nu": "m^2/s",
+            "Pr": "1",
+            "beta": "1/K",
+            "TRef": "K",
+            "Prt": "1",
+        },
+        default_dimension="",
+        comments={},
+    )
 
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
         super()._complete_params_block_mesh_dict(params)
-        default = {"nx": 30, "ny": 30, "nz": 1}
-        default.update({"lx": 2000, "ly": 2000, "lz": 0.01, "scale": 1})
+        default = {"nx": 20, "ny": 50, "nz": 1}
+        default.update({"lx": 2000, "ly": 5000, "lz": 0.01, "scale": 1})
         for key, value in default.items():
             params.block_mesh_dict[key] = value
 
@@ -199,3 +208,21 @@ class OutputPHill(Output):
         )
 
         return bmd.format(sort_vortices="as_added")
+
+    def make_tree_alphat(self, params):
+        return make_scalar_field("alphat", dimension="m^2/s", values=0)
+
+    def make_tree_p_rgh(self, params):
+        return make_scalar_field("p_rgh", dimension="m^2/s^2", values=0)
+
+    def make_tree_rhok(self, params):
+        return make_scalar_field("rhok", dimension="", values=1.15)
+
+    def make_tree_t(self, params):
+        return make_scalar_field("T", dimension="K", values=300)
+
+    def make_tree_u(self, params):
+        field = make_vector_field("U", dimension="m/s", values=[0.1, 0, 0])
+        field.set_boundary("top", "slip")
+        field.set_boundary("bottom", "noSlip")
+        return field
