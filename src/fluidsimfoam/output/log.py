@@ -36,12 +36,29 @@ class Log(RemainingClockTime):
         else:
             raise RuntimeError
 
-        eq_times = re.findall(r"\nTime = ([\d\.]+)", text)
+        eq_times = re.findall(r"\nTime = ([\d\.]+e?[-\d]*)", text)
         clock_times = re.findall(r"\nExecutionTime = ([\d\.]+)", text)
         eq_times = eq_times[: len(clock_times)]
 
         eq_times = np.array([float(word) for word in eq_times])
         clock_times = np.array([float(word) for word in clock_times])
+
+        estimation_clock_time_per_time_step = clock_times[-1] / len(clock_times)
+
+        indices_time_step = np.arange(clock_times.size)
+
+        # remove times with same clock time
+        clock_times, indices_unique = np.unique(clock_times, return_index=True)
+        eq_times = eq_times[indices_unique]
+        indices_time_step = indices_time_step[indices_unique]
+
+        # decimate if needed
+        precision_clock = 0.01
+        step = round(8 * precision_clock / estimation_clock_time_per_time_step)
+        if step > 1:
+            clock_times = clock_times[::step]
+            eq_times = eq_times[::step]
+            indices_time_step = indices_time_step[::step]
 
         delta_eq_times = np.diff(eq_times)
 
@@ -57,9 +74,13 @@ class Log(RemainingClockTime):
         data = {
             "equation_times": eq_times,
             "remaining_clock_times": remaining_clock_times,
-            "clock_times_per_timestep": delta_clock_times,
+            "clock_times_per_timestep": delta_clock_times
+            / np.diff(indices_time_step),
             "equation_time_start": equation_time_start,
             "full_clock_time": clock_times[-1],
+            "remaining_eq_times": remaining_eq_times,
+            "delta_eq_times": delta_eq_times,
+            "delta_clock_times": delta_clock_times,
         }
 
         return data
