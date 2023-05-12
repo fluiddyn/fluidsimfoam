@@ -3,44 +3,42 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
     object      fvSchemes;
 }
 
 ddtSchemes
 {
-    default         Euler implicit;
+    default    Euler implicit;
 }
 
 gradSchemes
 {
-    default         Gauss linear;
+    default    Gauss linear;
 }
 
 divSchemes
 {
-    default         none;
-
-    div(phi,U)      Gauss upwind;
-    div(phi,T)      Gauss upwind;
-    div(phi,rhok)      Gauss upwind;
-    div(phi,R)      Gauss upwind;
-    div(R)          Gauss linear;
-    div((nuEff*dev2(T(grad(U))))) Gauss linear;
-    div((nuEff*dev(T(grad(U))))) Gauss linear;
+    default                 none;
+    div(phi,U)              Gauss upwind;
+    div(phi,T)              Gauss upwind;
+    div(phi,rhok)           Gauss upwind;
+    div(phi,R)              Gauss upwind;
+    div(R)                  Gauss linear;
+    div((nuEff*dev2(T(grad(U)))))  Gauss linear;
+    div((nuEff*dev(T(grad(U)))))  Gauss linear;
 }
 
 laplacianSchemes
 {
-    default         Gauss linear corrected;
+    default    Gauss linear corrected;
 }
 
 interpolationSchemes
 {
-    default         linear;
+    default    linear;
 }
 
 snGradSchemes
 {
-    default         uncorrected;
+    default    uncorrected;
 }

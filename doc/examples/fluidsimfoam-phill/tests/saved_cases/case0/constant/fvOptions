@@ -27,9 +27,7 @@ atmCoriolisUSource1
     atmCoriolisUSourceCoeffs
     {
         selectionMode   all;
-        // Omega           (0 0 5.65156e-5);
-        latitude                   45.188;
-        planetaryRotationPeriod    23.9344694;
+        Omega           (0 7.2921e-5 0);
     }
 }
 

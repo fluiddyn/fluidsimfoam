@@ -6,36 +6,30 @@ FoamFile
     object      p_rgh;
 }
 
-dimensions      [0 2 -2 0 0 0 0];
+dimensions       [0 2 -2 0 0 0 0];
 
-internalField   uniform 0;
+internalField    uniform 0;
 
 boundaryField
 {
     inlet
     {
-        type        cyclic;
+        type    cyclic;
     }
-
     outlet
     {
-        type        cyclic;
+        type    cyclic;
     }
-
-    bottom
-    {
-        type            fixedFluxPressure;
-        rho             rhok;
-        value           uniform 0;
-    }
-
     top
     {
-        type            zeroGradient;
+        type    zeroGradient;
     }
-
-    frontandbackplanes
+    bottom
     {
-        type        empty;
+        type    zeroGradient;
+    }
+    frontAndBackPlanes
+    {
+        type    empty;
     }
 }

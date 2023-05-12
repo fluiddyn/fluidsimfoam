@@ -6,40 +6,30 @@ FoamFile
     object      T;
 }
 
-dimensions      [0 0 0 1 0 0 0];
+dimensions       [0 0 0 1 0 0 0];
 
-internalField   uniform 300;
+internalField    uniform 300;
 
 boundaryField
 {
-    outlet
-    {
-        type            cyclic;
-    }
-
     inlet
     {
-        type            cyclic;
+        type    cyclic;
     }
-
-    bottom
+    outlet
     {
-        type            atmTurbulentHeatFluxTemperature;
-        heatSource      flux;
-        alphaEff        alphaEff;
-        Cp0             1005.0;
-        q               uniform 0;
-        value           uniform 300;
-
+        type    cyclic;
     }
-
     top
     {
-        type            zeroGradient;
+        type    zeroGradient;
     }
-
-    frontandbackplanes
+    bottom
     {
-        type            empty;
+        type    zeroGradient;
+    }
+    frontAndBackPlanes
+    {
+        type    empty;
     }
 }

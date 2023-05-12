@@ -1,42 +1,35 @@
 FoamFile
 {
     version     2.0;
-    format      binary;
+    format      ascii;
     class       volVectorField;
-    location    "0";
     object      U;
 }
 
-dimensions      [0 1 -1 0 0 0 0];
+dimensions       [0 1 -1 0 0 0 0];
 
-internalField   uniform (0.12 0 0);
+internalField    uniform (0.1 0 0);
 
 boundaryField
 {
-    outlet
-    {
-        type            cyclic;
-    }
-
     inlet
     {
-        type            cyclic;
+        type    cyclic;
     }
-
-    bottom
+    outlet
     {
-        type            fixedValue;
-        value           uniform (0 0 0);
+        type    cyclic;
     }
-
     top
     {
-        type            slip;
+        type    slip;
     }
-
-    frontandbackplanes
+    bottom
     {
-        type            empty;
+        type    noSlip;
     }
-
+    frontAndBackPlanes
+    {
+        type    empty;
+    }
 }

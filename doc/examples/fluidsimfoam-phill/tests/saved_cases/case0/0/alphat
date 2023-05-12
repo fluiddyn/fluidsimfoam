@@ -3,38 +3,33 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    location    "0";
     object      alphat;
 }
 
-dimensions      [0 2 -1 0 0 0 0];
+dimensions       [0 2 -1 0 0 0 0];
 
-internalField   uniform 0;
+internalField    uniform 0;
 
 boundaryField
 {
-    bottom
-    {
-        type            zeroGradient;
-    }
-
     inlet
     {
-        type            cyclic;
+        type    cyclic;
     }
-
     outlet
     {
-        type            cyclic;
+        type    cyclic;
     }
-
     top
     {
-        type            zeroGradient;
+        type    zeroGradient;
     }
-
-    frontandbackplanes
+    bottom
     {
-        type            empty;
+        type    zeroGradient;
+    }
+    frontAndBackPlanes
+    {
+        type    empty;
     }
 }
