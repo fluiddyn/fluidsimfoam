@@ -2,11 +2,11 @@
 import io
 import re
 from pathlib import Path
+from subprocess import Popen
 from time import sleep, time
 
 from invoke import task
 
-from fluiddyn.io.tee import MultiFile
 from fluiddyn.util import time_as_str
 from fluidsimfoam.foam_input_files import parse
 
@@ -41,36 +41,32 @@ def run(context):
     start_time = ctr_dict["startTime"]
 
     path_run = Path.cwd()
+    path_log = path_run / f"log_{time_as_str()}.txt"
     print(f"Starting simulation in \n{path_run}")
-    with open(f"log_{time_as_str()}.txt", "w") as file_log:
+    with open(path_log, "w") as file_log:
         file_log.write(f"{start_time = }\n{end_time = }\n")
         print(f"{end_time = }")
-        str_io = io.StringIO()
-        out_stream = MultiFile([str_io, file_log])
-
-        pattern_time = re.compile(r"\nTime = [\d]+\.[\d]+")
-
+        pattern_time = re.compile(r"\nTime = ([\d]+\.[\d]+)")
         t_start = time()
-        with context.run(
-            application, asynchronous=True, out_stream=out_stream
-        ) as promise:
-            t_last = time() - 2.0
-            while not promise.runner.process_is_finished:
-                t_now = time()
-                if t_now - t_last > 1:
-                    t_last = t_now
-                    log = str_io.getvalue()
-                    if log:
-                        groups = pattern_time.findall(log)
-                        if groups:
-                            time_simul = float(groups[-1].rsplit(None, 1)[1])
-                            print(
-                                f"eq_time: {time_simul:12.3f} "
-                                f"({100 * time_simul/end_time:6.2f} %), "
-                                f"clock_time: {t_now - t_start: 12.3f} s"
-                            )
-                            str_io = io.StringIO()
-                            out_stream._files[0] = str_io
-                sleep(0.1)
+        process = Popen(application, stdout=file_log)
+        t_last = time() - 10.0
+        while process.poll() is None:
+            sleep(0.2)
+            t_now = time()
+            if t_now - t_last > 2:
+                t_last = t_now
+                log_size = path_log.stat().st_size
+                with open(path_log, "r") as file_log_read:
+                    file_log_read.seek(max(0, log_size - 1000))
+                    log = file_log_read.read()
+                if log:
+                    groups = pattern_time.findall(log)
+                    if groups:
+                        time_simul = float(groups[-1])
+                        print(
+                            f"eq_time: {time_simul:12.3f} "
+                            f"({100 * time_simul/end_time:6.2f} %), "
+                            f"clock_time: {t_now - t_start: 12.3f} s"
+                        )
 
     print(f"Simulation done. path_run:\n{path_run}")
