@@ -1,5 +1,6 @@
 import re
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 from fluidsim_core.output.remaining_clock_time import RemainingClockTime
@@ -118,7 +119,49 @@ class Log(RemainingClockTime):
         text = self.text[-1000:]
         index = text.rfind("\nTime = ")
         if index == -1:
-            print("'Time = ' not found")
+            print("'Time = ' not found in log file")
             return None
         text = text[index + 8 :]
         return float(text.split(None, 1)[0])
+
+    def plot_residuals(self, variable_name=None, tmin=0.0):
+        if (
+            variable_name is not None
+            and variable_name not in self.output.variable_names
+        ):
+            raise ValueError(
+                f"variable_name has to be in {self.output.variable_names}"
+            )
+
+        if variable_name is None:
+            for key in ("p", "p_rbgh"):
+                if key in self.output.variable_names:
+                    variable_name = key
+                    break
+
+        matches = list(
+            re.finditer(
+                r"\nTime = (?P<time>[\d\.]+e?-?[\d]*)"
+                rf"[\s\S]+?Solving for {variable_name}, "
+                r"Initial residual = (?P<initial>[\d\.]+e?-?[\d]*)",
+                self.text,
+            )
+        )
+
+        times = np.empty(len(matches))
+        residuals = np.empty_like(times)
+
+        for index, match in enumerate(matches):
+            data = match.groupdict()
+
+            times[index] = data["time"]
+            residuals[index] = data["initial"]
+
+        fig, ax = plt.subplots()
+
+        residuals = residuals[times > tmin]
+        times = times[times > tmin]
+        ax.plot(times, residuals)
+        ax.set_xlabel("equation time")
+        fig.suptitle(f"Initial residuals {variable_name}")
+        return times, residuals
