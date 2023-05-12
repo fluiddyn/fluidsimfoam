@@ -76,6 +76,9 @@ poetry install
 poetry shell
 ```
 
+For better user experience with Matplotlib figures, you can also install with
+`poetry install --extra qt`.
+
 [Poetry]: https://python-poetry.org/docs/
 
 <!-- end-install -->
