@@ -12,9 +12,12 @@ class Fields:
             raise NotImplementedError
 
         path_times = sorted(
-            path
-            for path in self.output.path_run.glob("*")
-            if path.name[0].isdigit()
+            (
+                path
+                for path in self.output.path_run.glob("*")
+                if path.name[0].isdigit()
+            ),
+            key=lambda p: float(p.name),
         )
 
         path_dir = path_times[-1]

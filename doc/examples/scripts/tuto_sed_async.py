@@ -23,7 +23,6 @@ while sim.output.log.time_last < params.control_dict.write_interval:
     sleep(0.5)
 
 gradp = sim.params.force_properties.grad_pmean[0]
-
 x, y, z = sim.output.sim.oper.get_cells_coords()
 
 
@@ -36,18 +35,25 @@ def get_grad_tau():
 nb_saved_times = 1
 
 plt.ion()
-fig, ax = plt.subplots()
+fig, (ax0, ax1) = plt.subplots(2)
 
-ax.axvline(gradp, "r")
+ax0.set_xlabel(r"$\tau$")
+ax0.set_ylabel("$z$")
+ax1.set_xlabel("$t$")
+ax1.set_ylabel("residuals p_rbgh")
+
+ax0.axvline(gradp, c="r")
 grad_tau, t_now = get_grad_tau()
-(line,) = ax.plot(grad_tau, y)
+(line,) = ax0.plot(grad_tau, y)
+ax0.set_title(f"t = {t_now}")
+
+ax1.plot(*sim.output.log.get_last_residual(), "x")
+ax1.set_yscale("log")
 
 plt.show(block=False)
-plt.draw()
-plt.pause(0.01)
+fig.tight_layout()
 
 cond = True
-
 while cond:
     plt.pause(0.5)
     saved_times = sorted(
@@ -55,11 +61,14 @@ while cond:
         for path in sim.output.path_run.glob("*")
         if path.name[0].isdigit() and path.name != "0"
     )
+
+    ax1.plot(*sim.output.log.get_last_residual(), "x")
+
     if len(saved_times) > nb_saved_times:
         nb_saved_times = len(saved_times)
         grad_tau, t_now = get_grad_tau()
         line.set_xdata(-0.5 * grad_tau)
-        ax.set_title(f"t = {t_now}")
+        ax0.set_title(f"t = {t_now}")
         fig.canvas.draw()
         percentage = 100 * abs(0.5 * grad_tau[y < 0.04] + gradp).mean() / gradp
         print(f"New saved time: {t_now}, condition: {percentage:.3f} %")

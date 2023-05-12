@@ -112,11 +112,20 @@ class Log(RemainingClockTime):
         with open(self.path_file) as file:
             return file.read()
 
+    def get_log_tail(self, nbytes=1000):
+        if self.path_file is None:
+            raise IOError(f"No log file found in {self.output.path_run}")
+
+        log_size = self.path_file.stat().st_size
+        with open(self.path_file, "r") as file:
+            file.seek(max(0, log_size - nbytes))
+            return file.read()
+
     @property
     def time_last(self):
-        if self.text is None:
+        if self.path_file is None:
             return None
-        text = self.text[-1000:]
+        text = self.get_log_tail(1000)
         index = text.rfind("\nTime = ")
         if index == -1:
             print("'Time = ' not found in log file")
@@ -124,7 +133,7 @@ class Log(RemainingClockTime):
         text = text[index + 8 :]
         return float(text.split(None, 1)[0])
 
-    def plot_residuals(self, variable_name=None, tmin=0.0):
+    def _choose_variable_name(self, variable_name):
         if (
             variable_name is not None
             and variable_name not in self.output.variable_names
@@ -138,7 +147,34 @@ class Log(RemainingClockTime):
                 if key in self.output.variable_names:
                     variable_name = key
                     break
+        return variable_name
 
+    def get_last_residual(self, variable_name=None):
+        if self.path_file is None:
+            return None
+        text = self.get_log_tail(5000)
+
+        variable_name = self._choose_variable_name(variable_name)
+        matches = list(
+            re.finditer(
+                r"\nTime = (?P<time>[\d\.]+e?-?[\d]*)"
+                rf"[\s\S]+?Solving for {variable_name}, "
+                r"Initial residual = (?P<initial>[\d\.]+e?-?[\d]*)",
+                text,
+            )
+        )
+
+        if not matches:
+            raise ValueError(f"No match found for {variable_name}, text=\n{text}")
+
+        match = matches[-1]
+        data = match.groupdict()
+        time = float(data["time"])
+        residual = float(data["initial"])
+        return time, residual
+
+    def plot_residuals(self, variable_name=None, tmin=0.0):
+        variable_name = self._choose_variable_name(variable_name)
         matches = list(
             re.finditer(
                 r"\nTime = (?P<time>[\d\.]+e?-?[\d]*)"
