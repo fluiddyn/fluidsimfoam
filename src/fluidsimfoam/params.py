@@ -14,7 +14,7 @@ def get_position_first_letter(text):
     return len(re.match(r"\s*", text).group())
 
 
-pattern_entries = re.compile(r'''[a-zA-Z_0-9]+="[^"]*"''')
+pattern_entries = re.compile(r'''[\w]+="[^"]*"''')
 
 
 def format_too_long_tagstart(text, lengthmax=79):
