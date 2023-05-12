@@ -179,6 +179,8 @@ class VolVectorField(FieldABC):
 
 
 class VolTensorField(FieldABC):
+    cls = "volTensorField"
+
     def set_values(self, values):
         if not isinstance(values, np.ndarray) or values.ndim != 2:
             raise NotImplementedError(
@@ -189,9 +191,7 @@ class VolTensorField(FieldABC):
 
 
 classes = {
-    "volScalarField": VolScalarField,
-    "volVectorField": VolVectorField,
-    "volTensorField": VolTensorField,
+    cls.cls: cls for cls in (VolScalarField, VolVectorField, VolTensorField)
 }
 
 

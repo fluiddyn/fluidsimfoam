@@ -36,10 +36,10 @@ alias pytest-ipdb=pytest --pdb --pdbcls=IPython.terminal.debugger:TerminalPdb
 pytest-ipdb -vv tests/test_constant_files.py::test_with_dict
 ```
 
-To study the test coverage, one can run something like that:
+To study the test coverage, one can run `make cov` or something like:
 
 ```sh
-pytest tests doc/examples -vv --cov --cov-report term --cov-report html
+pytest tests doc/examples --cov --cov-report term --cov-report html
 firefox htmlcov/index.html
 ```
 

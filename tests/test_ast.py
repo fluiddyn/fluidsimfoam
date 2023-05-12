@@ -74,6 +74,7 @@ def test_dump_file():
     )[1:]
 
     assert tree.dump() == result
+    repr(tree)
 
 
 def test_init_from_py_objects():
