@@ -28,7 +28,17 @@ Security in case of vulnerabilities.
 
 <!-- (changelog/unreleased)= -->
 
-<!-- ## [Unreleased] -->
+## [Unreleased]
+
+- Merge request [!44](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/merge_requests/44):
+
+  - {class}`fluidsimfoam.output.log.Log`
+  - Improve run task (save OpenFOAM log and minimal logging) ({func}`fluidsimfoam.tasks.run`)
+  - {func}`fluidsimfoam.make.MakeInvoke.exec_async`
+  - {func}`fluidsimfoam.solvers.base.SimulFoam.stop_time_loop`
+  - Poetry extra for Qt (`poetry install -E qt` or `pip install "fluidsimfoam[qt]"`)
+  - Fix parameters ({mod}`fluidsimfoam.params`)
+  - {class}`fluidsimfoam.foam_input_files.fields.VolTensorField` and fixes in AST and fields.
 
 ## [0.0.3] - 2023-05-09
 

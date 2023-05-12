@@ -1,6 +1,7 @@
 """Base class for the ``sim`` object"""
 
 from pathlib import Path
+from time import sleep, time
 
 from inflection import underscore
 
@@ -58,3 +59,34 @@ class SimulFoam(SimulCore):
                 logger.warning("No output class initialized!")
 
         self.input_files = self.output.input_files
+
+    def stop_time_loop(self, stop_at="writeNow", verbose=True):
+        if verbose:
+            print("Telling OpenFOAM to stop... (overwrite controlDict file)")
+            t_stop = time()
+        ctr_dict = self.input_files.control_dict.read()
+        ctr_dict["stopAt"] = stop_at
+        ctr_dict.overwrite()
+
+        process = self.make.process
+
+        if process is None:
+            return
+
+        while process.poll() is None:
+            # touch needed (strange OpenFOAM bug?)
+            (self.path_run / "system/controlDict").touch()
+            sleep(0.05)
+            if verbose:
+                saved_directories = sorted(
+                    path.name
+                    for path in self.path_run.glob("*")
+                    if path.name[0].isdigit()
+                )
+                print(f"\rsaved times {saved_directories}", end="")
+
+        if verbose:
+            print(
+                f"\nSimulation stopped {time() - t_stop:.2f} s "
+                f"after `stopAt = {stop_at}`"
+            )

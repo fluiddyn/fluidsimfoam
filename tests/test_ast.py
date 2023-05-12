@@ -1,5 +1,6 @@
 from textwrap import dedent
 
+import numpy as np
 import pytest
 
 from fluidsimfoam.foam_input_files.ast import (
@@ -73,6 +74,7 @@ def test_dump_file():
     )[1:]
 
     assert tree.dump() == result
+    repr(tree)
 
 
 def test_init_from_py_objects():
@@ -107,3 +109,56 @@ def test_init_from_py_objects_list():
 
     assert isinstance(grad, List)
     assert grad[0] == 1000
+
+
+scalar_dumped = """
+l_scalar   nonuniform List<scalar>
+4
+(
+    1.0
+    1.0
+    1.0
+    1.0
+);
+"""
+
+vector_dumped = """
+l_vector   nonuniform List<vector>
+4
+(
+    (1.0 1.0 1.0)
+    (1.0 1.0 1.0)
+    (1.0 1.0 1.0)
+    (1.0 1.0 1.0)
+);
+"""
+
+tensor_dumped = """
+l_tensor   nonuniform List<tensor>
+4
+(
+    (1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+    (1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+    (1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+    (1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0)
+);
+"""
+
+
+def test_list():
+    tree = FoamInputFile(info={})
+    tree.set_child("l_scalar", np.ones(4))
+    tree.set_child("l_vector", np.ones([4, 3]))
+    tree.set_child("l_tensor", np.ones([4, 9]))
+
+    l_scalar = tree["l_scalar"]
+    l_vector = tree["l_vector"]
+    l_tensor = tree["l_tensor"]
+
+    assert l_scalar._dtype == "scalar"
+    assert l_vector._dtype == "vector"
+    assert l_tensor._dtype == "tensor"
+
+    assert l_scalar.dump().strip() == scalar_dumped.strip()
+    assert l_vector.dump().strip() == vector_dumped.strip()
+    assert l_tensor.dump().strip() == tensor_dumped.strip()

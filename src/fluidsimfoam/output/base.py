@@ -1,3 +1,5 @@
+"""Base output class"""
+
 import inspect
 import shutil
 import textwrap
@@ -47,6 +49,21 @@ class Output(OutputCore):
     @classmethod
     def _set_info_solver_classes(cls, classes):
         """Set the classes for info_solver.classes.Output"""
+        classes._set_child(
+            "Log",
+            dict(
+                module_name="fluidsimfoam.output.log",
+                class_name="Log",
+            ),
+        )
+
+        classes._set_child(
+            "Fields",
+            dict(
+                module_name="fluidsimfoam.output.fields",
+                class_name="Fields",
+            ),
+        )
 
     @classmethod
     def _setup_file_generators_classes(cls):

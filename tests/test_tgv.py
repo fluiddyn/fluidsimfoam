@@ -1,5 +1,6 @@
 import shutil
 from pathlib import Path
+from time import sleep
 
 import numpy as np
 import pytest
@@ -143,3 +144,35 @@ def test_run():
     params.fv_solution.solvers.p.solver = "PCG"
     sim = Simul(params)
     sim.make.exec("run")
+
+
+@pytest.mark.skipif(
+    path_foam_executable is None, reason="executable icoFoam not available"
+)
+def test_run_exec_async():
+    params = Simul.create_default_params()
+    params.output.sub_directory = "tests_fluidsimfoam/tgv"
+    sim = Simul(params)
+    process = sim.make.exec_async("run")
+    # we need to be sure that the time loop is started before stopping it
+    while sim.output.log.time_last is None:
+        sleep(0.02)
+
+    time_last = sim.output.log.time_last
+
+    while sim.output.log.time_last == time_last:
+        sleep(0.02)
+
+    time, residual = sim.output.log.get_last_residual()
+
+    assert isinstance(time, float)
+    assert isinstance(residual, float)
+
+    sim.stop_time_loop()
+    assert process.returncode == 0
+
+    sim.output.log.plot_residuals(tmin=0.02)
+    sim.output.log.plot_clock_times()
+    field = sim.output.fields.read_field("U", time_approx="last")
+    arr = field.get_array()
+    assert isinstance(arr, np.ndarray)

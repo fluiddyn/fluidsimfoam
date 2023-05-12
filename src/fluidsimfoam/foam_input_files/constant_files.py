@@ -16,6 +16,10 @@ def _update_dict_with_params(data, params_data):
             data[key] = params_data[name]
 
 
+def _as_py_name(name):
+    return underscore(name).replace(".", "_")
+
+
 class ConstantFileHelper(FileHelper):
     def __init__(
         self,
@@ -37,7 +41,7 @@ class ConstantFileHelper(FileHelper):
         self._complete_params_dict(params, self.file_name, self.default, self.doc)
 
     def _complete_params_dict(self, subparams, name, default, doc=None):
-        name = underscore(name)
+        name = _as_py_name(name)
         subsubparams = subparams._set_child(name, doc=doc)
 
         for key, value in default.items():
@@ -45,7 +49,7 @@ class ConstantFileHelper(FileHelper):
                 self._complete_params_dict(subsubparams, key, value)
                 continue
 
-            subsubparams._set_attrib(underscore(key), value)
+            subsubparams._set_attrib(_as_py_name(key), value)
 
     def make_tree(self, params):
         tree = FoamInputFile(
@@ -59,7 +63,7 @@ class ConstantFileHelper(FileHelper):
             comments=self.comments,
         )
 
-        params_file = params[underscore(self.file_name)]
+        params_file = params[_as_py_name(self.file_name)]
 
         default = deepcopy(self.default)
         _update_dict_with_params(default, params_file)

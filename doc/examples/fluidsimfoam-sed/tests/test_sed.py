@@ -1,6 +1,7 @@
 import shutil
 from pathlib import Path
 
+import numpy as np
 import pytest
 from fluidsimfoam_sed import Simul
 
@@ -32,3 +33,9 @@ def test_run():
     params.control_dict.end_time = 0.001
     sim = Simul(params)
     sim.make.exec("run")
+
+    field = sim.output.fields.read_field("alpha.a", time_approx="last")
+    arr = field.get_array()
+    assert isinstance(arr, np.ndarray)
+
+    sim.output.fields.plot_field("alpha.a")

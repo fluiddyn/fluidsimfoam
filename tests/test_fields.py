@@ -2,7 +2,11 @@ from textwrap import dedent
 
 import numpy as np
 
-from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
+from fluidsimfoam.foam_input_files.fields import (
+    VolScalarField,
+    VolTensorField,
+    VolVectorField,
+)
 
 code_p = dedent(
     """
@@ -195,8 +199,7 @@ code_vector = dedent(
 
     dimensions    [0 1 -1 0 0 0 0];
 
-    internalField nonuniform
-    List<vector>
+    internalField   nonuniform List<vector>
     3
     (
         (-1 2 3)
@@ -381,3 +384,9 @@ def test_cells_centers():
     cx_values = field_cx.get_array()
 
     assert np.allclose(c_values[:, 0], cx_values)
+
+
+def test_tensor():
+    field = VolTensorField("tensor", "")
+    arr = np.ones((10, 9))
+    field.set_values(arr)

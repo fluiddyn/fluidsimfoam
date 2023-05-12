@@ -7,6 +7,7 @@ from numbers import Number
 from textwrap import dedent
 from typing import Optional
 
+import numpy as np
 from inflection import underscore
 
 symbols = ["kg", "m", "s", "K", "kmol", "A", "cd"]
@@ -119,14 +120,43 @@ class NodeLikePyDict(ABC):
                 raise NotImplementedError(type(value))
 
     def set_child(self, key, child):
+        if (
+            isinstance(child, list)
+            and child
+            and isinstance(child[0], list)
+            and child[0]
+            and all(isinstance(n, Number) for n in child[0])
+        ):
+            child = np.array(child)
+
         if isinstance(child, (type(None), str, Number)):
             pass
         elif isinstance(child, dict):
             child = Dict(child, name=key)
         elif isinstance(child, list):
             child = List(child, name=key)
+        elif isinstance(child, np.ndarray):
+            shape = child.shape
+            ndim = child.ndim
+            child.tolist()
+            dtype = None
+            if ndim == 2:
+                if shape[1] == 9:
+                    dtype = "tensor"
+                elif shape[1] == 3:
+                    dtype = "vector"
+                else:
+                    raise NotImplementedError
+                child = [List(sequence) for sequence in child]
+            elif ndim == 1:
+                dtype = "scalar"
+            else:
+                raise NotImplementedError
+            child = List(child, name=key, dtype=dtype)
+        elif isinstance(child, Node):
+            pass
         else:
-            raise NotImplementedError
+            raise NotImplementedError(type(child))
         self._set_item(key, child)
 
     def set_value(self, name, value, dimension=None):
@@ -206,6 +236,12 @@ class FoamInputFile(Node, NodeLikePyDict):
 
     def _set_item(self, key, value):
         self.children[key] = value
+
+    def __setitem__(self, key, item):
+        self.children[key] = item
+
+    def __getitem__(self, key):
+        return self.children[key]
 
 
 @dataclass
@@ -340,8 +376,9 @@ class Dict(dict, Node, NodeLikePyDict):
 class List(list, Node):
     """Represents an OpenFoam list"""
 
-    def __init__(self, iterable=None, name=None):
+    def __init__(self, iterable=None, name=None, dtype=None):
         self._name = name
+        self._dtype = dtype
         super().__init__(iterable)
 
     def get_name(self):
@@ -375,7 +412,14 @@ class List(list, Node):
             tmp.extend(self._make_list_strings(indent=0))
             return indentation + "(" + " ".join(tmp) + ")"
         else:
-            tmp.append(indentation + self._name + f"\n{indentation}" + "(")
+            header = self._name
+            if self._dtype is not None:
+                header += (
+                    f"   nonuniform List<{self._dtype}>\n"
+                    f"{indentation}{len(self)}"
+                )
+
+            tmp.append(indentation + header + f"\n{indentation}" + "(")
             special_keys = {"blocks": "hex", "edges": "spline"}
             if self._name not in special_keys.keys():
                 tmp.append("\n".join(self._make_list_strings(indent + 4)))
