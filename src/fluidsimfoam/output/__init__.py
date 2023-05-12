@@ -4,6 +4,8 @@
    :toctree:
 
    base
+   fields
+   log
 
 """
 

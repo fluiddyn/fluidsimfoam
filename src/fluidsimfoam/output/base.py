@@ -1,3 +1,5 @@
+"""Base output class"""
+
 import inspect
 import shutil
 import textwrap

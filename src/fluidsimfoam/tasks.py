@@ -1,5 +1,5 @@
 """Invoke tasks to be used from the ``tasks.py`` file in the solvers"""
-import io
+
 import re
 from pathlib import Path
 from subprocess import Popen
@@ -32,6 +32,7 @@ def polymesh(context):
 
 @task(polymesh)
 def run(context):
+    """Main target to launch a simulation"""
     with open("system/controlDict") as file:
         ctr_dict = file.read()
     ctr_dict = parse(ctr_dict)

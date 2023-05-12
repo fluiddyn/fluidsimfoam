@@ -1,3 +1,5 @@
+"""Class for the ``sim.output.fields`` object"""
+
 import matplotlib.pyplot as plt
 
 from fluidsimfoam.foam_input_files import read_field_file

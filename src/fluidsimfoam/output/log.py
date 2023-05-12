@@ -1,3 +1,5 @@
+"""Class for the ``sim.output.log`` object"""
+
 import re
 
 import matplotlib.pyplot as plt

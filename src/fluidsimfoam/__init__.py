@@ -24,6 +24,7 @@ Fluidsimfoam API reference
    log
    tasks
    testing
+   params
    next_fluidsim_core
 
 """
