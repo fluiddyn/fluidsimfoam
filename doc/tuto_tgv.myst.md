@@ -78,6 +78,10 @@ if path_run is None:
 path_run
 ```
 
+```{code-cell} ipython3
+!ls {path_run}
+```
+
 ## Load the simulation
 
 We can now load the simulation and process the output.
@@ -93,4 +97,18 @@ sim = load(path_run)
 ```{admonition} Quickly start IPython and load a simulation
 The command `fluidsimfoam-ipy-load` can be used to start a IPython session and load the
 simulation saved in the current directory.
+```
+
+```{code-cell} ipython3
+field_u = sim.output.fields.read_field("U")
+arr_u = field_u.get_array()
+arr_u.shape
+```
+
+```{code-cell} ipython3
+sim.output.log.plot_residuals(tmin=0.03);
+```
+
+```{code-cell} ipython3
+sim.output.log.plot_clock_times()
 ```
