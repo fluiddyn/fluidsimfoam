@@ -39,9 +39,14 @@ $(INTERSPHINX_TARGETS): intersphinx-%:
 autobuild:
 	@sphinx-autobuild --watch ../src --re-ignore '(_build|generated)\/.*' "$(SOURCEDIR)" "$(BUILDDIR)/html"
 
-cleanall: clean
+cleannotebooks:
+	rm -f *.ipynb
+
+cleangenerated:
 	@echo "Removing everything under '_generated'..."
 	@rm -rf _generated/*
 
+cleanall: clean cleangenerated
+
 format:
-	mdformat --wrap 88 .
+	mdformat .

@@ -15,7 +15,7 @@ doc/**generated/*
 doc/**.zip
 
 *.ipynb_checkpoints*
-*Untitled*.ipynb
+**/*.ipynb
 *.egg-info/*
 
 build/*

@@ -36,6 +36,7 @@ caption: Help & Reference
 maxdepth: 1
 ---
 CHANGELOG
+CONTRIBUTING
 AUTHORS
 dev/index.md
 ```

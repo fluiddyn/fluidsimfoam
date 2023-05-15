@@ -5,19 +5,21 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.1
+    jupytext_version: 1.14.5
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
   name: python3
 ---
 
++++ {"user_expressions": []}
+
 # Demo Taylor-Green vortex (`fluidsimfoam-tgv` solver)
 
-Fluidsimfoam repository contains a [simple example
-solver](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-tgv)
-for the Taylor-Green vortex flow. We are going to show how it can be used on a
-very small and short simulation.
+Fluidsimfoam repository contains a
+[simple example solver](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-tgv)
+for the Taylor-Green vortex flow. We are going to show how it can be used on a very small
+and short simulation.
 
 ## Run a simulation by executing a script
 
@@ -36,14 +38,15 @@ In normal life, we would just execute this script with something like
 command = "python3 examples/scripts/tuto_tgv.py"
 ```
 
++++ {"user_expressions": []}
+
 However, in this notebook, we need a bit more code. How we execute this command is very
 specific to these tutorials written as notebooks so you can just look at the output of
 this cell.
 
 ```{code-cell} ipython3
----
-tags: [hide-input]
----
+:tags: [hide-input]
+
 from subprocess import run, PIPE, STDOUT
 from time import perf_counter
 
@@ -56,15 +59,16 @@ print(f"Script executed in {perf_counter() - t_start:.2f} s")
 lines = process.stdout.split("\n")
 ```
 
++++ {"user_expressions": []}
+
 To "load the simulation", i.e. to recreate a simulation object, we now need to extract
 from the output the path of the directory of the simulation. This is also very specific
 to these tutorials, so you don't need to focus on this code. In real life, we can just
 read the log to know where the data has been saved.
 
 ```{code-cell} ipython3
----
-tags: [hide-input]
----
+:tags: [hide-input]
+
 path_run = None
 for line in lines:
     if "path_run: " in line:
@@ -82,6 +86,8 @@ path_run
 !ls {path_run}
 ```
 
++++ {"user_expressions": []}
+
 ## Load the simulation
 
 We can now load the simulation and process the output.
@@ -94,10 +100,17 @@ from fluidsimfoam import load
 sim = load(path_run)
 ```
 
++++ {"user_expressions": []}
+
 ```{admonition} Quickly start IPython and load a simulation
 The command `fluidsimfoam-ipy-load` can be used to start a IPython session and load the
 simulation saved in the current directory.
 ```
+
++++ {"user_expressions": []}
+
+One can do many things with this `Simul` object. For example, a Numpy array corresponding
+to the last saved time can be created with:
 
 ```{code-cell} ipython3
 field_u = sim.output.fields.read_field("U")
@@ -106,8 +119,17 @@ arr_u.shape
 ```
 
 ```{code-cell} ipython3
+x, y, z = sim.oper.get_cells_coords()
+```
+
+Data saved in the OpenFOAM log file can be loaded and plotted with the object
+`sim.output.log`, an instance of the class {class}`fluidsimfoam.output.log.Log`:
+
+```{code-cell} ipython3
 sim.output.log.plot_residuals(tmin=0.03);
 ```
+
+To know how long should run a simulation, one can use:
 
 ```{code-cell} ipython3
 sim.output.log.plot_clock_times()
