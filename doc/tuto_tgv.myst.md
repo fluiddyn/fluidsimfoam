@@ -45,8 +45,9 @@ specific to these tutorials written as notebooks so you can just look at the out
 this cell.
 
 ```{code-cell} ipython3
-:tags: [hide-input]
-
+---
+tags: [hide-input]
+---
 from subprocess import run, PIPE, STDOUT
 from time import perf_counter
 
@@ -67,8 +68,9 @@ to these tutorials, so you don't need to focus on this code. In real life, we ca
 read the log to know where the data has been saved.
 
 ```{code-cell} ipython3
-:tags: [hide-input]
-
+---
+tags: [hide-input]
+---
 path_run = None
 for line in lines:
     if "path_run: " in line:
