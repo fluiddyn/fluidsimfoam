@@ -60,6 +60,15 @@ make
 The tutorials are written in `.myst.md` files and executed during the build. `.ipynb`
 files are never version controlled in the repository.
 
+```{warning}
+
+OpenFOAM (v1912) is installed on ReadTheDocs servers with the official Ubuntu
+apt package. With this package no compilation for OpenFOAM simulation is
+possible, so no `codeStream`. Fortunatelly, one can already do a lot of things
+with Fluidsimfoam without compilation!
+
+```
+
 To write tutorials, one can modify the `.myst.md` files with your favorite editor or open
 these files with JupyterLab: run `jupyter-lab` and then click right on the icon
 representing the `.myst.md` file and click on `Open With > Notebook`. JupyterLab will

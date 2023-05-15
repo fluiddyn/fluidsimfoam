@@ -68,5 +68,5 @@ Security in case of vulnerabilities.
 - Parser for OpenFOAM input files ({mod}`fluidsimfoam.foam_input_files`)
 - Utility to create blockMeshDict files ({mod}`fluidsimfoam.foam_input_files.blockmesh`)
 
-[Unreleased]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.3...branch%2Fdefault
 [0.0.3]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.2...0.0.3
+[unreleased]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.3...branch%2Fdefault
