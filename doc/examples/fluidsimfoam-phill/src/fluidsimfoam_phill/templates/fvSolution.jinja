@@ -23,7 +23,7 @@ solvers
         relTol          0;
     }
 
-    "(U|rhok|R|T)"
+    "(U|R|T)"
     {
         solver          PBiCG;
         preconditioner  DILU;
@@ -31,7 +31,7 @@ solvers
         relTol          0.1;
     }
 
-    "(U|rhok|R|T)Final"
+    "(U|R|T)Final"
     {
         $U;
         relTol          0;

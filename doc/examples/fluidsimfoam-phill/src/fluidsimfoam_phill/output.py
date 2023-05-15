@@ -82,7 +82,7 @@ class OutputPHill(Output):
         }
     )
 
-    helper_fv_schemes = FvSchemesHelper(
+    _helper_fv_schemes = FvSchemesHelper(
         ddt="default         Euler implicit",
         grad="default         Gauss linear",
         div="""
@@ -105,13 +105,13 @@ class OutputPHill(Output):
         },
     )
 
-    helper_transport_properties = ConstantFileHelper(
+    _helper_transport_properties = ConstantFileHelper(
         "transportProperties",
         {
             "transportModel": "Newtonian",
             "nu": 1.0e-2,
             "Pr": 10,
-            "beta": 2.23e-4,
+            "beta": 1,
             "TRef": 1.0e-2,
             "Prt": 1e2,
         },
@@ -134,7 +134,7 @@ class OutputPHill(Output):
         for key, value in default.items():
             params.block_mesh_dict[key] = value
 
-    def make_code_block_mesh_dict(self, params):
+    def _make_code_block_mesh_dict(self, params):
         nx = params.block_mesh_dict.nx
         ny = params.block_mesh_dict.ny
         nz = params.block_mesh_dict.nz
@@ -203,16 +203,16 @@ class OutputPHill(Output):
 
         return bmd.format(sort_vortices="as_added")
 
-    def make_tree_alphat(self, params):
+    def _make_tree_alphat(self, params):
         return make_scalar_field("alphat", dimension="m^2/s", values=0)
 
-    def make_tree_p_rgh(self, params):
+    def _make_tree_p_rgh(self, params):
         return make_scalar_field("p_rgh", dimension="m^2/s^2", values=0)
 
-    def make_tree_t(self, params):
+    def _make_tree_t(self, params):
         return make_scalar_field("T", dimension="K", values=300)
 
-    def make_tree_u(self, params):
+    def _make_tree_u(self, params):
         field = make_vector_field("U", dimension="m/s", values=[0.1, 0, 0])
         field.set_boundary("top", "slip")
         field.set_boundary("bottom", "noSlip")
