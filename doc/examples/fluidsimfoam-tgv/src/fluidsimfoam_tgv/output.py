@@ -79,7 +79,7 @@ class OutputTGV(Output):
 
     system_files_names = Output.system_files_names + ["blockMeshDict"]
 
-    helper_fv_schemes = FvSchemesHelper(
+    _helper_fv_schemes = FvSchemesHelper(
         ddt="default   backward",
         grad="default  leastSquares",
         div="""
@@ -91,7 +91,7 @@ class OutputTGV(Output):
         sn_grad="default  corrected",
     )
 
-    helper_transport_properties = ConstantFileHelper(
+    _helper_transport_properties = ConstantFileHelper(
         "transportProperties",
         {"transportModel": "Newtonian", "nu": 0.000625},
         default_dimension="m^2/s",
@@ -102,8 +102,8 @@ class OutputTGV(Output):
     #     """Set the the classes for info_solver.classes.Output"""
     #     super()._set_info_solver_classes(classes)
 
-    def make_code_control_dict(self, params):
-        code = super().make_code_control_dict(params)
+    def _make_code_control_dict(self, params):
+        code = super()._make_code_control_dict(params)
         return code + code_control_dict_functions
 
     @classmethod
@@ -148,7 +148,7 @@ class OutputTGV(Output):
             doc="""type have to be in ['from_py', 'codestream']""",
         )
 
-    def make_tree_p(self, params):
+    def _make_tree_p(self, params):
         field = VolScalarField("p", "m^2/s^2")
         for prefix in boundary_prefixes:
             field.set_boundary(prefix + "Boundary", "cyclic")
@@ -163,7 +163,7 @@ class OutputTGV(Output):
 
         return field
 
-    def make_tree_u(self, params):
+    def _make_tree_u(self, params):
         field = VolVectorField("U", "m/s")
         for prefix in boundary_prefixes:
             field.set_boundary(prefix + "Boundary", "cyclic")

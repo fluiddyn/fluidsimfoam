@@ -31,7 +31,7 @@ class Output(OutputCore):
     system_files_names = ["controlDict", "fvSchemes", "fvSolution"]
     default_control_dict_params = DEFAULT_CONTROL_DICT
 
-    helper_turbulence_properties = ConstantFileHelper(
+    _helper_turbulence_properties = ConstantFileHelper(
         "turbulenceProperties", {"simulationType": "laminar"}
     )
 
@@ -251,7 +251,7 @@ class Output(OutputCore):
             doc="""See https://doc.cfd.direct/openfoam/user-guide-v6/controldict""",
         )
 
-    def make_tree_control_dict(self, params):
+    def _make_tree_control_dict(self, params):
         children = {
             key: params.control_dict[underscore(key)]
             for key in self.default_control_dict_params.keys()
@@ -270,8 +270,8 @@ class Output(OutputCore):
         )
         return tree
 
-    def make_code_control_dict(self, params):
-        tree = self.make_tree_control_dict(params)
+    def _make_code_control_dict(self, params):
+        tree = self._make_tree_control_dict(params)
         return tree.dump()
 
     @classmethod

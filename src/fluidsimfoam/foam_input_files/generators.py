@@ -79,26 +79,26 @@ class FileGenerator(FileGeneratorABC):
     def generate_code(self, params=None):
         """Generate the code of the file from ...
 
-        - a method named like `sim.output.make_code_block_mesh_dict`,
+        - a method named like `sim.output._make_code_block_mesh_dict`,
         - or a Jinja template.
         """
         if params is None:
             params = self.output.sim.params
 
         try:
-            make_code = getattr(self.output, "make_code_" + self._name)
+            make_code = getattr(self.output, "_make_code_" + self._name)
         except AttributeError:
             make_code = None
 
         if make_code is None:
             try:
-                make_tree = getattr(self.output, "make_tree_" + self._name)
+                make_tree = getattr(self.output, "_make_tree_" + self._name)
             except AttributeError:
                 make_tree = None
 
             if make_tree is None:
                 try:
-                    helper = getattr(self.output, "helper_" + self._name)
+                    helper = getattr(self.output, "_helper_" + self._name)
                 except AttributeError:
                     pass
                 else:
@@ -119,7 +119,7 @@ class FileGenerator(FileGeneratorABC):
                 "Fluidsimfoam solver issue: "
                 f"2 concurrent methods to produce {self.rel_path}:\n"
                 f"- template in {self.input_files.templates_dir},\n"
-                f"- function output.make_code_{self._name}.\n"
+                f"- function output._make_code_{self._name}.\n"
                 "Remove the file or the function (or make it equal to None)."
             )
 
@@ -138,7 +138,7 @@ class FileGenerator(FileGeneratorABC):
 
         if complete_params is None:
             try:
-                helper = getattr(output_cls, "helper_" + cls._name)
+                helper = getattr(output_cls, "_helper_" + cls._name)
             except AttributeError:
                 pass
             else:
