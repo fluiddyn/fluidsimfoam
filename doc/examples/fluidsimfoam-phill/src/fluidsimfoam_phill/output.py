@@ -11,12 +11,7 @@ from fluidsimfoam.foam_input_files import (
     VolScalarField,
     VolVectorField,
 )
-
-from fluidsimfoam.foam_input_files.blockmesh import (
-    Point,
-    SimpleGrading,
-    Vertex,
-)
+from fluidsimfoam.foam_input_files.blockmesh import Point, SimpleGrading, Vertex
 from fluidsimfoam.output import Output
 
 
@@ -61,7 +56,7 @@ atmCoriolisUSource1
 class OutputPHill(Output):
     """Output for the phill solver"""
 
-    variable_names = ["U", "rhok", "p_rgh", "T", "alphat"]
+    variable_names = ["U", "p_rgh", "T", "alphat"]
     system_files_names = Output.system_files_names + ["blockMeshDict"]
     constant_files_names = [
         "g",
@@ -94,7 +89,6 @@ class OutputPHill(Output):
         default         none
         div(phi,U)      Gauss upwind
         div(phi,T)      Gauss upwind
-        div(phi,rhok)      Gauss upwind
         div(phi,R)      Gauss upwind
         div(R)          Gauss linear
         div((nuEff*dev2(T(grad(U))))) Gauss linear
@@ -214,9 +208,6 @@ class OutputPHill(Output):
 
     def make_tree_p_rgh(self, params):
         return make_scalar_field("p_rgh", dimension="m^2/s^2", values=0)
-
-    def make_tree_rhok(self, params):
-        return make_scalar_field("rhok", dimension="", values=1.15)
 
     def make_tree_t(self, params):
         return make_scalar_field("T", dimension="K", values=300)
