@@ -11,8 +11,8 @@ solvers used by the solver, as well as the simulation control parameters, such a
 fvSolution, fvSchemes, controlDict and blockMeshDict. The constant directory typically
 contains files that define the physical properties of the fluid being simulated, such as
 its density and viscosity related to laminar and turbulent cases. Finally, the 0
-directory typically contains files that define the initial conditions for the
-simulation, such as the initial velocity and pressure fields.
+directory typically contains files that define the initial conditions for the simulation,
+such as the initial velocity and pressure fields.
 
 ## Results
 

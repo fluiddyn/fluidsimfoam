@@ -2,8 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
-this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
+project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 <!--
 
@@ -30,15 +30,18 @@ Security in case of vulnerabilities.
 
 ## [Unreleased]
 
-- Merge request [!44](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/merge_requests/44):
+- Merge request
+  [!44](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/merge_requests/44):
 
   - {class}`fluidsimfoam.output.log.Log`
-  - Improve run task (save OpenFOAM log and minimal logging) ({func}`fluidsimfoam.tasks.run`)
+  - Improve run task (save OpenFOAM log and minimal logging)
+    ({func}`fluidsimfoam.tasks.run`)
   - {func}`fluidsimfoam.make.MakeInvoke.exec_async`
   - {func}`fluidsimfoam.solvers.base.SimulFoam.stop_time_loop`
   - Poetry extra for Qt (`poetry install -E qt` or `pip install "fluidsimfoam[qt]"`)
   - Fix parameters ({mod}`fluidsimfoam.params`)
-  - {class}`fluidsimfoam.foam_input_files.fields.VolTensorField` and fixes in AST and fields.
+  - {class}`fluidsimfoam.foam_input_files.fields.VolTensorField` and fixes in AST and
+    fields.
 
 ## [0.0.3] - 2023-05-09
 
@@ -65,5 +68,5 @@ Security in case of vulnerabilities.
 - Parser for OpenFOAM input files ({mod}`fluidsimfoam.foam_input_files`)
 - Utility to create blockMeshDict files ({mod}`fluidsimfoam.foam_input_files.blockmesh`)
 
-<!-- [Unreleased]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.3...branch%2Fdefault -->
 [0.0.3]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.2...0.0.3
+[unreleased]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.3...branch%2Fdefault

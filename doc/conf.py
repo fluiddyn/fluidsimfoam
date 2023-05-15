@@ -42,13 +42,13 @@ exclude_patterns = [
     ".DS_Store",
     "examples/fluidsimfoam-*/README.md",
     "**/.pytest_cache/*",
+    "*.ipynb",
 ]
-
 
 # The suffix of source filenames.
 source_suffix = {
     ".rst": "restructuredtext",
-    ".ipynb": "myst-nb",
+    ".ipynb": None,
     ".md": "myst-nb",
 }
 
