@@ -649,7 +649,8 @@ def test_list_numbered_u(grammar):
     )
 
 
-def test_list_numbered_assigned():
+@both_grammars
+def test_list_numbered_assigned(grammar):
     tree = base_test(
         """
         value           nonuniform List<scalar>
@@ -660,6 +661,7 @@ def test_list_numbered_assigned():
         )
         ;
         """,
+        grammar=grammar,
         check_dump_parse=True,
     )
 

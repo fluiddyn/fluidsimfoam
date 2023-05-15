@@ -10,7 +10,7 @@ _dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY
 _var_name : CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY
 
 LIST_TYPE.2 : /List<[\w]+>/
-list_info : _list_name [CNAME] [ NEWLINE LIST_TYPE ] [NEWLINE SIGNED_NUMBER]
+list_info : _list_name [CNAME] [NEWLINE] [LIST_TYPE] [NEWLINE SIGNED_NUMBER]
 
 directive: /#[a-zA-Z]+/ | /#[a-zA-Z]+{[^}]*}/
 dimension_set : "[" (SIGNED_NUMBER)+ "]"
@@ -25,7 +25,7 @@ _funtion_call : CNAME [NEWLINE] "(" [NEWLINE] (_in_funtion_call) ( "," [NEWLINE]
 
 directive_assignment: [NEWLINE] directive (_funtion_call|CNAME|EQKEY|ESCAPED_STRING) [";"] NEWLINE
 macro_assignment : [NEWLINE] MACRO ";" NEWLINE
-list_assignment : [NEWLINE] list_info NEWLINE list ";" NEWLINE
+list_assignment : [NEWLINE] list_info NEWLINE list [NEWLINE] ";" NEWLINE
 var_assignment : [NEWLINE] _var_name [(_dataentry)+] ";" NEWLINE
 dict_assignment : [NEWLINE] _dict_name NEWLINE "{" [NEWLINE] [(_assignment)+] "}" [";"] NEWLINE
 code_assignment : [NEWLINE] CNAME NEWLINE /#{[\S\s]*?#};/ NEWLINE
