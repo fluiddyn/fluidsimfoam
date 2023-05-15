@@ -650,23 +650,6 @@ def test_list_numbered_u(grammar):
 
 
 @both_grammars
-def test_list_numbered_assigned(grammar):
-    tree = base_test(
-        """
-        value           nonuniform List<scalar>
-        2
-        (
-            47.619
-            142.857
-        )
-        ;
-        """,
-        grammar=grammar,
-        check_dump_parse=True,
-    )
-
-
-@both_grammars
 def test_colon_double_name(grammar):
     """In controlDict files (found once)"""
     tree = base_test(

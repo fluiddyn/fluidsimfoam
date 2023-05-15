@@ -275,3 +275,18 @@ def test_list_u():
         """,
         check_dump_parse=True,
     )
+
+
+def test_list_as_writeCellCentres():
+    base_test_advanced(
+        """
+        value           nonuniform List<scalar>
+        2
+        (
+            47.619
+            142.857
+        )
+        ;
+        """,
+        check_dump_parse=True,
+    )
