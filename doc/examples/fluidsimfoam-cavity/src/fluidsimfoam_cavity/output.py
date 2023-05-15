@@ -16,7 +16,7 @@ class OutputCavity(Output):
         "decomposeParDict",
     ]
 
-    helper_fv_schemes = FvSchemesHelper(
+    _helper_fv_schemes = FvSchemesHelper(
         ddt="default   Euler",
         grad="""
             default    Gauss linear
@@ -30,12 +30,12 @@ class OutputCavity(Output):
         sn_grad="default  orthogonal",
     )
 
-    helper_transport_properties = ConstantFileHelper(
+    _helper_transport_properties = ConstantFileHelper(
         "transportProperties",
         {"nu": 0.01},
     )
 
-    def make_tree_p(self, params):
+    def _make_tree_p(self, params):
         field = VolScalarField("p", "m^2/s^2")
         field.set_values(0)
         field.set_boundary("movingWall", "zeroGradient")
@@ -43,7 +43,7 @@ class OutputCavity(Output):
         field.set_boundary("frontAndBack", "empty")
         return field
 
-    def make_tree_u(self, params):
+    def _make_tree_u(self, params):
         field = VolVectorField("U", "m/s")
         field.set_values([0, 0, 0])
         field.set_boundary("movingWall", "fixedValue", "uniform (1 0 0)")
@@ -60,7 +60,7 @@ class OutputCavity(Output):
             params.block_mesh_dict[key] = value
         params.block_mesh_dict.scale = 0.1
 
-    def make_code_block_mesh_dict(self, params):
+    def _make_code_block_mesh_dict(self, params):
         lx = params.block_mesh_dict.lx
         ly = params.block_mesh_dict.ly
         lz = params.block_mesh_dict.lz

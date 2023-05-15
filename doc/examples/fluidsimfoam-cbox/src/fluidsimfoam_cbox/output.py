@@ -32,7 +32,7 @@ class OutputCBox(Output):
     ]
     constant_files_names = Output.constant_files_names + ["g"]
 
-    helper_fv_schemes = FvSchemesHelper(
+    _helper_fv_schemes = FvSchemesHelper(
         ddt={"default": "Euler"},
         grad={"default": "Gauss linear"},
         div={
@@ -55,7 +55,7 @@ class OutputCBox(Output):
         },
     )
 
-    helper_turbulence_properties = ConstantFileHelper(
+    _helper_turbulence_properties = ConstantFileHelper(
         "turbulenceProperties",
         {
             "simulationType": "laminar",
@@ -66,7 +66,7 @@ class OutputCBox(Output):
             },
         },
     )
-    helper_transport_properties = ConstantFileHelper(
+    _helper_transport_properties = ConstantFileHelper(
         "transportProperties",
         {
             "transportModel": "Newtonian",
@@ -107,8 +107,8 @@ class OutputCBox(Output):
         for key, value in default.items():
             params.control_dict[underscore(key)] = value
 
-    def make_code_control_dict(self, params):
-        code = super().make_code_control_dict(params)
+    def _make_code_control_dict(self, params):
+        code = super()._make_code_control_dict(params)
         return code + code_control_dict_functions
 
     @classmethod
@@ -119,7 +119,7 @@ class OutputCBox(Output):
         for key, value in default.items():
             params.block_mesh_dict[key] = value
 
-    def make_code_block_mesh_dict(self, params):
+    def _make_code_block_mesh_dict(self, params):
         lx = params.block_mesh_dict.lx
         ly = params.block_mesh_dict.ly
         lz = params.block_mesh_dict.lz

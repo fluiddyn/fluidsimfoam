@@ -101,7 +101,7 @@ class OutputSED(Output):
             "maxDeltaT": 1e-3,
         }
     )
-    helper_fv_schemes = FvSchemesHelper(
+    _helper_fv_schemes = FvSchemesHelper(
         ddt="default  Euler implicit",
         grad="default  Gauss linear",
         div="""
@@ -149,9 +149,9 @@ class OutputSED(Output):
             "default": "corrected",
         },
     )
-    helper_fv_schemes.add_dict("fluxRequired", {"default": "no", "p_rbgh": ""})
+    _helper_fv_schemes.add_dict("fluxRequired", {"default": "no", "p_rbgh": ""})
 
-    helper_transport_properties = ConstantFileHelper(
+    _helper_transport_properties = ConstantFileHelper(
         "transportProperties",
         {
             "phasea": {
@@ -190,7 +190,7 @@ class OutputSED(Output):
         },
     )
 
-    helper_turbulence_properties_b = ConstantFileHelper(
+    _helper_turbulence_properties_b = ConstantFileHelper(
         "turbulenceProperties.b",
         {
             "simulationType": "RAS",
@@ -212,7 +212,7 @@ class OutputSED(Output):
         },
     )
 
-    helper_twophase_ras_properties = ConstantFileHelper(
+    _helper_twophase_ras_properties = ConstantFileHelper(
         "twophaseRASProperties",
         {
             "SUS": 0,
@@ -232,7 +232,7 @@ class OutputSED(Output):
         },
     )
 
-    helper_force_properties = ConstantFileHelper(
+    _helper_force_properties = ConstantFileHelper(
         "forceProperties",
         {
             "gradPMEAN": [490.5, 0, 0],
@@ -267,7 +267,7 @@ class OutputSED(Output):
         for key, value in default.items():
             params.block_mesh_dict[key] = value
 
-    def make_code_block_mesh_dict(self, params):
+    def _make_code_block_mesh_dict(self, params):
         nx = params.block_mesh_dict.nx
         ny = params.block_mesh_dict.ny
         nz = params.block_mesh_dict.nz
@@ -312,7 +312,7 @@ class OutputSED(Output):
             doc="""type have to be in ['tanh', 'codestream']""",
         )
 
-    def make_tree_alpha_a(self, params):
+    def _make_tree_alpha_a(self, params):
         field = make_scalar_field("alpha_a", dimension="")
         field.set_boundary("top", "fixedValue", "uniform 0")
 
@@ -327,49 +327,49 @@ class OutputSED(Output):
 
         return field
 
-    def make_tree_alpha_plastic(self, params):
+    def _make_tree_alpha_plastic(self, params):
         return make_scalar_field("alphaMinFriction", dimension="", values=0.57)
 
-    def make_tree_delta(self, params):
+    def _make_tree_delta(self, params):
         return make_scalar_field("delta", dimension="", values=0.0)
 
-    def make_tree_mu_i(self, params):
+    def _make_tree_mu_i(self, params):
         return make_scalar_field("muI", dimension="", values=0.0)
 
-    def make_tree_u_a(self, params, name="U.a"):
+    def _make_tree_u_a(self, params, name="U.a"):
         field = VolVectorField(name, dimension="m/s", values=(0, 0, 0))
         add_default_boundaries(field)
         field.set_boundary("bottom", "fixedValue", "uniform (0 0 0)")
         return field
 
-    def make_tree_u_b(self, params):
-        return self.make_tree_u_a(params, name="U.b")
+    def _make_tree_u_b(self, params):
+        return self._make_tree_u_a(params, name="U.b")
 
-    def make_tree_omega_b(self, params):
+    def _make_tree_omega_b(self, params):
         return make_scalar_field("omega.b", dimension="1/s", values=1e-20)
 
-    def make_tree_theta(self, params):
+    def _make_tree_theta(self, params):
         return make_scalar_field("Theta", dimension="m^2/s^2", values=0.0)
 
-    def make_tree_epsilon_b(self, params):
+    def _make_tree_epsilon_b(self, params):
         return make_scalar_field("epsilon", dimension="m^2/s^3", values=1e-8)
 
-    def make_tree_k_b(self, params):
+    def _make_tree_k_b(self, params):
         field = make_scalar_field("k.b", dimension="m^2/s^2", values=1e-6)
         field.set_boundary("bottom", "fixedValue", "uniform 1e-06")
         return field
 
-    def make_tree_nut_b(self, params):
+    def _make_tree_nut_b(self, params):
         field = make_scalar_field("nut.b", dimension="m^2/s^1", values=0.0)
         field.set_boundary("bottom", "fixedValue", "uniform 0.0")
         return field
 
-    def make_tree_pa(self, params):
+    def _make_tree_pa(self, params):
         field = make_scalar_field("pa", dimension="kg/m/s^2", values=0.0)
         field.set_boundary("top", "slip")
         return field
 
-    def make_tree_p_rbgh(self, params):
+    def _make_tree_p_rbgh(self, params):
         field = make_scalar_field("p_rbgh", dimension="kg/m/s^2", values=0.0)
         field.set_boundary("top", "fixedValue", "uniform 0.0")
         field.set_boundary(
@@ -394,7 +394,7 @@ class OutputSED(Output):
             }
         )
 
-    def make_tree_pp_properties(self, params):
+    def _make_tree_pp_properties(self, params):
         tree = FoamInputFile(
             info={
                 "version": "2.0",
