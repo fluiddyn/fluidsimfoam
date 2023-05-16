@@ -254,6 +254,21 @@ class OutputSED(Output):
         },
     )
 
+    _helper_pp_properties = ConstantFileHelper(
+        "ppProperties",
+        {
+            "ppModel": "JohnsonJackson",
+            "alphaMax": 0.635,
+            "alphaMinFriction": 0.57,
+            "Fr": 5e-2,
+            "eta0": 3,
+            "eta1": 5,
+            "packingLimiter": "no",
+        },
+        default_dimension="",
+        dimensions={"Fr": "kg/m/s^2"},
+    )
+
     # @classmethod
     # def _set_info_solver_classes(cls, classes):
     #     """Set the the classes for info_solver.classes.Output"""
@@ -376,38 +391,3 @@ class OutputSED(Output):
             "bottom", "fixedFluxPressure", gradient="$internalField"
         )
         return field
-
-    default_pp_prop = {
-        "alphaMax": 0.635,
-        "alphaMinFriction": 0.57,
-        "Fr": 5e-2,
-        "eta0": 3,
-        "eta1": 5,
-    }
-
-    @classmethod
-    def _complete_params_pp_properties(cls, params):
-        params._set_attribs(
-            {
-                underscore(name): value
-                for name, value in cls.default_pp_prop.items()
-            }
-        )
-
-    def _make_tree_pp_properties(self, params):
-        tree = FoamInputFile(
-            info={
-                "version": "2.0",
-                "format": "ascii",
-                "class": "dictionary",
-                "location": '"constant"',
-                "object": "ppProperties",
-            }
-        )
-        tree.set_value("ppModel", "JohnsonJackson")
-        for name in self.default_pp_prop.keys():
-            key = underscore(name)
-            dimension = "" if name != "Fr" else "kg/m/s^2"
-            tree.set_value(name, params[key], dimension=dimension)
-        tree.set_value("packingLimiter", "no")
-        return tree
