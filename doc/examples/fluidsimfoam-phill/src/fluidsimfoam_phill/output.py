@@ -129,10 +129,13 @@ class OutputPHill(Output):
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
         super()._complete_params_block_mesh_dict(params)
-        default = {"nx": 20, "ny": 50, "nz": 1}
+        default = {"nx": 20, "ny": 50, "nz": 1, "h_max": 80}
         default.update({"lx": 2000, "ly": 5000, "lz": 0.01, "scale": 1})
         for key, value in default.items():
-            params.block_mesh_dict[key] = value
+            try:
+                params.block_mesh_dict[key] = value
+            except AttributeError:
+                params.block_mesh_dict._set_attribs({key: value})
 
     def _make_code_block_mesh_dict(self, params):
         nx = params.block_mesh_dict.nx
@@ -143,10 +146,11 @@ class OutputPHill(Output):
         ly = params.block_mesh_dict.ly
         lz = params.block_mesh_dict.lz
 
+        h_max = params.block_mesh_dict.h_max
+
         bmd = BlockMeshDict()
         bmd.set_scale(params.block_mesh_dict.scale)
 
-        h_max = 80
         basevs = [
             Vertex(0, h_max, lz, "v0"),
             Vertex(lx, h_max, lz, "v1"),
@@ -167,7 +171,7 @@ class OutputPHill(Output):
         )
 
         dots = []
-        h_max = 80
+
         for dot in range(nx + 1):
             x_dot = dot * lx / nx
             y_dot = (h_max / 2) * (
