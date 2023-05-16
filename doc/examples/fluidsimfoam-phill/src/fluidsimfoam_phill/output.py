@@ -56,9 +56,9 @@ atmCoriolisUSource1
 class OutputPHill(Output):
     """Output for the phill solver"""
 
-    variable_names = ["U", "p_rgh", "T", "alphat"]
-    system_files_names = Output.system_files_names + ["blockMeshDict"]
-    constant_files_names = [
+    name_variables = ["U", "p_rgh", "T", "alphat"]
+    name_system_files = Output.name_system_files + ["blockMeshDict"]
+    name_constant_files = [
         "g",
         "fvOptions",
         "MRFProperties",
@@ -66,8 +66,8 @@ class OutputPHill(Output):
         "turbulenceProperties",
     ]
 
-    default_control_dict_params = Output.default_control_dict_params.copy()
-    default_control_dict_params.update(
+    _default_control_dict_params = Output._default_control_dict_params.copy()
+    _default_control_dict_params.update(
         {
             "application": "buoyantBoussinesqPimpleFoam",
             "startFrom": "latestTime",
