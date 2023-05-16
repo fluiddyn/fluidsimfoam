@@ -24,13 +24,13 @@ code_control_dict_functions = dedent(
 class OutputCBox(Output):
     """Output for the cbox solver"""
 
-    variable_names = ["T", "U", "alphat", "epsilon", "k", "nut", "p", "p_rgh"]
-    system_files_names = Output.system_files_names + [
+    name_variables = ["T", "U", "alphat", "epsilon", "k", "nut", "p", "p_rgh"]
+    name_system_files = Output.name_system_files + [
         "blockMeshDict",
         "solverInfo",
         "streamlines",
     ]
-    constant_files_names = Output.constant_files_names + ["g"]
+    name_constant_files = Output.name_constant_files + ["g"]
 
     _helper_fv_schemes = FvSchemesHelper(
         ddt={"default": "Euler"},

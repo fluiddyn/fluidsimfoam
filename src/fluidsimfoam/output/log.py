@@ -138,15 +138,15 @@ class Log(RemainingClockTime):
     def _choose_variable_name(self, variable_name):
         if (
             variable_name is not None
-            and variable_name not in self.output.variable_names
+            and variable_name not in self.output.name_variables
         ):
             raise ValueError(
-                f"variable_name has to be in {self.output.variable_names}"
+                f"variable_name has to be in {self.output.name_variables}"
             )
 
         if variable_name is None:
             for key in ("p", "p_rbgh"):
-                if key in self.output.variable_names:
+                if key in self.output.name_variables:
                     variable_name = key
                     break
         return variable_name

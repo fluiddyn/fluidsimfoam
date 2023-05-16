@@ -29,6 +29,7 @@ Fluidsimfoam API reference
 
 """
 import importlib.metadata
+import sys
 
 from fluidsimfoam.params import Parameters
 
@@ -88,3 +89,9 @@ def load_params(path_dir="."):
 
 
 load = load_simul
+
+
+if any("pytest" in part for part in sys.argv):
+    import pytest
+
+    pytest.register_assert_rewrite("fluidsimfoam.testing")

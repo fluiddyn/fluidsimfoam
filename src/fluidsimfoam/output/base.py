@@ -26,10 +26,10 @@ from fluidsimfoam.solvers import get_solver_package
 
 
 class Output(OutputCore):
-    variable_names = ["p", "U"]
-    constant_files_names = ["transportProperties", "turbulenceProperties"]
-    system_files_names = ["controlDict", "fvSchemes", "fvSolution"]
-    default_control_dict_params = DEFAULT_CONTROL_DICT
+    name_variables = ["p", "U"]
+    name_constant_files = ["transportProperties", "turbulenceProperties"]
+    name_system_files = ["controlDict", "fvSchemes", "fvSolution"]
+    _default_control_dict_params = DEFAULT_CONTROL_DICT
 
     _helper_turbulence_properties = ConstantFileHelper(
         "turbulenceProperties", {"simulationType": "laminar"}
@@ -68,15 +68,15 @@ class Output(OutputCore):
     @classmethod
     def _setup_file_generators_classes(cls):
         classes = cls._file_generators_classes = {}
-        for variable_name in cls.variable_names:
+        for variable_name in cls.name_variables:
             classes[variable_name.replace(".", "_")] = new_file_generator_class(
                 variable_name
             )
 
-        for file_name in cls.constant_files_names:
+        for file_name in cls.name_constant_files:
             classes[file_name] = new_file_generator_class(file_name, "constant")
 
-        for file_name in cls.system_files_names:
+        for file_name in cls.name_system_files:
             classes[file_name] = new_file_generator_class(file_name, "system")
 
     @classmethod
@@ -209,7 +209,7 @@ class Output(OutputCore):
             and self._has_to_save
             and self.sim.params.NEW_DIR_RESULTS
         ):
-            self.post_init_create_additional_source_files()
+            self._post_init_create_additional_source_files()
 
         # OpenFOAM cleanup removes .xml files!
         path_run = Path(self.path_run)
@@ -221,7 +221,7 @@ class Output(OutputCore):
                 continue
             shutil.copy(path_run / file_name, path_new)
 
-    def post_init_create_additional_source_files(self):
+    def _post_init_create_additional_source_files(self):
         """Create the files from their template"""
         path_tasks_py = self.input_files.templates_dir / "tasks.py"
         if not path_tasks_py.exists():
@@ -242,7 +242,7 @@ class Output(OutputCore):
     def _complete_params_control_dict(cls, params):
         attribs = {
             underscore(key): value
-            for key, value in cls.default_control_dict_params.items()
+            for key, value in cls._default_control_dict_params.items()
         }
 
         params._set_child(
@@ -254,7 +254,7 @@ class Output(OutputCore):
     def _make_tree_control_dict(self, params):
         children = {
             key: params.control_dict[underscore(key)]
-            for key in self.default_control_dict_params.keys()
+            for key in self._default_control_dict_params.keys()
         }
 
         tree = FoamInputFile(

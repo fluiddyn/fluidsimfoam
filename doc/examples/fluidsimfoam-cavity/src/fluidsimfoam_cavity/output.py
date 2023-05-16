@@ -11,7 +11,7 @@ from fluidsimfoam.output import Output
 class OutputCavity(Output):
     """Output for the TGV solver"""
 
-    system_files_names = Output.system_files_names + [
+    name_system_files = Output.name_system_files + [
         "blockMeshDict",
         "decomposeParDict",
     ]
