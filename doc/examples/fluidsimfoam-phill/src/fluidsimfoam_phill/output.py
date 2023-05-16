@@ -112,8 +112,8 @@ class OutputPHill(Output):
             "nu": 1.0e-2,
             "Pr": 10,
             "beta": 1,
-            "TRef": 1.0e-2,
-            "Prt": 1e2,
+            "TRef": 0,
+            "Prt": 1,
         },
         dimensions={
             "nu": "m^2/s",
@@ -166,17 +166,14 @@ class OutputPHill(Output):
             SimpleGrading(1, [[0.1, 0.25, 41.9], [0.9, 0.75, 1]], 1),
         )
 
-        x_dot = []
-        y_dot = []
         dots = []
         h_max = 80
         for dot in range(nx + 1):
-            x_dot.append(dot * lx / nx)
-            y_dot.append(
-                (h_max / 2)
-                * (1 - cos(2 * pi * min(abs((x_dot[dot] - (lx / 2)) / lx), 1)))
+            x_dot = dot * lx / nx
+            y_dot = (h_max / 2) * (
+                1 - cos(2 * pi * min(abs((x_dot - (lx / 2)) / lx), 1))
             )
-            dots.append([x_dot[dot], y_dot[dot]])
+            dots.append([x_dot, y_dot])
 
         bmd.add_splineedge(
             ["v0-0", "v1-0"],
@@ -209,11 +206,26 @@ class OutputPHill(Output):
     def _make_tree_p_rgh(self, params):
         return make_scalar_field("p_rgh", dimension="m^2/s^2", values=0)
 
-    def _make_tree_t(self, params):
-        return make_scalar_field("T", dimension="K", values=300)
-
     def _make_tree_u(self, params):
         field = make_vector_field("U", dimension="m/s", values=[0.1, 0, 0])
         field.set_boundary("top", "slip")
         field.set_boundary("bottom", "noSlip")
+        return field
+
+    @classmethod
+    def _complete_params_t(cls, params):
+        params._set_child(
+            "init_fields",
+            attribs={"buoyancy_frequency": 1e-3, "T0": 0},
+            doc="""The fluid is linearly stratifed with a buoyancy frequency""",
+        )
+
+    def _make_tree_t(self, params):
+        field = make_scalar_field("T", dimension="K")
+
+        x, y, z = self.sim.oper.get_cells_coords()
+        N = params.init_fields.buoyancy_frequency
+        T0 = params.init_fields.T0
+        field.set_values(T0 + (N**2) / 9.81 * y)
+
         return field
