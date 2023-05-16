@@ -57,7 +57,7 @@ code_init_alpha_a = dedent(
 class OutputSED(Output):
     """Output for the SED solver"""
 
-    variable_names = [
+    name_variables = [
         "Theta",
         "U.a",
         "U.b",
@@ -72,8 +72,8 @@ class OutputSED(Output):
         "pa",
         "p_rbgh",
     ]
-    system_files_names = Output.system_files_names + ["blockMeshDict"]
-    constant_files_names = [
+    name_system_files = Output.name_system_files + ["blockMeshDict"]
+    name_constant_files = [
         "forceProperties",
         "granularRheologyProperties",
         "kineticTheoryProperties",
@@ -86,8 +86,8 @@ class OutputSED(Output):
         "twophaseRASProperties",
     ]
 
-    default_control_dict_params = Output.default_control_dict_params.copy()
-    default_control_dict_params.update(
+    _default_control_dict_params = Output._default_control_dict_params.copy()
+    _default_control_dict_params.update(
         {
             "application": "sedFoam_rbgh",
             "startFrom": "latestTime",

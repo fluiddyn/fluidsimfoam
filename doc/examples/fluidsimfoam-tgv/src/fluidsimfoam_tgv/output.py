@@ -77,7 +77,7 @@ code_init_u = dedent(
 class OutputTGV(Output):
     """Output for the TGV solver"""
 
-    system_files_names = Output.system_files_names + ["blockMeshDict"]
+    name_system_files = Output.name_system_files + ["blockMeshDict"]
 
     _helper_fv_schemes = FvSchemesHelper(
         ddt="default   backward",
