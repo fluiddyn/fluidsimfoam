@@ -2,22 +2,13 @@
 
 from copy import deepcopy
 
-from inflection import underscore
-
-from fluidsimfoam.foam_input_files import FileHelper, FoamInputFile
-
-
-def _update_dict_with_params(data, params_data):
-    for key, value in data.items():
-        name = underscore(key)
-        if isinstance(value, dict):
-            _update_dict_with_params(value, params_data[name])
-        else:
-            data[key] = params_data[name]
-
-
-def _as_py_name(name):
-    return underscore(name).replace(".", "_")
+from fluidsimfoam.foam_input_files import (
+    FileHelper,
+    FoamInputFile,
+    _as_py_name,
+    _complete_params_dict,
+    _update_dict_with_params,
+)
 
 
 class ConstantFileHelper(FileHelper):
@@ -38,18 +29,7 @@ class ConstantFileHelper(FileHelper):
         self.doc = doc
 
     def complete_params(self, params):
-        self._complete_params_dict(params, self.file_name, self.default, self.doc)
-
-    def _complete_params_dict(self, subparams, name, default, doc=None):
-        name = _as_py_name(name)
-        subsubparams = subparams._set_child(name, doc=doc)
-
-        for key, value in default.items():
-            if isinstance(value, dict):
-                self._complete_params_dict(subsubparams, key, value)
-                continue
-
-            subsubparams._set_attrib(_as_py_name(key), value)
+        _complete_params_dict(params, self.file_name, self.default, self.doc)
 
     def make_tree(self, params):
         tree = FoamInputFile(

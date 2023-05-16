@@ -41,10 +41,9 @@ firefox htmlcov/index.html
 
 ## Debugging
 
-[ipdb](https://github.com/gotcha/ipdb) is quite convenient. Export the
-environment variable `PYTHONBREAKPOINT` (for example add `export
-PYTHONBREAKPOINT=ipdb.set_trace` in your `.bashrc`) and add `breakpoint()`
-somewhere in the code.
+[ipdb](https://github.com/gotcha/ipdb) is quite convenient. Export the environment
+variable `PYTHONBREAKPOINT` (for example add `export PYTHONBREAKPOINT=ipdb.set_trace` in
+your `.bashrc`) and add `breakpoint()` somewhere in the code.
 
 ## Formatting
 

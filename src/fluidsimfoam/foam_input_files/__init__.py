@@ -18,10 +18,13 @@
     fields
     fv_schemes
     constant_files
+    fv_options
 
 """
 
 from abc import ABC, abstractmethod
+
+from inflection import underscore
 
 from .ast import Dict, FoamInputFile, List, Value
 from .parser import dump, parse
@@ -43,7 +46,39 @@ __all__ = [
     "FileHelper",
     "ConstantFileHelper",
     "BlockMeshDictRectilinear",
+    "FvOptionsHelper",
 ]
+
+
+def _as_py_name(name):
+    return underscore(name).replace(".", "_")
+
+
+def _update_dict_with_params(data, params_data):
+    for key, value in data.items():
+        name = underscore(key)
+
+        try:
+            param_value = params_data[name]
+        except (KeyError, AttributeError):
+            continue
+
+        if isinstance(value, dict):
+            _update_dict_with_params(value, param_value)
+        else:
+            data[key] = param_value
+
+
+def _complete_params_dict(subparams, name, default, doc=None):
+    name = _as_py_name(name)
+    subsubparams = subparams._set_child(name, doc=doc)
+
+    for key, value in default.items():
+        if isinstance(value, dict):
+            _complete_params_dict(subsubparams, key, value)
+            continue
+
+        subsubparams._set_attrib(_as_py_name(key), value)
 
 
 class FileHelper(ABC):
@@ -93,3 +128,4 @@ from .blockmesh import BlockMeshDict, BlockMeshDictRectilinear, Vertex
 from .constant_files import ConstantFileHelper
 from .fields import VolScalarField, VolVectorField, read_field_file
 from .fv_schemes import FvSchemesHelper
+from .fv_options import FvOptionsHelper
