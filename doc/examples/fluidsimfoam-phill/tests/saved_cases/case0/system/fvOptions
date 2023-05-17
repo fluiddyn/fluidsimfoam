@@ -3,42 +3,42 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "constant";
+    location    "system";
     object      fvOptions;
 }
 
 momentumSource
 {
-    type      meanVelocityForce;
-    active    no;
+    type             meanVelocityForce;
+    active           no;
+    selectionMode    all;
     meanVelocityForceCoeffs
     {
-        selectionMode    all;
-        fields           (U);
-        Ubar             (0.1 0 0);
+        fields    (U);
+        Ubar      (0.1 0 0);
     }
 }
 
-atmCoriolisUSource1
+atmCoriolisUSource
 {
-    type      atmCoriolisUSource;
-    active    no;
+    type             atmCoriolisUSource;
+    active           no;
+    selectionMode    all;
     atmCoriolisUSourceCoeffs
     {
-        selectionMode    all;
-        Omega            (0 7.2921e-5 0);
+        Omega    (0 7.2921e-5 0);
     }
 }
 
 porosity
 {
-    type    explicitPorositySource;
+    type             explicitPorositySource;
+    active           yes;
+    selectionMode    cellZone;
+    cellZone         porosity;
     explicitPorositySourceCoeffs
     {
-        selectionMode    cellZone;
-        cellZone         porosity;
-        type             fixedCoeff;
-        active           yes;
+        type    fixedCoeff;
         fixedCoeffCoeffs
         {
             alpha     (500 -1000 -1000);

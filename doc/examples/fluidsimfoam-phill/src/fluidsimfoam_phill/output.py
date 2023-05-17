@@ -43,10 +43,9 @@ class OutputPHill(Output):
     """Output for the phill solver"""
 
     name_variables = ["U", "p_rgh", "T", "alphat"]
-    name_system_files = Output.name_system_files + ["blockMeshDict"]
+    name_system_files = Output.name_system_files + ["blockMeshDict", "fvOptions"]
     name_constant_files = [
         "g",
-        "fvOptions",
         "MRFProperties",
         "transportProperties",
         "turbulenceProperties",
@@ -114,54 +113,43 @@ class OutputPHill(Output):
 
     _helper_fv_options = FvOptionsHelper()
     _helper_fv_options.add_option(
-        "momentumSource",
-        {
-            "type": "meanVelocityForce",
-            "active": "no",
-            "meanVelocityForceCoeffs": {
-                "selectionMode": "all",
-                "fields": "(U)",
-                "Ubar": "(0.1 0 0)",
-            },
+        "meanVelocityForce",
+        name="momentumSource",
+        active=False,
+        coeffs={
+            "fields": "(U)",
+            "Ubar": "(0.1 0 0)",
         },
-        parameters=["active", "meanVelocityForceCoeffs/Ubar"],
+        parameters=["coeffs/Ubar"],
     )
 
     _helper_fv_options.add_option(
-        "atmCoriolisUSource1",
-        {
-            "type": "atmCoriolisUSource",
-            "active": "no",
-            "atmCoriolisUSourceCoeffs": {
-                "selectionMode": "all",
-                "Omega": "(0 7.2921e-5 0)",
-            },
+        "atmCoriolisUSource",
+        active=False,
+        coeffs={
+            "Omega": "(0 7.2921e-5 0)",
         },
-        parameters=["active", "atmCoriolisUSourceCoeffs/Omega"],
+        parameters=["coeffs/Omega"],
     )
 
     _helper_fv_options.add_option(
-        "porosity",
-        {
-            "type": "explicitPorositySource",
-            "explicitPorositySourceCoeffs": {
-                "selectionMode": "cellZone",
-                "cellZone": "porosity",
-                "type": "fixedCoeff",
-                "active": "yes",
-                "fixedCoeffCoeffs": {
-                    "alpha": "(500 -1000 -1000)",
-                    "beta": "(0 0 0)",
-                    "rhoRef": "1",
-                    "coordinateSystem": {
-                        "origin": "(0 0 0)",
-                        "e1": "(0.70710678 0.70710678 0)",
-                        "e2": "(0 0 1)",
-                    },
+        "explicitPorositySource",
+        name="porosity",
+        cell_zone="porosity",
+        coeffs={
+            "type": "fixedCoeff",
+            "fixedCoeffCoeffs": {
+                "alpha": "(500 -1000 -1000)",
+                "beta": "(0 0 0)",
+                "rhoRef": "1",
+                "coordinateSystem": {
+                    "origin": "(0 0 0)",
+                    "e1": "(0.70710678 0.70710678 0)",
+                    "e2": "(0 0 1)",
                 },
             },
         },
-        parameters=["explicitPorositySourceCoeffs/active"],
+        parameters=["coeffs/alpha"],
     )
 
     @classmethod
