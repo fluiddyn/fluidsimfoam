@@ -127,5 +127,5 @@ DEFAULT_CONTROL_DICT = dict(
 from .blockmesh import BlockMeshDict, BlockMeshDictRectilinear, Vertex
 from .constant_files import ConstantFileHelper
 from .fields import VolScalarField, VolVectorField, read_field_file
-from .fv_schemes import FvSchemesHelper
 from .fv_options import FvOptionsHelper
+from .fv_schemes import FvSchemesHelper
