@@ -91,7 +91,7 @@ def test_fixed_value():
             fixedValue
             {
                 type             scalarFixedValueConstraint;
-                active           yes;
+                active           no;
                 selectionMode    cellZone;
                 cellZone         porosity;
                 fieldValues
@@ -112,6 +112,7 @@ def test_fixed_value():
     )
     params = Parameters("params")
     helper.complete_params(params)
+    params.fv_options.fixed_value.active = False
     params.fv_options.fixed_value.field_values.k = 1
     tree = helper.make_tree(params)
     assert tree.dump().strip() == result.strip()
