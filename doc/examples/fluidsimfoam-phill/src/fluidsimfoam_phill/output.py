@@ -143,8 +143,15 @@ class OutputPHill(Output):
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
         super()._complete_params_block_mesh_dict(params)
-        default = {"nx": 20, "ny": 50, "nz": 1, "h_max": 80}
-        default.update({"lx": 2000, "ly": 5000, "lz": 0.01, "scale": 1})
+        default = {
+            "nx": 20,
+            "ny": 50,
+            "nz": 1,
+            "nporosity": 10,
+            "h_max": 80,
+            "lporosity": 3000,
+        }
+        default.update({"lx": 2000, "ly": 2000, "lz": 0.01, "scale": 1})
         for key, value in default.items():
             try:
                 params.block_mesh_dict[key] = value
@@ -155,10 +162,12 @@ class OutputPHill(Output):
         nx = params.block_mesh_dict.nx
         ny = params.block_mesh_dict.ny
         nz = params.block_mesh_dict.nz
+        nporosity = params.block_mesh_dict.nporosity
 
         lx = params.block_mesh_dict.lx
         ly = params.block_mesh_dict.ly
         lz = params.block_mesh_dict.lz
+        lp = params.block_mesh_dict.lporosity
 
         h_max = params.block_mesh_dict.h_max
 
@@ -169,7 +178,9 @@ class OutputPHill(Output):
             Vertex(0, h_max, lz, "v0"),
             Vertex(lx, h_max, lz, "v1"),
             Vertex(lx, ly, lz, "v2"),
-            Vertex(0, ly, lz, "v3"),
+            Vertex(lx, ly + lp, lz, "v3"),
+            Vertex(0, ly + lp, lz, "v4"),
+            Vertex(0, ly, lz, "v5"),
         ]
 
         for v in basevs:
@@ -178,10 +189,17 @@ class OutputPHill(Output):
             bmd.add_vertex(v.x, v.y, v.z, v.name + "+z")
 
         b0 = bmd.add_hexblock(
-            ("v0-0", "v1-0", "v2-0", "v3-0", "v0+z", "v1+z", "v2+z", "v3+z"),
+            ("v0-0", "v1-0", "v2-0", "v5-0", "v0+z", "v1+z", "v2+z", "v5+z"),
             (nx, ny, nz),
             "b0",
             SimpleGrading(1, [[0.1, 0.25, 41.9], [0.9, 0.75, 1]], 1),
+        )
+
+        b1 = bmd.add_hexblock(
+            ("v5-0", "v2-0", "v3-0", "v4-0", "v5+z", "v2+z", "v3+z", "v4+z"),
+            (nx, nporosity, nz),
+            "porosity",
+            SimpleGrading(1, 1, 1),
         )
 
         dots = []
@@ -203,15 +221,22 @@ class OutputPHill(Output):
             [Point(dot[0], dot[1], lz) for dot in dots],
         )
 
-        bmd.add_boundary("wall", "top", [b0.face("n")])
+        bmd.add_boundary("wall", "top", [b1.face("n")])
         bmd.add_boundary("wall", "bottom", [b0.face("s")])
-        bmd.add_cyclic_boundaries("outlet", "inlet", b0.face("e"), b0.face("w"))
+        bmd.add_cyclic_boundaries(
+            "outlet",
+            "inlet",
+            [b0.face("e"), b1.face("e")],
+            [b0.face("w"), b1.face("w")],
+        )
         bmd.add_boundary(
             "empty",
             "frontandbackplanes",
             [
                 b0.face("b"),
+                b1.face("b"),
                 b0.face("t"),
+                b1.face("t"),
             ],
         )
 
