@@ -179,15 +179,14 @@ class OutputPHill(Output):
 
         b0 = bmd.add_hexblock(
             ("v0-0", "v1-0", "v2-0", "v3-0", "v0+z", "v1+z", "v2+z", "v3+z"),
-            (nx + 1, ny, nz),
+            (nx, ny, nz),
             "b0",
             SimpleGrading(1, [[0.1, 0.25, 41.9], [0.9, 0.75, 1]], 1),
         )
 
         dots = []
-
-        for dot in range(nx + 1):
-            x_dot = dot * lx / nx
+        for dot in range(nx):
+            x_dot = dot * lx / (nx - 1)
             y_dot = (h_max / 2) * (
                 1 - cos(2 * pi * min(abs((x_dot - (lx / 2)) / lx), 1))
             )

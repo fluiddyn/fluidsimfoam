@@ -14,8 +14,8 @@ path_saved_case = here / "saved_cases/case0"
 def test_reproduce_case():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/phill"
-    params.block_mesh_dict.nx = 10
-    params.block_mesh_dict.ny = 10
+    params.block_mesh_dict.nx = 11
+    params.block_mesh_dict.ny = 11
     sim = Simul(params)
     check_saved_case(path_saved_case, sim.path_run)
 
