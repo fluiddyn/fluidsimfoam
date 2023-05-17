@@ -15,7 +15,8 @@ def test_reproduce_case():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/phill"
     params.block_mesh_dict.nx = 11
-    params.block_mesh_dict.ny = 11
+    params.block_mesh_dict.ny = 7
+    params.block_mesh_dict.ny_porosity = 4
     sim = Simul(params)
     check_saved_case(path_saved_case, sim.path_run)
 

@@ -140,6 +140,30 @@ class OutputPHill(Output):
         parameters=["active", "atmCoriolisUSourceCoeffs/Omega"],
     )
 
+    _helper_fv_options.add_option(
+        "porosity",
+        {
+            "type": "explicitPorositySource",
+            "explicitPorositySourceCoeffs": {
+                "selectionMode": "cellZone",
+                "cellZone": "porosity",
+                "type": "fixedCoeff",
+                "active": "yes",
+                "fixedCoeffCoeffs": {
+                    "alpha": "(500 -1000 -1000)",
+                    "beta": "(0 0 0)",
+                    "rhoRef": "1",
+                    "coordinateSystem": {
+                        "origin": "(0 0 0)",
+                        "e1": "(0.70710678 0.70710678 0)",
+                        "e2": "(0 0 1)",
+                    },
+                },
+            },
+        },
+        parameters=["explicitPorositySourceCoeffs/active"],
+    )
+
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
         super()._complete_params_block_mesh_dict(params)
@@ -147,7 +171,7 @@ class OutputPHill(Output):
             "nx": 20,
             "ny": 50,
             "nz": 1,
-            "nporosity": 10,
+            "ny_porosity": 10,
             "h_max": 80,
             "lporosity": 3000,
         }
@@ -162,7 +186,7 @@ class OutputPHill(Output):
         nx = params.block_mesh_dict.nx
         ny = params.block_mesh_dict.ny
         nz = params.block_mesh_dict.nz
-        nporosity = params.block_mesh_dict.nporosity
+        ny_porosity = params.block_mesh_dict.ny_porosity
 
         lx = params.block_mesh_dict.lx
         ly = params.block_mesh_dict.ly
@@ -197,7 +221,7 @@ class OutputPHill(Output):
 
         b1 = bmd.add_hexblock(
             ("v5-0", "v2-0", "v3-0", "v4-0", "v5+z", "v2+z", "v3+z", "v4+z"),
-            (nx, nporosity, nz),
+            (nx, ny_porosity, nz),
             "porosity",
             SimpleGrading(1, 1, 1),
         )
