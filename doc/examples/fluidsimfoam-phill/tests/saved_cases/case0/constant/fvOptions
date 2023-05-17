@@ -7,42 +7,25 @@ FoamFile
     object      fvOptions;
 }
 
-/*
-pressureGradient
+momentumSource
 {
-    type                vectorSemiImplicitSource;
-    selectionMode       all;
-    volumeMode          specific;
-    sources
+    type      meanVelocityForce;
+    active    no;
+    meanVelocityForceCoeffs
     {
-        U ((0 1.978046e-03 0) 0);
+        selectionMode    all;
+        fields           (U);
+        Ubar             (0.1 0 0);
     }
 }
-/*
-
 
 atmCoriolisUSource1
 {
-    type            atmCoriolisUSource;
+    type      atmCoriolisUSource;
+    active    no;
     atmCoriolisUSourceCoeffs
     {
-        selectionMode   all;
-        Omega           (0 7.2921e-5 0);
+        selectionMode    all;
+        Omega            (0 7.2921e-5 0);
     }
 }
-
-
-/*
-momentumSource
-{
-    type            meanVelocityForce;
-    active          yes;
-
-    meanVelocityForceCoeffs
-    {
-        selectionMode   all;
-        fields          (U);
-        Ubar            (1.0 0 0);
-    }
-}
-*/

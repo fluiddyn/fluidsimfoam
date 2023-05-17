@@ -7,6 +7,7 @@ from fluidsimfoam.foam_input_files import (
     BlockMeshDict,
     ConstantFileHelper,
     FoamInputFile,
+    FvOptionsHelper,
     FvSchemesHelper,
     VolScalarField,
     VolVectorField,
@@ -36,21 +37,6 @@ def make_vector_field(name, dimension, values=None):
     field = VolVectorField(name, dimension, values=values)
     add_default_boundaries(field)
     return field
-
-
-code_fv_options = dedent(
-    r"""
-atmCoriolisUSource1
-{
-    type            atmCoriolisUSource;
-    atmCoriolisUSourceCoeffs
-    {
-        selectionMode   all;
-        Omega           (0 7.2921e-5 0);
-    }
-}
-"""
-)
 
 
 class OutputPHill(Output):
@@ -124,6 +110,34 @@ class OutputPHill(Output):
         },
         default_dimension="",
         comments={},
+    )
+
+    _helper_fv_options = FvOptionsHelper()
+    _helper_fv_options.add_option(
+        "momentumSource",
+        {
+            "type": "meanVelocityForce",
+            "active": "no",
+            "meanVelocityForceCoeffs": {
+                "selectionMode": "all",
+                "fields": "(U)",
+                "Ubar": "(0.1 0 0)",
+            },
+        },
+        parameters=["active", "meanVelocityForceCoeffs/Ubar"],
+    )
+
+    _helper_fv_options.add_option(
+        "atmCoriolisUSource1",
+        {
+            "type": "atmCoriolisUSource",
+            "active": "no",
+            "atmCoriolisUSourceCoeffs": {
+                "selectionMode": "all",
+                "Omega": "(0 7.2921e-5 0)",
+            },
+        },
+        parameters=["active", "atmCoriolisUSourceCoeffs/Omega"],
     )
 
     @classmethod
