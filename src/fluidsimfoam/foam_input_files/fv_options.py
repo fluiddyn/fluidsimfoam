@@ -1,7 +1,7 @@
 """Helper to create fvOptions files
 
 """
-from copy import deepcopy
+import collections.abc
 
 from fluidsimfoam.foam_input_files import (
     FileHelper,
@@ -10,6 +10,16 @@ from fluidsimfoam.foam_input_files import (
     _complete_params_dict,
     _update_dict_with_params,
 )
+
+
+def deep_update(d, u):
+    # from https://stackoverflow.com/a/3233356
+    for k, v in u.items():
+        if isinstance(v, collections.abc.Mapping):
+            d[k] = deep_update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d
 
 
 def _make_default_params_dict(default, name_parameters, result):
@@ -60,9 +70,9 @@ class FvOption:
         cell_zone=None,
         cell_set=None,
         points=None,
+        default=None,
         coeffs=None,
         parameters=None,
-        default=None,
     ):
         self.type = type
         self.name = name
@@ -72,6 +82,9 @@ class FvOption:
         else:
             parameters = set(parameters)
 
+        if default is not None and coeffs is not None:
+            raise ValueError("default is not None and coeffs is not None")
+
         if default is None:
             default = {}
 
@@ -80,8 +93,6 @@ class FvOption:
 
         self.coeffs = coeffs
         if coeffs is not None:
-            if "coeffs" in default:
-                raise ValueError
             default["coeffs"] = coeffs
             self.name_coeffs_key = type + "Coeffs"
 
@@ -111,17 +122,22 @@ class FvOption:
 
         dict_for_tree = {"type": self.type, "active": None}
 
+        if self.coeffs is None:
+            dict_select = dict_for_tree
+        else:
+            dict_select = dict_for_tree.setdefault("coeffs", {})
+
         select = params_option.selection
-        dict_for_tree["selectionMode"] = get_selection_mode(
+        dict_select["selectionMode"] = get_selection_mode(
             select.cell_zone, select.cell_set, select.points
         )
 
         for key in ("cellZone", "cellSet", "points"):
             key_as_py_name = _as_py_name(key)
             if select[key_as_py_name] is not None:
-                dict_for_tree[key] = select[key_as_py_name]
+                dict_select[key] = select[key_as_py_name]
 
-        dict_for_tree.update(self.default)
+        deep_update(dict_for_tree, self.default)
 
         _update_dict_with_params(dict_for_tree, params_option)
 
@@ -146,9 +162,9 @@ class FvOptionsHelper(FileHelper):
         cell_zone=None,
         cell_set=None,
         points=None,
+        default=None,
         coeffs=None,
         parameters=None,
-        default=None,
     ):
         if name is None:
             name = type
@@ -160,9 +176,9 @@ class FvOptionsHelper(FileHelper):
             cell_zone,
             cell_set,
             points,
+            default,
             coeffs,
             parameters,
-            default,
         )
 
     def remove_option(self, name):
