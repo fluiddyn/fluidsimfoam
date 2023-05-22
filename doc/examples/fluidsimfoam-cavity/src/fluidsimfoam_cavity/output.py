@@ -54,11 +54,17 @@ class OutputCavity(Output):
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
         super()._complete_params_block_mesh_dict(params)
-        default = {"nx": 20, "ny": 20, "nz": 1}
-        default.update({"lx": 1.0, "ly": 1.0, "lz": 0.1})
-        for key, value in default.items():
-            params.block_mesh_dict[key] = value
-        params.block_mesh_dict.scale = 0.1
+        params.block_mesh_dict._update_attribs(
+            {
+                "nx": 20,
+                "ny": 20,
+                "nz": 1,
+                "lx": 1.0,
+                "ly": 1.0,
+                "lz": 0.1,
+                "scale": 0.1,
+            }
+        )
 
     def _make_code_block_mesh_dict(self, params):
         lx = params.block_mesh_dict.lx
