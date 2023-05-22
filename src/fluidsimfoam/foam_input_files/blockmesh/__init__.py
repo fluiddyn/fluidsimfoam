@@ -309,28 +309,16 @@ class BlockMeshDict:
         return b
 
     def add_cyclic_boundaries(self, name0, name1, faces0, faces1):
-        """In order to add cyclic boundary:
-        boundary name, neighbour name, boundary face, neighbour face. For example:
-        add_cyclic_boundaries("outlet", "inlet", b0.face("e"), b0.face("w"))
-        The result will be like:
-        outlet
-        {
-            type cyclic;
-            neighbourPatch  inlet;
-            faces
-            (
-                (3 7 15 11)  // f-b2-n (v3-0 v3+y v4+y v4-0)
-            );
-        }
-        inlet
-        {
-            type cyclic;
-            neighbourPatch  outlet;
-            faces
-            (
-                (0 8 12 4)  // f-b0-w (v0-0 v7-0 v7+y v0+y)
-            );
-        }"""
+        """Add 2 cyclic boundaries
+
+        Example
+        -------
+
+        2 cyclic boundaries can be created as follow::
+
+          add_cyclic_boundaries("outlet", "inlet", b0.face("e"), b0.face("w"))
+
+        """
         b0 = self.add_boundary("cyclic", name0, faces0, neighbour=name1)
         b1 = self.add_boundary("cyclic", name1, faces1, neighbour=name0)
         return b0, b1
