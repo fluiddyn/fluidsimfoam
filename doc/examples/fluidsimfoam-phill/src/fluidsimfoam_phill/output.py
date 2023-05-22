@@ -43,12 +43,7 @@ class OutputPHill(Output):
 
     name_variables = ["U", "p_rgh", "T", "alphat"]
     name_system_files = Output.name_system_files + ["blockMeshDict", "fvOptions"]
-    name_constant_files = [
-        "g",
-        "MRFProperties",
-        "transportProperties",
-        "turbulenceProperties",
-    ]
+    name_constant_files = ["g", "transportProperties", "turbulenceProperties"]
 
     _default_control_dict_params = Output._default_control_dict_params.copy()
     _default_control_dict_params.update(
