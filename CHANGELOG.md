@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+```{warning}
+
+Fluidsimfoam is still in quite early development. Before version 0.1.0, the API
+is completely unstable!
+
+```
+
 <!--
 
 ### Added
@@ -30,7 +37,18 @@ Security in case of vulnerabilities.
 
 ## [Unreleased]
 
-- Merge request
+...
+
+## [0.0.4] - 2023-05-22
+
+- Helper to define fvOptions files:
+  {class}`fluidsimfoam.foam_input_files.fv_options.FvOptionsHelper`
+
+- [cbox], [phill] and [cavity] solvers
+
+* {class}`fluidsimfoam.foam_input_files.blockmesh.BlockMeshDictRectilinear`
+
+* Merge request
   [!44](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/merge_requests/44):
 
   - {class}`fluidsimfoam.output.log.Log`
@@ -42,6 +60,15 @@ Security in case of vulnerabilities.
   - Fix parameters ({mod}`fluidsimfoam.params`)
   - {class}`fluidsimfoam.foam_input_files.fields.VolTensorField` and fixes in AST and
     fields.
+
+* Poetry extra for Jupyter (`poetry install -E jupyter`, `poetry install --all-extras` or
+  `pip install "fluidsimfoam[jupyter]"`)
+
+* Various bug fixes, API improvements and optimizations...
+
+* [CONTRIBUTING.md](https://fluidsimfoam.readthedocs.io/en/latest/CONTRIBUTING.html)
+
+* OpenFOAM simulations on ReadTheDocs servers allowing tutorials using OpenFOAM
 
 ## [0.0.3] - 2023-05-09
 
@@ -69,4 +96,8 @@ Security in case of vulnerabilities.
 - Utility to create blockMeshDict files ({mod}`fluidsimfoam.foam_input_files.blockmesh`)
 
 [0.0.3]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.2...0.0.3
-[unreleased]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.3...branch%2Fdefault
+[0.0.4]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.3...0.0.4
+[cavity]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cavity
+[cbox]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cbox
+[phill]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-phill
+[unreleased]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.4...branch%2Fdefault

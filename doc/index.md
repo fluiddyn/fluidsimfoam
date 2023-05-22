@@ -4,12 +4,12 @@ Fluidsimfoam is a Python package and a thin interface over OpenFoam. It provides
 framework to (i) organize parameters, (ii) launch/restart multiple simulations and (iii)
 load simulations to read the associated parameters/data and produce nice figures/movies.
 
-```{eval-rst}
-+------------+-------------------------------------------------+
-| Repository | https://foss.heptapod.net/fluiddyn/fluidsimfoam |
-+------------+-------------------------------------------------+
-| Version    | |release|                                       |
-+------------+-------------------------------------------------+
+```{list-table}
+* - Repository
+  - <https://foss.heptapod.net/fluiddyn/fluidsimfoam>
+
+* - Version
+  - [{{ release}}](https://pypi.org/project/fluidsimfoam/)
 ```
 
 ```{toctree}

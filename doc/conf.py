@@ -34,6 +34,19 @@ extensions = [
     "sphinx_copybutton",
 ]
 
+myst_enable_extensions = [
+    "amsmath",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "fieldlist",
+    "smartquotes",
+    "strikethrough",
+    "substitution",
+    "tasklist",
+]
+
+myst_substitutions = {"release": release}
 
 templates_path = ["_templates"]
 exclude_patterns = [

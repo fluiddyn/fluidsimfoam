@@ -1,6 +1,6 @@
 # Introduction
 
-## What is it
+## What is it?
 
 ```{include} ../README.md
 ---
