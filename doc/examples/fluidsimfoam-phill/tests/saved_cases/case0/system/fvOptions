@@ -10,13 +10,10 @@ FoamFile
 momentumSource
 {
     type             meanVelocityForce;
-    active           no;
+    active           yes;
     selectionMode    all;
-    meanVelocityForceCoeffs
-    {
-        fields    (U);
-        Ubar      (0.1 0 0);
-    }
+    fields           (U);
+    Ubar             (0.1 0 0);
 }
 
 atmCoriolisUSource
@@ -24,21 +21,18 @@ atmCoriolisUSource
     type             atmCoriolisUSource;
     active           no;
     selectionMode    all;
-    atmCoriolisUSourceCoeffs
-    {
-        Omega    (0 7.2921e-5 0);
-    }
+    Omega            (0 7.2921e-5 0);
 }
 
 porosity
 {
-    type             explicitPorositySource;
-    active           yes;
-    selectionMode    cellZone;
-    cellZone         porosity;
+    type      explicitPorositySource;
+    active    yes;
     explicitPorositySourceCoeffs
     {
-        type    fixedCoeff;
+        selectionMode    cellZone;
+        cellZone         porosity;
+        type             fixedCoeff;
         fixedCoeffCoeffs
         {
             alpha     (500 -1000 -1000);

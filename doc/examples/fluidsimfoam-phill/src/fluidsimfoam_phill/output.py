@@ -6,7 +6,6 @@ from inflection import underscore
 from fluidsimfoam.foam_input_files import (
     BlockMeshDict,
     ConstantFileHelper,
-    FoamInputFile,
     FvOptionsHelper,
     FvSchemesHelper,
     VolScalarField,
@@ -115,21 +114,21 @@ class OutputPHill(Output):
     _helper_fv_options.add_option(
         "meanVelocityForce",
         name="momentumSource",
-        active=False,
-        coeffs={
+        active=True,
+        default={
             "fields": "(U)",
             "Ubar": "(0.1 0 0)",
         },
-        parameters=["coeffs/Ubar"],
+        parameters=["Ubar"],
     )
 
     _helper_fv_options.add_option(
         "atmCoriolisUSource",
         active=False,
-        coeffs={
+        default={
             "Omega": "(0 7.2921e-5 0)",
         },
-        parameters=["coeffs/Omega"],
+        parameters=["Omega"],
     )
 
     _helper_fv_options.add_option(
@@ -149,7 +148,7 @@ class OutputPHill(Output):
                 },
             },
         },
-        parameters=["coeffs/alpha"],
+        parameters=["fixedCoeffCoeffs/alpha"],
     )
 
     @classmethod
