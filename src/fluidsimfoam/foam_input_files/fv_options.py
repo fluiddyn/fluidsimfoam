@@ -22,13 +22,13 @@ def deep_update(d, u):
     return d
 
 
-def _make_default_params_dict(default, name_parameters, result):
+def _make_default_params_dict(default: dict, name_parameters: set, result: dict):
     for name, value in default.items():
         if isinstance(value, dict):
-            name_parameters1 = []
+            name_parameters1 = set()
             for full_name in name_parameters:
                 if full_name.startswith(name + "/"):
-                    name_parameters1.append(full_name[len(name) + 1 :])
+                    name_parameters1.add(full_name[len(name) + 1 :])
 
             if name_parameters1:
                 result[name] = {}
@@ -36,6 +36,18 @@ def _make_default_params_dict(default, name_parameters, result):
         else:
             if name in name_parameters:
                 result[name] = value
+
+    # check if all name_parameters entries correspond to a parameter
+    for full_name in name_parameters:
+        keys = full_name.split("/")
+        thing = default
+        try:
+            for key in keys:
+                thing = thing[key]
+        except KeyError:
+            raise ValueError(
+                f"'{full_name}' does not correspond to a parameter in {default}"
+            )
 
     return result
 
@@ -112,9 +124,11 @@ class FvOption:
                 "points": self.points,
             },
         }
-        _make_default_params_dict(self.default, self.parameters, default_params)
-        if "__coeffs__" in default_params:
-            default_params["coeffs"] = default_params.pop("__coeffs__")
+        if self.coeffs is None:
+            parameters = self.parameters
+        else:
+            parameters = set("coeffs/" + name for name in self.parameters)
+        _make_default_params_dict(self.default, parameters, default_params)
         _complete_params_dict(params_fv_options, self.name, default_params)
 
     def get_dict_for_tree(self, params_fv_options):

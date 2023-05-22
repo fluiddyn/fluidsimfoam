@@ -151,7 +151,7 @@ def test_explicit_porosity():
         coeffs={
             "type": "fixedCoeff",
             "fixedCoeffCoeffs": {
-                "alpha": "(500 -1000 -1000)",
+                "alpha": "(600 -1000 -1000)",
                 "beta": "(0 0 0)",
                 "rhoRef": "1",
                 "coordinateSystem": {
@@ -161,10 +161,12 @@ def test_explicit_porosity():
                 },
             },
         },
-        parameters=["coeffs/alpha"],
+        parameters=["fixedCoeffCoeffs/alpha"],
     )
     params = Parameters("params")
     helper.complete_params(params)
-    params.fv_options.porosity.active = True
+    porosity = params.fv_options.porosity
+    porosity.active = True
+    porosity.coeffs.fixed_coeff_coeffs.alpha = "(500 -1000 -1000)"
     tree = helper.make_tree(params)
     assert tree.dump().strip() == result.strip()

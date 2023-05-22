@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 from pprint import pprint
 
-
 from fluidsimfoam.foam_input_files import dump, parse
 
 tutorials_dir = Path(os.environ["FOAM_TUTORIALS"])
@@ -58,7 +57,10 @@ for path in tutorials_dir.rglob("*"):
         # if _type in {"vectorSemiImplicitSource", "scalarSemiImplicitSource"}:
         #     print(code)
 
-        if _type in types_coeffs_saved:
+        # if _type in types_coeffs_saved:
+        #     print(code)
+
+        if "fixedCoeff" in code:
             print(code)
 
 
