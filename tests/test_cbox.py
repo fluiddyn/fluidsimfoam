@@ -1,10 +1,9 @@
-import shutil
 from pathlib import Path
 
 import pytest
 from fluidsimfoam_cbox import Simul
 
-from fluidsimfoam.testing import check_saved_case
+from fluidsimfoam.testing import check_saved_case, skipif_executable_not_available
 
 here = Path(__file__).absolute().parent
 
@@ -28,19 +27,10 @@ def test_init_simul_sim0(index_sim):
     )
 
 
-path_foam_executable = shutil.which("buoyantBoussinesqPimpleFoam")
-
-
-@pytest.mark.skipif(
-    path_foam_executable is None, reason="executable icoFoam not available"
-)
+@skipif_executable_not_available("buoyantBoussinesqPimpleFoam")
 def test_run():
     params = Simul.create_default_params()
-
     params.output.sub_directory = "tests_fluidsimfoam/cbox/"
-
     params.control_dict.end_time = 10
-
     sim = Simul(params)
-
     sim.make.exec("run")
