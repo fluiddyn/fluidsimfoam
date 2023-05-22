@@ -1,7 +1,7 @@
 """Helper to create fvOptions files
 
 """
-from copy import deepcopy
+import collections.abc
 
 from fluidsimfoam.foam_input_files import (
     FileHelper,
@@ -12,13 +12,23 @@ from fluidsimfoam.foam_input_files import (
 )
 
 
-def _make_default_params_dict(default, name_parameters, result):
+def deep_update(d, u):
+    # from https://stackoverflow.com/a/3233356
+    for k, v in u.items():
+        if isinstance(v, collections.abc.Mapping):
+            d[k] = deep_update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d
+
+
+def _make_default_params_dict(default: dict, name_parameters: set, result: dict):
     for name, value in default.items():
         if isinstance(value, dict):
-            name_parameters1 = []
+            name_parameters1 = set()
             for full_name in name_parameters:
                 if full_name.startswith(name + "/"):
-                    name_parameters1.append(full_name[len(name) + 1 :])
+                    name_parameters1.add(full_name[len(name) + 1 :])
 
             if name_parameters1:
                 result[name] = {}
@@ -26,6 +36,18 @@ def _make_default_params_dict(default, name_parameters, result):
         else:
             if name in name_parameters:
                 result[name] = value
+
+    # check if all name_parameters entries correspond to a parameter
+    for full_name in name_parameters:
+        keys = full_name.split("/")
+        thing = default
+        try:
+            for key in keys:
+                thing = thing[key]
+        except KeyError:
+            raise ValueError(
+                f"'{full_name}' does not correspond to a parameter in {default}"
+            )
 
     return result
 
@@ -60,9 +82,9 @@ class FvOption:
         cell_zone=None,
         cell_set=None,
         points=None,
+        default=None,
         coeffs=None,
         parameters=None,
-        default=None,
     ):
         self.type = type
         self.name = name
@@ -72,6 +94,9 @@ class FvOption:
         else:
             parameters = set(parameters)
 
+        if default is not None and coeffs is not None:
+            raise ValueError("default is not None and coeffs is not None")
+
         if default is None:
             default = {}
 
@@ -80,8 +105,6 @@ class FvOption:
 
         self.coeffs = coeffs
         if coeffs is not None:
-            if "coeffs" in default:
-                raise ValueError
             default["coeffs"] = coeffs
             self.name_coeffs_key = type + "Coeffs"
 
@@ -101,9 +124,11 @@ class FvOption:
                 "points": self.points,
             },
         }
-        _make_default_params_dict(self.default, self.parameters, default_params)
-        if "__coeffs__" in default_params:
-            default_params["coeffs"] = default_params.pop("__coeffs__")
+        if self.coeffs is None:
+            parameters = self.parameters
+        else:
+            parameters = set("coeffs/" + name for name in self.parameters)
+        _make_default_params_dict(self.default, parameters, default_params)
         _complete_params_dict(params_fv_options, self.name, default_params)
 
     def get_dict_for_tree(self, params_fv_options):
@@ -111,17 +136,22 @@ class FvOption:
 
         dict_for_tree = {"type": self.type, "active": None}
 
+        if self.coeffs is None:
+            dict_select = dict_for_tree
+        else:
+            dict_select = dict_for_tree.setdefault("coeffs", {})
+
         select = params_option.selection
-        dict_for_tree["selectionMode"] = get_selection_mode(
+        dict_select["selectionMode"] = get_selection_mode(
             select.cell_zone, select.cell_set, select.points
         )
 
         for key in ("cellZone", "cellSet", "points"):
             key_as_py_name = _as_py_name(key)
             if select[key_as_py_name] is not None:
-                dict_for_tree[key] = select[key_as_py_name]
+                dict_select[key] = select[key_as_py_name]
 
-        dict_for_tree.update(self.default)
+        deep_update(dict_for_tree, self.default)
 
         _update_dict_with_params(dict_for_tree, params_option)
 
@@ -146,9 +176,9 @@ class FvOptionsHelper(FileHelper):
         cell_zone=None,
         cell_set=None,
         points=None,
+        default=None,
         coeffs=None,
         parameters=None,
-        default=None,
     ):
         if name is None:
             name = type
@@ -160,9 +190,9 @@ class FvOptionsHelper(FileHelper):
             cell_zone,
             cell_set,
             points,
+            default,
             coeffs,
             parameters,
-            default,
         )
 
     def remove_option(self, name):
