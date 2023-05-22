@@ -112,7 +112,7 @@ class HexBlock:
         """Generate Face object
         index is number or keyword to identify the face of Hex
             0 = 'w' = 'xm' = '-100' = (0 4 7 3)
-            1 = 'e' = 'xp' = '100' = (1 2 5 6)
+            1 = 'e' = 'xp' = '100' = (1 2 6 5)
             2 = 's' = 'ym' = '0-10' = (0 1 5 4)
             3 = 'n' = 'yp' = '010' = (2 3 7 6)
             4 = 'b' = 'zm' = '00-1' = (0 3 2 1) = "bottom"
@@ -199,8 +199,8 @@ class Boundary:
                 "{\n"
                 + f"    type {self.type_};\n    neighbourPatch  {self.neighbour};\n    faces\n    ("
             )
-        for f in self.faces:
-            tmp.append(f"        {f.format(vertices)}")
+        for face in self.faces:
+            tmp.append(f"        {face.format(vertices)}")
         tmp.append("    );\n}")
         return "\n".join(tmp)
 
@@ -309,6 +309,16 @@ class BlockMeshDict:
         return b
 
     def add_cyclic_boundaries(self, name0, name1, faces0, faces1):
+        """Add 2 cyclic boundaries
+
+        Example
+        -------
+
+        2 cyclic boundaries can be created as follow::
+
+          add_cyclic_boundaries("outlet", "inlet", b0.face("e"), b0.face("w"))
+
+        """
         b0 = self.add_boundary("cyclic", name0, faces0, neighbour=name1)
         b1 = self.add_boundary("cyclic", name1, faces1, neighbour=name0)
         return b0, b1

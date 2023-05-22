@@ -26,7 +26,7 @@ from abc import ABC, abstractmethod
 
 from inflection import underscore
 
-from .ast import Dict, FoamInputFile, List, Value
+from .ast import Dict, DimensionSet, FoamInputFile, List, Value
 from .parser import dump, parse
 
 __all__ = [
@@ -47,6 +47,7 @@ __all__ = [
     "ConstantFileHelper",
     "BlockMeshDictRectilinear",
     "FvOptionsHelper",
+    "DimensionSet",
 ]
 
 

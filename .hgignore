@@ -17,6 +17,7 @@ doc/**.zip
 *.ipynb_checkpoints*
 **/*.ipynb
 *.egg-info/*
+**/*.pstats
 
 build/*
 dist/*.tar.gz

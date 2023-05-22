@@ -1,0 +1,49 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvOptions;
+}
+
+momentumSource
+{
+    type             meanVelocityForce;
+    active           yes;
+    selectionMode    all;
+    fields           (U);
+    Ubar             (0.1 0 0);
+}
+
+atmCoriolisUSource
+{
+    type             atmCoriolisUSource;
+    active           no;
+    selectionMode    all;
+    Omega            (0 7.2921e-5 0);
+}
+
+porosity
+{
+    type      explicitPorositySource;
+    active    yes;
+    explicitPorositySourceCoeffs
+    {
+        selectionMode    cellZone;
+        cellZone         porosity;
+        type             fixedCoeff;
+        fixedCoeffCoeffs
+        {
+            alpha     (500 -1000 -1000);
+            beta      (0 0 0);
+            rhoRef    1;
+            coordinateSystem
+            {
+                origin    (0 0 0);
+                e1        (0.70710678 0.70710678 0);
+                e2        (0 0 1);
+            }
+        }
+    }
+}

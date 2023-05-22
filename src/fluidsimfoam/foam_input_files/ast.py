@@ -129,7 +129,7 @@ class NodeLikePyDict(ABC):
         ):
             child = np.array(child)
 
-        if isinstance(child, (type(None), str, Number)):
+        if isinstance(child, (type(None), str, Number, DimensionSet)):
             pass
         elif isinstance(child, dict):
             child = Dict(child, name=key)
@@ -309,6 +309,8 @@ class Value(Node):
 
 class DimensionSet(list, Node):
     def __init__(self, foam_units):
+        if isinstance(foam_units, str):
+            foam_units = str2foam_units(foam_units)
         if not all(isinstance(elem, int) for elem in foam_units):
             raise ValueError("Bad {foam_units = }")
         super().__init__(foam_units)

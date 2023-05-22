@@ -27,7 +27,7 @@ def block_mesh(context):
 
 @task(block_mesh)
 def polymesh(context):
-    pass
+    """Create the polymesh directory"""
 
 
 @task(polymesh)

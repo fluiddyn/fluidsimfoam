@@ -3,7 +3,7 @@
 import shutil
 from subprocess import PIPE, run
 
-from fluidsimfoam.foam_input_files.fields import VolScalarField
+from fluidsimfoam.foam_input_files.fields import VolVectorField
 
 
 class Operators:
@@ -14,9 +14,9 @@ class Operators:
             assert (sim.output.path_run / "system/blockMeshDict").exists()
 
     def get_cells_coords(self):
-        path_cx = self.sim.path_run / "0/Cx"
+        path_c = self.sim.path_run / "0/C"
 
-        if not path_cx.exists():
+        if not path_c.exists():
             path_polymesh = self.sim.path_run / "constant/polyMesh/points"
 
             if not path_polymesh.exists():
@@ -36,11 +36,5 @@ class Operators:
                 stdout=PIPE,
             )
 
-        def get_arr(path):
-            field = VolScalarField.from_path(path)
-            return field.get_array()
-
-        path_cy = path_cx.with_name("Cy")
-        path_cz = path_cx.with_name("Cz")
-
-        return get_arr(path_cx), get_arr(path_cy), get_arr(path_cz)
+        field = VolVectorField.from_path(path_c, skip_boundary_field=True)
+        return field.get_components()

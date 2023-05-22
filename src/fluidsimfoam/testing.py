@@ -1,8 +1,24 @@
 """Testing utilities"""
 
+import shutil
 from pathlib import Path
 
+import pytest
+
 from fluidsimfoam.foam_input_files import dump, parse
+
+
+class skipif_executable_not_available:
+    def __init__(self, command_name):
+        path_foam_executable = shutil.which("postProcess")
+
+        self.skipif = pytest.mark.skipif(
+            path_foam_executable is None,
+            reason=f"executable '{command_name}' not available",
+        )
+
+    def __call__(self, func):
+        return self.skipif(func)
 
 
 def check_saved_case(path_saved_case, path_run, files_compare_tree=None):
