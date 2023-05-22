@@ -1,12 +1,9 @@
 from textwrap import dedent
 
-from inflection import underscore
-
 from fluidsimfoam.foam_input_files import (
     BlockMeshDictRectilinear,
     ConstantFileHelper,
     FvSchemesHelper,
-    Vertex,
 )
 from fluidsimfoam.output import Output
 
@@ -93,19 +90,17 @@ class OutputCBox(Output):
     @classmethod
     def _complete_params_control_dict(cls, params):
         super()._complete_params_control_dict(params)
-
-        default = {
-            "application": "buoyantBoussinesqPimpleFoam",
-            "startFrom": "latestTime",
-            "endTime": 1000,
-            "deltaT": 1,
-            "writeControl": "runTime",
-            "writeInterval": 50,
-            "writeFormat": "binary",
-        }
-
-        for key, value in default.items():
-            params.control_dict[underscore(key)] = value
+        params.control_dict._update_attribs(
+            {
+                "application": "buoyantBoussinesqPimpleFoam",
+                "start_from": "latestTime",
+                "end_time": 1000,
+                "delta_t": 1,
+                "write_control": "runTime",
+                "write_interval": 50,
+                "write_format": "binary",
+            }
+        )
 
     def _make_code_control_dict(self, params):
         code = super()._make_code_control_dict(params)
@@ -114,10 +109,9 @@ class OutputCBox(Output):
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
         super()._complete_params_block_mesh_dict(params)
-        default = {"nx": 80, "ny": 80, "nz": 1}
-        default.update({"lx": 1.0, "ly": 1.0, "lz": 0.1})
-        for key, value in default.items():
-            params.block_mesh_dict[key] = value
+        params.block_mesh_dict._update_attribs(
+            {"nx": 80, "ny": 80, "nz": 1, "lx": 1.0, "ly": 1.0, "lz": 0.1}
+        )
 
     def _make_code_block_mesh_dict(self, params):
         lx = params.block_mesh_dict.lx

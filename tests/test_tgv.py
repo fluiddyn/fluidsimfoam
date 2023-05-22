@@ -1,4 +1,3 @@
-import shutil
 from pathlib import Path
 from time import sleep
 
@@ -7,9 +6,12 @@ import pytest
 from fluidsimfoam_tgv import Simul
 
 from fluidsimfoam import load
-from fluidsimfoam.foam_input_files.ast import FoamInputFile
-from fluidsimfoam.foam_input_files.fields import VolScalarField, VolVectorField
-from fluidsimfoam.testing import check_saved_case
+from fluidsimfoam.foam_input_files import (
+    FoamInputFile,
+    VolScalarField,
+    VolVectorField,
+)
+from fluidsimfoam.testing import check_saved_case, skipif_executable_not_available
 
 here = Path(__file__).absolute().parent
 
@@ -55,16 +57,10 @@ def test_list(sim_tgv):
     assert sim2.path_run == sim.path_run
 
 
-path_foam_clean = shutil.which("foamCleanTutorials")
-
-
+@skipif_executable_not_available("foamCleanTutorials")
 def test_clean_load(sim_tgv):
     sim = sim_tgv
-
-    if path_foam_clean is not None:
-        # problem: clean remove .xml files (bash function cleanAuxiliary)
-        sim.make.exec("clean")
-
+    sim.make.exec("clean")
     sim2 = load(sim.path_run)
     assert sim2.path_run == sim.path_run
 
@@ -104,12 +100,7 @@ def test_read_files_overwrite(sim_tgv):
     assert tree_control_dict.children["writePrecision"] == precision
 
 
-path_blockmesh = shutil.which("blockMesh")
-
-
-@pytest.mark.skipif(
-    path_blockmesh is None, reason="executable blockMesh not available"
-)
+@skipif_executable_not_available("blockMesh")
 def test_get_cells_coords():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/tgv"
@@ -131,12 +122,7 @@ def test_get_cells_coords():
     assert np.allclose(arr1, arr)
 
 
-path_foam_executable = shutil.which("icoFoam")
-
-
-@pytest.mark.skipif(
-    path_foam_executable is None, reason="executable icoFoam not available"
-)
+@skipif_executable_not_available("icoFoam")
 def test_run():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/tgv"
@@ -146,9 +132,7 @@ def test_run():
     sim.make.exec("run")
 
 
-@pytest.mark.skipif(
-    path_foam_executable is None, reason="executable icoFoam not available"
-)
+@skipif_executable_not_available("icoFoam")
 def test_run_exec_async():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/tgv"

@@ -20,4 +20,4 @@ dependencies = [
 ]
 
 [project.entry-points."fluidsimfoam.solvers"]
-cbox = "fluidsimfoam_cbox.solver"
+cbox = "fluidsimfoam_cbox"
