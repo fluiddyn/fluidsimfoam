@@ -21,4 +21,4 @@ dependencies = [
 ]
 
 [project.entry-points."fluidsimfoam.solvers"]
-phill = "fluidsimfoam_phill.solver"
+phill = "fluidsimfoam_phill"
