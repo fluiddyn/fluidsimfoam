@@ -105,6 +105,13 @@ class OutputPHill(Output):
         comments={},
     )
 
+    _helper_g = ConstantFileHelper(
+        "g",
+        {"value": [0, -9.81, 0]},
+        dimension="m/s^2",
+        cls="uniformDimensionedVectorField",
+    )
+
     _helper_fv_options = FvOptionsHelper()
     _helper_fv_options.add_option(
         "meanVelocityForce",

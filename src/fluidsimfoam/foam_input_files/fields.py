@@ -19,7 +19,6 @@ from fluidsimfoam.foam_input_files.ast import (
     FoamInputFile,
     List,
     Value,
-    str2foam_units,
 )
 
 DEFAULT_CODE_INCLUDE = '#include "fvCFD.H"'
@@ -81,7 +80,7 @@ class FieldABC(ABC):
             }
 
             if not isinstance(dimension, DimensionSet):
-                dimension = DimensionSet(str2foam_units(dimension))
+                dimension = DimensionSet(dimension)
 
             self.tree = FoamInputFile(
                 info, children={"dimensions": dimension, "internalField": None}

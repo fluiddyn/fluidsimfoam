@@ -3,6 +3,7 @@
 from copy import deepcopy
 
 from fluidsimfoam.foam_input_files import (
+    DimensionSet,
     FileHelper,
     FoamInputFile,
     _as_py_name,
@@ -19,7 +20,9 @@ class ConstantFileHelper(FileHelper):
         default_dimension: str = False,
         dimensions: dict = None,
         comments: dict = None,
-        doc=None,
+        doc: str = None,
+        cls: str = "dictionary",
+        dimension=None,
     ):
         self.file_name = file_name
         self.default = default
@@ -27,6 +30,8 @@ class ConstantFileHelper(FileHelper):
         self.dimensions = dimensions
         self.comments = comments
         self.doc = doc
+        self.cls = cls
+        self.dimension = dimension
 
     def complete_params(self, params):
         _complete_params_dict(params, self.file_name, self.default, self.doc)
@@ -36,12 +41,15 @@ class ConstantFileHelper(FileHelper):
             info={
                 "version": 2.0,
                 "format": "ascii",
-                "class": "dictionary",
+                "class": self.cls,
                 "location": '"constant"',
                 "object": self.file_name,
             },
             comments=self.comments,
         )
+
+        if self.dimension is not None:
+            tree.set_child("dimensions", DimensionSet(self.dimension))
 
         params_file = params[_as_py_name(self.file_name)]
 
