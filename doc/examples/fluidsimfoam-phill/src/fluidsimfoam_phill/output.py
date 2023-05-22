@@ -1,18 +1,13 @@
-from math import cos, pi
-from textwrap import dedent
-
-from inflection import underscore
-
 from fluidsimfoam.foam_input_files import (
-    BlockMeshDict,
     ConstantFileHelper,
     FvOptionsHelper,
     FvSchemesHelper,
     VolScalarField,
     VolVectorField,
 )
-from fluidsimfoam.foam_input_files.blockmesh import Point, SimpleGrading, Vertex
 from fluidsimfoam.output import Output
+
+from .blockmesh import make_code_blockmesh
 
 
 def add_default_boundaries(field):
@@ -156,104 +151,24 @@ class OutputPHill(Output):
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
         super()._complete_params_block_mesh_dict(params)
-        default = {
-            "nx": 20,
-            "ny": 50,
-            "nz": 1,
-            "ny_porosity": 10,
-            "h_max": 80,
-            "lporosity": 3000,
-        }
-        default.update({"lx": 2000, "ly": 2000, "lz": 0.01, "scale": 1})
-        for key, value in default.items():
-            try:
-                params.block_mesh_dict[key] = value
-            except AttributeError:
-                params.block_mesh_dict._set_attribs({key: value})
+        params.block_mesh_dict._update_attribs(
+            {
+                "nx": 20,
+                "ny": 50,
+                "nz": 1,
+                "ny_porosity": 10,
+                "h_max": 80,
+                "ly_porosity": 3000,
+                "lx": 2000,
+                "ly": 2000,
+                "lz": 0.01,
+                "scale": 1,
+                "geometry": "sinus",
+            }
+        )
 
     def _make_code_block_mesh_dict(self, params):
-        nx = params.block_mesh_dict.nx
-        ny = params.block_mesh_dict.ny
-        nz = params.block_mesh_dict.nz
-        ny_porosity = params.block_mesh_dict.ny_porosity
-
-        lx = params.block_mesh_dict.lx
-        ly = params.block_mesh_dict.ly
-        lz = params.block_mesh_dict.lz
-        lp = params.block_mesh_dict.lporosity
-
-        h_max = params.block_mesh_dict.h_max
-
-        bmd = BlockMeshDict()
-        bmd.set_scale(params.block_mesh_dict.scale)
-
-        basevs = [
-            Vertex(0, h_max, lz, "v0"),
-            Vertex(lx, h_max, lz, "v1"),
-            Vertex(lx, ly, lz, "v2"),
-            Vertex(lx, ly + lp, lz, "v3"),
-            Vertex(0, ly + lp, lz, "v4"),
-            Vertex(0, ly, lz, "v5"),
-        ]
-
-        for v in basevs:
-            bmd.add_vertex(v.x, v.y, 0, v.name + "-0")
-        for v in basevs:
-            bmd.add_vertex(v.x, v.y, v.z, v.name + "+z")
-
-        b0 = bmd.add_hexblock(
-            ("v0-0", "v1-0", "v2-0", "v5-0", "v0+z", "v1+z", "v2+z", "v5+z"),
-            (nx, ny, nz),
-            "b0",
-            SimpleGrading(1, [[0.1, 0.25, 41.9], [0.9, 0.75, 1]], 1),
-        )
-
-        b1 = bmd.add_hexblock(
-            ("v5-0", "v2-0", "v3-0", "v4-0", "v5+z", "v2+z", "v3+z", "v4+z"),
-            (nx, ny_porosity, nz),
-            "porosity",
-            SimpleGrading(1, 1, 1),
-        )
-
-        dots = []
-        for dot in range(nx):
-            x_dot = dot * lx / (nx - 1)
-            y_dot = (h_max / 2) * (
-                1 - cos(2 * pi * min(abs((x_dot - (lx / 2)) / lx), 1))
-            )
-            dots.append([x_dot, y_dot])
-
-        bmd.add_splineedge(
-            ["v0-0", "v1-0"],
-            "spline0",
-            [Point(dot[0], dot[1], 0) for dot in dots],
-        )
-        bmd.add_splineedge(
-            ["v0+z", "v1+z"],
-            "spline1",
-            [Point(dot[0], dot[1], lz) for dot in dots],
-        )
-
-        bmd.add_boundary("wall", "top", [b1.face("n")])
-        bmd.add_boundary("wall", "bottom", [b0.face("s")])
-        bmd.add_cyclic_boundaries(
-            "outlet",
-            "inlet",
-            [b0.face("e"), b1.face("e")],
-            [b0.face("w"), b1.face("w")],
-        )
-        bmd.add_boundary(
-            "empty",
-            "frontandbackplanes",
-            [
-                b0.face("b"),
-                b1.face("b"),
-                b0.face("t"),
-                b1.face("t"),
-            ],
-        )
-
-        return bmd.format(sort_vortices="as_added")
+        return make_code_blockmesh(params.block_mesh_dict)
 
     def _make_tree_alphat(self, params):
         return make_scalar_field("alphat", dimension="m^2/s", values=0)

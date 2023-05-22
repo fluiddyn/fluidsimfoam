@@ -102,3 +102,10 @@ class Parameters(_Parameters):
             return self.__getattribute__(key)
         except AttributeError:
             return super().__getitem__(key)
+
+    def _update_attribs(self, attribs):
+        for key, value in attribs.items():
+            try:
+                self[key] = value
+            except AttributeError:
+                self._set_attrib(key, value)
