@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fluidsimfoam"
-version = "0.0.3"
+version = "0.0.4"
 description = "Python framework for OpenFOAM"
 authors = ["pierre.augier <pierre.augier@univ-grenoble-alpes.fr>"]
 license = "BSD-3-Clause"
