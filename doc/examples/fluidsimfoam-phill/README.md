@@ -1,7 +1,7 @@
 # Fluidsimfoam solver for periodic hill flows (phill)
 
-This [Fluidsimfoam] solver demonstrates how to write a solver for simulations
-of the flow over a periodic hill (phill).
+This [Fluidsimfoam] solver demonstrates how to write a solver for simulations of the flow
+over a periodic hill (phill).
 
 ## Install
 
