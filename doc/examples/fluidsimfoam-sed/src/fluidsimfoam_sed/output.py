@@ -1,12 +1,10 @@
 from textwrap import dedent
 
 import numpy as np
-from inflection import underscore
 
 from fluidsimfoam.foam_input_files import (
     BlockMeshDict,
     ConstantFileHelper,
-    FoamInputFile,
     FvSchemesHelper,
     VolScalarField,
     VolVectorField,
@@ -277,10 +275,17 @@ class OutputSED(Output):
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
         super()._complete_params_block_mesh_dict(params)
-        default = {"nx": 1, "ny": 1, "nz": 120, "scale": 0.183}
-        default.update({"lx": 1.0, "ly": 1.0, "lz": 0.1})
-        for key, value in default.items():
-            params.block_mesh_dict[key] = value
+        params.block_mesh_dict._update_attribs(
+            {
+                "nx": 1,
+                "ny": 1,
+                "nz": 120,
+                "scale": 0.183,
+                "lx": 1.0,
+                "ly": 1.0,
+                "lz": 0.1,
+            }
+        )
 
     def _make_code_block_mesh_dict(self, params):
         nx = params.block_mesh_dict.nx

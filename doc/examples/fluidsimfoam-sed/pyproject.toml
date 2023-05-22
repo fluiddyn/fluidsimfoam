@@ -20,4 +20,4 @@ dependencies = [
 ]
 
 [project.entry-points."fluidsimfoam.solvers"]
-sed = "fluidsimfoam_sed.solver"
+sed = "fluidsimfoam_sed"

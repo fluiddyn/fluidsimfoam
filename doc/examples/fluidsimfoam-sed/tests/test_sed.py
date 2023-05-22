@@ -1,15 +1,11 @@
-import shutil
 from pathlib import Path
 
 import numpy as np
-import pytest
 from fluidsimfoam_sed import Simul
 
-from fluidsimfoam.testing import check_saved_case
+from fluidsimfoam.testing import check_saved_case, skipif_executable_not_available
 
 here = Path(__file__).absolute().parent
-
-path_saved_case = here / "saved_cases/RAS/1DBedLoadTurb"
 
 
 def test_ras_1dbedloadturb():
@@ -17,15 +13,10 @@ def test_ras_1dbedloadturb():
     params.output.sub_directory = "tests_fluidsimfoam/sed"
     params.init_fields.type = "codestream"
     sim = Simul(params)
-    check_saved_case(path_saved_case, sim.path_run)
+    check_saved_case(here / "saved_cases/RAS/1DBedLoadTurb", sim.path_run)
 
 
-path_foam_executable = shutil.which("sedFoam_rbgh")
-
-
-@pytest.mark.skipif(
-    path_foam_executable is None, reason="executable sedFoam_rbgh not available"
-)
+@skipif_executable_not_available("sedFoam_rbgh")
 def test_run():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/sed"
