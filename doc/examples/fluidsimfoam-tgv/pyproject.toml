@@ -20,4 +20,4 @@ dependencies = [
 ]
 
 [project.entry-points."fluidsimfoam.solvers"]
-tgv = "fluidsimfoam_tgv.solver"
+tgv = "fluidsimfoam_tgv"
