@@ -33,7 +33,7 @@ class FieldABC(ABC):
     cls: str
 
     @classmethod
-    def from_code(cls, code: str):
+    def from_code(cls, code: str, skip_boundary_field=False):
         if "nonuniform" not in code:
             tree = parse(code)
             return cls(None, None, tree=tree)
@@ -45,9 +45,9 @@ class FieldABC(ABC):
             ")", index_nonuniform, index_boundaryField
         )
 
-        code_to_parse = (
-            code[:index_nonuniform] + ";\n\n" + code[index_boundaryField:]
-        )
+        code_to_parse = code[:index_nonuniform] + ";\n"
+        if not skip_boundary_field:
+            code_to_parse += "\n" + code[index_boundaryField:]
 
         tree = parse(code_to_parse)
         code_data = code[index_opening_par + 1 : index_closing_par].strip()
@@ -61,9 +61,11 @@ class FieldABC(ABC):
         return cls("", "", tree=tree, values=data)
 
     @classmethod
-    def from_path(cls, path: str or Path):
+    def from_path(cls, path: str or Path, skip_boundary_field=False):
         path = Path(path)
-        field = cls.from_code(path.read_text())
+        field = cls.from_code(
+            path.read_text(), skip_boundary_field=skip_boundary_field
+        )
         field.path = path
         return field
 
@@ -176,6 +178,10 @@ class VolVectorField(FieldABC):
         else:
             value = values
         self.tree.set_child("internalField", value)
+
+    def get_components(self):
+        arr = self.get_array()
+        return arr[:, 0], arr[:, 1], arr[:, 2]
 
 
 class VolTensorField(FieldABC):

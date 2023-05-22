@@ -266,7 +266,14 @@ code_cells_centers = dedent(
     {
         upperBoundary
         {
-            type            cyclic;
+            type            calculated;
+            value           nonuniform List<vector>
+    2
+    (
+    (50 8000 0.005)
+    (150 8000 0.005)
+    )
+    ;
         }
         lowerBoundary
         {
@@ -380,10 +387,18 @@ def test_cells_centers():
     field_c = VolVectorField.from_code(code_cells_centers)
     field_cx = VolScalarField.from_code(code_cx)
 
+    field_c = VolVectorField.from_code(
+        code_cells_centers, skip_boundary_field=True
+    )
+    field_cx = VolScalarField.from_code(code_cx, skip_boundary_field=True)
+
     c_values = field_c.get_array()
     cx_values = field_cx.get_array()
 
     assert np.allclose(c_values[:, 0], cx_values)
+
+    x, y, z = field_c.get_components()
+    assert np.allclose(x, cx_values)
 
 
 def test_tensor():
