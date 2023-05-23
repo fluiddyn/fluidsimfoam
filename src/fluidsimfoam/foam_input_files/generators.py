@@ -47,8 +47,13 @@ class FileGeneratorABC(ABC):
         """Generate the file"""
         if params is None:
             params = self.output.sim.params
+
+        code = self.generate_code(params)
+        if code is False:
+            return
+
         with open(self.output.path_run / self.rel_path, "w") as file:
-            file.write(self.generate_code(params))
+            file.write(code)
 
     @abstractmethod
     def generate_code(self):
@@ -108,7 +113,10 @@ class FileGenerator(FileGeneratorABC):
             if make_tree is not None:
 
                 def make_code(params_):
-                    return make_tree(params_).dump()
+                    tree = make_tree(params_)
+                    if tree is False:
+                        return False
+                    return tree.dump()
 
         if make_code is None:
             template = self.input_files.get_template(self.template_name)

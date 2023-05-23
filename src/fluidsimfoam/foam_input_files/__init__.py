@@ -19,6 +19,7 @@
     fv_schemes
     constant_files
     fv_options
+    decompose_par
 
 """
 
@@ -48,6 +49,7 @@ __all__ = [
     "BlockMeshDictRectilinear",
     "FvOptionsHelper",
     "DimensionSet",
+    "DecomposeParDictHelper",
 ]
 
 
@@ -127,6 +129,7 @@ DEFAULT_CONTROL_DICT = dict(
 
 from .blockmesh import BlockMeshDict, BlockMeshDictRectilinear, Vertex
 from .constant_files import ConstantFileHelper
+from .decompose_par import DecomposeParDictHelper
 from .fields import VolScalarField, VolVectorField, read_field_file
 from .fv_options import FvOptionsHelper
 from .fv_schemes import FvSchemesHelper

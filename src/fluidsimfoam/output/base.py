@@ -15,6 +15,7 @@ from fluidsimfoam.foam_input_files import (
     DEFAULT_CONTROL_DICT,
     DEFAULT_HEADER,
     ConstantFileHelper,
+    DecomposeParDictHelper,
     FoamInputFile,
 )
 from fluidsimfoam.foam_input_files.generators import (
@@ -28,12 +29,19 @@ from fluidsimfoam.solvers import get_solver_package
 class Output(OutputCore):
     name_variables = ["p", "U"]
     name_constant_files = ["transportProperties", "turbulenceProperties"]
-    name_system_files = ["controlDict", "fvSchemes", "fvSolution"]
+    name_system_files = [
+        "controlDict",
+        "fvSchemes",
+        "fvSolution",
+        "decomposeParDict",
+    ]
     _default_control_dict_params = DEFAULT_CONTROL_DICT
 
     _helper_turbulence_properties = ConstantFileHelper(
         "turbulenceProperties", {"simulationType": "laminar"}
     )
+
+    _helper_decompose_par_dict = DecomposeParDictHelper()
 
     @classmethod
     def _complete_info_solver(cls, info_solver):

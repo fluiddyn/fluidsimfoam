@@ -62,3 +62,11 @@ known_first_party = ["fluiddyn", "fluidsim_core", "fluidsimfoam"]
 # multi_line_output = 3
 profile = "black"
 line_length = 82
+
+[tool.coverage.report]
+exclude_lines = [
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "raise RuntimeError",
+    "raise ValueError",
+]

@@ -9,6 +9,11 @@ params.output.sub_directory = "examples_fluidsimfoam/sed"
 params.control_dict.write_interval = 0.5
 params.control_dict.end_time = 20
 
+nprocs = 2
+params.parallel.nsubdoms = nprocs
+params.parallel.method = "simple"
+params.parallel.nsubdoms_xyz = [1, nprocs, 1]
+
 sim = Simul(params)
 
 print(f"Launching OpenFOAM application ({params.control_dict.application})")
