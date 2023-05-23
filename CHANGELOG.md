@@ -37,7 +37,12 @@ Security in case of vulnerabilities.
 
 ## [Unreleased]
 
-...
+- Merge request
+  [!54](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/merge_requests/54):
+  parallel simulations
+
+  - {class}`fluidsimfoam.foam_input_files.decompose_par.DecomposeParDictHelper`
+  - Improve `run` task to call `decomposePar` and `mpirun`
 
 ## [0.0.4] - 2023-05-22
 
