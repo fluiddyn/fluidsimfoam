@@ -21,6 +21,12 @@ def test_reproduce_case():
 def test_run():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/cavity"
-    params.control_dict.end_time = 0.001
+    delta_t = params.control_dict.delta_t
+    params.control_dict.end_time = delta_t
+    params.control_dict.write_interval = 1
+    params.parallel.nsubdoms = 2
+    params.parallel.method = "simple"
+    params.parallel.nsubdoms_xyz = [2, 1, 1]
     sim = Simul(params)
     sim.make.exec("run")
+    sim.output.fields.read_field("U", time_approx="last")

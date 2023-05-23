@@ -42,6 +42,24 @@ def run(context):
     start_time = ctr_dict["startTime"]
 
     path_run = Path.cwd()
+
+    path_decompose_par_dict = path_run / "system/decomposeParDict"
+    parallel = path_decompose_par_dict.exists()
+    if parallel:
+        context.run("decomposePar")
+        nsubdoms = None
+        with open(path_decompose_par_dict) as file:
+            for line in file:
+                if "numberOfSubdomains" in line:
+                    line = line.strip().removesuffix(";")
+                    nsubdoms = int(line.split()[-1])
+                    break
+        if nsubdoms is None:
+            raise RuntimeError(f"Bad decomposeParDict {path_decompose_par_dict}")
+        command = ["mpirun", "-np", str(nsubdoms), application, "-parallel"]
+    else:
+        command = application
+
     path_log = path_run / f"log_{time_as_str()}.txt"
     print(f"Starting simulation in \n{path_run}")
     with open(path_log, "w") as file_log:
@@ -49,7 +67,7 @@ def run(context):
         print(f"{end_time = }")
         pattern_time = re.compile(r"\nTime = ([\d]+\.[\d]+)")
         t_start = time()
-        process = Popen(application, stdout=file_log)
+        process = Popen(command, stdout=file_log)
         t_last = time() - 10.0
         while process.poll() is None:
             sleep(0.2)
