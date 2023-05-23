@@ -148,6 +148,24 @@ class OutputPHill(Output):
         parameters=["fixedCoeffCoeffs/alpha"],
     )
 
+    _helper_fv_options.add_option(
+        "explicitPorositySource",
+        name="porosity_darcy",
+        cell_zone="porosity",
+        coeffs={
+            "type": "DarcyForchheimer",
+            "d": "(0 1e6 0)",
+            "f": "(0 1e6 0)",
+            "coordinateSystem": {
+                "type": "cartesian",
+                "origin": "(0 0 0)",
+                "e1": "(1 0 0)",
+                "e2": "(0 1 0)",
+            },
+        },
+        parameters=["f", "d"],
+    )
+
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
         super()._complete_params_block_mesh_dict(params)
