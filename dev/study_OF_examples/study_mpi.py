@@ -5,8 +5,7 @@ from pprint import pprint
 from fluidsimfoam.foam_input_files import dump, parse
 
 tutorials_dir = Path(os.environ["FOAM_TUTORIALS"])
-
-tutorials_dir = Path.home() / "Dev/sedfoam/tutorials/"
+# tutorials_dir = Path.home() / "Dev/sedfoam/tutorials/"
 
 print(f"{tutorials_dir = }")
 
@@ -20,7 +19,6 @@ for path in tutorials_dir.rglob("*"):
     print(path)
 
     text = path.read_text()
-
     tree = parse(text)
 
     try:
@@ -32,10 +30,10 @@ for path in tutorials_dir.rglob("*"):
 
     methods.add(method)
 
-    code = dump(tree)
+    if method == "simple":
+        code = dump(tree)
+        print(code)
 
-    # print(code)
 
-
-print("types:")
+print("methods:")
 pprint(methods)

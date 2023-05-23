@@ -10,6 +10,9 @@ here = Path(__file__).absolute().parent
 def test_reproduce_case():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/cavity"
+    params.parallel.nsubdoms = 9
+    params.parallel.method = "hierarchical"
+    params.parallel.nsubdoms_xyz = "(3 3 1)"
     sim = Simul(params)
     check_saved_case(here / "saved_cases/cavity", sim.path_run)
 
