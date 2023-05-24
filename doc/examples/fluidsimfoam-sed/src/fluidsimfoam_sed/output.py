@@ -38,14 +38,6 @@ code_init_alpha_a = dedent(
     {
         scalar y = mesh.C()[i].y();
         alpha_a[i] = 0.305*(1.0+tanh((12.5*0.006-y)/0.005));
-    /*if (y < 12.5*0.006)
-    {
-    alpha_a[i] = 0.61;
-    }
-    else
-    {
-    alpha_a[i] = 0;
-    }*/
     }
     alpha_a.writeEntry("", os);
 """
