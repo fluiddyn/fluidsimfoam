@@ -35,3 +35,4 @@ tests/saved_cases/**/postProcessing
 
 .coverage
 htmlcov
+coverage.xml
