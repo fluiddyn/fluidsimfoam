@@ -30,6 +30,7 @@ pytest:
     - poetry config installer.modern-installation false
     - poetry install --without dev
     - poetry run pytest tests doc/examples --cov --cov-report term --cov-report xml
+  coverage: /(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/
   artifacts:
     reports:
       coverage_report:
