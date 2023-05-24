@@ -139,8 +139,8 @@ class OutputPHill(Output):
                 "rhoRef": "1",
                 "coordinateSystem": {
                     "origin": "(0 0 0)",
-                    "e1": "(0.70710678 0.70710678 0)",
-                    "e2": "(0 0 1)",
+                    "e1": "(1 0 0)",
+                    "e2": "(0 1 0)",
                 },
             },
         },
