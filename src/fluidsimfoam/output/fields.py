@@ -50,7 +50,8 @@ class Fields:
                 self.reconstruct_par(fields=[name], time=last_time_proc0)
 
         path_dir, last_time = self.get_path_dir_time(time_approx)
-        assert last_time == last_time_proc0
+        if self.sim.params.parallel.nsubdoms > 1:
+            assert last_time == last_time_proc0
 
         field = read_field_file(path_dir / name)
         field.time = float(path_dir.name)

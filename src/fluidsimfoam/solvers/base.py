@@ -22,7 +22,7 @@ class SimulFoam(SimulCore):
 
     @classmethod
     def create_default_params(cls):
-        # TODO: needed because abstract method in fluidsim-core
+        # TODO: needed because abstract method in fluidsim-core=<0.7.2
         params = super().create_default_params()
         return params
 

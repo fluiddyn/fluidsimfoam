@@ -10,7 +10,7 @@ from fluidsimfoam.foam_input_files import dump, parse
 
 class skipif_executable_not_available:
     def __init__(self, command_name):
-        path_foam_executable = shutil.which("postProcess")
+        path_foam_executable = shutil.which(command_name)
 
         self.skipif = pytest.mark.skipif(
             path_foam_executable is None,

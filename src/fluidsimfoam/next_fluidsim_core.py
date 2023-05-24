@@ -2,22 +2,40 @@
 
 from pathlib import Path
 from textwrap import dedent
+from typing import Union
 
 from fluiddyn.io import FLUIDSIM_PATH
 
-from .log import logger
+path_dir_results = Path(FLUIDSIM_PATH)
 
 
-def path_try_from_fluidsim_path(path_dir):
-    """Converts to a :class:`pathlib.Path` object and if it does not exists,
-    attempts a path relative to environment variable ``FLUIDSIM_PATH``.
+def find_pathdir(thing: Union[str, Path, None] = None):
+    """Return the path of a result directory.
+
+    thing: str or Path, optional
+
+      Can be an absolute path, a relative path, or even simply just
+      the name of the directory under $FLUIDSIM_PATH.
 
     """
-    path = Path(path_dir)
+    if thing is None:
+        return Path.cwd()
 
-    if not path.exists():
-        logger.info("Trying to open the path relative to $FLUIDSIM_PATH")
-        path = Path(FLUIDSIM_PATH) / path_dir
+    if not isinstance(thing, Path):
+        path = Path(thing)
+    else:
+        path = thing
+
+    path = path.expanduser()
+
+    if path.is_dir():
+        return path.absolute()
+
+    if not path.is_absolute():
+        path = path_dir_results / path
+
+    if not path.is_dir():
+        raise ValueError(f"Cannot find a path corresponding to {thing}")
 
     return path
 

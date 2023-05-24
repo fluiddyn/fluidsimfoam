@@ -33,7 +33,7 @@ import sys
 
 from fluidsimfoam.params import Parameters
 
-from .next_fluidsim_core import path_try_from_fluidsim_path
+from .next_fluidsim_core import find_pathdir
 
 __version__ = importlib.metadata.version(__package__ or __name__)
 __all__ = ["load", "load_simul", "load_params"]
@@ -52,7 +52,7 @@ def load_simul(path_dir="."):
 
     from fluidsimfoam.solvers import get_solver_short_name, import_cls_simul
 
-    path_dir = path_try_from_fluidsim_path(path_dir)
+    path_dir = find_pathdir(path_dir)
 
     short_name = get_solver_short_name(path_dir)
     Simul = import_cls_simul(short_name)
@@ -84,7 +84,7 @@ def load_params(path_dir="."):
     params: :class:`fluidsim_core.params.Parameters`
 
     """
-    path_dir = path_try_from_fluidsim_path(path_dir)
+    path_dir = find_pathdir(path_dir)
     return Parameters(path_file=path_dir / "params_simul.xml")
 
 
