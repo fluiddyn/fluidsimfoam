@@ -8,6 +8,7 @@ from fluidsimfoam.foam_input_files import (
     FoamInputFile,
     _complete_params_dict,
 )
+from fluidsimfoam.foam_input_files.util import as_dict
 
 # taken from https://doc.cfd.direct/openfoam/user-guide-v6/controldict
 DEFAULT_CONTROL_DICT = dict(
@@ -30,13 +31,16 @@ DEFAULT_CONTROL_DICT = dict(
 
 
 class Function:
-    def __init__(self, key, type, libs):
-        self.key = key
+    def __init__(self, type, libs, entries=None):
         self.type = type
         self.libs = libs
+        self.entries = entries
 
     def make_dict(self):
-        return {"type": self.type, "libs": self.libs}
+        data = {"type": self.type, "libs": self.libs}
+        if self.entries is not None:
+            data.update(as_dict(self.entries))
+        return data
 
 
 class ControlDictHelper(FileHelper):
@@ -82,8 +86,8 @@ class ControlDictHelper(FileHelper):
     def new(self, default=None):
         return type(self)(default)
 
-    def add_function(self, key, type, libs):
-        self.functions[key] = Function(key, type, libs)
+    def add_function(self, key, type, libs, entries=None):
+        self.functions[key] = Function(type, libs, entries)
 
     def include_function(self, name):
         self.functions_included[name] = None

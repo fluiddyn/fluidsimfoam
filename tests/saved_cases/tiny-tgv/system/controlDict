@@ -48,20 +48,13 @@ functions
 {
     minmaxdomain
     {
-        type fieldMinMax;
-        //type banana;
-
-        libs ("libfieldFunctionObjects.so");
-
-        enabled true;
-
-        mode component;
-
-        writeControl timeStep;
-        writeInterval 1;
-
-        log true;
-
-        fields (p U);
+        type             fieldMinMax;
+        libs             ("libfieldFunctionObjects.so");
+        enabled          true;
+        mode             component;
+        writeControl     timeStep;
+        writeInterval    1;
+        log              true;
+        fields           (p U);
     }
-};
+}

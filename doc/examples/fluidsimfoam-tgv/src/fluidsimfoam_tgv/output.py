@@ -11,32 +11,6 @@ from fluidsimfoam.foam_input_files import (
 )
 from fluidsimfoam.output import Output
 
-code_control_dict_functions = dedent(
-    """
-    functions
-    {
-        minmaxdomain
-        {
-            type fieldMinMax;
-            //type banana;
-
-            libs ("libfieldFunctionObjects.so");
-
-            enabled true;
-
-            mode component;
-
-            writeControl timeStep;
-            writeInterval 1;
-
-            log true;
-
-            fields (p U);
-        }
-    };
-"""
-)
-
 boundary_prefixes = ("upper", "lower", "left", "right", "front", "back")
 
 code_init_p = dedent(
@@ -98,6 +72,20 @@ class OutputTGV(Output):
     )
 
     _helper_control_dict = Output._helper_control_dict.new()
+
+    _helper_control_dict.add_function(
+        "minmaxdomain",
+        type="fieldMinMax",
+        libs='("libfieldFunctionObjects.so")',
+        entries="""
+                enabled true;
+                mode component;
+                writeControl timeStep;
+                writeInterval 1;
+                log true;
+                fields (p U);
+        """,
+    )
 
     @classmethod
     def _complete_params_fv_solution(cls, params):

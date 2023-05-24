@@ -5,6 +5,7 @@
 from inflection import underscore
 
 from fluidsimfoam.foam_input_files import FileHelper, FoamInputFile
+from fluidsimfoam.foam_input_files.util import as_dict
 
 
 class FvSchemesHelper(FileHelper):
@@ -25,22 +26,7 @@ class FvSchemesHelper(FileHelper):
             if loc[arg_name] is None:
                 loc[arg_name] = {}
 
-            data = loc[arg_name]
-
-            if isinstance(data, str):
-                data_as_str = data
-                data = {}
-                for line in data_as_str.strip().split("\n"):
-                    line = line.strip()
-                    if any(
-                        line.startswith(comment_char)
-                        for comment_char in ("//", "#")
-                    ):
-                        continue
-
-                    key, value = line.split(maxsplit=1)
-                    data[key] = value
-
+            data = as_dict(loc[arg_name])
             setattr(self, arg_name, data)
 
         self.other_dict = {}
