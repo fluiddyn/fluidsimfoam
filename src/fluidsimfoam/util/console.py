@@ -4,7 +4,7 @@
 
 from functools import partial
 
-from fluidsimfoam.next_fluidsim_core import (
+from fluidsim_core.ipy_load import (
     start_ipython_load_sim as _start_ipython_load_sim,
 )
 from fluidsimfoam.solvers import available_solvers
