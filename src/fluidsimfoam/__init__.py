@@ -30,6 +30,7 @@ Fluidsimfoam API reference
 import importlib.metadata
 import sys
 
+from fluiddyn.io.redirect_stdout import stdout_redirected
 from fluidsim_core.paths import find_path_result_dir
 from fluidsimfoam.params import Parameters
 
@@ -37,7 +38,7 @@ __version__ = importlib.metadata.version(__package__ or __name__)
 __all__ = ["load", "load_simul", "load_params"]
 
 
-def load_simul(path_dir="."):
+def load_simul(path_dir=".", hide_stdout=False):
     """Loads a simulation
 
     Parameters
@@ -66,7 +67,10 @@ def load_simul(path_dir="."):
     params.output.HAS_TO_SAVE = False
     params.path_run = path_dir
 
-    return Simul(params)
+    with stdout_redirected(hide_stdout):
+        sim = Simul(params)
+
+    return sim
 
 
 def load_params(path_dir="."):
