@@ -97,14 +97,7 @@ class OutputTGV(Output):
         default_dimension="m^2/s",
     )
 
-    # @classmethod
-    # def _set_info_solver_classes(cls, classes):
-    #     """Set the the classes for info_solver.classes.Output"""
-    #     super()._set_info_solver_classes(classes)
-
-    def _make_code_control_dict(self, params):
-        code = super()._make_code_control_dict(params)
-        return code + code_control_dict_functions
+    _helper_control_dict = Output._helper_control_dict.new()
 
     @classmethod
     def _complete_params_fv_solution(cls, params):

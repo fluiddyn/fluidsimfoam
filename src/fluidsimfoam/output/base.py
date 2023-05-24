@@ -12,11 +12,9 @@ from fluiddyn.util import mpi
 from fluidsim_core.output import OutputCore
 from fluidsim_core.params import iter_complete_params
 from fluidsimfoam.foam_input_files import (
-    DEFAULT_CONTROL_DICT,
-    DEFAULT_HEADER,
     ConstantFileHelper,
+    ControlDictHelper,
     DecomposeParDictHelper,
-    FoamInputFile,
 )
 from fluidsimfoam.foam_input_files.generators import (
     InputFiles,
@@ -35,13 +33,12 @@ class Output(OutputCore):
         "fvSolution",
         "decomposeParDict",
     ]
-    _default_control_dict_params = DEFAULT_CONTROL_DICT
 
     _helper_turbulence_properties = ConstantFileHelper(
         "turbulenceProperties", {"simulationType": "laminar"}
     )
-
     _helper_decompose_par_dict = DecomposeParDictHelper()
+    _helper_control_dict = ControlDictHelper()
 
     @classmethod
     def _complete_info_solver(cls, info_solver):
@@ -245,42 +242,6 @@ class Output(OutputCore):
             ) and not file_generator.rel_path.startswith("system"):
                 # system files are already generated
                 file_generator.generate_file()
-
-    @classmethod
-    def _complete_params_control_dict(cls, params):
-        attribs = {
-            underscore(key): value
-            for key, value in cls._default_control_dict_params.items()
-        }
-
-        params._set_child(
-            "control_dict",
-            attribs=attribs,
-            doc="""See https://doc.cfd.direct/openfoam/user-guide-v6/controldict""",
-        )
-
-    def _make_tree_control_dict(self, params):
-        children = {
-            key: params.control_dict[underscore(key)]
-            for key in self._default_control_dict_params.keys()
-        }
-
-        tree = FoamInputFile(
-            info={
-                "version": "2.0",
-                "format": "ascii",
-                "class": "dictionary",
-                "location": '"system"',
-                "object": "controlDict",
-            },
-            children=children,
-            header=DEFAULT_HEADER,
-        )
-        return tree
-
-    def _make_code_control_dict(self, params):
-        tree = self._make_tree_control_dict(params)
-        return tree.dump()
 
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
