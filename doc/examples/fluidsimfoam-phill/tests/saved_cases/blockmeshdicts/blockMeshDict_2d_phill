@@ -18,56 +18,105 @@ scale   1;
 
 vertices
 (
-    (  0  0  0 )  // 0 v0-0
-    (  0.5  0  0 )  // 1 v1-0
-    (  1.5  0  0 )  // 2 v2-0
-    (  6  0  0 )  // 3 v3-0
-    (  0  1  0 )  // 4 v0+y
-    (  0.5  1  0 )  // 5 v1+y
-    (  1.5  1  0 )  // 6 v2+y
-    (  6  1  0 )  // 7 v3+y
-    (  0  0  0.05 )  // 8 v7-0
-    (  0.5  0  0.05 )  // 9 v6-0
-    (  1.5  0  0.05 )  // 10 v5-0
-    (  6  0  0.05 )  // 11 v4-0
-    (  0  1  0.05 )  // 12 v7+y
-    (  0.5  1  0.05 )  // 13 v6+y
-    (  1.5  1  0.05 )  // 14 v5+y
-    (  6  1  0.05 )  // 15 v4+y
+    (  0  0  0 )  // 0 v-bot-inlet-z0
+    (  0.6  0  0 )  // 1 v-bot-hill_start-z0
+    (  2.34  0  0 )  // 2 v-bot-hill_end-z0
+    (  6  0  0 )  // 3 v-bot-outlet-z0
+    (  0  1  0 )  // 4 v-top-inlet-z0
+    (  0.6  1  0 )  // 5 v-top-hill_start-z0
+    (  2.34  1  0 )  // 6 v-top-hill_end-z0
+    (  6  1  0 )  // 7 v-top-outlet-z0
+    (  0  2  0 )  // 8 v-sponge-inlet-z0
+    (  6  2  0 )  // 9 v-sponge-outlet-z0
+    (  0  0  0.01 )  // 10 v-bot-inlet-z
+    (  0.6  0  0.01 )  // 11 v-bot-hill_start-z
+    (  2.34  0  0.01 )  // 12 v-bot-hill_end-z
+    (  6  0  0.01 )  // 13 v-bot-outlet-z
+    (  0  1  0.01 )  // 14 v-top-inlet-z
+    (  0.6  1  0.01 )  // 15 v-top-hill_start-z
+    (  2.34  1  0.01 )  // 16 v-top-hill_end-z
+    (  6  1  0.01 )  // 17 v-top-outlet-z
+    (  0  2  0.01 )  // 18 v-sponge-inlet-z
+    (  6  2  0.01 )  // 19 v-sponge-outlet-z
 );
 
 blocks
 (
-    hex (0 1 5 4 8 9 13 12) b0 (50 100 1) simpleGrading (1 ( ( 0.1 0.25 41.9 ) ( 0.9 0.75 1 ) ) 1)  // b0 (v0-0 v1-0 v1+y v0+y v7-0 v6-0 v6+y v7+y)
-    hex (1 2 6 5 9 10 14 13) b1 (50 100 1) simpleGrading (1 ( ( 0.1 0.25 41.9 ) ( 0.9 0.75 1 ) ) 1)  // b1 (v1-0 v2-0 v2+y v1+y v6-0 v5-0 v5+y v6+y)
-    hex (2 3 7 6 10 11 15 14) b2 (225 100 1) simpleGrading (1 ( ( 0.1 0.25 41.9 ) ( 0.9 0.75 1 ) ) 1)  // b2 (v2-0 v3-0 v3+y v2+y v5-0 v4-0 v4+y v5+y)
+    hex (0 1 5 4 10 11 15 14) b-up_stream (6 30 1) simpleGrading (1 ( ( 0.1 0.25 41.9 ) ( 0.9 0.75 1 ) ) 1)  // b-up_stream (v-bot-inlet-z0 v-bot-hill_start-z0 v-top-hill_start-z0 v-top-inlet-z0 v-bot-inlet-z v-bot-hill_start-z v-top-hill_start-z v-top-inlet-z)
+    hex (1 2 6 5 11 12 16 15) b-hill (19 30 1) simpleGrading (1 ( ( 0.1 0.25 41.9 ) ( 0.9 0.75 1 ) ) 1)  // b-hill (v-bot-hill_start-z0 v-bot-hill_end-z0 v-top-hill_end-z0 v-top-hill_start-z0 v-bot-hill_start-z v-bot-hill_end-z v-top-hill_end-z v-top-hill_start-z)
+    hex (2 3 7 6 12 13 17 16) b-down_stream (35 30 1) simpleGrading (1 ( ( 0.1 0.25 41.9 ) ( 0.9 0.75 1 ) ) 1)  // b-down_stream (v-bot-hill_end-z0 v-bot-outlet-z0 v-top-outlet-z0 v-top-hill_end-z0 v-bot-hill_end-z v-bot-outlet-z v-top-outlet-z v-top-hill_end-z)
+    hex (4 7 9 8 14 17 19 18) porosity (60 30 1) simpleGrading (1 1 1)  // porosity (v-top-inlet-z0 v-top-outlet-z0 v-sponge-outlet-z0 v-sponge-inlet-z0 v-top-inlet-z v-top-outlet-z v-sponge-outlet-z v-sponge-inlet-z)
 );
 
 edges
 (
-    spline 1 2                      // spline0 (v1-0 v2-0)
+    spline 1 2                      // spline-z0 (v-bot-hill_start-z0 v-bot-hill_end-z0)
     (
-         (                0.6             0.0124                  0 )
-         (                0.7             0.0395                  0 )
-         (                0.8             0.0724                  0 )
-         (                0.9              0.132                  0 )
-         (                  1              0.172                  0 )
-         (                1.1              0.132                  0 )
-         (                1.2             0.0724                  0 )
-         (                1.3             0.0395                  0 )
-         (                1.4             0.0124                  0 )
+         (                0.6 6.48437651941689e-07                  0 )
+         (              0.658 3.24761762575257e-06                  0 )
+         (              0.716 1.45548124179726e-05                  0 )
+         (              0.774 5.83704972550371e-05                  0 )
+         (              0.832 0.000209471639100107                  0 )
+         (               0.89 0.000672670104268268                  0 )
+         (              0.948 0.00193296539765416                  0 )
+         (              1.006 0.00497039713651176                  0 )
+         (              1.064 0.0114367639792763                  0 )
+         (              1.122 0.0235483392831706                  0 )
+         (               1.18 0.0433872843272495                  0 )
+         (              1.238 0.0715335385482506                  0 )
+         (              1.296  0.105536334789998                  0 )
+         (              1.354  0.139328308107525                  0 )
+         (              1.412  0.164596947589777                  0 )
+         (               1.47              0.174                  0 )
+         (              1.528  0.164596947589777                  0 )
+         (              1.586  0.139328308107525                  0 )
+         (              1.644  0.105536334789998                  0 )
+         (              1.702 0.0715335385482506                  0 )
+         (               1.76 0.0433872843272496                  0 )
+         (              1.818 0.0235483392831706                  0 )
+         (              1.876 0.0114367639792763                  0 )
+         (              1.934 0.00497039713651177                  0 )
+         (              1.992 0.00193296539765416                  0 )
+         (               2.05 0.000672670104268271                  0 )
+         (              2.108 0.000209471639100108                  0 )
+         (              2.166 5.83704972550371e-05                  0 )
+         (              2.224 1.45548124179727e-05                  0 )
+         (              2.282 3.24761762575259e-06                  0 )
+         (               2.34 6.48437651941689e-07                  0 )
 )
-    spline 9 10                      // spline1 (v6-0 v5-0)
+    spline 11 12                      // spline-z (v-bot-hill_start-z v-bot-hill_end-z)
     (
-         (                0.6             0.0124               0.05 )
-         (                0.7             0.0395               0.05 )
-         (                0.8             0.0724               0.05 )
-         (                0.9              0.132               0.05 )
-         (                  1              0.172               0.05 )
-         (                1.1              0.132               0.05 )
-         (                1.2             0.0724               0.05 )
-         (                1.3             0.0395               0.05 )
-         (                1.4             0.0124               0.05 )
+         (                0.6 6.48437651941689e-07               0.01 )
+         (              0.658 3.24761762575257e-06               0.01 )
+         (              0.716 1.45548124179726e-05               0.01 )
+         (              0.774 5.83704972550371e-05               0.01 )
+         (              0.832 0.000209471639100107               0.01 )
+         (               0.89 0.000672670104268268               0.01 )
+         (              0.948 0.00193296539765416               0.01 )
+         (              1.006 0.00497039713651176               0.01 )
+         (              1.064 0.0114367639792763               0.01 )
+         (              1.122 0.0235483392831706               0.01 )
+         (               1.18 0.0433872843272495               0.01 )
+         (              1.238 0.0715335385482506               0.01 )
+         (              1.296  0.105536334789998               0.01 )
+         (              1.354  0.139328308107525               0.01 )
+         (              1.412  0.164596947589777               0.01 )
+         (               1.47              0.174               0.01 )
+         (              1.528  0.164596947589777               0.01 )
+         (              1.586  0.139328308107525               0.01 )
+         (              1.644  0.105536334789998               0.01 )
+         (              1.702 0.0715335385482506               0.01 )
+         (               1.76 0.0433872843272496               0.01 )
+         (              1.818 0.0235483392831706               0.01 )
+         (              1.876 0.0114367639792763               0.01 )
+         (              1.934 0.00497039713651177               0.01 )
+         (              1.992 0.00193296539765416               0.01 )
+         (               2.05 0.000672670104268271               0.01 )
+         (              2.108 0.000209471639100108               0.01 )
+         (              2.166 5.83704972550371e-05               0.01 )
+         (              2.224 1.45548124179727e-05               0.01 )
+         (              2.282 3.24761762575259e-06               0.01 )
+         (               2.34 6.48437651941689e-07               0.01 )
 )
 );
 
@@ -78,9 +127,7 @@ boundary
         type wall;
         faces
         (
-            (5 4 12 13)  // f-b0-n (v1+y v0+y v7+y v6+y)
-            (6 5 13 14)  // f-b1-n (v2+y v1+y v6+y v5+y)
-            (7 6 14 15)  // f-b2-n (v3+y v2+y v5+y v4+y)
+            (9 8 18 19)  // f-porosity-n (v-sponge-outlet-z0 v-sponge-inlet-z0 v-sponge-inlet-z v-sponge-outlet-z)
         );
     }
     bottom
@@ -88,9 +135,9 @@ boundary
         type wall;
         faces
         (
-            (0 1 9 8)  // f-b0-s (v0-0 v1-0 v6-0 v7-0)
-            (1 2 10 9)  // f-b1-s (v1-0 v2-0 v5-0 v6-0)
-            (2 3 11 10)  // f-b2-s (v2-0 v3-0 v4-0 v5-0)
+            (0 1 11 10)  // f-b-up_stream-s (v-bot-inlet-z0 v-bot-hill_start-z0 v-bot-hill_start-z v-bot-inlet-z)
+            (1 2 12 11)  // f-b-hill-s (v-bot-hill_start-z0 v-bot-hill_end-z0 v-bot-hill_end-z v-bot-hill_start-z)
+            (2 3 13 12)  // f-b-down_stream-s (v-bot-hill_end-z0 v-bot-outlet-z0 v-bot-outlet-z v-bot-hill_end-z)
         );
     }
     outlet
@@ -99,7 +146,8 @@ boundary
         neighbourPatch  inlet;
         faces
         (
-            (3 7 15 11)  // f-b2-e (v3-0 v3+y v4+y v4-0)
+            (3 7 17 13)  // f-b-down_stream-e (v-bot-outlet-z0 v-top-outlet-z0 v-top-outlet-z v-bot-outlet-z)
+            (7 9 19 17)  // f-porosity-e (v-top-outlet-z0 v-sponge-outlet-z0 v-sponge-outlet-z v-top-outlet-z)
         );
     }
     inlet
@@ -108,7 +156,8 @@ boundary
         neighbourPatch  outlet;
         faces
         (
-            (0 8 12 4)  // f-b0-w (v0-0 v7-0 v7+y v0+y)
+            (0 10 14 4)  // f-b-up_stream-w (v-bot-inlet-z0 v-bot-inlet-z v-top-inlet-z v-top-inlet-z0)
+            (4 14 18 8)  // f-porosity-w (v-top-inlet-z0 v-top-inlet-z v-sponge-inlet-z v-sponge-inlet-z0)
         );
     }
     frontandbackplanes
@@ -116,12 +165,14 @@ boundary
         type empty;
         faces
         (
-            (0 4 5 1)  // f-b0-b (v0-0 v0+y v1+y v1-0)
-            (1 5 6 2)  // f-b1-b (v1-0 v1+y v2+y v2-0)
-            (2 6 7 3)  // f-b2-b (v2-0 v2+y v3+y v3-0)
-            (8 9 13 12)  // f-b0-t (v7-0 v6-0 v6+y v7+y)
-            (9 10 14 13)  // f-b1-t (v6-0 v5-0 v5+y v6+y)
-            (10 11 15 14)  // f-b2-t (v5-0 v4-0 v4+y v5+y)
+            (0 4 5 1)  // f-b-up_stream-b (v-bot-inlet-z0 v-top-inlet-z0 v-top-hill_start-z0 v-bot-hill_start-z0)
+            (1 5 6 2)  // f-b-hill-b (v-bot-hill_start-z0 v-top-hill_start-z0 v-top-hill_end-z0 v-bot-hill_end-z0)
+            (2 6 7 3)  // f-b-down_stream-b (v-bot-hill_end-z0 v-top-hill_end-z0 v-top-outlet-z0 v-bot-outlet-z0)
+            (4 8 9 7)  // f-porosity-b (v-top-inlet-z0 v-sponge-inlet-z0 v-sponge-outlet-z0 v-top-outlet-z0)
+            (10 11 15 14)  // f-b-up_stream-t (v-bot-inlet-z v-bot-hill_start-z v-top-hill_start-z v-top-inlet-z)
+            (11 12 16 15)  // f-b-hill-t (v-bot-hill_start-z v-bot-hill_end-z v-top-hill_end-z v-top-hill_start-z)
+            (12 13 17 16)  // f-b-down_stream-t (v-bot-hill_end-z v-bot-outlet-z v-top-outlet-z v-top-hill_end-z)
+            (14 17 19 18)  // f-porosity-t (v-top-inlet-z v-top-outlet-z v-sponge-outlet-z v-sponge-inlet-z)
         );
     }
 );

@@ -45,6 +45,14 @@ def test_blockmesh(name):
         params.block_mesh_dict.ny_porosity = 4
         path_saved_file = path_data / "case0/system/blockMeshDict"
     elif name == "2d_phill":
+        params.block_mesh_dict.nx = 60
+        params.block_mesh_dict.ny = 30
+        params.block_mesh_dict.nz = 1
+        params.block_mesh_dict.lx = 6
+        params.block_mesh_dict.ly = 1
+        params.block_mesh_dict.lz = 0.01
+        params.block_mesh_dict.ly_porosity = 1
+
         path_saved_file = path_data / "blockmeshdicts/blockMeshDict_2d_phill"
 
     make_blockmesh = globals()["make_code_" + name]
