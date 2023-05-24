@@ -39,7 +39,7 @@ class Function:
     def make_dict(self):
         data = {"type": self.type, "libs": self.libs}
         if self.entries is not None:
-            data.update(as_dict(self.entries))
+            data.update(as_dict(self.entries, filter_comments=False))
         return data
 
 

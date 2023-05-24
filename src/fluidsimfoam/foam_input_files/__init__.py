@@ -15,11 +15,13 @@
    :toctree:
 
     blockmesh
+    control_dict
     fields
     fv_schemes
     constant_files
     fv_options
     decompose_par
+    util
 
 """
 

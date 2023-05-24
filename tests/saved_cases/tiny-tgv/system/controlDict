@@ -51,6 +51,7 @@ functions
         type             fieldMinMax;
         libs             ("libfieldFunctionObjects.so");
         enabled          true;
+        // Calculation mode: magnitude or component
         mode             component;
         writeControl     timeStep;
         writeInterval    1;

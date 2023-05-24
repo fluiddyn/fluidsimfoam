@@ -65,7 +65,7 @@ def _compute_spaces_to_align(data, max_length=20):
             max(
                 len(key)
                 for key, value in data.items()
-                if not isinstance(value, (Dict, List))
+                if value is not None and not isinstance(value, (Dict, List))
             ),
         )
     except ValueError:
@@ -354,7 +354,7 @@ class Dict(dict, Node, NodeLikePyDict):
             if hasattr(node, "dump"):
                 tmp.append(node.dump(indent + 4))
             elif node is None:
-                tmp.append(f"    {key}")
+                tmp.append(indentation + f"    {key}")
             else:
                 if hasattr(node, "dump_without_assignment"):
                     code_node = node.dump_without_assignment()

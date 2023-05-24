@@ -79,6 +79,7 @@ class OutputTGV(Output):
         libs='("libfieldFunctionObjects.so")',
         entries="""
                 enabled true;
+                // Calculation mode: magnitude or component
                 mode component;
                 writeControl timeStep;
                 writeInterval 1;
