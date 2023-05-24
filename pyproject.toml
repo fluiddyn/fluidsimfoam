@@ -8,7 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-fluidsim-core = "^0.7.2"
+fluidsim-core = "^0.7.3"
 inflection = "^0.5.1"
 fluiddyn = "^0.5.2"
 ipython = "^8.11.0"
