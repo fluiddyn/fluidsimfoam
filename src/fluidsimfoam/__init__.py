@@ -25,15 +25,13 @@ Fluidsimfoam API reference
    tasks
    testing
    params
-   next_fluidsim_core
 
 """
 import importlib.metadata
 import sys
 
+from fluidsim_core.paths import find_path_result_dir
 from fluidsimfoam.params import Parameters
-
-from .next_fluidsim_core import find_path_result_dir
 
 __version__ = importlib.metadata.version(__package__ or __name__)
 __all__ = ["load", "load_simul", "load_params"]
