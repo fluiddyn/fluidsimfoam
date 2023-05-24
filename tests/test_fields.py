@@ -32,7 +32,7 @@ code_p = dedent(
 def test_p():
     field = VolScalarField("p", "m^2.s^-2")
 
-    assert field.dump().strip() == code_p.format("   ", "")
+    assert field.dump().strip() == code_p.format("", "")
 
     field.set_values(2.0)
     assert field.dump().strip() == code_p.format("   ", "    uniform 2.0;")

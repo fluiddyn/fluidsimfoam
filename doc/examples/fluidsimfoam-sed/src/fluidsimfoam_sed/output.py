@@ -76,8 +76,7 @@ class OutputSED(Output):
         "twophaseRASProperties",
     ]
 
-    _default_control_dict_params = Output._default_control_dict_params.copy()
-    _default_control_dict_params.update(
+    _helper_control_dict = Output._helper_control_dict.new(
         {
             "application": "sedFoam_rbgh",
             "startFrom": "latestTime",

@@ -1,21 +1,9 @@
-from textwrap import dedent
-
 from fluidsimfoam.foam_input_files import (
     BlockMeshDictRectilinear,
     ConstantFileHelper,
     FvSchemesHelper,
 )
 from fluidsimfoam.output import Output
-
-code_control_dict_functions = dedent(
-    """
-    functions
-    {
-        #includeFunc solverInfo
-        #includeFunc streamlines
-    }
-"""
-)
 
 
 class OutputCBox(Output):
@@ -82,29 +70,18 @@ class OutputCBox(Output):
         },
     )
 
-    # @classmethod
-    # def _set_info_solver_classes(cls, classes):
-    #     """Set the the classes for info_solver.classes.Output"""
-    #     super()._set_info_solver_classes(classes)
-
-    @classmethod
-    def _complete_params_control_dict(cls, params):
-        super()._complete_params_control_dict(params)
-        params.control_dict._update_attribs(
-            {
-                "application": "buoyantBoussinesqPimpleFoam",
-                "start_from": "latestTime",
-                "end_time": 1000,
-                "delta_t": 1,
-                "write_control": "runTime",
-                "write_interval": 50,
-                "write_format": "binary",
-            }
-        )
-
-    def _make_code_control_dict(self, params):
-        code = super()._make_code_control_dict(params)
-        return code + code_control_dict_functions
+    _helper_control_dict = Output._helper_control_dict.new(
+        {
+            "application": "buoyantBoussinesqPimpleFoam",
+            "startFrom": "latestTime",
+            "endTime": 1000,
+            "deltaT": 1,
+            "writeControl": "runTime",
+            "writeInterval": 50,
+            "writeFormat": "binary",
+        }
+    )
+    _helper_control_dict.include_functions(["solverInfo", "streamlines"])
 
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):
