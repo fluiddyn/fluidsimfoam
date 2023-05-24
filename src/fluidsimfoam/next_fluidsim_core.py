@@ -9,7 +9,7 @@ from fluiddyn.io import FLUIDSIM_PATH
 path_dir_results = Path(FLUIDSIM_PATH)
 
 
-def find_pathdir(thing: Union[str, Path, None] = None):
+def find_path_result_dir(thing: Union[str, Path, None] = None):
     """Return the path of a result directory.
 
     thing: str or Path, optional
