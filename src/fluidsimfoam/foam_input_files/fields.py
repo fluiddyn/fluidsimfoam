@@ -210,7 +210,7 @@ def read_field_file(path):
                 break
 
     if cls is None:
-        raise RuntimeError
+        raise RuntimeError(f"no class found for file {path}")
 
     cls = classes[cls]
 
