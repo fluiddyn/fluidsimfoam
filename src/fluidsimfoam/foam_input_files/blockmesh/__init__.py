@@ -88,6 +88,24 @@ class Face:
         return f"({index:s})  // {self.name:s} ({comment:s})"
 
 
+class MergePatchPairs:
+    def __init__(self, boundary_name1, boundary_name2):
+        """
+        Add boundaries as strings.
+        """
+        self.boundary_name1 = boundary_name1
+        self.boundary_name2 = boundary_name2
+
+    def format(self):
+        """Format instance to dump
+        merge patch pairs
+        """
+        comment = (
+            f"merge patch pairs: {self.boundary_name1} and {self.boundary_name2}"
+        )
+        return f"({self.boundary_name1} {self.boundary_name2})  // ({comment:s})"
+
+
 class HexBlock:
     def __init__(self, vnames, cells, name, grading=SimpleGrading(1, 1, 1)):
         """Initialize HexBlock instance
@@ -221,6 +239,7 @@ class BlockMeshDict:
         self.blocks = {}
         self.edges = {}
         self.boundaries = {}
+        self.merge_patch_pairs = {}
         self._vertices_in_blockmesh = None
 
     def set_metric(self, metric):
@@ -325,6 +344,21 @@ class BlockMeshDict:
         self.boundaries[name] = b
         return b
 
+    def add_merge_patch_pairs(self, boundary_name1, boundary_name2):
+        """Add 2 patchs boundaries
+
+        Example
+        -------
+
+        mergePatchPairs can be created as follow::
+
+          add_merge_patch_pairs("bottomWall", "solidInterface")
+
+        """
+        b = MergePatchPairs(boundary_name1, boundary_name2)
+        self.merge_patch_pairs[boundary_name1] = b
+        return b
+
     def add_cyclic_boundaries(self, name0, name1, faces0, faces1):
         """Add 2 cyclic boundaries
 
@@ -416,13 +450,12 @@ class BlockMeshDict:
         return "\n".join(tmp)
 
     def format_mergepatchpairs_section(self):
-        # not yet implemented
-        return ""
-
-    #         return """\
-    # mergePatchPairs
-    # (
-    # );"""
+        indent = " " * 4
+        tmp = ["mergePatchPairs\n("]
+        for b in self.merge_patch_pairs.values():
+            tmp.append(indent + b.format())
+        tmp.append(");")
+        return "\n".join(tmp)
 
     def format(self, header=DEFAULT_HEADER, sort_vortices=True):
         self.assign_vertexid(sort=sort_vortices)
@@ -446,7 +479,9 @@ $blocks
 $edges
 
 $boundary
+
 $mergepatchpairs
+
 // ************************************************************************* //
 """
         )
