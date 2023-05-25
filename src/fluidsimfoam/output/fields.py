@@ -9,10 +9,26 @@ import matplotlib.pyplot as plt
 from fluidsimfoam.foam_input_files import read_field_file
 
 
+def is_time_name(name):
+    return all(c.isdigit() or c == "." for c in name)
+
+
 class Fields:
     def __init__(self, output):
         self.output = output
         self.sim = output.sim
+
+    def get_saved_times(self):
+        if self.sim.params.parallel.nsubdoms > 1:
+            str_glob = "processor0/*"
+        else:
+            str_glob = "*"
+
+        return sorted(
+            float(path.name)
+            for path in self.output.path_run.glob(str_glob)
+            if is_time_name(path.name)
+        )
 
     def get_path_dir_time(self, time_approx="last", dirname=None):
         if time_approx != "last":
