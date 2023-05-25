@@ -1,8 +1,10 @@
 from pathlib import Path
 
+import pandas as pd
 import pytest
 from fluidsimfoam_cbox import Simul
 
+from fluidsimfoam.output import get_dataframe_from_paths
 from fluidsimfoam.testing import check_saved_case, skipif_executable_not_available
 
 here = Path(__file__).absolute().parent
@@ -34,3 +36,6 @@ def test_run():
     params.control_dict.end_time = 10
     sim = Simul(params)
     sim.make.exec("run")
+    df = get_dataframe_from_paths([sim.path_run])
+    assert isinstance(df, pd.DataFrame)
+    assert len(df.index) == 1
