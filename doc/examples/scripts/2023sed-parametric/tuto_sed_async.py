@@ -16,6 +16,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument("-p", "--plot", action="store_true")
 parser.add_argument("-np", "--nprocs", default=1, type=int)
 parser.add_argument("--radius", default=0.006, type=float)
+parser.add_argument("--end-time", default=20.0, type=float)
 
 args = parser.parse_args()
 
@@ -24,11 +25,11 @@ params.output.sub_directory = "sedFoam/bedload1d"
 params.short_name_type_run = f"radius{args.radius}"
 
 params.control_dict.write_interval = 0.5
-params.control_dict.end_time = 20
+params.control_dict.end_time = args.end_time
 
 params.parallel.nsubdoms = args.nprocs
 params.parallel.method = "simple"
-params.parallel.nsubdoms_xyz = [1, args.nprocs, 1]
+params.parallel.nsubdoms_xyz = [1, 1, args.nprocs]
 
 params.constant.transport.phasea.d = args.radius
 
