@@ -260,3 +260,6 @@ class Output(OutputCore):
             attribs=default,
             doc="""TODO""",
         )
+
+    def _compute_mean_values(self, tmin, tmax):
+        return {}

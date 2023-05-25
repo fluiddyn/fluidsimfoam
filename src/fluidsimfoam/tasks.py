@@ -64,6 +64,7 @@ def run(context):
     print(f"Starting simulation in \n{path_run}")
     with open(path_log, "w") as file_log:
         file_log.write(f"{start_time = }\n{end_time = }\n")
+        file_log.flush()
         print(f"{end_time = }")
         pattern_time = re.compile(r"\nTime = ([\d]+\.[\d]+)")
         t_start = time()

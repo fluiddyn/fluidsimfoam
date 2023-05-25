@@ -21,7 +21,7 @@ def test_run():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/sed"
     params.init_fields.type = "tanh"
-    params.control_dict.end_time = 0.001
+    params.control_dict.end_time = 20 * params.control_dict.delta_t
     sim = Simul(params)
     sim.make.exec("run")
 
@@ -30,3 +30,5 @@ def test_run():
     assert isinstance(arr, np.ndarray)
 
     sim.output.fields.plot_field("alpha.a")
+
+    sim.output.log.plot_clock_times()

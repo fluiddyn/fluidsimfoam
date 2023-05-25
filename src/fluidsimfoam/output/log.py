@@ -8,6 +8,23 @@ import numpy as np
 from fluidsim_core.output.remaining_clock_time import RemainingClockTime
 
 
+def get_log_tail(path_file, nbytes=1000):
+    log_size = path_file.stat().st_size
+    with open(path_file, "r") as file:
+        file.seek(max(0, log_size - nbytes))
+        return file.read()
+
+
+def read_time_last(path_file):
+    text = get_log_tail(path_file, 1000)
+    index = text.rfind("\nTime = ")
+    if index == -1:
+        print("'Time = ' not found in log file")
+        return None
+    text = text[index + 8 :]
+    return float(text.split(None, 1)[0])
+
+
 class Log(RemainingClockTime):
     _tag = "log"
 
@@ -57,7 +74,10 @@ class Log(RemainingClockTime):
 
         # decimate if needed
         precision_clock = 0.01
-        step = round(8 * precision_clock / estimation_clock_time_per_time_step)
+        step = round(
+            min(8 * precision_clock, (clock_times.max() - clock_times.min()) / 2)
+            / estimation_clock_time_per_time_step
+        )
         if step > 1:
             clock_times = clock_times[::step]
             eq_times = eq_times[::step]
@@ -117,23 +137,13 @@ class Log(RemainingClockTime):
     def get_log_tail(self, nbytes=1000):
         if self.path_file is None:
             raise IOError(f"No log file found in {self.output.path_run}")
-
-        log_size = self.path_file.stat().st_size
-        with open(self.path_file, "r") as file:
-            file.seek(max(0, log_size - nbytes))
-            return file.read()
+        return get_log_tail(self.path_file, nbytes)
 
     @property
     def time_last(self):
         if self.path_file is None:
             return None
-        text = self.get_log_tail(1000)
-        index = text.rfind("\nTime = ")
-        if index == -1:
-            print("'Time = ' not found in log file")
-            return None
-        text = text[index + 8 :]
-        return float(text.split(None, 1)[0])
+        return read_time_last(self.path_file)
 
     def _choose_variable_name(self, variable_name):
         if (
