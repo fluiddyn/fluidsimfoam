@@ -147,6 +147,10 @@ def make_code_2d_phill(bmd_params):
     nx_hill = int(nx * 0.33)
     nx_down_stream = nx - nx_hill - nx_up_stream
 
+    x_expansion_ratio = 1
+    y_expansion_ratio = [[0.1, 0.25, 41.9], [0.9, 0.75, 1]]
+    z_expansion_ratio = 1
+
     bmd = BlockMeshDict()
     bmd.set_scale(bmd_params.scale)
 
@@ -180,7 +184,7 @@ def make_code_2d_phill(bmd_params):
         ),
         (nx_up_stream, ny, nz),
         "b-up_stream",
-        SimpleGrading(1, [[0.1, 0.25, 41.9], [0.9, 0.75, 1]], 1),
+        SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
     )
 
     b1 = bmd.add_hexblock(
@@ -196,7 +200,7 @@ def make_code_2d_phill(bmd_params):
         ),
         (nx_hill, ny, nz),
         "b-hill",
-        SimpleGrading(1, [[0.1, 0.25, 41.9], [0.9, 0.75, 1]], 1),
+        SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
     )
 
     b2 = bmd.add_hexblock(
@@ -212,7 +216,7 @@ def make_code_2d_phill(bmd_params):
         ),
         (nx_down_stream, ny, nz),
         "b-down_stream",
-        SimpleGrading(1, [[0.1, 0.25, 41.9], [0.9, 0.75, 1]], 1),
+        SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
     )
     b3 = bmd.add_hexblock(
         (
@@ -264,5 +268,22 @@ def make_code_2d_phill(bmd_params):
             b3.face("t"),
         ],
     )
+    bmd.add_boundary(
+        "patch",
+        "interface_top",
+        [
+            b0.face("n"),
+            b1.face("n"),
+            b2.face("n"),
+        ],
+    )
+    bmd.add_boundary(
+        "patch",
+        "interface_sponge",
+        [
+            b3.face("s"),
+        ],
+    )
+    bmd.add_merge_patch_pairs("interface_sponge", "interface_top")
 
     return bmd.format()

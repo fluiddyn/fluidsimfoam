@@ -175,6 +175,30 @@ boundary
             (14 17 19 18)  // f-porosity-t (v-top-inlet-z v-top-outlet-z v-sponge-outlet-z v-sponge-inlet-z)
         );
     }
+    interface_top
+    {
+        type patch;
+        faces
+        (
+            (5 4 14 15)  // f-b-up_stream-n (v-top-hill_start-z0 v-top-inlet-z0 v-top-inlet-z v-top-hill_start-z)
+            (6 5 15 16)  // f-b-hill-n (v-top-hill_end-z0 v-top-hill_start-z0 v-top-hill_start-z v-top-hill_end-z)
+            (7 6 16 17)  // f-b-down_stream-n (v-top-outlet-z0 v-top-hill_end-z0 v-top-hill_end-z v-top-outlet-z)
+        );
+    }
+    interface_sponge
+    {
+        type patch;
+        faces
+        (
+            (4 7 17 14)  // f-porosity-s (v-top-inlet-z0 v-top-outlet-z0 v-top-outlet-z v-top-inlet-z)
+        );
+    }
 );
+
+mergePatchPairs
+(
+    (interface_sponge interface_top)  // (merge patch pairs: interface_sponge and interface_top)
+);
+
 
 // ************************************************************************* //
