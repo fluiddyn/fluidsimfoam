@@ -31,19 +31,17 @@ def make_spline_points_sin(nx, ny, z, lx, ly, h_max):
     return [Point(dot[0], dot[1], z) for dot in dots]
 
 
-def make_spline_points_gaussian(n_points, mu, sig, h, hill_start, z):
+def make_spline_points_gaussian(n_points, mu, sig, hill_height, hill_start, z):
     dx = (mu / n_points) * 2
     gauss = np.zeros((n_points + 1, 2))
+    x_dot = np.linspace(0, 2 * mu, n_points)
+    y_dot = np.exp(-np.power(x_dot - mu, 2.0) / (2 * np.power(sig, 2.0)))
 
-    for dot in range(n_points + 1):
-        x_dot = dot * dx
-        y_dot = np.exp(-np.power(x_dot - mu, 2.0) / (2 * np.power(sig, 2.0)))
-        gauss[dot, :] = [x_dot, y_dot]
+    x_dot *= hill_height
+    y_dot *= hill_height
+    x_dot += hill_start
 
-    gauss[:, :] = gauss[:, :] * h
-    gauss[:, 0] = gauss[:, 0] + hill_start
-
-    return [Point(dot[0], dot[1], z) for dot in gauss]
+    return [Point(x_dot[dot], y_dot[dot], z) for dot in range(n_points)]
 
 
 def make_code_sinus(bmd_params):
@@ -72,31 +70,49 @@ def make_code_sinus(bmd_params):
     ]
 
     for v in basevs:
-        bmd.add_vertex(v.x, v.y, 0, v.name + "-0")
+        bmd.add_vertex(v.x, v.y, 0, v.name + "-z0")
     for v in basevs:
-        bmd.add_vertex(v.x, v.y, v.z, v.name + "+z")
+        bmd.add_vertex(v.x, v.y, v.z, v.name + "-z")
 
     b0 = bmd.add_hexblock(
-        ("v-bot-inlet-0", "v-bot-outlet-0", "v-top-outlet-0", "v-top-inlet-0", "v-bot-inlet+z", "v-bot-outlet+z", "v-top-outlet+z", "v-top-inlet+z"),
+        (
+            "v-bot-inlet-z0",
+            "v-bot-outlet-z0",
+            "v-top-outlet-z0",
+            "v-top-inlet-z0",
+            "v-bot-inlet-z",
+            "v-bot-outlet-z",
+            "v-top-outlet-z",
+            "v-top-inlet-z",
+        ),
         (nx, ny, nz),
         "hill",
         SimpleGrading(1, [[0.1, 0.25, 41.9], [0.9, 0.75, 1]], 1),
     )
 
     b1 = bmd.add_hexblock(
-        ("v-top-inlet-0", "v-top-outlet-0", "v-sponge-outlet-0", "v-sponge-inlet-0", "v-top-inlet+z", "v-top-outlet+z", "v-sponge-outlet+z", "v-sponge-inlet+z"),
+        (
+            "v-top-inlet-z0",
+            "v-top-outlet-z0",
+            "v-sponge-outlet-z0",
+            "v-sponge-inlet-z0",
+            "v-top-inlet-z",
+            "v-top-outlet-z",
+            "v-sponge-outlet-z",
+            "v-sponge-inlet-z",
+        ),
         (nx, ny_porosity, nz),
         "porosity",
         SimpleGrading(1, 1, 1),
     )
 
     bmd.add_splineedge(
-        ["v-bot-inlet-0", "v-bot-outlet-0"],
+        ["v-bot-inlet-z0", "v-bot-outlet-z0"],
         "spline0",
         make_spline_points_sin(nx, ny, 0, lx, ly, h_max),
     )
     bmd.add_splineedge(
-        ["v-bot-inlet+z", "v-bot-outlet+z"],
+        ["v-bot-inlet-z", "v-bot-outlet-z"],
         "spline1",
         make_spline_points_sin(nx, ny, lz, lx, ly, h_max),
     )
@@ -125,12 +141,12 @@ def make_code_sinus(bmd_params):
 
 def make_code_2d_phill(bmd_params):
     mu = 5
-    sig = 1
-    n_points = 30
+    sig = 0.5
+    n_points = 50
 
-    h = 0.174
+    hill_height = 0.2
     hill_start = 0.6
-    hill_end = mu * 2 * h + hill_start
+    hill_end = mu * 2 * hill_height + hill_start
 
     nx = bmd_params.nx
     ny = bmd_params.ny
@@ -144,7 +160,7 @@ def make_code_2d_phill(bmd_params):
     ny_porosity = bmd_params.ny_porosity
 
     nx_up_stream = int(nx * hill_start / lx)
-    nx_hill = int(nx * 0.33)
+    nx_hill = int(nx * (hill_end - hill_start) / lx)
     nx_down_stream = nx - nx_hill - nx_up_stream
 
     x_expansion_ratio = 1
@@ -237,13 +253,17 @@ def make_code_2d_phill(bmd_params):
     bmd.add_splineedge(
         ["v-bot-hill_start-z0", "v-bot-hill_end-z0"],
         "spline-z0",
-        make_spline_points_gaussian(n_points, mu, sig, h, hill_start, 0),
+        make_spline_points_gaussian(
+            n_points, mu, sig, hill_height, hill_start, 0
+        ),
     )
 
     bmd.add_splineedge(
         ["v-bot-hill_start-z", "v-bot-hill_end-z"],
         "spline-z",
-        make_spline_points_gaussian(n_points, mu, sig, h, hill_start, lz),
+        make_spline_points_gaussian(
+            n_points, mu, sig, hill_height, hill_start, lz
+        ),
     )
 
     bmd.add_boundary("wall", "top", b3.face("n"))
