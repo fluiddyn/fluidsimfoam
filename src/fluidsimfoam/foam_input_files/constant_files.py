@@ -32,9 +32,19 @@ class ConstantFileHelper(FileHelper):
         self.doc = doc
         self.cls = cls
         self.dimension = dimension
+        self.name_params_child = _as_py_name(
+            self.file_name.replace("Properties", "")
+        )
 
     def complete_params(self, params):
-        _complete_params_dict(params, self.file_name, self.default, self.doc)
+        try:
+            constant_params = params["constant"]
+        except AttributeError:
+            constant_params = params._set_child("constant")
+
+        _complete_params_dict(
+            constant_params, self.name_params_child, self.default, self.doc
+        )
 
     def make_tree(self, params):
         tree = FoamInputFile(
@@ -51,7 +61,7 @@ class ConstantFileHelper(FileHelper):
         if self.dimension is not None:
             tree.set_child("dimensions", DimensionSet(self.dimension))
 
-        params_file = params[_as_py_name(self.file_name)]
+        params_file = params.constant[self.name_params_child]
 
         default = deepcopy(self.default)
         _update_dict_with_params(default, params_file)

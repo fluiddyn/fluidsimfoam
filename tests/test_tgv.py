@@ -160,3 +160,5 @@ def test_run_exec_async():
     field = sim.output.fields.read_field("U", time_approx="last")
     arr = field.get_array()
     assert isinstance(arr, np.ndarray)
+
+    sim.output.fields.get_saved_times()

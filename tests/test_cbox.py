@@ -17,9 +17,9 @@ def test_init_simul_sim0(index_sim):
     params.output.sub_directory = "tests_fluidsimfoam/cbox/sim0"
 
     if index_sim == 1:
-        params.transport_properties.nu = 0.002
+        params.constant.transport.nu = 0.002
     elif index_sim == 2:
-        params.transport_properties.nu = 0.003
+        params.constant.transport.nu = 0.003
 
     sim = Simul(params)
 
@@ -39,3 +39,5 @@ def test_run():
     df = get_dataframe_from_paths([sim.path_run])
     assert isinstance(df, pd.DataFrame)
     assert len(df.index) == 1
+
+    sim.output.fields.get_saved_times()

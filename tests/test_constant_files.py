@@ -44,9 +44,9 @@ def test_simple():
 
     params = Parameters("params")
     helper.complete_params(params)
-    assert params.twophase_ras_properties.sus == 0
+    assert params.constant.twophase_ras.sus == 0
 
-    params.twophase_ras_properties.sus = 1
+    params.constant.twophase_ras.sus = 1
     tree = helper.make_tree(params)
     assert tree.dump() == result
 
@@ -84,9 +84,9 @@ def test_with_list():
 
     params = Parameters("params")
     helper.complete_params(params)
-    assert params.force_properties.grad_pmean == [1000, 0, 0]
+    assert params.constant.force.grad_pmean == [1000, 0, 0]
 
-    params.force_properties.grad_pmean = [490.5, 0, 0]
+    params.constant.force.grad_pmean = [490.5, 0, 0]
     tree = helper.make_tree(params)
     assert tree.dump() == result_with_list
 
@@ -139,7 +139,7 @@ def test_with_dict():
 
     params = Parameters("params")
     helper.complete_params(params)
-    p_tp = params.turbulence_properties
+    p_tp = params.constant.turbulence
     assert p_tp.ras.twophase_mixing_length_coeffs.expo_lm == 1.5
 
     p_tp.ras.twophase_mixing_length_coeffs.expo_lm = 1.0
