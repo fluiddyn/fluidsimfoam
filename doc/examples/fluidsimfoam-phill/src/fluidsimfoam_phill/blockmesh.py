@@ -63,12 +63,12 @@ def make_code_sinus(bmd_params):
     bmd.set_scale(bmd_params.scale)
 
     basevs = [
-        Vertex(0, h_max, lz, "v0"),
-        Vertex(lx, h_max, lz, "v1"),
-        Vertex(lx, ly, lz, "v2"),
-        Vertex(lx, ly + ly_p, lz, "v3"),
-        Vertex(0, ly + ly_p, lz, "v4"),
-        Vertex(0, ly, lz, "v5"),
+        Vertex(0, h_max, lz, "v-bot-inlet"),
+        Vertex(lx, h_max, lz, "v-bot-outlet"),
+        Vertex(lx, ly, lz, "v-top-outlet"),
+        Vertex(lx, ly + ly_p, lz, "v-sponge-outlet"),
+        Vertex(0, ly + ly_p, lz, "v-sponge-inlet"),
+        Vertex(0, ly, lz, "v-top-inlet"),
     ]
 
     for v in basevs:
@@ -77,26 +77,26 @@ def make_code_sinus(bmd_params):
         bmd.add_vertex(v.x, v.y, v.z, v.name + "+z")
 
     b0 = bmd.add_hexblock(
-        ("v0-0", "v1-0", "v2-0", "v5-0", "v0+z", "v1+z", "v2+z", "v5+z"),
+        ("v-bot-inlet-0", "v-bot-outlet-0", "v-top-outlet-0", "v-top-inlet-0", "v-bot-inlet+z", "v-bot-outlet+z", "v-top-outlet+z", "v-top-inlet+z"),
         (nx, ny, nz),
-        "b0",
+        "hill",
         SimpleGrading(1, [[0.1, 0.25, 41.9], [0.9, 0.75, 1]], 1),
     )
 
     b1 = bmd.add_hexblock(
-        ("v5-0", "v2-0", "v3-0", "v4-0", "v5+z", "v2+z", "v3+z", "v4+z"),
+        ("v-top-inlet-0", "v-top-outlet-0", "v-sponge-outlet-0", "v-sponge-inlet-0", "v-top-inlet+z", "v-top-outlet+z", "v-sponge-outlet+z", "v-sponge-inlet+z"),
         (nx, ny_porosity, nz),
         "porosity",
         SimpleGrading(1, 1, 1),
     )
 
     bmd.add_splineedge(
-        ["v0-0", "v1-0"],
+        ["v-bot-inlet-0", "v-bot-outlet-0"],
         "spline0",
         make_spline_points_sin(nx, ny, 0, lx, ly, h_max),
     )
     bmd.add_splineedge(
-        ["v0+z", "v1+z"],
+        ["v-bot-inlet+z", "v-bot-outlet+z"],
         "spline1",
         make_spline_points_sin(nx, ny, lz, lx, ly, h_max),
     )

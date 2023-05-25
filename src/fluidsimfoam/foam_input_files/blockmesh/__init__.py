@@ -345,7 +345,7 @@ class BlockMeshDict:
         return b
 
     def add_merge_patch_pairs(self, boundary_name1, boundary_name2):
-        """Add 2 patchs boundaries
+        """Add 2 boundaries to merge
 
         Example
         -------
@@ -450,12 +450,14 @@ class BlockMeshDict:
         return "\n".join(tmp)
 
     def format_mergepatchpairs_section(self):
+        if not self.merge_patch_pairs:
+            return ""
         indent = " " * 4
         tmp = ["mergePatchPairs\n("]
         for b in self.merge_patch_pairs.values():
             tmp.append(indent + b.format())
         tmp.append(");")
-        return "\n".join(tmp)
+        return "\n" + "\n".join(tmp) + "\n"
 
     def format(self, header=DEFAULT_HEADER, sort_vortices=True):
         self.assign_vertexid(sort=sort_vortices)
@@ -479,9 +481,7 @@ $blocks
 $edges
 
 $boundary
-
 $mergepatchpairs
-
 // ************************************************************************* //
 """
         )

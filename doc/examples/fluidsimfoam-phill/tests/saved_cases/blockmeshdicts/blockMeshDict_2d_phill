@@ -200,5 +200,4 @@ mergePatchPairs
     (interface_sponge interface_top)  // (merge patch pairs: interface_sponge and interface_top)
 );
 
-
 // ************************************************************************* //
