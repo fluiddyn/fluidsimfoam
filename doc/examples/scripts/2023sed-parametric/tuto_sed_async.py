@@ -104,7 +104,8 @@ while not cond_statio and t_now < params.control_dict.end_time:
         execution_time = timedelta(seconds=time() - time_start)
         print(
             f"New saved time: {t_now}, condition: {percentage:2.3f} %, "
-            f"execution time: {execution_time}"
+            f"execution time: {execution_time}",
+            flush=True,
         )
         cond_statio = percentage < 2.0
 
