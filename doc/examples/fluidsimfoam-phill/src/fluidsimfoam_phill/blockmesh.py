@@ -19,26 +19,25 @@ def make_code_blockmesh(bmd_params):
     return func(bmd_params)
 
 
-def make_spline_points_sin(nx, ny, z, lx, ly, h_max):
-    dots = []
-    for dot in range(nx):
-        x_dot = dot * lx / (nx - 1)
-        y_dot = (h_max / 2) * (
-            1 - np.cos(2 * np.pi * min(abs((x_dot - (lx / 2)) / lx), 1))
+def make_spline_points_sin(nx, lx, h_max, z):
+    x_dot = np.linspace(0, lx, nx)
+    y_dot = []
+    for x in x_dot:
+        y_dot.append(
+            (h_max / 2)
+            * (1 - np.cos(2 * np.pi * min(abs((x - (lx / 2)) / lx), 1)))
         )
-        dots.append([x_dot, y_dot])
 
-    return [Point(dot[0], dot[1], z) for dot in dots]
+    return [Point(x_dot[dot], y_dot[dot], z) for dot in range(nx)]
 
 
-def make_spline_points_gaussian(n_points, mu, sig, hill_height, hill_start, z):
+def make_spline_points_gaussian(n_points, mu, sig, h_max, hill_start, z):
     dx = (mu / n_points) * 2
-    gauss = np.zeros((n_points + 1, 2))
     x_dot = np.linspace(0, 2 * mu, n_points)
     y_dot = np.exp(-np.power(x_dot - mu, 2.0) / (2 * np.power(sig, 2.0)))
 
-    x_dot *= hill_height
-    y_dot *= hill_height
+    x_dot *= h_max
+    y_dot *= h_max
     x_dot += hill_start
 
     return [Point(x_dot[dot], y_dot[dot], z) for dot in range(n_points)]
@@ -55,7 +54,11 @@ def make_code_sinus(bmd_params):
     lz = bmd_params.lz
     ly_p = bmd_params.ly_porosity
 
-    h_max = bmd_params.h_max
+    h_max = bmd_params.h_max  # hill height
+
+    x_expansion_ratio = 1
+    y_expansion_ratio = [[0.1, 0.25, 41.9], [0.9, 0.75, 1]]
+    z_expansion_ratio = 1
 
     bmd = BlockMeshDict()
     bmd.set_scale(bmd_params.scale)
@@ -87,7 +90,7 @@ def make_code_sinus(bmd_params):
         ),
         (nx, ny, nz),
         "hill",
-        SimpleGrading(1, [[0.1, 0.25, 41.9], [0.9, 0.75, 1]], 1),
+        SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
     )
 
     b1 = bmd.add_hexblock(
@@ -108,13 +111,13 @@ def make_code_sinus(bmd_params):
 
     bmd.add_splineedge(
         ["v-bot-inlet-z0", "v-bot-outlet-z0"],
-        "spline0",
-        make_spline_points_sin(nx, ny, 0, lx, ly, h_max),
+        "spline-z0",
+        make_spline_points_sin(nx, lx, h_max, 0),
     )
     bmd.add_splineedge(
         ["v-bot-inlet-z", "v-bot-outlet-z"],
-        "spline1",
-        make_spline_points_sin(nx, ny, lz, lx, ly, h_max),
+        "spline-z",
+        make_spline_points_sin(nx, lx, h_max, lz),
     )
 
     bmd.add_boundary("wall", "top", [b1.face("n")])
@@ -144,9 +147,9 @@ def make_code_2d_phill(bmd_params):
     sig = 0.5
     n_points = 50
 
-    hill_height = 0.2
+    h_max = 0.2
     hill_start = 0.6
-    hill_end = mu * 2 * hill_height + hill_start
+    hill_end = mu * 2 * h_max + hill_start
 
     nx = bmd_params.nx
     ny = bmd_params.ny
@@ -245,7 +248,7 @@ def make_code_2d_phill(bmd_params):
             "v-sponge-outlet-z",
             "v-sponge-inlet-z",
         ),
-        (nx, ny, nz),
+        (nx, int(ny * 0.5), nz),
         "porosity",
         SimpleGrading(1, 1, 1),
     )
@@ -253,17 +256,13 @@ def make_code_2d_phill(bmd_params):
     bmd.add_splineedge(
         ["v-bot-hill_start-z0", "v-bot-hill_end-z0"],
         "spline-z0",
-        make_spline_points_gaussian(
-            n_points, mu, sig, hill_height, hill_start, 0
-        ),
+        make_spline_points_gaussian(n_points, mu, sig, h_max, hill_start, 0),
     )
 
     bmd.add_splineedge(
         ["v-bot-hill_start-z", "v-bot-hill_end-z"],
         "spline-z",
-        make_spline_points_gaussian(
-            n_points, mu, sig, hill_height, hill_start, lz
-        ),
+        make_spline_points_gaussian(n_points, mu, sig, h_max, hill_start, lz),
     )
 
     bmd.add_boundary("wall", "top", b3.face("n"))

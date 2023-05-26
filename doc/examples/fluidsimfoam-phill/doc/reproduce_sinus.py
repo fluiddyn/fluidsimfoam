@@ -13,14 +13,17 @@ params.control_dict.end_time = 1200000
 params.control_dict.delta_t = 10
 
 params.block_mesh_dict.lx = 2000
-params.block_mesh_dict.ly = 5000
+params.block_mesh_dict.ly = 2000
+params.block_mesh_dict.ly_porosity = 3000
 params.block_mesh_dict.nx = 20
 params.block_mesh_dict.ny = 50
+params.block_mesh_dict.ny_porosity = 20
 params.block_mesh_dict.h_max = 80
 
 params.fv_options.momentum_source.active = True
 params.fv_options.momentum_source.ubar = "(0.1 0 0)"
 params.fv_options.atm_coriolis_u_source.active = True
+params.fv_options.porosity.active = True
 
 sim = Simul(params)
 

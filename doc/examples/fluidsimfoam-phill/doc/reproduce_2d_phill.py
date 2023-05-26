@@ -9,9 +9,9 @@ params.init_fields.buoyancy_frequency = 0.001
 params.transport_properties.nu = 0.01
 params.transport_properties.pr = 10
 
-params.control_dict.end_time = 120000
+params.control_dict.end_time = 86000
 params.control_dict.delta_t = 10
-params.control_dict.write_interval = 1000
+params.control_dict.write_interval = 5000
 
 params.block_mesh_dict.geometry = "2d_phill"
 params.block_mesh_dict.lx = 6
