@@ -1,0 +1,14 @@
+
+from fluidsimfoam.output import Output
+
+
+class Output$suffix_for_class(Output):
+
+    name_variables = $name_variables
+    name_system_files = $name_system_files
+    name_constant_files = $name_constant_files
+
+    _helper_control_dict = None
+    # _helper_control_dict = Output._helper_control_dict.new()
+
+    _helper_turbulence_properties = None

@@ -35,6 +35,7 @@ from .parser import dump, parse
 __all__ = [
     "parse",
     "dump",
+    "create_field_from_code",
     "FoamInputFile",
     "DEFAULT_HEADER",
     "ControlDictHelper",
@@ -115,6 +116,18 @@ from .blockmesh import BlockMeshDict, BlockMeshDictRectilinear, Vertex
 from .constant_files import ConstantFileHelper
 from .control_dict import ControlDictHelper
 from .decompose_par import DecomposeParDictHelper
-from .fields import VolScalarField, VolVectorField, read_field_file
+from .fields import (
+    VolScalarField,
+    VolVectorField,
+    create_field_from_code,
+    read_field_file,
+)
 from .fv_options import FvOptionsHelper
 from .fv_schemes import FvSchemesHelper
+
+
+def format_code(code, as_field=False):
+    if not as_field:
+        return dump(parse(code))
+    else:
+        return create_field_from_code(code).dump()
