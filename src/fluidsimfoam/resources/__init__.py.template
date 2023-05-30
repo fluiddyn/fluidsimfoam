@@ -1,0 +1,19 @@
+from fluidsimfoam.info import InfoSolver
+from fluidsimfoam.solvers.base import SimulFoam
+
+__all__ = ["Simul"]
+
+
+class InfoSolver$suffix_for_class(InfoSolver):
+    def _init_root(self):
+        super()._init_root()
+        self.module_name = "$name_package"
+        self.class_name = "Simul"
+        self.short_name = "$name_short"
+
+        self.classes.Output.module_name = "$name_package.output"
+        self.classes.Output.class_name = "Output$suffix_for_class"
+
+
+class Simul(SimulFoam):
+    InfoSolver = InfoSolver$suffix_for_class

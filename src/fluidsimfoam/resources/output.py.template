@@ -1,0 +1,7 @@
+
+from fluidsimfoam.output import Output
+
+
+class Output$suffix_for_class(Output):
+
+    _helper_control_dict = Output._helper_control_dict.new()

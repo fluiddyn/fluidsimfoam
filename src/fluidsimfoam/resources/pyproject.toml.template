@@ -1,0 +1,23 @@
+[build-system]
+requires = [
+    "setuptools>=49.5.0",
+    "wheel",
+    ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "$name_project"
+authors = [
+    {name = "$author"},
+]
+description = "???"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "BSD-3-Clause"}
+version = "0.0.1"
+dependencies = [
+    "fluidsimfoam >= $fluidsimfoam_version",
+]
+
+[project.entry-points."fluidsimfoam.solvers"]
+tgv = "$name_package"
