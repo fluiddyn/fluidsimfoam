@@ -10,26 +10,37 @@ from fluidsimfoam.output import Output
 from .blockmesh import make_code_blockmesh
 
 
-def add_default_boundaries(field):
-    for name, type_ in (
-        ("inlet", "cyclic"),
-        ("outlet", "cyclic"),
-        ("top", "zeroGradient"),
-        ("bottom", "zeroGradient"),
-        ("frontAndBackPlanes", "empty"),
-    ):
-        field.set_boundary(name, type_)
+def add_default_boundaries(field, params):
+    if params.block_mesh_dict.geometry is not "3d_phill":
+        for name, type_ in (
+            ("inlet", "cyclic"),
+            ("outlet", "cyclic"),
+            ("top", "zeroGradient"),
+            ("bottom", "zeroGradient"),
+            ("frontAndBackPlanes", "empty"),
+        ):
+            field.set_boundary(name, type_)
+    else:
+        for name, type_ in (
+            ("inlet", "cyclic"),
+            ("outlet", "cyclic"),
+            ("top", "cyclic"),
+            ("bottom", "cyclic"),
+            ("front", "cyclic"),
+            ("back", "cyclic"),
+        ):
+            field.set_boundary(name, type_)
 
 
-def make_scalar_field(name, dimension, values=None):
+def make_scalar_field(name, params, dimension, values=None):
     field = VolScalarField(name, dimension, values=values)
-    add_default_boundaries(field)
+    add_default_boundaries(field, params)
     return field
 
 
-def make_vector_field(name, dimension, values=None):
+def make_vector_field(name, params, dimension, values=None):
     field = VolVectorField(name, dimension, values=values)
-    add_default_boundaries(field)
+    add_default_boundaries(field, params)
     return field
 
 
@@ -155,6 +166,7 @@ class OutputPHill(Output):
                 "nx": 20,
                 "ny": 50,
                 "nz": 1,
+                "nz_p": 0,
                 "ny_porosity": 10,
                 "h_max": 80,
                 "ly_porosity": 3000,
@@ -170,13 +182,15 @@ class OutputPHill(Output):
         return make_code_blockmesh(params.block_mesh_dict)
 
     def _make_tree_alphat(self, params):
-        return make_scalar_field("alphat", dimension="m^2/s", values=0)
+        return make_scalar_field("alphat", params, dimension="m^2/s", values=0)
 
     def _make_tree_p_rgh(self, params):
-        return make_scalar_field("p_rgh", dimension="m^2/s^2", values=0)
+        return make_scalar_field("p_rgh", params, dimension="m^2/s^2", values=0)
 
     def _make_tree_u(self, params):
-        field = make_vector_field("U", dimension="m/s", values=[0.1, 0, 0])
+        field = make_vector_field(
+            "U", params, dimension="m/s", values=[0.1, 0, 0]
+        )
         field.set_boundary("top", "slip")
         field.set_boundary("bottom", "noSlip")
         return field
@@ -190,7 +204,7 @@ class OutputPHill(Output):
         )
 
     def _make_tree_t(self, params):
-        field = make_scalar_field("T", dimension="K")
+        field = make_scalar_field("T", params, dimension="K")
 
         x, y, z = self.sim.oper.get_cells_coords()
         N = params.init_fields.buoyancy_frequency
