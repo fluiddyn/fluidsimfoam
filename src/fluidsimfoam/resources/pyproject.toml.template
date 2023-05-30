@@ -20,4 +20,4 @@ dependencies = [
 ]
 
 [project.entry-points."fluidsimfoam.solvers"]
-tgv = "$name_package"
+$name_short = "$name_package"

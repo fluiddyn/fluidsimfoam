@@ -215,3 +215,30 @@ def read_field_file(path):
     cls = classes[cls]
 
     return cls.from_path(path)
+
+
+def _isplit(source, sep="\n"):
+    sepsize = len(sep)
+    start = 0
+    while True:
+        idx = source.find(sep, start)
+        if idx == -1:
+            yield source[start:]
+            return
+        yield source[start:idx]
+        start = idx + sepsize
+
+
+def create_field_from_code(code):
+    for line in _isplit(code):
+        line = line.strip()
+        if line.startswith("class "):
+            cls = line.split()[-1][:-1]
+            break
+
+    if cls is None:
+        raise RuntimeError(f"no class found for this code: {code[:500] = }")
+
+    cls = classes[cls]
+
+    return cls.from_code(code)

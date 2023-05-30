@@ -45,6 +45,8 @@ start_ipython_load_sim = partial(
 
 
 def initiate_solver():
+    from fluidsimfoam.foam_input_files import format_code
+
     parser = argparse.ArgumentParser(
         prog="fluidsimfoam-initiate-solver",
         description="Initiate a new solver",
@@ -64,6 +66,9 @@ def initiate_solver():
     if args.from_case is None and args.from_solver is None:
         print("You should at least provide a case (-c) or a solver (-s)")
         sys.exit(1)
+
+    if args.from_solver is not None:
+        raise NotImplementedError("Sorry, option -s is not yet implemented...")
 
     if args.from_case is not None:
         path_case = Path(args.from_case)
@@ -85,7 +90,7 @@ def initiate_solver():
         print(f"{path_result} already exists.")
         sys.exit(1)
 
-    print("Let's initiate the solver " f"{name_project} in {path_destination}")
+    print(f"Let's initiate the solver {path_result}")
 
     if args.from_case is not None:
         print(f"Using case {path_case}")
@@ -116,18 +121,21 @@ def initiate_solver():
         "name_package": name_package,
         "fluidsimfoam_version": fluidsimfoam_version,
         "suffix_for_class": camelize(args.name),
+        "name_variables": str(name_files["0"]),
+        "name_system_files": str(name_files["system"]),
+        "name_constant_files": str(name_files["constant"]),
     }
 
     templates = {}
 
     for name in ["LICENSE", "README.md", "pyproject.toml"]:
-        suffix_path = name
-        templates[suffix_path] = name + ".template"
+        relative_path = name
+        templates[relative_path] = name + ".template"
 
     path_package = path_result / f"src/{name_package}"
     for name in ["__init__.py", "output.py", "tasks.py"]:
-        suffix_path = path_package / name
-        templates[suffix_path] = name + ".template"
+        relative_path = path_package / name
+        templates[relative_path] = name + ".template"
 
     path_templates = path_package / "templates"
     path_templates.mkdir(parents=True)
@@ -140,15 +148,47 @@ def initiate_solver():
         path_tests / f"test_{suffix_for_module}.py"
     ] = "test_generated_solver.py.template"
 
-    for suffix_path, template in templates.items():
+    for relative_path, template in templates.items():
         template_res = resources.files("fluidsimfoam.resources").joinpath(
             template
         )
         with resources.as_file(template_res) as path:
             code = path.read_text()
         code = Template(code).substitute(substitutions)
-        with open(path_result / suffix_path, "w") as file:
+        with open(path_result / relative_path, "w") as file:
             file.write(code)
 
     path_saved_case = path_tests / "saved_cases/case0"
     path_saved_case.mkdir(parents=True)
+
+    for name_dir, path_files_dir in path_files.items():
+        as_field = name_dir == "0"
+        path_dir_saved_case = path_saved_case / name_dir
+        path_dir_saved_case.mkdir()
+
+        for path_file in path_files_dir:
+            code = path_file.read_text()
+            code = format_code(code, as_field=as_field)
+
+            relative_path = path_file.relative_to(path_case)
+            (path_saved_case / relative_path).write_text(code)
+            (path_templates / (relative_path.name + ".jinja")).write_text(code)
+
+    print(
+        f"""
+
+New solver {name_project} created! You can now install and test it to check if
+it reproduces your initial case.
+
+```
+cd {path_result}
+pip install -e .
+pytest tests
+```
+
+You can then improve your fluidsimfoam solver by modifying its files
+(especially the file src/{name_package}/output.py). Examples can be found in
+https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples
+
+    """
+    )

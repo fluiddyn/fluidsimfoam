@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fluidsimfoam_sed import Simul
+from $name_package import Simul
 
 from fluidsimfoam.testing import check_saved_case
 
