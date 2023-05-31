@@ -102,6 +102,8 @@ def initiate_solver():
             path_files[name_dir] = sorted(
                 path.relative_to(path_case)
                 for path in path_case.glob(name_dir + "/*")
+                # directories are not supported...
+                if path.is_file()
             )
 
         paths_orig = path_files.pop("0.orig")
