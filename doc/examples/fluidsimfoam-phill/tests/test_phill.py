@@ -2,7 +2,11 @@ from pathlib import Path
 
 import pytest
 from fluidsimfoam_phill import Simul
-from fluidsimfoam_phill.blockmesh import make_code_2d_phill, make_code_sinus
+from fluidsimfoam_phill.blockmesh import (
+    make_code_2d_phill,
+    make_code_sinus,
+    make_code_3d_phill,
+)
 
 from fluidsimfoam.foam_input_files import dump, parse
 from fluidsimfoam.testing import check_saved_case, skipif_executable_not_available
@@ -34,7 +38,7 @@ path_data = Path(__file__).absolute().parent / "saved_cases"
 
 @pytest.mark.parametrize(
     "name",
-    ["sinus", "2d_phill"],
+    ["sinus", "2d_phill", "3d_phill"],
 )
 def test_blockmesh(name):
     params = Simul.create_default_params()
@@ -52,8 +56,18 @@ def test_blockmesh(name):
         params.block_mesh_dict.ly = 1
         params.block_mesh_dict.lz = 0.01
         params.block_mesh_dict.ly_porosity = 1
-
         path_saved_file = path_data / "blockmeshdicts/blockMeshDict_2d_phill"
+    elif name == "3d_phill":
+        params.block_mesh_dict.nx = 20
+        params.block_mesh_dict.ny = 20
+        params.block_mesh_dict.nz = 20
+        params.block_mesh_dict.nz_p = 10
+        params.block_mesh_dict.lx = 10
+        params.block_mesh_dict.ly = 10
+        params.block_mesh_dict.lz = 10
+        params.block_mesh_dict.h_max = 3
+        params.block_mesh_dict.ly_porosity = 10
+        path_saved_file = path_data / "blockmeshdicts/blockMeshDict_3d_phill"
 
     make_blockmesh = globals()["make_code_" + name]
     code_from_py = make_blockmesh(params.block_mesh_dict)
