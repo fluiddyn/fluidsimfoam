@@ -7,7 +7,7 @@ paths = sorted(path_root.glob("sed_*"))
 
 def customize(result, sim):
     result["nz"] = sim.params.block_mesh_dict.nz
-    result["radius"] = sim.params.constant.transport.phasea.d
+    result["diameter"] = sim.params.constant.transport.phasea.d
     time, residual = sim.output.log.get_last_residual()
     result["last_time"] = time
     result["last_residual"] = residual
@@ -16,4 +16,4 @@ def customize(result, sim):
 df = get_dataframe_from_paths(paths, customize=customize)
 
 print(df)
-# df.plot(x="radius", y="last_residual")
+# df.plot(x="diameter", y="last_residual")

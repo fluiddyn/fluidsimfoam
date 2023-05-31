@@ -15,14 +15,14 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("-p", "--plot", action="store_true")
 parser.add_argument("-np", "--nprocs", default=1, type=int)
-parser.add_argument("--radius", default=0.006, type=float)
+parser.add_argument("--diameter", default=0.006, type=float)
 parser.add_argument("--end-time", default=20.0, type=float)
 
 args = parser.parse_args()
 
 params = Simul.create_default_params()
 params.output.sub_directory = "sedFoam/bedload1d"
-params.short_name_type_run = f"radius{args.radius}"
+params.short_name_type_run = f"diameter{args.diameter}"
 
 params.control_dict.write_interval = 0.5
 params.control_dict.end_time = args.end_time
@@ -31,7 +31,7 @@ params.parallel.nsubdoms = args.nprocs
 params.parallel.method = "simple"
 params.parallel.nsubdoms_xyz = [1, 1, args.nprocs]
 
-params.constant.transport.phasea.d = args.radius
+params.constant.transport.phasea.d = args.diameter
 
 sim = Simul(params)
 
@@ -71,7 +71,7 @@ if args.plot:
     ax1.set_ylabel("residuals p_rbgh")
 
     ax0.axvline(gradp, c="r")
-    (line,) = ax0.plot(grad_tau, y)
+    (line,) = ax0.plot(-0.5 * grad_tau, y)
     ax0.set_title(f"t = {t_now}")
 
     ax1.plot(*sim.output.log.get_last_residual(), "x")
