@@ -190,7 +190,7 @@ it reproduces your initial case.
 ```
 cd {path_result}
 pip install -e .
-pytest tests
+pytest tests -vv
 ```
 
 You can then improve your fluidsimfoam solver by modifying its files
