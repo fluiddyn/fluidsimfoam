@@ -47,7 +47,7 @@ class ControlDictHelper(FileHelper):
     def __init__(self, default=None):
         self.default_control_dict_params = DEFAULT_CONTROL_DICT.copy()
         if default is not None:
-            self.default_control_dict_params.update(default)
+            self.default_control_dict_params.update(as_dict(default))
 
         self.functions = {}
         self.functions_included = {}
@@ -74,8 +74,10 @@ class ControlDictHelper(FileHelper):
         )
 
         data = {}
-        for name in self.functions_included.keys():
-            data["#includeFunc " + name] = None
+        for name, kind in self.functions_included.items():
+            if kind is None:
+                kind = "#includeFunc"
+            data[f"{kind} {name}"] = None
         for name, function in self.functions.items():
             data[name] = function.make_dict()
         if data:
@@ -89,9 +91,9 @@ class ControlDictHelper(FileHelper):
     def add_function(self, key, type, libs, entries=None):
         self.functions[key] = Function(type, libs, entries)
 
-    def include_function(self, name):
-        self.functions_included[name] = None
+    def include_function(self, name, kind=None):
+        self.functions_included[name] = kind
 
-    def include_functions(self, names):
+    def include_functions(self, names, kind=None):
         for name in names:
-            self.include_function(name)
+            self.include_function(name, kind)
