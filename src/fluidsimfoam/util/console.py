@@ -77,7 +77,7 @@ def initiate_solver():
             sys.exit(1)
 
     if args.destination is not None:
-        path_destination = Path(args.destination)
+        path_destination = Path(args.destination).resolve()
     else:
         path_destination = path_dir_results
 
@@ -99,11 +99,14 @@ def initiate_solver():
         name_files = {}
 
         for name_dir in ("system", "constant", "0", "0.orig"):
-            path_files[name_dir] = sorted(path_case.glob(name_dir + "/*"))
+            path_files[name_dir] = sorted(
+                path.relative_to(path_case)
+                for path in path_case.glob(name_dir + "/*")
+            )
 
-        path_orig = path_files.pop("0.orig")
-        if path_orig:
-            path_files["0"] = path_orig
+        paths_orig = path_files.pop("0.orig")
+        if paths_orig:
+            path_files["0"] = paths_orig
 
         for name_dir in path_files.keys():
             name_files[name_dir] = [p.name for p in path_files[name_dir]]
@@ -155,8 +158,7 @@ def initiate_solver():
         with resources.as_file(template_res) as path:
             code = path.read_text()
         code = Template(code).substitute(substitutions)
-        with open(path_result / relative_path, "w") as file:
-            file.write(code)
+        (path_result / relative_path).write_text(code)
 
     path_saved_case = path_tests / "saved_cases/case0"
     path_saved_case.mkdir(parents=True)
@@ -166,11 +168,16 @@ def initiate_solver():
         path_dir_saved_case = path_saved_case / name_dir
         path_dir_saved_case.mkdir()
 
-        for path_file in path_files_dir:
-            code = path_file.read_text()
+        for relative_path in path_files_dir:
+            code = (path_case / relative_path).read_text()
             code = format_code(code, as_field=as_field)
 
-            relative_path = path_file.relative_to(path_case)
+            if name_dir == "0":
+                parts = list(relative_path.parts)
+                if parts[0] == "0.orig":
+                    parts[0] = "0"
+                    relative_path = Path(*parts)
+
             (path_saved_case / relative_path).write_text(code)
             (path_templates / (relative_path.name + ".jinja")).write_text(code)
 
@@ -183,7 +190,7 @@ it reproduces your initial case.
 ```
 cd {path_result}
 pip install -e .
-pytest tests
+pytest tests -vv
 ```
 
 You can then improve your fluidsimfoam solver by modifying its files

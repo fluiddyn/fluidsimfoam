@@ -9,6 +9,9 @@ class Output$suffix_for_class(Output):
     name_constant_files = $name_constant_files
 
     _helper_control_dict = None
+    # can be replaced by:
     # _helper_control_dict = Output._helper_control_dict.new()
 
+    # remove these lines to get fluidsimfoam default helpers
+    _helper_decompose_par_dict = None
     _helper_turbulence_properties = None
