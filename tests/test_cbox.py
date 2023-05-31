@@ -1,3 +1,4 @@
+from inspect import getmodule
 from pathlib import Path
 
 import pandas as pd
@@ -20,6 +21,17 @@ def test_init_simul_sim0(index_sim):
         params.constant.transport.nu = 0.002
     elif index_sim == 2:
         params.constant.transport.nu = 0.003
+    else:
+        # testing params.output.resources
+        mod = getmodule(Simul)
+        templates_dir = Path(mod.__file__).absolute().parent / "templates"
+
+        params.resources = [
+            templates_dir,
+            templates_dir / "epsilon.jinja",
+            str(templates_dir / "k.jinja") + " -> 0",
+            f"{templates_dir} -> system",
+        ]
 
     sim = Simul(params)
 
@@ -27,6 +39,13 @@ def test_init_simul_sim0(index_sim):
     check_saved_case(
         path_saved_case, sim.path_run, files_compare_tree=["blockMeshDict"]
     )
+
+    if index_sim == 0:
+        # testing params.output.resources
+        assert (sim.path_run / "templates/p_rgh.jinja").exists()
+        assert (sim.path_run / "epsilon.jinja").exists()
+        assert (sim.path_run / "0/k.jinja").exists()
+        assert (sim.path_run / "system/templates/epsilon.jinja").exists()
 
 
 @skipif_executable_not_available("buoyantBoussinesqPimpleFoam")

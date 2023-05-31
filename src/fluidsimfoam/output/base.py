@@ -1,6 +1,7 @@
 """Base output class"""
 
 import inspect
+import os
 import shutil
 import textwrap
 from pathlib import Path
@@ -94,7 +95,9 @@ class Output(OutputCore):
         )
 
         # Bare minimum
-        params._set_attribs(dict(NEW_DIR_RESULTS=True, short_name_type_run="run"))
+        params._set_attribs(
+            dict(NEW_DIR_RESULTS=True, short_name_type_run="run", resources=None)
+        )
         params._set_child(
             "output", attribs={"HAS_TO_SAVE": True, "sub_directory": ""}
         )
@@ -209,12 +212,14 @@ class Output(OutputCore):
         logger.info(self.sim._objects_to_print)
 
         # Write input files of the simulation
-        if (
+        if not (
             mpi.rank == 0
             and self._has_to_save
             and self.sim.params.NEW_DIR_RESULTS
         ):
-            self._post_init_create_additional_source_files()
+            return
+
+        self._post_init_create_additional_source_files()
 
         # OpenFOAM cleanup removes .xml files!
         path_run = Path(self.path_run)
@@ -225,6 +230,30 @@ class Output(OutputCore):
             if path_new.exists():
                 continue
             shutil.copy(path_run / file_name, path_new)
+
+        # copy resources
+        resources = self.sim.params.resources
+        if resources is not None:
+            if isinstance(resources, str):
+                resources = [resources]
+
+            for resource in resources:
+                resource = str(resource)
+                if "->" in resource:
+                    resource, relative_path = resource.split("->")
+                    destination = path_run / relative_path.strip()
+                    resource = resource.strip()
+                else:
+                    destination = path_run
+                resource = Path(os.path.expandvars(resource)).expanduser()
+                if resource.is_file():
+                    shutil.copy(resource, destination)
+                elif resource.is_dir():
+                    shutil.copytree(resource, destination / resource.name)
+                else:
+                    raise NotImplementedError(
+                        f"{resource = }, {resource.exists() = }"
+                    )
 
     def _post_init_create_additional_source_files(self):
         """Create the files from their template"""
