@@ -4,8 +4,8 @@ import pytest
 from fluidsimfoam_phill import Simul
 from fluidsimfoam_phill.blockmesh import (
     make_code_2d_phill,
-    make_code_sinus,
     make_code_3d_phill,
+    make_code_sinus,
 )
 
 from fluidsimfoam.foam_input_files import dump, parse

@@ -42,22 +42,24 @@ def make_spline_points_gaussian(n_points, mu, sig, h_max, hill_start, z):
     return [Point(x_dot[dot], y_dot[dot], z) for dot in range(n_points)]
 
 
-def make_spline_points_half_gaussian(n_points, length, sig, h_max, direction):
-    mu = length
+def make_spline_points_half_gaussian(
+    n_points, length, mu, sig, h_max, hill_start, offset, direction
+):
     x_dot = np.linspace(0, length, n_points)
     y_dot = np.exp(-np.power(x_dot - mu, 2.0) / (2 * np.power(sig, 2.0)))
     x_dot = np.flip(x_dot)
 
     y_dot *= 1 / np.max(y_dot) * h_max
+    x_dot += hill_start
 
     if direction == "north":
-        return [Point(0, -x_dot[dot], y_dot[dot]) for dot in range(n_points)]
+        return [Point(offset, -x_dot[dot], y_dot[dot]) for dot in range(n_points)]
     elif direction == "west":
-        return [Point(x_dot[dot], 0, y_dot[dot]) for dot in range(n_points)]
+        return [Point(x_dot[dot], offset, y_dot[dot]) for dot in range(n_points)]
     elif direction == "south":
-        return [Point(0, x_dot[dot], y_dot[dot]) for dot in range(n_points)]
+        return [Point(offset, x_dot[dot], y_dot[dot]) for dot in range(n_points)]
     elif direction == "east":
-        return [Point(-x_dot[dot], 0, y_dot[dot]) for dot in range(n_points)]
+        return [Point(-x_dot[dot], offset, y_dot[dot]) for dot in range(n_points)]
 
 
 def make_code_sinus(bmd_params):
@@ -435,108 +437,83 @@ def make_code_3d_phill(bmd_params):
     b4 = bmd.add_hexblock(
         (
             "v-sw-z",
-            "v-s-z",
-            "v-c-z",
-            "v-w-z",
-            "v-sw-sponge",
-            "v-s-sponge",
-            "v-c-sponge",
-            "v-w-sponge",
-        ),
-        (nx, ny, nz_p),
-        "sponge-sw",
-        SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
-    )
-
-    b5 = bmd.add_hexblock(
-        (
-            "v-s-z",
             "v-se-z",
-            "v-e-z",
-            "v-c-z",
-            "v-s-sponge",
-            "v-se-sponge",
-            "v-e-sponge",
-            "v-c-sponge",
-        ),
-        (nx, ny, nz_p),
-        "sponge-se",
-        SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
-    )
-
-    b6 = bmd.add_hexblock(
-        (
-            "v-c-z",
-            "v-e-z",
             "v-ne-z",
-            "v-n-z",
-            "v-c-sponge",
-            "v-e-sponge",
-            "v-ne-sponge",
-            "v-n-sponge",
-        ),
-        (nx, ny, nz_p),
-        "sponge-ne",
-        SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
-    )
-
-    b7 = bmd.add_hexblock(
-        (
-            "v-w-z",
-            "v-c-z",
-            "v-n-z",
             "v-nw-z",
-            "v-w-sponge",
-            "v-c-sponge",
-            "v-n-sponge",
+            "v-sw-sponge",
+            "v-se-sponge",
+            "v-ne-sponge",
             "v-nw-sponge",
         ),
-        (nx, ny, nz_p),
-        "sponge-nw",
+        (2 * nx, 2 * ny, nz_p),
+        "porosity",
         SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
     )
 
     bmd.add_splineedge(
         ["v-s-z0", "v-c-z0"],
         "spline-s",
-        make_spline_points_half_gaussian(n_points, ly / 2, sig, h_max, "north"),
+        make_spline_points_half_gaussian(
+            n_points, ly / 2, ly / 2, sig, h_max, 0, 0, "north"
+        ),
     )
 
     bmd.add_splineedge(
         ["v-e-z0", "v-c-z0"],
         "spline-e",
-        make_spline_points_half_gaussian(n_points, lx / 2, sig, h_max, "west"),
+        make_spline_points_half_gaussian(
+            n_points, lx / 2, lx / 2, sig, h_max, 0, 0, "west"
+        ),
     )
 
     bmd.add_splineedge(
         ["v-n-z0", "v-c-z0"],
         "spline-n",
-        make_spline_points_half_gaussian(n_points, ly / 2, sig, h_max, "south"),
+        make_spline_points_half_gaussian(
+            n_points, ly / 2, ly / 2, sig, h_max, 0, 0, "south"
+        ),
     )
 
     bmd.add_splineedge(
         ["v-w-z0", "v-c-z0"],
         "spline-w",
-        make_spline_points_half_gaussian(n_points, lx / 2, sig, h_max, "east"),
+        make_spline_points_half_gaussian(
+            n_points, lx / 2, lx / 2, sig, h_max, 0, 0, "east"
+        ),
     )
 
-    bmd.add_boundary(
-        "wall", "top", [b4.face("t"), b5.face("t"), b6.face("t"), b7.face("t")]
-    )
+    bmd.add_boundary("wall", "top", [b4.face("t")])
     bmd.add_boundary(
         "wall", "bottom", [b0.face("b"), b1.face("b"), b2.face("b"), b3.face("b")]
     )
     bmd.add_cyclic_boundaries(
         "outlet",
         "inlet",
-        [b1.face("e"), b2.face("e"), b5.face("e"), b6.face("e")],
-        [b0.face("w"), b3.face("w"), b4.face("w"), b7.face("w")],
+        [b1.face("e"), b2.face("e"), b4.face("e")],
+        [b0.face("w"), b3.face("w"), b4.face("w")],
     )
     bmd.add_cyclic_boundaries(
         "front",
         "back",
-        [b0.face("s"), b1.face("s"), b4.face("s"), b5.face("s")],
-        [b2.face("n"), b3.face("n"), b6.face("n"), b7.face("n")],
+        [b0.face("s"), b1.face("s"), b4.face("s")],
+        [b2.face("n"), b3.face("n"), b4.face("n")],
     )
-
+    bmd.add_boundary(
+        "patch",
+        "interface_top",
+        [
+            b0.face("t"),
+            b1.face("t"),
+            b2.face("t"),
+            b3.face("t"),
+        ],
+    )
+    bmd.add_boundary(
+        "patch",
+        "interface_sponge",
+        [
+            b4.face("b"),
+        ],
+    )
+    bmd.add_merge_patch_pairs("interface_sponge", "interface_top")
     return bmd.format(sort_vortices="as_added")

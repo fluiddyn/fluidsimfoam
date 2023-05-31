@@ -11,7 +11,7 @@ from .blockmesh import make_code_blockmesh
 
 
 def add_default_boundaries(field, params):
-    if params.block_mesh_dict.geometry is not "3d_phill":
+    if params.block_mesh_dict.geometry != "3d_phill":
         for name, type_ in (
             ("inlet", "cyclic"),
             ("outlet", "cyclic"),
@@ -24,8 +24,8 @@ def add_default_boundaries(field, params):
         for name, type_ in (
             ("inlet", "cyclic"),
             ("outlet", "cyclic"),
-            ("top", "cyclic"),
-            ("bottom", "cyclic"),
+            ("top", "zeroGradient"),
+            ("bottom", "zeroGradient"),
             ("front", "cyclic"),
             ("back", "cyclic"),
         ):
@@ -209,6 +209,9 @@ class OutputPHill(Output):
         x, y, z = self.sim.oper.get_cells_coords()
         N = params.init_fields.buoyancy_frequency
         T0 = params.init_fields.T0
-        field.set_values(T0 + (N**2) / 9.81 * y)
+        if params.block_mesh_dict.geometry != "3d_phill":
+            field.set_values(T0 + (N**2) / 9.81 * y)
+        else:
+            field.set_values(T0 + (N**2) / 9.81 * z)
 
         return field

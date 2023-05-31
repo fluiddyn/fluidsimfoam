@@ -37,14 +37,9 @@ vertices
     ( -5  0  10 )  // 16 v-w-z
     (  0  0  10 )  // 17 v-c-z
     ( -5 -5  20 )  // 18 v-sw-sponge
-    (  0 -5  20 )  // 19 v-s-sponge
-    (  5 -5  20 )  // 20 v-se-sponge
-    (  5  0  20 )  // 21 v-e-sponge
-    (  5  5  20 )  // 22 v-ne-sponge
-    (  0  5  20 )  // 23 v-n-sponge
-    ( -5  5  20 )  // 24 v-nw-sponge
-    ( -5  0  20 )  // 25 v-w-sponge
-    (  0  0  20 )  // 26 v-c-sponge
+    (  5 -5  20 )  // 19 v-se-sponge
+    (  5  5  20 )  // 20 v-ne-sponge
+    ( -5  5  20 )  // 21 v-nw-sponge
 );
 
 blocks
@@ -53,10 +48,7 @@ blocks
     hex (1 2 3 8 10 11 12 17) se (20 20 20) simpleGrading (1 1 1.1)  // se (v-s-z0 v-se-z0 v-e-z0 v-c-z0 v-s-z v-se-z v-e-z v-c-z)
     hex (8 3 4 5 17 12 13 14) ne (20 20 20) simpleGrading (1 1 1.1)  // ne (v-c-z0 v-e-z0 v-ne-z0 v-n-z0 v-c-z v-e-z v-ne-z v-n-z)
     hex (7 8 5 6 16 17 14 15) nw (20 20 20) simpleGrading (1 1 1.1)  // nw (v-w-z0 v-c-z0 v-n-z0 v-nw-z0 v-w-z v-c-z v-n-z v-nw-z)
-    hex (9 10 17 16 18 19 26 25) sponge-sw (20 20 10) simpleGrading (1 1 1.1)  // sponge-sw (v-sw-z v-s-z v-c-z v-w-z v-sw-sponge v-s-sponge v-c-sponge v-w-sponge)
-    hex (10 11 12 17 19 20 21 26) sponge-se (20 20 10) simpleGrading (1 1 1.1)  // sponge-se (v-s-z v-se-z v-e-z v-c-z v-s-sponge v-se-sponge v-e-sponge v-c-sponge)
-    hex (17 12 13 14 26 21 22 23) sponge-ne (20 20 10) simpleGrading (1 1 1.1)  // sponge-ne (v-c-z v-e-z v-ne-z v-n-z v-c-sponge v-e-sponge v-ne-sponge v-n-sponge)
-    hex (16 17 14 15 25 26 23 24) sponge-nw (20 20 10) simpleGrading (1 1 1.1)  // sponge-nw (v-w-z v-c-z v-n-z v-nw-z v-w-sponge v-c-sponge v-n-sponge v-nw-sponge)
+    hex (9 11 13 15 18 19 20 21) porosity (40 40 10) simpleGrading (1 1 1.1)  // porosity (v-sw-z v-se-z v-ne-z v-nw-z v-sw-sponge v-se-sponge v-ne-sponge v-nw-sponge)
 );
 
 edges
@@ -882,10 +874,7 @@ boundary
         type wall;
         faces
         (
-            (18 19 26 25)  // f-sponge-sw-t (v-sw-sponge v-s-sponge v-c-sponge v-w-sponge)
-            (19 20 21 26)  // f-sponge-se-t (v-s-sponge v-se-sponge v-e-sponge v-c-sponge)
-            (26 21 22 23)  // f-sponge-ne-t (v-c-sponge v-e-sponge v-ne-sponge v-n-sponge)
-            (25 26 23 24)  // f-sponge-nw-t (v-w-sponge v-c-sponge v-n-sponge v-nw-sponge)
+            (18 19 20 21)  // f-porosity-t (v-sw-sponge v-se-sponge v-ne-sponge v-nw-sponge)
         );
     }
     bottom
@@ -907,8 +896,7 @@ boundary
         (
             (2 3 12 11)  // f-se-e (v-se-z0 v-e-z0 v-e-z v-se-z)
             (3 4 13 12)  // f-ne-e (v-e-z0 v-ne-z0 v-ne-z v-e-z)
-            (11 12 21 20)  // f-sponge-se-e (v-se-z v-e-z v-e-sponge v-se-sponge)
-            (12 13 22 21)  // f-sponge-ne-e (v-e-z v-ne-z v-ne-sponge v-e-sponge)
+            (11 13 20 19)  // f-porosity-e (v-se-z v-ne-z v-ne-sponge v-se-sponge)
         );
     }
     inlet
@@ -919,8 +907,7 @@ boundary
         (
             (0 9 16 7)  // f-sw-w (v-sw-z0 v-sw-z v-w-z v-w-z0)
             (7 16 15 6)  // f-nw-w (v-w-z0 v-w-z v-nw-z v-nw-z0)
-            (9 18 25 16)  // f-sponge-sw-w (v-sw-z v-sw-sponge v-w-sponge v-w-z)
-            (16 25 24 15)  // f-sponge-nw-w (v-w-z v-w-sponge v-nw-sponge v-nw-z)
+            (9 18 21 15)  // f-porosity-w (v-sw-z v-sw-sponge v-nw-sponge v-nw-z)
         );
     }
     front
@@ -931,8 +918,7 @@ boundary
         (
             (0 1 10 9)  // f-sw-s (v-sw-z0 v-s-z0 v-s-z v-sw-z)
             (1 2 11 10)  // f-se-s (v-s-z0 v-se-z0 v-se-z v-s-z)
-            (9 10 19 18)  // f-sponge-sw-s (v-sw-z v-s-z v-s-sponge v-sw-sponge)
-            (10 11 20 19)  // f-sponge-se-s (v-s-z v-se-z v-se-sponge v-s-sponge)
+            (9 11 19 18)  // f-porosity-s (v-sw-z v-se-z v-se-sponge v-sw-sponge)
         );
     }
     back
@@ -943,10 +929,33 @@ boundary
         (
             (4 5 14 13)  // f-ne-n (v-ne-z0 v-n-z0 v-n-z v-ne-z)
             (5 6 15 14)  // f-nw-n (v-n-z0 v-nw-z0 v-nw-z v-n-z)
-            (13 14 23 22)  // f-sponge-ne-n (v-ne-z v-n-z v-n-sponge v-ne-sponge)
-            (14 15 24 23)  // f-sponge-nw-n (v-n-z v-nw-z v-nw-sponge v-n-sponge)
+            (13 15 21 20)  // f-porosity-n (v-ne-z v-nw-z v-nw-sponge v-ne-sponge)
         );
     }
+    interface_top
+    {
+        type patch;
+        faces
+        (
+            (9 10 17 16)  // f-sw-t (v-sw-z v-s-z v-c-z v-w-z)
+            (10 11 12 17)  // f-se-t (v-s-z v-se-z v-e-z v-c-z)
+            (17 12 13 14)  // f-ne-t (v-c-z v-e-z v-ne-z v-n-z)
+            (16 17 14 15)  // f-nw-t (v-w-z v-c-z v-n-z v-nw-z)
+        );
+    }
+    interface_sponge
+    {
+        type patch;
+        faces
+        (
+            (9 15 13 11)  // f-porosity-b (v-sw-z v-nw-z v-ne-z v-se-z)
+        );
+    }
+);
+
+mergePatchPairs
+(
+    (interface_sponge interface_top)  // (merge patch pairs: interface_sponge and interface_top)
 );
 
 // ************************************************************************* //
