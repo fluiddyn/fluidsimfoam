@@ -15,14 +15,14 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("-p", "--plot", action="store_true")
 parser.add_argument("-np", "--nprocs", default=1, type=int)
-parser.add_argument("--radius", default=0.006, type=float)
+parser.add_argument("--diameter", default=0.006, type=float)
 parser.add_argument("--end-time", default=20.0, type=float)
 
 args = parser.parse_args()
 
 params = Simul.create_default_params()
 params.output.sub_directory = "sedFoam/bedload1d"
-params.short_name_type_run = f"radius{args.radius}"
+params.short_name_type_run = f"diameter{args.diameter}"
 
 params.control_dict.write_interval = 0.5
 params.control_dict.end_time = args.end_time
@@ -31,7 +31,7 @@ params.parallel.nsubdoms = args.nprocs
 params.parallel.method = "simple"
 params.parallel.nsubdoms_xyz = [1, 1, args.nprocs]
 
-params.constant.transport.phasea.d = args.radius
+params.constant.transport.phasea.d = args.diameter
 
 sim = Simul(params)
 
@@ -50,28 +50,29 @@ while sim.output.log.time_last < params.control_dict.write_interval:
 
 gradp = params.constant.force.grad_pmean[0]
 x, y, z = sim.output.sim.oper.get_cells_coords()
+bed_height = params.init_fields.bed_height
 
 
-def get_grad_tau():
-    field = sim.output.fields.read_field("Taua", time_approx="last")
+def get_tau():
+    field = sim.output.fields.read_field("Taub", time_approx="last")
     tau = field.get_array()
-    return np.gradient(tau[:, 3], y), field.time
+    return tau[:, 3], np.gradient(tau[:, 3], y), field.time
 
 
 nb_saved_times = 1
 
-grad_tau, t_now = get_grad_tau()
+tau, grad_tau, t_now = get_tau()
 if args.plot:
     plt.ion()
     fig, (ax0, ax1) = plt.subplots(2)
 
-    ax0.set_xlabel(r"$\tau$")
+    ax0.set_xlabel(r"$R_{xz}^f$")
     ax0.set_ylabel("$z$")
     ax1.set_xlabel("$t$")
     ax1.set_ylabel("residuals p_rbgh")
 
-    ax0.axvline(gradp, c="r")
-    (line,) = ax0.plot(grad_tau, y)
+    ax0.plot(gradp * (y[-1] - y[y > 0.1]), y[y > 0.1], c="r")
+    (line,) = ax0.plot(tau, y)
     ax0.set_title(f"t = {t_now}")
 
     ax1.plot(*sim.output.log.get_last_residual(), "x")
@@ -93,14 +94,15 @@ while not cond_statio and t_now < params.control_dict.end_time:
 
     if len(saved_times) > nb_saved_times:
         nb_saved_times = len(saved_times)
-        grad_tau, t_now = get_grad_tau()
+        tau, grad_tau, t_now = get_tau()
 
         if args.plot:
-            line.set_xdata(-0.5 * grad_tau)
+            line.set_xdata(tau)
             ax0.set_title(f"t = {t_now}")
             fig.canvas.draw()
 
-        percentage = 100 * abs(0.5 * grad_tau[y < 0.04] + gradp).mean() / gradp
+        cond_height = (y > 1.1 * bed_height) & (y < 1.5 * bed_height)
+        percentage = 100 * abs(grad_tau[cond_height] + gradp).mean() / gradp
 
         execution_time = timedelta(seconds=time() - time_start)
         print(
