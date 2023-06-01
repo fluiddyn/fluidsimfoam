@@ -31,6 +31,7 @@ def test_init_simul_sim0(index_sim):
             templates_dir / "epsilon.jinja",
             str(templates_dir / "k.jinja") + " -> 0",
             f"{templates_dir} -> system",
+            "package-data(fluidsimfoam_cbox.templates) -> constant",
         ]
 
     sim = Simul(params)
@@ -46,6 +47,7 @@ def test_init_simul_sim0(index_sim):
         assert (sim.path_run / "epsilon.jinja").exists()
         assert (sim.path_run / "0/k.jinja").exists()
         assert (sim.path_run / "system/templates/epsilon.jinja").exists()
+        assert (sim.path_run / "constant/templates/epsilon.jinja").exists()
 
 
 @skipif_executable_not_available("buoyantBoussinesqPimpleFoam")
