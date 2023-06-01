@@ -31,35 +31,23 @@ def make_spline_points_sin(nx, lx, h_max, z):
     return [Point(x_dot[dot], y_dot[dot], z) for dot in range(nx)]
 
 
-def make_spline_points_gaussian(n_points, mu, sig, h_max, hill_start, z):
-    x_dot = np.linspace(0, 2 * mu, n_points)
-    y_dot = np.exp(-np.power(x_dot - mu, 2.0) / (2 * np.power(sig, 2.0)))
-
-    x_dot *= h_max
-    y_dot *= h_max
-    x_dot += hill_start
-
-    return [Point(x_dot[dot], y_dot[dot], z) for dot in range(n_points)]
-
-
-def make_spline_points_half_gaussian(
-    n_points, length, mu, sig, h_max, hill_start, offset, direction
+def make_spline_points_gaussian(
+    n_points, curve_end, mu, sig, h_max, curve_start, offset, direction
 ):
+    sig *= mu
+    length = np.abs(curve_end - curve_start)
     x_dot = np.linspace(0, length, n_points)
     y_dot = np.exp(-np.power(x_dot - mu, 2.0) / (2 * np.power(sig, 2.0)))
-    x_dot = np.flip(x_dot)
 
     y_dot *= 1 / np.max(y_dot) * h_max
-    x_dot += hill_start
+    x_dot = np.linspace(curve_start, curve_end, n_points)
 
-    if direction == "north":
-        return [Point(offset, -x_dot[dot], y_dot[dot]) for dot in range(n_points)]
-    elif direction == "west":
-        return [Point(x_dot[dot], offset, y_dot[dot]) for dot in range(n_points)]
-    elif direction == "south":
+    if direction == "yz":
         return [Point(offset, x_dot[dot], y_dot[dot]) for dot in range(n_points)]
-    elif direction == "east":
-        return [Point(-x_dot[dot], offset, y_dot[dot]) for dot in range(n_points)]
+    elif direction == "xz":
+        return [Point(x_dot[dot], offset, y_dot[dot]) for dot in range(n_points)]
+    elif direction == "xy":
+        return [Point(x_dot[dot], y_dot[dot], offset) for dot in range(n_points)]
 
 
 def make_code_sinus(bmd_params):
@@ -162,13 +150,13 @@ def make_code_sinus(bmd_params):
 
 
 def make_code_2d_phill(bmd_params):
-    mu = 5
-    sig = 0.5
+    sig = 0.2
     n_points = 50
 
     h_max = 0.2
     hill_start = 0.6
-    hill_end = mu * 2 * h_max + hill_start
+    hill_end = 1.5
+    mu = 0.5 * (hill_end - hill_start)
 
     nx = bmd_params.nx
     ny = bmd_params.ny
@@ -275,13 +263,17 @@ def make_code_2d_phill(bmd_params):
     bmd.add_splineedge(
         ["v-bot-hill_start-z0", "v-bot-hill_end-z0"],
         "spline-z0",
-        make_spline_points_gaussian(n_points, mu, sig, h_max, hill_start, 0),
+        make_spline_points_gaussian(
+            n_points, hill_end, mu, sig, h_max, hill_start, 0, "xy"
+        ),
     )
 
     bmd.add_splineedge(
         ["v-bot-hill_start-z", "v-bot-hill_end-z"],
         "spline-z",
-        make_spline_points_gaussian(n_points, mu, sig, h_max, hill_start, lz),
+        make_spline_points_gaussian(
+            n_points, hill_end, mu, sig, h_max, hill_start, lz, "xy"
+        ),
     )
 
     bmd.add_boundary("wall", "top", b3.face("n"))
@@ -328,8 +320,8 @@ def make_code_2d_phill(bmd_params):
 
 
 def make_code_3d_phill(bmd_params):
-    sig = 1
-    n_points = 200
+    sig = 0.2
+    n_points = 50
 
     nx = bmd_params.nx
     ny = bmd_params.ny
@@ -453,32 +445,32 @@ def make_code_3d_phill(bmd_params):
     bmd.add_splineedge(
         ["v-s-z0", "v-c-z0"],
         "spline-s",
-        make_spline_points_half_gaussian(
-            n_points, ly / 2, ly / 2, sig, h_max, 0, 0, "north"
+        make_spline_points_gaussian(
+            n_points, 0, ly / 2, sig, h_max, -ly / 2, 0, "yz"
         ),
     )
 
     bmd.add_splineedge(
         ["v-e-z0", "v-c-z0"],
         "spline-e",
-        make_spline_points_half_gaussian(
-            n_points, lx / 2, lx / 2, sig, h_max, 0, 0, "west"
+        make_spline_points_gaussian(
+            n_points, 0, lx / 2, sig, h_max, lx / 2, 0, "xz"
         ),
     )
 
     bmd.add_splineedge(
         ["v-n-z0", "v-c-z0"],
         "spline-n",
-        make_spline_points_half_gaussian(
-            n_points, ly / 2, ly / 2, sig, h_max, 0, 0, "south"
+        make_spline_points_gaussian(
+            n_points, 0, ly / 2, sig, h_max, ly / 2, 0, "yz"
         ),
     )
 
     bmd.add_splineedge(
         ["v-w-z0", "v-c-z0"],
         "spline-w",
-        make_spline_points_half_gaussian(
-            n_points, lx / 2, lx / 2, sig, h_max, 0, 0, "east"
+        make_spline_points_gaussian(
+            n_points, 0, lx / 2, sig, h_max, -lx / 2, 0, "xz"
         ),
     )
 

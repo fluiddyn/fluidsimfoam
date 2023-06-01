@@ -6,8 +6,8 @@ params.output.sub_directory = "examples_fluidsimfoam/phill"
 params.short_name_type_run = "sin_2d"
 
 params.init_fields.buoyancy_frequency = 0.001
-params.transport_properties.nu = 0.01
-params.transport_properties.pr = 10
+params.constant.transport.nu = 0.01
+params.constant.transport.pr = 10
 
 params.control_dict.end_time = 86000
 params.control_dict.delta_t = 10
