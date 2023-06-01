@@ -15,3 +15,4 @@ class Output$suffix_for_class(Output):
     # remove these lines to get fluidsimfoam default helpers
     _helper_decompose_par_dict = None
     _helper_turbulence_properties = None
+    _complete_params_block_mesh_dict = None
