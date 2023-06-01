@@ -90,16 +90,10 @@ class Face:
 
 class MergePatchPairs:
     def __init__(self, boundary_name1, boundary_name2):
-        """
-        Add boundaries as strings.
-        """
         self.boundary_name1 = boundary_name1
         self.boundary_name2 = boundary_name2
 
     def format(self):
-        """Format instance to dump
-        merge patch pairs
-        """
         comment = (
             f"merge patch pairs: {self.boundary_name1} and {self.boundary_name2}"
         )
@@ -344,17 +338,8 @@ class BlockMeshDict:
         self.boundaries[name] = b
         return b
 
-    def add_merge_patch_pairs(self, boundary_name1, boundary_name2):
-        """Add 2 boundaries to merge
-
-        Example
-        -------
-
-        mergePatchPairs can be created as follow::
-
-          add_merge_patch_pairs("bottomWall", "solidInterface")
-
-        """
+    def add_merge_patch_pairs(self, boundary_name1: str, boundary_name2: str):
+        """Add 2 boundaries to merge"""
         b = MergePatchPairs(boundary_name1, boundary_name2)
         self.merge_patch_pairs[boundary_name1] = b
         return b

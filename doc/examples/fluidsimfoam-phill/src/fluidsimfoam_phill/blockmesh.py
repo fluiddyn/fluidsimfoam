@@ -28,7 +28,7 @@ def make_spline_points_sin(nx, lx, h_max, z):
             * (1 - np.cos(2 * np.pi * min(abs((x - (lx / 2)) / lx), 1)))
         )
 
-    return [Point(x_dot[dot], y_dot[dot], z) for dot in range(nx)]
+    return [Point(x, y, z) for x, y in zip(x_dot, y_dot)]
 
 
 def make_spline_points_gaussian(
@@ -43,18 +43,18 @@ def make_spline_points_gaussian(
     x_dot = np.linspace(curve_start, curve_end, n_points)
 
     if direction == "yz":
-        return [Point(offset, x_dot[dot], y_dot[dot]) for dot in range(n_points)]
+        return [Point(offset, y, z) for y, z in zip(x_dot, y_dot)]
     elif direction == "xz":
-        return [Point(x_dot[dot], offset, y_dot[dot]) for dot in range(n_points)]
+        return [Point(x, offset, z) for x, z in zip(x_dot, y_dot)]
     elif direction == "xy":
-        return [Point(x_dot[dot], y_dot[dot], offset) for dot in range(n_points)]
+        return [Point(x, y, offset) for x, y in zip(x_dot, y_dot)]
 
 
 def make_code_sinus(bmd_params):
     nx = bmd_params.nx
     ny = bmd_params.ny
     nz = bmd_params.nz
-    ny_porosity = bmd_params.ny_porosity
+    n_porosity = bmd_params.n_porosity
 
     lx = bmd_params.lx
     ly = bmd_params.ly
@@ -111,7 +111,7 @@ def make_code_sinus(bmd_params):
             "v-sponge-outlet-z",
             "v-sponge-inlet-z",
         ),
-        (nx, ny_porosity, nz),
+        (nx, n_porosity, nz),
         "porosity",
         SimpleGrading(1, 1, 1),
     )
@@ -150,27 +150,28 @@ def make_code_sinus(bmd_params):
 
 
 def make_code_2d_phill(bmd_params):
-    sig = 0.2
-    n_points = 50
-
-    h_max = 0.2
-    hill_start = 0.6
-    hill_end = 1.5
-    mu = 0.5 * (hill_end - hill_start)
+    n_points = 50  # number of points for making gaussian distribution
 
     nx = bmd_params.nx
     ny = bmd_params.ny
     nz = bmd_params.nz
+    n_porosity = bmd_params.n_porosity
 
     lx = bmd_params.lx
     ly = bmd_params.ly
     lz = bmd_params.lz
     ly_p = bmd_params.ly_porosity
+    l_hill = bmd_params.l_hill
+    hill_start = bmd_params.hill_start
+    h_max = bmd_params.h_max
 
-    ny_porosity = bmd_params.ny_porosity
+    hill_end = hill_start + l_hill
+
+    sig = bmd_params.sig  # variance of gaussian distribution
+    mu = 0.5 * (l_hill)  # mean of gaussian distribution
 
     nx_up_stream = int(nx * hill_start / lx)
-    nx_hill = int(nx * (hill_end - hill_start) / lx)
+    nx_hill = int(nx * l_hill / lx)
     nx_down_stream = nx - nx_hill - nx_up_stream
 
     x_expansion_ratio = 1
@@ -255,7 +256,7 @@ def make_code_2d_phill(bmd_params):
             "v-sponge-outlet-z",
             "v-sponge-inlet-z",
         ),
-        (nx, int(ny * 0.5), nz),
+        (nx, n_porosity, nz),
         "porosity",
         SimpleGrading(1, 1, 1),
     )
@@ -320,13 +321,12 @@ def make_code_2d_phill(bmd_params):
 
 
 def make_code_3d_phill(bmd_params):
-    sig = 0.2
-    n_points = 50
+    n_points = 50  # number of points for making gaussian distribution
 
     nx = bmd_params.nx
     ny = bmd_params.ny
     nz = bmd_params.nz
-    nz_p = bmd_params.nz_p
+    n_porosity = bmd_params.n_porosity
 
     lx = bmd_params.lx
     ly = bmd_params.ly
@@ -334,7 +334,7 @@ def make_code_3d_phill(bmd_params):
     h_max = bmd_params.h_max
     l_p = bmd_params.ly_porosity
 
-    ny_porosity = bmd_params.ny_porosity
+    sig = bmd_params.sig  # variance of gaussian distribution
 
     x_expansion_ratio = 1
     y_expansion_ratio = 1
@@ -437,7 +437,7 @@ def make_code_3d_phill(bmd_params):
             "v-ne-sponge",
             "v-nw-sponge",
         ),
-        (2 * nx, 2 * ny, nz_p),
+        (2 * nx, 2 * ny, n_porosity),
         "porosity",
         SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
     )

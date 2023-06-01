@@ -166,14 +166,16 @@ class OutputPHill(Output):
                 "nx": 20,
                 "ny": 50,
                 "nz": 1,
-                "nz_p": 0,
-                "ny_porosity": 10,
+                "n_porosity": 10,
                 "h_max": 80,
                 "ly_porosity": 3000,
                 "lx": 2000,
                 "ly": 2000,
                 "lz": 0.01,
+                "l_hill": 0.9,
+                "hill_start": 0.6,
                 "scale": 1,
+                "sig": 0.2,
                 "geometry": "sinus",
             }
         )
@@ -210,8 +212,8 @@ class OutputPHill(Output):
         N = params.init_fields.buoyancy_frequency
         T0 = params.init_fields.T0
         if params.block_mesh_dict.geometry != "3d_phill":
-            field.set_values(T0 + (N**2) / 9.81 * y)
+            var = y
         else:
-            field.set_values(T0 + (N**2) / 9.81 * z)
-
+            var = z
+        field.set_values(T0 + (N**2) / 9.81 * var)
         return field
