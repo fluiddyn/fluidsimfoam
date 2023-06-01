@@ -50,6 +50,7 @@ while sim.output.log.time_last < params.control_dict.write_interval:
 
 gradp = params.constant.force.grad_pmean[0]
 x, y, z = sim.output.sim.oper.get_cells_coords()
+bed_height = params.init_fields.bed_height
 
 
 def get_tau():
@@ -100,9 +101,8 @@ while not cond_statio and t_now < params.control_dict.end_time:
             ax0.set_title(f"t = {t_now}")
             fig.canvas.draw()
 
-        percentage = (
-            100 * abs(grad_tau[(y > 0.1) & (y < 0.15)] + gradp).mean() / gradp
-        )
+        cond_height = (y > 1.1 * bed_height) & (y < 1.5 * bed_height)
+        percentage = 100 * abs(grad_tau[cond_height] + gradp).mean() / gradp
 
         execution_time = timedelta(seconds=time() - time_start)
         print(

@@ -319,7 +319,7 @@ class OutputSED(Output):
     def _complete_params_alpha_a(cls, params):
         params._set_child(
             "init_fields",
-            attribs={"type": "tanh", "width": 0.005},
+            attribs={"type": "tanh", "width": 0.005, "bed_height": 12.5 * 0.006},
             doc="""type have to be in ['tanh', 'codestream']""",
         )
 
@@ -332,7 +332,8 @@ class OutputSED(Output):
         elif params.init_fields.type == "tanh":
             x, y, z = self.sim.oper.get_cells_coords()
             width = params.init_fields.width
-            field.set_values(0.305 * (1.0 + np.tanh((12.5 * 0.006 - y) / width)))
+            bed_height = params.init_fields.bed_height
+            field.set_values(0.305 * (1.0 + np.tanh((bed_height - y) / width)))
         else:
             raise ValueError(f"Unsupported {params.init_fields.type = }")
 
