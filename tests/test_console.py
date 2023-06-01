@@ -54,7 +54,7 @@ def test_initiate_solver():
         [
             "src/fluidsimfoam_tgv2/templates/tasks.py",
             "tests/test_tgv2.py",
-            "tests/saved_cases/case0",
+            "tests/saved_cases/case0/Allrun",
         ]
     )
 

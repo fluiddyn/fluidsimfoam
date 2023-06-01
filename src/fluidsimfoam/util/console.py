@@ -9,6 +9,7 @@ from functools import partial
 from importlib import resources
 from pathlib import Path
 from pprint import pprint
+from shutil import copy
 from string import Template
 
 from inflection import camelize
@@ -182,6 +183,12 @@ def initiate_solver():
 
             (path_saved_case / relative_path).write_text(code)
             (path_templates / (relative_path.name + ".jinja")).write_text(code)
+
+    if args.from_case is not None:
+        for name in ("Allclean", "Allrun"):
+            path = path_case / name
+            if path.exists():
+                copy(path, path_saved_case)
 
     print(
         f"""

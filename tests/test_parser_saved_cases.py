@@ -12,8 +12,10 @@ def get_paths_input_files(directory):
         path.name: path
         for path in (path_cases / directory).rglob("*")
         if path.is_file()
-        and "README" not in path.name
         and not path.parent.name == "polyMesh"
+        and all(
+            word not in path.name for word in ("README", "Allrun", "Allclean")
+        )
     }
 
 
