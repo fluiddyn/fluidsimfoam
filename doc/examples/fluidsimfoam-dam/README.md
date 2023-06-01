@@ -1,5 +1,7 @@
 # Solver fluidsimfoam-dam
 
+https://www.openfoam.com/documentation/tutorial-guide/4-multiphase-flow/4.1-breaking-of-a-dam
+
 ## Installation
 
 First install [fluidsimfoam] (see
