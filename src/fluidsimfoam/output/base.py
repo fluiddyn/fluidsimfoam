@@ -1,9 +1,11 @@
 """Base output class"""
 
+import importlib.resources
 import inspect
 import os
 import shutil
 import textwrap
+from contextlib import nullcontext
 from pathlib import Path
 
 from inflection import underscore
@@ -245,15 +247,27 @@ class Output(OutputCore):
                     resource = resource.strip()
                 else:
                     destination = path_run
-                resource = Path(os.path.expandvars(resource)).expanduser()
-                if resource.is_file():
-                    shutil.copy(resource, destination)
-                elif resource.is_dir():
-                    shutil.copytree(resource, destination / resource.name)
+
+                if resource.startswith("package-data("):
+                    resource = resource.removeprefix("package-data(")
+                    package_name, relative_path = resource.split(")")
+                    relative_path = relative_path.removeprefix("/")
+                    multiplexed_path = importlib.resources.files(package_name)
+                    resource = multiplexed_path.joinpath(relative_path)
+                    context_manager = importlib.resources.as_file
                 else:
-                    raise NotImplementedError(
-                        f"{resource = }, {resource.exists() = }"
-                    )
+                    resource = Path(os.path.expandvars(resource)).expanduser()
+                    context_manager = nullcontext
+
+                with context_manager(resource) as resource:
+                    if resource.is_file():
+                        shutil.copy(resource, destination)
+                    elif resource.is_dir():
+                        shutil.copytree(resource, destination / resource.name)
+                    else:
+                        raise NotImplementedError(
+                            f"{resource = }, {resource.exists() = }"
+                        )
 
     def _post_init_create_additional_source_files(self):
         """Create the files from their template"""

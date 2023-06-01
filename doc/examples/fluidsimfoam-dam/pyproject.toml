@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=49.5.0",
+    "setuptools>=61.0.0",
     "wheel",
     ]
 build-backend = "setuptools.build_meta"
@@ -21,3 +21,6 @@ dependencies = [
 
 [project.entry-points."fluidsimfoam.solvers"]
 dam = "fluidsimfoam_dam"
+
+[tool.setuptools.package-data]
+fluidsimfoam_dam = ["templates"]
