@@ -27,6 +27,43 @@ from fluidsimfoam.log import logger
 from fluidsimfoam.solvers import get_solver_package
 
 
+def copy_resources(resources, path_run):
+    if resources is None:
+        return
+    if isinstance(resources, str):
+        resources = [resources]
+
+    for resource in resources:
+        resource = str(resource)
+        if "->" in resource:
+            resource, relative_path = resource.split("->")
+            destination = path_run / relative_path.strip()
+            resource = resource.strip()
+        else:
+            destination = path_run
+
+        if resource.startswith("package-data("):
+            resource = resource.removeprefix("package-data(")
+            package_name, relative_path = resource.split(")")
+            relative_path = relative_path.removeprefix("/")
+            multiplexed_path = importlib.resources.files(package_name)
+            resource = multiplexed_path.joinpath(relative_path)
+            context_manager = importlib.resources.as_file
+        else:
+            resource = Path(os.path.expandvars(resource)).expanduser()
+            context_manager = nullcontext
+
+        with context_manager(resource) as resource:
+            if resource.is_file():
+                shutil.copy(resource, destination)
+            elif resource.is_dir():
+                shutil.copytree(resource, destination / resource.name)
+            else:
+                raise NotImplementedError(
+                    f"{resource = }, {resource.exists() = }"
+                )
+
+
 class Output(OutputCore):
     name_variables = ["p", "U"]
     name_constant_files = ["transportProperties", "turbulenceProperties"]
@@ -221,53 +258,17 @@ class Output(OutputCore):
         ):
             return
 
+        copy_resources(self.sim.params.resources, self.path_run)
         self._post_init_create_additional_source_files()
 
         # OpenFOAM cleanup removes .xml files!
-        path_run = Path(self.path_run)
-        path_info_fluidsim = path_run / ".data_fluidsim"
+        path_info_fluidsim = self.path_run / ".data_fluidsim"
         path_info_fluidsim.mkdir(exist_ok=True)
         for file_name in ("info_solver.xml", "params_simul.xml"):
             path_new = path_info_fluidsim / file_name
             if path_new.exists():
                 continue
-            shutil.copy(path_run / file_name, path_new)
-
-        # copy resources
-        resources = self.sim.params.resources
-        if resources is not None:
-            if isinstance(resources, str):
-                resources = [resources]
-
-            for resource in resources:
-                resource = str(resource)
-                if "->" in resource:
-                    resource, relative_path = resource.split("->")
-                    destination = path_run / relative_path.strip()
-                    resource = resource.strip()
-                else:
-                    destination = path_run
-
-                if resource.startswith("package-data("):
-                    resource = resource.removeprefix("package-data(")
-                    package_name, relative_path = resource.split(")")
-                    relative_path = relative_path.removeprefix("/")
-                    multiplexed_path = importlib.resources.files(package_name)
-                    resource = multiplexed_path.joinpath(relative_path)
-                    context_manager = importlib.resources.as_file
-                else:
-                    resource = Path(os.path.expandvars(resource)).expanduser()
-                    context_manager = nullcontext
-
-                with context_manager(resource) as resource:
-                    if resource.is_file():
-                        shutil.copy(resource, destination)
-                    elif resource.is_dir():
-                        shutil.copytree(resource, destination / resource.name)
-                    else:
-                        raise NotImplementedError(
-                            f"{resource = }, {resource.exists() = }"
-                        )
+            shutil.copy(self.path_run / file_name, path_new)
 
     def _post_init_create_additional_source_files(self):
         """Create the files from their template"""
