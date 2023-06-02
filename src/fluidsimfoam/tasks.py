@@ -18,10 +18,10 @@ def clean(context):
 
 @task
 def block_mesh(context):
-    if not Path("system/blockMeshDict").exists():
-        print("blockMeshDict not found!")
-
-    elif not Path("constant/polyMesh").is_dir():
+    if (
+        Path("system/blockMeshDict").exists()
+        and not Path("constant/polyMesh").is_dir()
+    ):
         context.run("blockMesh")
 
 
@@ -30,7 +30,17 @@ def polymesh(context):
     """Create the polymesh directory"""
 
 
-@task(polymesh)
+@task
+def set_fields(context, force=False):
+    if Path("system/setFieldsDict").exists():
+        path_setFields_called = Path(".data_fluidsim/setFields_called")
+        path_setFields_called.parent.mkdir(exist_ok=True)
+        if force or not path_setFields_called.exists():
+            path_setFields_called.touch()
+            context.run("setFields")
+
+
+@task(polymesh, set_fields)
 def run(context):
     """Main target to launch a simulation"""
     with open("system/controlDict") as file:
