@@ -293,6 +293,14 @@ class BlockMeshDict:
             names = [v[0] for v in group]
             self.reduce_vertex(*names)
 
+    def replicate_vertices_further_z(self, dz, add_to_name="_dz"):
+        """Helper for 2d meshes"""
+        for vertex_z0 in self.vertices.copy().values():
+            vertex_z1 = vertex_z0.copy()
+            vertex_z1.z = dz
+            vertex_z1.name += add_to_name
+            self.add_vertex(vertex_z1)
+
     def add_hexblock(
         self, vnames, cells, name=None, grading=SimpleGrading(1, 1, 1)
     ):

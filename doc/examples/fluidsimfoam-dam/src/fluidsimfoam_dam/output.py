@@ -95,62 +95,62 @@ class OutputDam(Output):
 
         bmd.set_scale(params.block_mesh_dict.scale)
 
-        bmd.add_vertex(0.0, 0.0, 0.0, name="bot_left")
-        bmd.add_vertex(x_dam, 0.0, 0.0, name="bot_leftdam")
-        bmd.add_vertex(x1_dam, 0.0, 0.0, name="bot_rightdam")
-        bmd.add_vertex(lx, 0.0, 0.0, name="bot_right")
+        for x_y_z_name in (
+            # bottom
+            (0, 0, 0, "left_bot"),
+            (x_dam, 0, 0, "leftdam_bot"),
+            (x1_dam, 0, 0, "rightdam_bot"),
+            (lx, 0, 0, "right_bot"),
+            # top dam
+            (0, height_dam, 0, "left_topdam"),
+            (x_dam, height_dam, 0, "leftdam_topdam"),
+            (x1_dam, height_dam, 0, "rightdam_topdam"),
+            (lx, height_dam, 0, "right_topdam"),
+            # top
+            (0, ly, 0, "left_top"),
+            (x_dam, ly, 0, "leftdam_top"),
+            (x1_dam, ly, 0, "rightdam_top"),
+            (lx, ly, 0, "right_top"),
+        ):
+            bmd.add_vertex(*x_y_z_name)
 
-        bmd.add_vertex(0.0, height_dam, 0.0, name="topdam_left")
-        bmd.add_vertex(x_dam, height_dam, 0.0, name="topdam_leftdam")
-        bmd.add_vertex(x1_dam, height_dam, 0.0, name="topdam_rightdam")
-        bmd.add_vertex(lx, height_dam, 0.0, name="topdam_right")
+        bmd.replicate_vertices_further_z(lz)
 
-        bmd.add_vertex(0.0, ly, 0.0, name="top_left")
-        bmd.add_vertex(x_dam, ly, 0.0, name="top_leftdam")
-        bmd.add_vertex(x1_dam, ly, 0.0, name="top_rightdam")
-        bmd.add_vertex(lx, ly, 0.0, name="top_right")
-
-        for vertex_z0 in bmd.vertices.copy().values():
-            vertex_z1 = vertex_z0.copy()
-            vertex_z1.z = lz
-            vertex_z1.name += "_z1"
-            bmd.add_vertex(vertex_z1)
-
-        def add_add_hexblock(vertex_names_z0, nxnynz, name_bloc):
+        def add_hexblock(vertex_names_z0, nxnynz, name_bloc):
             return bmd.add_hexblock(
-                vertex_names_z0 + [name + "_z1" for name in vertex_names_z0],
+                vertex_names_z0 + [name + "_dz" for name in vertex_names_z0],
                 nxnynz,
                 name_bloc,
             )
 
-        b_bot_left = add_add_hexblock(
-            ["bot_left", "bot_leftdam", "topdam_leftdam", "topdam_left"],
+        b_bot_left = add_hexblock(
+            ["left_bot", "leftdam_bot", "leftdam_topdam", "left_topdam"],
             [nx_left, ny_bot, nz],
-            "bot_left",
+            "left_bot",
         )
 
-        b_bot_right = add_add_hexblock(
-            ["bot_rightdam", "bot_right", "topdam_right", "topdam_rightdam"],
+        b_bot_right = add_hexblock(
+            ["rightdam_bot", "right_bot", "right_topdam", "rightdam_topdam"],
             [nx_right, ny_bot, nz],
-            "bot_right",
+            "right_bot",
         )
 
-        b_top_left = add_add_hexblock(
-            ["topdam_left", "topdam_leftdam", "top_leftdam", "top_left"],
+        b_top_left = add_hexblock(
+            ["left_topdam", "leftdam_topdam", "leftdam_top", "left_top"],
             [nx_left, ny_top, nz],
-            "top_left",
+            "left_top",
         )
 
-        b_top_dam = add_add_hexblock(
-            ["topdam_leftdam", "topdam_rightdam", "top_rightdam", "top_leftdam"],
+        b_top_dam = add_hexblock(
+            ["leftdam_topdam", "rightdam_topdam", "rightdam_top", "leftdam_top"],
             [nx_dam, ny_top, nz],
             "top_dam",
         )
 
-        b_top_right = add_add_hexblock(
-            ["topdam_rightdam", "topdam_right", "top_right", "top_rightdam"],
+        b_top_right = add_hexblock(
+            ["rightdam_topdam", "right_topdam", "right_top", "rightdam_top"],
             [nx_right, ny_top, nz],
-            "top_right",
+            "right_top",
         )
 
         bmd.add_boundary(
