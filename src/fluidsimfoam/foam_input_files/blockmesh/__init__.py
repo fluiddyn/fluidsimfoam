@@ -45,6 +45,12 @@ class Vertex:
             comment += " : " + " ".join(sorted(self.alias))
         return f"( {self.x: .15g} {self.y: .15g} {self.z: .15g} )  // {comment}"
 
+    def __repr__(self):
+        return f"Vertex({self.x}, {self.y}, {self.z}, {self.name})"
+
+    def copy(self):
+        return type(self)(self.x, self.y, self.z, self.name)
+
     def __lt__(self, rhs):
         return (self.z, self.y, self.x) < (rhs.z, rhs.y, rhs.x)
 
@@ -163,6 +169,9 @@ class HexBlock:
             parts.append(index_to_defaultsuffix[index])
             name = "-".join(parts)
         return Face(vnames, name)
+
+    def faces(self, *args):
+        return [self.face(arg) for arg in args]
 
 
 class Boundary:
@@ -283,6 +292,14 @@ class BlockMeshDict:
                 continue
             names = [v[0] for v in group]
             self.reduce_vertex(*names)
+
+    def replicate_vertices_further_z(self, dz, add_to_name="_dz"):
+        """Helper for 2d meshes"""
+        for vertex_z0 in self.vertices.copy().values():
+            vertex_z1 = vertex_z0.copy()
+            vertex_z1.z = dz
+            vertex_z1.name += add_to_name
+            self.add_vertex(vertex_z1)
 
     def add_hexblock(
         self, vnames, cells, name=None, grading=SimpleGrading(1, 1, 1)

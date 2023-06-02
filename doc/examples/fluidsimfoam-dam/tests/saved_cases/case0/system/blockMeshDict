@@ -1,3 +1,10 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
 FoamFile
 {
     version     2.0;
@@ -5,44 +12,45 @@ FoamFile
     class       dictionary;
     object      blockMeshDict;
 }
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-scale    0.146;
+scale   0.146;
 
 vertices
 (
-    (0 0 0)
-    (2 0 0)
-    (2.16438 0 0)
-    (4 0 0)
-    (0 0.32876 0)
-    (2 0.32876 0)
-    (2.16438 0.32876 0)
-    (4 0.32876 0)
-    (0 4 0)
-    (2 4 0)
-    (2.16438 4 0)
-    (4 4 0)
-    (0 0 0.1)
-    (2 0 0.1)
-    (2.16438 0 0.1)
-    (4 0 0.1)
-    (0 0.32876 0.1)
-    (2 0.32876 0.1)
-    (2.16438 0.32876 0.1)
-    (4 0.32876 0.1)
-    (0 4 0.1)
-    (2 4 0.1)
-    (2.16438 4 0.1)
-    (4 4 0.1)
+    (  0  0  0 )  // 0 left_bot
+    (  2  0  0 )  // 1 leftdam_bot
+    (  2.16438  0  0 )  // 2 rightdam_bot
+    (  4  0  0 )  // 3 right_bot
+    (  0  0.32873  0 )  // 4 left_topdam
+    (  2  0.32873  0 )  // 5 leftdam_topdam
+    (  2.16438  0.32873  0 )  // 6 rightdam_topdam
+    (  4  0.32873  0 )  // 7 right_topdam
+    (  0  4  0 )  // 8 left_top
+    (  2  4  0 )  // 9 leftdam_top
+    (  2.16438  4  0 )  // 10 rightdam_top
+    (  4  4  0 )  // 11 right_top
+    (  0  0  0.1 )  // 12 left_bot_dz
+    (  2  0  0.1 )  // 13 leftdam_bot_dz
+    (  2.16438  0  0.1 )  // 14 rightdam_bot_dz
+    (  4  0  0.1 )  // 15 right_bot_dz
+    (  0  0.32873  0.1 )  // 16 left_topdam_dz
+    (  2  0.32873  0.1 )  // 17 leftdam_topdam_dz
+    (  2.16438  0.32873  0.1 )  // 18 rightdam_topdam_dz
+    (  4  0.32873  0.1 )  // 19 right_topdam_dz
+    (  0  4  0.1 )  // 20 left_top_dz
+    (  2  4  0.1 )  // 21 leftdam_top_dz
+    (  2.16438  4  0.1 )  // 22 rightdam_top_dz
+    (  4  4  0.1 )  // 23 right_top_dz
 );
 
 blocks
 (
-    hex (0 1 5 4 12 13 17 16) (23 8 1) simpleGrading (1 1 1)
-    hex (2 3 7 6 14 15 19 18) (19 8 1) simpleGrading (1 1 1)
-    hex (4 5 9 8 16 17 21 20) (23 42 1) simpleGrading (1 1 1)
-    hex (5 6 10 9 17 18 22 21) (4 42 1) simpleGrading (1 1 1)
-    hex (6 7 11 10 18 19 23 22) (19 42 1) simpleGrading (1 1 1)
+    hex (0 1 5 4 12 13 17 16) left_bot (23 8 1) simpleGrading (1 1 1)  // left_bot (left_bot leftdam_bot leftdam_topdam left_topdam left_bot_dz leftdam_bot_dz leftdam_topdam_dz left_topdam_dz)
+    hex (2 3 7 6 14 15 19 18) right_bot (19 8 1) simpleGrading (1 1 1)  // right_bot (rightdam_bot right_bot right_topdam rightdam_topdam rightdam_bot_dz right_bot_dz right_topdam_dz rightdam_topdam_dz)
+    hex (4 5 9 8 16 17 21 20) left_top (23 42 1) simpleGrading (1 1 1)  // left_top (left_topdam leftdam_topdam leftdam_top left_top left_topdam_dz leftdam_topdam_dz leftdam_top_dz left_top_dz)
+    hex (5 6 10 9 17 18 22 21) top_dam (4 42 1) simpleGrading (1 1 1)  // top_dam (leftdam_topdam rightdam_topdam rightdam_top leftdam_top leftdam_topdam_dz rightdam_topdam_dz rightdam_top_dz leftdam_top_dz)
+    hex (6 7 11 10 18 19 23 22) right_top (19 42 1) simpleGrading (1 1 1)  // right_top (rightdam_topdam right_topdam right_top rightdam_top rightdam_topdam_dz right_topdam_dz right_top_dz rightdam_top_dz)
 );
 
 edges
@@ -53,47 +61,44 @@ boundary
 (
     leftWall
     {
-        type    wall;
+        type wall;
         faces
         (
-            (0 12 16 4)
-            (4 16 20 8)
+            (0 12 16 4)  // f-left_bot-w (left_bot left_bot_dz left_topdam_dz left_topdam)
+            (4 16 20 8)  // f-left_top-w (left_topdam left_topdam_dz left_top_dz left_top)
         );
     }
     rightWall
     {
-        type    wall;
+        type wall;
         faces
         (
-            (7 19 15 3)
-            (11 23 19 7)
+            (3 7 19 15)  // f-right_bot-e (right_bot right_topdam right_topdam_dz right_bot_dz)
+            (7 11 23 19)  // f-right_top-e (right_topdam right_top right_top_dz right_topdam_dz)
         );
     }
     lowerWall
     {
-        type    wall;
+        type wall;
         faces
         (
-            (0 1 13 12)
-            (1 5 17 13)
-            (5 6 18 17)
-            (2 14 18 6)
-            (2 3 15 14)
+            (0 1 13 12)  // f-left_bot-s (left_bot leftdam_bot leftdam_bot_dz left_bot_dz)
+            (1 5 17 13)  // f-left_bot-e (leftdam_bot leftdam_topdam leftdam_topdam_dz leftdam_bot_dz)
+            (5 6 18 17)  // f-top_dam-s (leftdam_topdam rightdam_topdam rightdam_topdam_dz leftdam_topdam_dz)
+            (2 14 18 6)  // f-right_bot-w (rightdam_bot rightdam_bot_dz rightdam_topdam_dz rightdam_topdam)
+            (2 3 15 14)  // f-right_bot-s (rightdam_bot right_bot right_bot_dz rightdam_bot_dz)
         );
     }
     atmosphere
     {
-        type    patch;
+        type patch;
         faces
         (
-            (8 20 21 9)
-            (9 21 22 10)
-            (10 22 23 11)
+            (9 8 20 21)  // f-left_top-n (leftdam_top left_top left_top_dz leftdam_top_dz)
+            (10 9 21 22)  // f-top_dam-n (rightdam_top leftdam_top leftdam_top_dz rightdam_top_dz)
+            (11 10 22 23)  // f-right_top-n (right_top rightdam_top rightdam_top_dz right_top_dz)
         );
     }
 );
 
-mergePatchPairs
-(
-
-);
+// ************************************************************************* //
