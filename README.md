@@ -51,7 +51,7 @@ on [OpenFOAM].
 
 ```
 
-With a Fluidsimfoam solver, it becomes very easy to
+As shown in [our tutorials], with a Fluidsimfoam solver, it becomes very easy to
 
 - launch/restart simulations with Python scripts and terminal commands,
 - load simulations, read the associated parameters/data and produce nice figures/movies.
@@ -65,7 +65,7 @@ cases. For example, to produce a solver from an existing case, one can run
 fluidsimfoam-initiate-solver cylinder -c $FOAM_TUTORIALS/basic/potentialFoam/cylinder
 ```
 
-This command creates a solver `fluidsimfoam-cylinder` which can be used to run
+This command creates a solver `fluidsimfoam-cylinder` that can be used to run
 the simulation described in the [Flow around a
 cylinder](https://www.openfoam.com/documentation/tutorial-guide/2-incompressible-flow/2.2-flow-around-a-cylinder)
 tutorial. But this solver can very easily be improved to be parametrized and to
@@ -83,7 +83,7 @@ files, modifying field files, writting `blockMeshDict` files, etc.
 
 Fluidsimfoam is now usable but still in quite early development. There are
 still very low hangling fruits not yet implemented (for example, [a restart
-command](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/issues/40)),
+command](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/issues/40),
 [production of figures and
 movies](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/issues/38), etc.) and
 our documentation does not reflect what people can and will be able to do with
@@ -116,6 +116,7 @@ to write Fluidsimfoam solvers targeting any recent OpenFOAM versions.
 [snek5000]: https://snek5000.readthedocs.io
 [Jinja]: https://jinja.palletsprojects.com
 [contributions]: https://fluidsimfoam.readthedocs.io/en/latest/CONTRIBUTING.html
+[our tutorials]: https://fluidsimfoam.readthedocs.io/en/latest/tutorials.html
 [CFD]: https://en.wikipedia.org/wiki/Computational_fluid_dynamics
 
 <!-- end-intro -->
