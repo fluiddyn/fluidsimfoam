@@ -424,13 +424,17 @@ class List(list, Node):
                 )
 
             tmp.append(indentation + header + f"\n{indentation}" + "(")
-            special_keys = {"blocks": "hex", "edges": "spline"}
-            if self._name not in special_keys.keys():
+            special_keyss = {
+                "blocks": ("hex",),
+                "edges": ("spline", "arc", "polyLine", "BSpline", "line"),
+            }
+            if self._name not in special_keyss.keys():
                 tmp.append("\n".join(self._make_list_strings(indent + 4)))
             elif self:
-                special_key = special_keys[self._name]
-                if not self[0] == special_key:
+                special_keys = special_keyss[self._name]
+                if not self[0] in special_keys:
                     raise ValueError(self)
+                special_key = self[0]
                 lines = []
                 items_line = None
                 for item in self:
