@@ -1,8 +1,9 @@
 # Fluidsimfoam documentation
 
-Fluidsimfoam is a Python package and a thin interface over OpenFoam. It provides a
-framework to (i) organize parameters, (ii) launch/restart multiple simulations and (iii)
-load simulations to read the associated parameters/data and produce nice figures/movies.
+Fluidsimfoam is a Python package and a thin interface over [OpenFOAM]. It provides a
+framework to (i) describe in Python sets of similar simulations, (ii) organize
+parameters, (iii) launch/restart multiple simulations and (iv) load simulations to read
+the associated parameters/data and produce nice figures/movies.
 
 ```{list-table}
 * - Repository
@@ -46,3 +47,5 @@ dev/index.md
 - {ref}`genindex`
 - {ref}`modindex`
 - {ref}`search`
+
+[openfoam]: https://openfoam.org/
