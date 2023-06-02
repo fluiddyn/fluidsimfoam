@@ -180,7 +180,7 @@ def initiate_solver():
                 print(f"Not able to format file {relative_path}")
 
             # Trim trailing whitespaces
-            code = re.sub(r"\s+\n", "", code).strip() + "\n"
+            code = re.sub(r"\s+\n", "\n", code).strip() + "\n"
 
             if "{{" in code:
                 # Escape jinja syntax
