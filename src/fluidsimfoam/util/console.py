@@ -4,6 +4,7 @@
 
 import argparse
 import datetime
+import re
 import sys
 from functools import partial
 from importlib import resources
@@ -126,7 +127,7 @@ def initiate_solver():
         "name_project": name_project,
         "name_package": name_package,
         "fluidsimfoam_version": fluidsimfoam_version,
-        "suffix_for_class": camelize(args.name),
+        "suffix_for_class": camelize(suffix_for_module),
         "name_variables": str(name_files["0"]),
         "name_system_files": str(name_files["system"]),
         "name_constant_files": str(name_files["constant"]),
@@ -175,6 +176,15 @@ def initiate_solver():
             code = (path_case / relative_path).read_text()
             code = format_code(code, as_field=as_field)
 
+            # Trim trailing whitespaces
+            code = re.sub(r"\s+\n", "", code).strip() + "\n"
+
+            if "{{" in code:
+                # Escape jinja syntax
+                code_template = "{% raw %}" + code.strip() + "{% endraw %}\n"
+            else:
+                code_template = code
+
             if name_dir == "0":
                 parts = list(relative_path.parts)
                 if parts[0] == "0.orig":
@@ -182,7 +192,9 @@ def initiate_solver():
                     relative_path = Path(*parts)
 
             (path_saved_case / relative_path).write_text(code)
-            (path_templates / (relative_path.name + ".jinja")).write_text(code)
+            (path_templates / (relative_path.name + ".jinja")).write_text(
+                code_template
+            )
 
     if args.from_case is not None:
         for name in ("Allclean", "Allrun"):

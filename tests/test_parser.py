@@ -681,6 +681,21 @@ def test_list_edges(grammar):
 
 
 @both_grammars
+def test_list_edges_arcs(grammar):
+    tree = base_test(
+        """
+        edges
+        (
+            arc 0 5 origin (0 0 0)
+            arc 5 10 origin (0 0 0)
+        );
+        """,
+        grammar=grammar,
+        check_dump=True,
+    )
+
+
+@both_grammars
 def test_list_blocks(grammar):
     tree = base_test(
         """
