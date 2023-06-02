@@ -47,7 +47,7 @@ start_ipython_load_sim = partial(
 
 
 def initiate_solver():
-    from fluidsimfoam.foam_input_files import format_code
+    from fluidsimfoam.foam_input_files import FoamFormatError, format_code
 
     parser = argparse.ArgumentParser(
         prog="fluidsimfoam-initiate-solver",
@@ -174,10 +174,13 @@ def initiate_solver():
 
         for relative_path in path_files_dir:
             code = (path_case / relative_path).read_text()
-            code = format_code(code, as_field=as_field)
+            try:
+                code = format_code(code, as_field=as_field)
+            except FoamFormatError:
+                print(f"Not able to format file {relative_path}")
 
             # Trim trailing whitespaces
-            code = re.sub(r"\s+\n", "", code).strip() + "\n"
+            code = re.sub(r"\s+\n", "\n", code).strip() + "\n"
 
             if "{{" in code:
                 # Escape jinja syntax

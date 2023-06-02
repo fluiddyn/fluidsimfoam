@@ -8,6 +8,7 @@
     ast
     generators
     parser
+    format
 
 .. rubric:: Helper to create input files
 
@@ -24,7 +25,6 @@
     util
 
 """
-
 from abc import ABC, abstractmethod
 
 from inflection import underscore
@@ -54,6 +54,8 @@ __all__ = [
     "FvOptionsHelper",
     "DimensionSet",
     "DecomposeParDictHelper",
+    "format_code",
+    "FoamFormatError",
 ]
 
 
@@ -122,12 +124,6 @@ from .fields import (
     create_field_from_code,
     read_field_file,
 )
+from .format import FoamFormatError, format_code
 from .fv_options import FvOptionsHelper
 from .fv_schemes import FvSchemesHelper
-
-
-def format_code(code, as_field=False):
-    if not as_field:
-        return dump(parse(code))
-    else:
-        return create_field_from_code(code).dump()
