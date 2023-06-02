@@ -20,34 +20,36 @@ def make_code_blockmesh(bmd_params):
 
 
 def make_spline_points_sin(nx, lx, h_max, z):
-    x_dot = np.linspace(0, lx, nx)
-    y_dot = []
-    for x in x_dot:
-        y_dot.append(
-            (h_max / 2)
-            * (1 - np.cos(2 * np.pi * min(abs((x - (lx / 2)) / lx), 1)))
-        )
-
-    return [Point(x, y, z) for x, y in zip(x_dot, y_dot)]
+    x = np.linspace(0, lx, nx)
+    fx = (h_max / 2) * (1 - np.cos(2 * np.pi * abs((x - (lx / 2)) / lx)))
+    return [Point(x, y, z) for x, y in zip(x, fx)]
 
 
 def make_spline_points_gaussian(
-    n_points, curve_end, mu, sig, h_max, curve_start, offset, direction
+    n_points, mu, sigma, curve_start, curve_end, h_max, plane, offset
 ):
-    sig *= mu
+    """n_points: number of points to generate spline
+    mu: mean of gaussian distribution value (center of hill)
+    sigma: standard deviation of gaussian distribution divided by mu
+    curve_start: starting point of curve(hill)
+    curve_end: end point of curve(hill)
+    h_max: maximum height of hill
+    plane: the plane that curve is in it, like: 'xy', 'xz' and 'yz'
+    offset: location of plane on the other coordinate"""
+    sigma *= mu
     length = np.abs(curve_end - curve_start)
-    x_dot = np.linspace(0, length, n_points)
-    y_dot = np.exp(-np.power(x_dot - mu, 2.0) / (2 * np.power(sig, 2.0)))
+    x = np.linspace(0, length, n_points)
 
-    y_dot *= 1 / np.max(y_dot) * h_max
-    x_dot = np.linspace(curve_start, curve_end, n_points)
+    fx = np.exp(-np.power(x - mu, 2.0) / (2 * np.power(sigma, 2.0))) * h_max
 
-    if direction == "yz":
-        return [Point(offset, y, z) for y, z in zip(x_dot, y_dot)]
-    elif direction == "xz":
-        return [Point(x, offset, z) for x, z in zip(x_dot, y_dot)]
-    elif direction == "xy":
-        return [Point(x, y, offset) for x, y in zip(x_dot, y_dot)]
+    x = np.linspace(curve_start, curve_end, n_points)
+
+    if plane == "yz":
+        return [Point(offset, y, z) for y, z in zip(x, fx)]
+    elif plane == "xz":
+        return [Point(x, offset, z) for x, z in zip(x, fx)]
+    elif plane == "xy":
+        return [Point(x, y, offset) for x, y in zip(x, fx)]
 
 
 def make_code_sinus(bmd_params):
@@ -167,7 +169,7 @@ def make_code_2d_phill(bmd_params):
 
     hill_end = hill_start + l_hill
 
-    sig = bmd_params.sig  # variance of gaussian distribution
+    sigma = bmd_params.sigma  # variance of gaussian distribution
     mu = 0.5 * (l_hill)  # mean of gaussian distribution
 
     nx_up_stream = int(nx * hill_start / lx)
@@ -265,7 +267,7 @@ def make_code_2d_phill(bmd_params):
         ["v-bot-hill_start-z0", "v-bot-hill_end-z0"],
         "spline-z0",
         make_spline_points_gaussian(
-            n_points, hill_end, mu, sig, h_max, hill_start, 0, "xy"
+            n_points, mu, sigma, hill_start, hill_end, h_max, "xy", 0
         ),
     )
 
@@ -273,7 +275,7 @@ def make_code_2d_phill(bmd_params):
         ["v-bot-hill_start-z", "v-bot-hill_end-z"],
         "spline-z",
         make_spline_points_gaussian(
-            n_points, hill_end, mu, sig, h_max, hill_start, lz, "xy"
+            n_points, mu, sigma, hill_start, hill_end, h_max, "xy", lz
         ),
     )
 
@@ -334,7 +336,7 @@ def make_code_3d_phill(bmd_params):
     h_max = bmd_params.h_max
     l_p = bmd_params.ly_porosity
 
-    sig = bmd_params.sig  # variance of gaussian distribution
+    sigma = bmd_params.sigma  # variance of gaussian distribution
 
     x_expansion_ratio = 1
     y_expansion_ratio = 1
@@ -446,7 +448,7 @@ def make_code_3d_phill(bmd_params):
         ["v-s-z0", "v-c-z0"],
         "spline-s",
         make_spline_points_gaussian(
-            n_points, 0, ly / 2, sig, h_max, -ly / 2, 0, "yz"
+            n_points, ly / 2, sigma, -ly / 2, 0, h_max, "yz", 0
         ),
     )
 
@@ -454,7 +456,7 @@ def make_code_3d_phill(bmd_params):
         ["v-e-z0", "v-c-z0"],
         "spline-e",
         make_spline_points_gaussian(
-            n_points, 0, lx / 2, sig, h_max, lx / 2, 0, "xz"
+            n_points, lx / 2, sigma, lx / 2, 0, h_max, "xz", 0
         ),
     )
 
@@ -462,7 +464,7 @@ def make_code_3d_phill(bmd_params):
         ["v-n-z0", "v-c-z0"],
         "spline-n",
         make_spline_points_gaussian(
-            n_points, 0, ly / 2, sig, h_max, ly / 2, 0, "yz"
+            n_points, ly / 2, sigma, ly / 2, 0, h_max, "yz", 0
         ),
     )
 
@@ -470,7 +472,7 @@ def make_code_3d_phill(bmd_params):
         ["v-w-z0", "v-c-z0"],
         "spline-w",
         make_spline_points_gaussian(
-            n_points, 0, lx / 2, sig, h_max, -lx / 2, 0, "xz"
+            n_points, lx / 2, sigma, -lx / 2, 0, h_max, "xz", 0
         ),
     )
 

@@ -94,10 +94,7 @@ class MergePatchPairs:
         self.boundary_name2 = boundary_name2
 
     def format(self):
-        comment = (
-            f"merge patch pairs: {self.boundary_name1} and {self.boundary_name2}"
-        )
-        return f"({self.boundary_name1} {self.boundary_name2})  // ({comment:s})"
+        return f"({self.boundary_name1} {self.boundary_name2})"
 
 
 class HexBlock:

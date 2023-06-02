@@ -175,7 +175,7 @@ class OutputPHill(Output):
                 "l_hill": 0.9,
                 "hill_start": 0.6,
                 "scale": 1,
-                "sig": 0.2,
+                "sigma": 0.2,
                 "geometry": "sinus",
             }
         )

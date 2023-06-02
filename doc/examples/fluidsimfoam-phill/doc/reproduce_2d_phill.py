@@ -15,7 +15,7 @@ params.control_dict.end_time = day
 params.control_dict.delta_t = 10
 params.control_dict.write_interval = 2 * hour
 
-# Units are in kilometer:
+# Units are in meter:
 params.block_mesh_dict.geometry = "2d_phill"
 params.block_mesh_dict.lx = 6
 params.block_mesh_dict.ly = 1
@@ -25,10 +25,10 @@ params.block_mesh_dict.hill_start = 0.6  # hill location
 params.block_mesh_dict.h_max = 0.2  # hill height
 params.block_mesh_dict.ly_porosity = 1  # sponge layer height
 
-params.block_mesh_dict.sig = 0.2  # hill sharpness
+params.block_mesh_dict.sigma = 0.2  # hill sharpness
 
 
-params.block_mesh_dict.nx = 60
+params.block_mesh_dict.nx = 200
 params.block_mesh_dict.ny = 30
 params.block_mesh_dict.nz = 1
 params.block_mesh_dict.n_porosity = 15
