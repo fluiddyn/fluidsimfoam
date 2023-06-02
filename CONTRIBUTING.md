@@ -1,5 +1,10 @@
 # Contributing
 
+The project is hosted on <https://foss.heptapod.net>. Don't look for a fork button
+because it does not exist. To contribute, the first step is to open an issue on
+[our bug tracker](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/issues) so that we
+give you the needed rights on the repo.
+
 ## Installation for development
 
 After installing [Poetry] (for example with something like `pip install poetry`), the

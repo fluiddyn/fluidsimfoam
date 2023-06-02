@@ -8,7 +8,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ```{warning}
 
 Fluidsimfoam is still in quite early development. Before version 0.1.0, the API
-is completely unstable!
+is still a bit unstable!
 
 ```
 
@@ -37,9 +37,23 @@ Security in case of vulnerabilities.
 
 ## [Unreleased]
 
+- `params.resources` to copy files and directories in the simulation directories. These
+  files can be saved in the solver packages.
+
+- Support for `setFieldsDict` files
+
+- Command `fluidsimfoam-initiate-solver`
+
+- [dam] solver to reproduce the [Breaking of a dam tutorial]
+
+- `fluidsim_core==0.7.3`
+
+- {func}`fluidsimfoam.output.get_mean_values_from_path` and
+  {func}`fluidsimfoam.output.get_dataframe_from_paths`
+
 - Merge request
-  [!54](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/merge_requests/54):
-  parallel simulations
+  [!54](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/merge_requests/54): parallel
+  simulations
 
   - {class}`fluidsimfoam.foam_input_files.decompose_par.DecomposeParDictHelper`
   - Improve `run` task to call `decomposePar` and `mpirun`
@@ -102,7 +116,9 @@ Security in case of vulnerabilities.
 
 [0.0.3]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.2...0.0.3
 [0.0.4]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.3...0.0.4
+[breaking of a dam tutorial]: https://www.openfoam.com/documentation/tutorial-guide/4-multiphase-flow/4.1-breaking-of-a-dam
 [cavity]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cavity
 [cbox]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cbox
+[dam]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-dam
 [phill]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-phill
 [unreleased]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.4...branch%2Fdefault
