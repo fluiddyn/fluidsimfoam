@@ -45,6 +45,12 @@ class Vertex:
             comment += " : " + " ".join(sorted(self.alias))
         return f"( {self.x: .15g} {self.y: .15g} {self.z: .15g} )  // {comment}"
 
+    def __repr__(self):
+        return f"Vertex({self.x}, {self.y}, {self.z}, {self.name})"
+
+    def copy(self):
+        return type(self)(self.x, self.y, self.z, self.name)
+
     def __lt__(self, rhs):
         return (self.z, self.y, self.x) < (rhs.z, rhs.y, rhs.x)
 
@@ -163,6 +169,9 @@ class HexBlock:
             parts.append(index_to_defaultsuffix[index])
             name = "-".join(parts)
         return Face(vnames, name)
+
+    def faces(self, *args):
+        return [self.face(arg) for arg in args]
 
 
 class Boundary:
