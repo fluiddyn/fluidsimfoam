@@ -54,9 +54,9 @@ class OutputDam(Output):
         super()._complete_params_block_mesh_dict(params)
         params.block_mesh_dict._update_attribs(
             {
-                "nx": 1,
-                "ny": 1,
-                "nz": 120,
+                "nx": 46,
+                "ny": 50,
+                "nz": 1,
                 "scale": 0.146,
                 "lx": 4.0,
                 "ly": 4.0,
@@ -81,6 +81,15 @@ class OutputDam(Output):
         width_dam = p_bmd.width_dam
         x1_dam = x_dam + width_dam
         height_dam = p_bmd.height_dam
+
+        dx = lx / nx
+        nx_left = int(x_dam / dx)
+        nx_dam = max(4, int(height_dam / dx))
+        nx_right = nx - nx_dam - nx_left
+
+        dy = ly / ny
+        ny_bot = max(8, int(height_dam / dy))
+        ny_top = ny - ny_bot
 
         bmd = BlockMeshDict()
 
@@ -116,31 +125,31 @@ class OutputDam(Output):
 
         b_bot_left = add_add_hexblock(
             ["bot_left", "bot_leftdam", "topdam_leftdam", "topdam_left"],
-            [23, 8, 1],
+            [nx_left, ny_bot, nz],
             "bot_left",
         )
 
         b_bot_right = add_add_hexblock(
             ["bot_rightdam", "bot_right", "topdam_right", "topdam_rightdam"],
-            [19, 8, 1],
+            [nx_right, ny_bot, nz],
             "bot_right",
         )
 
         b_top_left = add_add_hexblock(
             ["topdam_left", "topdam_leftdam", "top_leftdam", "top_left"],
-            [23, 42, 1],
+            [nx_left, ny_top, nz],
             "top_left",
         )
 
         b_top_dam = add_add_hexblock(
             ["topdam_leftdam", "topdam_rightdam", "top_rightdam", "top_leftdam"],
-            [4, 42, 1],
+            [nx_dam, ny_top, nz],
             "top_dam",
         )
 
         b_top_right = add_add_hexblock(
             ["topdam_rightdam", "topdam_right", "top_right", "top_rightdam"],
-            [19, 42, 1],
+            [nx_right, ny_top, nz],
             "top_right",
         )
 
