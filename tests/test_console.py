@@ -1,8 +1,11 @@
+import os
 import sys
 from pathlib import Path
 from subprocess import run
 from tempfile import mkdtemp
 from unittest.mock import patch
+
+import pytest
 
 from fluidsimfoam.util.console import (
     initiate_solver,
@@ -20,13 +23,39 @@ def test_start_ipython_load_sim(mocker):
     start_ipython_load_sim()
 
 
-def test_initiate_solver():
-    path_case = Path(__file__).absolute().parent / "saved_cases/tiny-tgv"
+path_cases = [Path(__file__).absolute().parent / "saved_cases/tiny-tgv"]
+
+
+path_foam_tutorials = os.environ.get("FOAM_TUTORIALS", None)
+FLUIDSIMFOAM_LONG_TESTS = int(os.environ.get("FLUIDSIMFOAM_LONG_TESTS", 0))
+if path_foam_tutorials is not None and FLUIDSIMFOAM_LONG_TESTS:
+    # taken from https://www.openfoam.com/documentation/tutorial-guide
+    main_tutorials = """
+        incompressible/icoFoam/cavity/cavity
+        electromagnetics/mhdFoam/hartmann
+        basic/potentialFoam/cylinder
+        incompressible/simpleFoam/pitzDaily
+        compressible/sonicFoam/laminar/forwardStep
+        compressible/sonicLiquidFoam/decompressionTank
+        multiphase/interFoam/laminar/damBreak/damBreak
+        stressAnalysis/solidDisplacementFoam/plateHole
+    """.strip().split(
+        "\n"
+    )
+    path_foam_tutorials = Path(path_foam_tutorials)
+    path_main_tutorials = [
+        path_foam_tutorials / rel_path.strip() for rel_path in main_tutorials
+    ]
+    path_cases.extend(path_main_tutorials)
+
+
+@pytest.mark.parametrize("path_case", path_cases)
+def test_initiate_solver(path_case):
     assert path_case.exists()
 
     tmp_dir = mkdtemp()
 
-    short_name = "tgv2"
+    short_name = path_case.name + "_for_test"
 
     with patch.object(
         sys,
@@ -46,17 +75,20 @@ def test_initiate_solver():
     path_solver = Path(tmp_dir) / name_project
     assert path_solver.exists()
 
+    name_4module = short_name.replace("-", "_")
     relative_paths = ["LICENSE", "README.md", "pyproject.toml"]
     relative_paths.extend(
-        "src/fluidsimfoam_tgv2/" + name for name in ["__init__.py", "output.py"]
+        f"src/fluidsimfoam_{name_4module}/" + name
+        for name in ["__init__.py", "output.py"]
     )
     relative_paths.extend(
         [
-            "src/fluidsimfoam_tgv2/templates/tasks.py",
-            "tests/test_tgv2.py",
-            "tests/saved_cases/case0/Allrun",
+            f"src/fluidsimfoam_{name_4module}/templates/tasks.py",
+            f"tests/test_{name_4module}.py",
         ]
     )
+    if (path_case / "Allrun").exists():
+        relative_paths.append("tests/saved_cases/case0/Allrun")
 
     for relative_path in relative_paths:
         path_to_check = path_solver / relative_path
