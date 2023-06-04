@@ -12,14 +12,14 @@ Python framework for [OpenFOAM]
 <!-- start-intro -->
 
 [OpenFOAM] is a very popular open-source C++ [CFD] framework. With
-Fluidsimfoam, we try to **design and propose a new workflow for [OpenFOAM]
-based on Python**. However, experienced [OpenFOAM] users won't be lost because
-Fluidsimfoam produces in the end standard [OpenFOAM] cases and it's always
-possible to come back to the standard [OpenFOAM] workflow.
+Fluidsimfoam, we try to **design and propose a new workflow for OpenFOAM
+based on Python**. However, experienced OpenFOAM users won't be lost because
+Fluidsimfoam produces in the end standard OpenFOAM cases and it's always
+possible to come back to the standard OpenFOAM workflow.
 
-Fluidsimfoam can be seen as a workflow manager for [OpenFOAM] or a Python
-wrapper around [OpenFOAM]. It only uses [OpenFOAM] commands on the background
-and is thus NOT a rewrite of [OpenFOAM]!
+Fluidsimfoam can be seen as a workflow manager for OpenFOAM or a Python
+wrapper around OpenFOAM. It only uses OpenFOAM commands on the background
+and is thus NOT a rewrite of OpenFOAM!
 
 Fluidsimfoam should be especially useful for:
 
@@ -29,11 +29,11 @@ Fluidsimfoam should be especially useful for:
   [here](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/scripts/2023sed-parametric)).
 
 However, Fluidsimfoam is not restricted to these usages and should be
-convenient, especially for people knowing Python, for any [OpenFOAM] usages for
+convenient, especially for people knowing Python, for any OpenFOAM usages for
 which C++ programming is not needed.
 
-Working with [OpenFOAM] implies writting and modifying a lot of input files
-describing a simulation. The method described in the official [OpenFOAM]
+Working with OpenFOAM implies writting and modifying a lot of input files
+describing a simulation. The method described in the official OpenFOAM
 documentations is to copy an existing simulation directory and to modify the
 input files by hand.
 
@@ -44,10 +44,10 @@ description of one set of simulations is done in Python (and possibly with
 
 ```{warning}
 
-"[Fluidsim] solver" and "[OpenFOAM] solvers" are very different things. A
-[Fluidsim] solver is a small Python package describing a set of simulations.
-Fluidsimfoam allows one to write [Fluidsim] solvers based for the simulations
-on [OpenFOAM].
+"[Fluidsim] solver" and "OpenFOAM solvers" are very different things. A
+Fluidsim solver is a small Python package describing a set of simulations.
+Fluidsimfoam allows one to write Fluidsim solvers based for the simulations
+on OpenFOAM.
 
 ```
 
@@ -58,7 +58,7 @@ As shown in [our tutorials], with a Fluidsimfoam solver, it becomes very easy to
 
 There are open-source solvers (some of them [are included in our main
 repository](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples))
-and it is not be difficult to write your own solver based on your [OpenFOAM]
+and it is not be difficult to write your own solver based on your OpenFOAM
 cases. For example, to produce a solver from an existing case, one can run
 
 ```sh
@@ -70,7 +70,7 @@ the simulation described in the [Flow around a
 cylinder](https://www.openfoam.com/documentation/tutorial-guide/2-incompressible-flow/2.2-flow-around-a-cylinder)
 tutorial. But this solver can very easily be improved to be parametrized and to
 produce some input files programmatically. For example, the mesh of this
-tutorial is produced with the `blockMesh` [OpenFOAM] utility and the
+tutorial is produced with the `blockMesh` OpenFOAM utility and the
 `blockMeshDict` is quite complex and contains a `#codeStream` directive (which
 implies writting C++ and compilations). With Fluidsimfoam, you can avoid this
 step and produce the `blockMeshDict` programmatically with a nice Python API
@@ -82,8 +82,8 @@ provided by Fluidsimfoam for some common tasks, like parsing/writting input
 files, modifying field files, writting `blockMeshDict` files, etc.
 
 Fluidsimfoam is now usable but still in quite early development. There are
-still very low hangling fruits not yet implemented (for example, [a restart
-command](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/issues/40),
+still very low hangling fruits not yet implemented (for example, [restart
+utilities](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/issues/40),
 [production of figures and
 movies](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/issues/38), etc.) and
 our documentation does not reflect what people can and will be able to do with
@@ -99,7 +99,7 @@ this project is interesting please *star* [our repository on
 Heptapod](https://foss.heptapod.net/fluiddyn/fluidsimfoam) and/or [open
 issues](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/issues) with
 feedback, feature requests or bug reports. Moreover, we would be very happy to
-welcome new core developers, so if you like [OpenFOAM] and Python, do not
+welcome new core developers, so if you like OpenFOAM and Python, do not
 hesitate!
 
 ```
