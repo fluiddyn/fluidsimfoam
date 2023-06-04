@@ -31,6 +31,13 @@ sim = Simul(params)
 ```
 
 ```{code-cell} ipython3
+---
+tags: [hide-output]
+---
+sim.make.exec("polymesh")
+```
+
+```{code-cell} ipython3
 sim.make.exec("run")
 ```
 
@@ -49,6 +56,9 @@ sim = Simul(params)
 ```
 
 ```{code-cell} ipython3
+---
+tags: [hide-output]
+---
 sim.make.exec("run")
 ```
 
@@ -60,5 +70,8 @@ sim = Simul(params)
 ```
 
 ```{code-cell} ipython3
+---
+tags: [hide-output]
+---
 sim.make.exec("run")
 ```
