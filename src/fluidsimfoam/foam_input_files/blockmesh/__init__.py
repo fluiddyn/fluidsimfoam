@@ -108,9 +108,10 @@ class HexBlock:
         index = " ".join(str(vertices[vn].index) for vn in self.vnames)
         comment = " ".join(self.vnames)
         return (
+            f"// {self.name} ({comment})\n    "
             f"hex ({index}) {self.name} "
             f"({self.cells[0]:d} {self.cells[1]:d} {self.cells[2]:d}) "
-            f"{self.grading.format()}  // {self.name} ({comment})"
+            f"{self.grading.format()}"
         )
 
     def face(self, index, name=None):
