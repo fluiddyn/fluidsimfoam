@@ -12,18 +12,20 @@ params.constant.transport.pr = 0.01
 hour = 3600
 day = 24 * hour
 params.control_dict.end_time = day
-params.control_dict.write_interval = 2 * hour
+# time step mentioned in https://www.theses.fr/2020GRALU022
 params.control_dict.delta_t = 10
+params.control_dict.write_interval = 2 * hour
 
-# Units are in meter:
+# lengths are in meters
 params.block_mesh_dict.geometry = "3d_phill"
 params.block_mesh_dict.lx = 10
 params.block_mesh_dict.ly = 10
 params.block_mesh_dict.lz = 10
-params.block_mesh_dict.h_max = 3  # hill height
-params.block_mesh_dict.ly_porosity = 10  # sponge layer height
+params.block_mesh_dict.ly_porosity = 10
 
-params.block_mesh_dict.sigma = 0.2  # hill sharpness
+# geometry parameters
+params.block_mesh_dict.h_max = 3
+params.block_mesh_dict.sigma = 0.2
 
 params.block_mesh_dict.nx = 50
 params.block_mesh_dict.ny = 50

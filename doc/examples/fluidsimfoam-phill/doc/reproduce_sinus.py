@@ -15,12 +15,13 @@ params.control_dict.end_time = day
 params.control_dict.delta_t = 10
 params.control_dict.write_interval = 2 * hour
 
-# Units are in meter:
+# lengths are in meters
 params.block_mesh_dict.geometry = "sinus"
 params.block_mesh_dict.lx = 2000
 params.block_mesh_dict.ly = 2000
-params.block_mesh_dict.ly_porosity = 3000  # sponge layer height
-params.block_mesh_dict.h_max = 80  # hill height
+params.block_mesh_dict.ly_porosity = 3000
+
+params.block_mesh_dict.h_max = 80
 
 params.block_mesh_dict.nx = 20
 params.block_mesh_dict.ny = 50
