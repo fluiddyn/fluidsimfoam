@@ -303,22 +303,42 @@ class BlockMeshDict:
             names = [v[0] for v in group]
             self.reduce_vertex(*names)
 
-    def replicate_vertices_further_z(self, dz, add_to_name="_dz"):
+    def replicate_vertices_further_z(self, z, suffix="_dz", vnames=None):
         """Helper for 2d meshes"""
-        for vertex_z0 in self.vertices.copy().values():
+        if vnames is None:
+            vnames = tuple(self.vertices.keys())
+        for vname in vnames:
+            vertex_z0 = self.vertices[vname]
             vertex_z1 = vertex_z0.copy()
-            vertex_z1.z = dz
-            vertex_z1.name += add_to_name
+            vertex_z1.z = z
+            vertex_z1.name += suffix
             self.add_vertex(vertex_z1)
 
     def add_hexblock(
-        self, vnames, cells, name=None, grading=SimpleGrading(1, 1, 1)
+        self, vnames, nx_ny_nz, name=None, grading=SimpleGrading(1, 1, 1)
     ):
         if name is None:
             name = f"b{len(self.blocks)}"
-        b = HexBlock(vnames, cells, name, grading)
+        b = HexBlock(vnames, nx_ny_nz, name, grading)
         self.blocks[name] = b
         return b
+
+    def add_hexblock_from_2d(
+        self,
+        vnames,
+        nx_ny_nz,
+        name=None,
+        grading=SimpleGrading(1, 1, 1),
+        suffix_zm="",
+        suffix_zp="_dz",
+    ):
+        return self.add_hexblock(
+            [vname + suffix_zm for vname in vnames]
+            + [vname + suffix_zp for vname in vnames],
+            nx_ny_nz,
+            name,
+            grading,
+        )
 
     def add_arcedge(self, vnames, name, inter_vertex):
         e = ArcEdge(vnames, name, inter_vertex)

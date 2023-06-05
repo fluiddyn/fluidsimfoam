@@ -4,7 +4,6 @@ from fluidsimfoam.foam_input_files.blockmesh import (
     BlockMeshDict,
     Point,
     SimpleGrading,
-    Vertex,
 )
 
 possible_geometries = ("sinus", "2d_phill", "3d_phill")
@@ -50,6 +49,8 @@ def make_spline_points_gaussian(
         return [Point(x, offset, z) for x, z in zip(x, fx)]
     elif plane == "xy":
         return [Point(x, y, offset) for x, y in zip(x, fx)]
+    else:
+        raise NotImplementedError(f"{plane = } is not implemented!")
 
 
 def make_code_sinus(bmd_params):
@@ -63,7 +64,7 @@ def make_code_sinus(bmd_params):
     lz = bmd_params.lz
     ly_p = bmd_params.ly_porosity
 
-    h_max = bmd_params.h_max  # hill height
+    h_max = bmd_params.h_max
 
     x_expansion_ratio = 1
     y_expansion_ratio = [[0.1, 0.25, 41.9], [0.9, 0.75, 1]]
@@ -72,59 +73,38 @@ def make_code_sinus(bmd_params):
     bmd = BlockMeshDict()
     bmd.set_scale(bmd_params.scale)
 
-    basevs = [
-        Vertex(0, h_max, lz, "v-bot-inlet"),
-        Vertex(lx, h_max, lz, "v-bot-outlet"),
-        Vertex(lx, ly, lz, "v-top-outlet"),
-        Vertex(lx, ly + ly_p, lz, "v-sponge-outlet"),
-        Vertex(0, ly + ly_p, lz, "v-sponge-inlet"),
-        Vertex(0, ly, lz, "v-top-inlet"),
-    ]
+    for x_y_z_name in (
+        (0, h_max, 0, "v-bot-inlet"),
+        (lx, h_max, 0, "v-bot-outlet"),
+        (lx, ly, 0, "v-top-outlet"),
+        (lx, ly + ly_p, 0, "v-sponge-outlet"),
+        (0, ly + ly_p, 0, "v-sponge-inlet"),
+        (0, ly, 0, "v-top-inlet"),
+    ):
+        bmd.add_vertex(*x_y_z_name)
 
-    for v in basevs:
-        bmd.add_vertex(v.x, v.y, 0, v.name + "-z0")
-    for v in basevs:
-        bmd.add_vertex(v.x, v.y, v.z, v.name + "-z")
+    bmd.replicate_vertices_further_z(lz)
 
-    b0 = bmd.add_hexblock(
-        (
-            "v-bot-inlet-z0",
-            "v-bot-outlet-z0",
-            "v-top-outlet-z0",
-            "v-top-inlet-z0",
-            "v-bot-inlet-z",
-            "v-bot-outlet-z",
-            "v-top-outlet-z",
-            "v-top-inlet-z",
-        ),
-        (nx, ny, nz),
+    b0 = bmd.add_hexblock_from_2d(
+        ["v-bot-inlet", "v-bot-outlet", "v-top-outlet", "v-top-inlet"],
+        [nx, ny, nz],
         "hill",
         SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
     )
 
-    b1 = bmd.add_hexblock(
-        (
-            "v-top-inlet-z0",
-            "v-top-outlet-z0",
-            "v-sponge-outlet-z0",
-            "v-sponge-inlet-z0",
-            "v-top-inlet-z",
-            "v-top-outlet-z",
-            "v-sponge-outlet-z",
-            "v-sponge-inlet-z",
-        ),
-        (nx, n_porosity, nz),
+    b1 = bmd.add_hexblock_from_2d(
+        ["v-top-inlet", "v-top-outlet", "v-sponge-outlet", "v-sponge-inlet"],
+        [nx, n_porosity, nz],
         "porosity",
-        SimpleGrading(1, 1, 1),
     )
 
     bmd.add_splineedge(
-        ["v-bot-inlet-z0", "v-bot-outlet-z0"],
+        ["v-bot-inlet", "v-bot-outlet"],
         "spline-z0",
         make_spline_points_sin(nx, lx, h_max, 0),
     )
     bmd.add_splineedge(
-        ["v-bot-inlet-z", "v-bot-outlet-z"],
+        ["v-bot-inlet_dz", "v-bot-outlet_dz"],
         "spline-z",
         make_spline_points_sin(nx, lx, h_max, lz),
     )
@@ -152,7 +132,8 @@ def make_code_sinus(bmd_params):
 
 
 def make_code_2d_phill(bmd_params):
-    n_points = 50  # number of points for making gaussian distribution
+    # number of points for making gaussian distribution
+    n_points = 50
 
     nx = bmd_params.nx
     ny = bmd_params.ny
@@ -169,8 +150,11 @@ def make_code_2d_phill(bmd_params):
 
     hill_end = hill_start + l_hill
 
-    sigma = bmd_params.sigma  # variance of gaussian distribution
-    mu = 0.5 * (l_hill)  # mean of gaussian distribution
+    # variance of gaussian distribution
+    sigma = bmd_params.sigma
+
+    # mean of gaussian distribution
+    mu = 0.5 * l_hill
 
     nx_up_stream = int(nx * hill_start / lx)
     nx_hill = int(nx * l_hill / lx)
@@ -183,88 +167,56 @@ def make_code_2d_phill(bmd_params):
     bmd = BlockMeshDict()
     bmd.set_scale(bmd_params.scale)
 
-    basevs = [
-        Vertex(0, 0, lz, "v-bot-inlet"),
-        Vertex(hill_start, 0, lz, "v-bot-hill_start"),
-        Vertex(hill_end, 0, lz, "v-bot-hill_end"),
-        Vertex(lx, 0, lz, "v-bot-outlet"),
-        Vertex(lx, ly, lz, "v-top-outlet"),
-        Vertex(hill_end, ly, lz, "v-top-hill_end"),
-        Vertex(hill_start, ly, lz, "v-top-hill_start"),
-        Vertex(0, ly, lz, "v-top-inlet"),
-        Vertex(lx, ly + ly_p, lz, "v-sponge-outlet"),
-        Vertex(0, ly + ly_p, lz, "v-sponge-inlet"),
-    ]
+    for x_y_z_name in (
+        (0, 0, 0, "v-bot-inlet"),
+        (hill_start, 0, 0, "v-bot-hill_start"),
+        (hill_end, 0, 0, "v-bot-hill_end"),
+        (lx, 0, 0, "v-bot-outlet"),
+        (lx, ly, 0, "v-top-outlet"),
+        (hill_end, ly, 0, "v-top-hill_end"),
+        (hill_start, ly, 0, "v-top-hill_start"),
+        (0, ly, 0, "v-top-inlet"),
+        (lx, ly + ly_p, 0, "v-sponge-outlet"),
+        (0, ly + ly_p, 0, "v-sponge-inlet"),
+    ):
+        bmd.add_vertex(*x_y_z_name)
 
-    for v in basevs:
-        bmd.add_vertex(v.x, v.y, 0, v.name + "-z0")
-        bmd.add_vertex(v.x, v.y, v.z, v.name + "-z")
+    bmd.replicate_vertices_further_z(lz)
 
-    b0 = bmd.add_hexblock(
-        (
-            "v-bot-inlet-z0",
-            "v-bot-hill_start-z0",
-            "v-top-hill_start-z0",
-            "v-top-inlet-z0",
-            "v-bot-inlet-z",
-            "v-bot-hill_start-z",
-            "v-top-hill_start-z",
-            "v-top-inlet-z",
-        ),
-        (nx_up_stream, ny, nz),
+    b0 = bmd.add_hexblock_from_2d(
+        ["v-bot-inlet", "v-bot-hill_start", "v-top-hill_start", "v-top-inlet"],
+        [nx_up_stream, ny, nz],
         "b-up_stream",
         SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
     )
 
-    b1 = bmd.add_hexblock(
-        (
-            "v-bot-hill_start-z0",
-            "v-bot-hill_end-z0",
-            "v-top-hill_end-z0",
-            "v-top-hill_start-z0",
-            "v-bot-hill_start-z",
-            "v-bot-hill_end-z",
-            "v-top-hill_end-z",
-            "v-top-hill_start-z",
-        ),
-        (nx_hill, ny, nz),
+    b1 = bmd.add_hexblock_from_2d(
+        [
+            "v-bot-hill_start",
+            "v-bot-hill_end",
+            "v-top-hill_end",
+            "v-top-hill_start",
+        ],
+        [nx_hill, ny, nz],
         "b-hill",
         SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
     )
 
-    b2 = bmd.add_hexblock(
-        (
-            "v-bot-hill_end-z0",
-            "v-bot-outlet-z0",
-            "v-top-outlet-z0",
-            "v-top-hill_end-z0",
-            "v-bot-hill_end-z",
-            "v-bot-outlet-z",
-            "v-top-outlet-z",
-            "v-top-hill_end-z",
-        ),
-        (nx_down_stream, ny, nz),
+    b2 = bmd.add_hexblock_from_2d(
+        ["v-bot-hill_end", "v-bot-outlet", "v-top-outlet", "v-top-hill_end"],
+        [nx_down_stream, ny, nz],
         "b-down_stream",
         SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
     )
-    b3 = bmd.add_hexblock(
-        (
-            "v-top-inlet-z0",
-            "v-top-outlet-z0",
-            "v-sponge-outlet-z0",
-            "v-sponge-inlet-z0",
-            "v-top-inlet-z",
-            "v-top-outlet-z",
-            "v-sponge-outlet-z",
-            "v-sponge-inlet-z",
-        ),
-        (nx, n_porosity, nz),
+
+    b3 = bmd.add_hexblock_from_2d(
+        ["v-top-inlet", "v-top-outlet", "v-sponge-outlet", "v-sponge-inlet"],
+        [nx, n_porosity, nz],
         "porosity",
-        SimpleGrading(1, 1, 1),
     )
 
     bmd.add_splineedge(
-        ["v-bot-hill_start-z0", "v-bot-hill_end-z0"],
+        ["v-bot-hill_start", "v-bot-hill_end"],
         "spline-z0",
         make_spline_points_gaussian(
             n_points, mu, sigma, hill_start, hill_end, h_max, "xy", 0
@@ -272,7 +224,7 @@ def make_code_2d_phill(bmd_params):
     )
 
     bmd.add_splineedge(
-        ["v-bot-hill_start-z", "v-bot-hill_end-z"],
+        ["v-bot-hill_start_dz", "v-bot-hill_end_dz"],
         "spline-z",
         make_spline_points_gaussian(
             n_points, mu, sigma, hill_start, hill_end, h_max, "xy", lz
@@ -323,7 +275,8 @@ def make_code_2d_phill(bmd_params):
 
 
 def make_code_3d_phill(bmd_params):
-    n_points = 50  # number of points for making gaussian distribution
+    # number of points for making gaussian distribution
+    n_points = 50
 
     nx = bmd_params.nx
     ny = bmd_params.ny
@@ -336,7 +289,8 @@ def make_code_3d_phill(bmd_params):
     h_max = bmd_params.h_max
     l_p = bmd_params.ly_porosity
 
-    sigma = bmd_params.sigma  # variance of gaussian distribution
+    # variance of gaussian distribution
+    sigma = bmd_params.sigma
 
     x_expansion_ratio = 1
     y_expansion_ratio = 1
@@ -345,107 +299,67 @@ def make_code_3d_phill(bmd_params):
     bmd = BlockMeshDict()
     bmd.set_scale(bmd_params.scale)
 
-    basevs = [
-        Vertex(-lx / 2, -ly / 2, 0, "v-sw"),
-        Vertex(0, -ly / 2, 0, "v-s"),
-        Vertex(lx / 2, -ly / 2, 0, "v-se"),
-        Vertex(lx / 2, 0, 0, "v-e"),
-        Vertex(lx / 2, ly / 2, 0, "v-ne"),
-        Vertex(0, ly / 2, 0, "v-n"),
-        Vertex(-lx / 2, ly / 2, 0, "v-nw"),
-        Vertex(-lx / 2, 0, 0, "v-w"),
-        Vertex(0, 0, h_max, "v-c"),
-    ]
+    for x_y_z_name in (
+        (-lx / 2, -ly / 2, 0, "v-sw"),
+        (0, -ly / 2, 0, "v-s"),
+        (lx / 2, -ly / 2, 0, "v-se"),
+        (lx / 2, 0, 0, "v-e"),
+        (lx / 2, ly / 2, 0, "v-ne"),
+        (0, ly / 2, 0, "v-n"),
+        (-lx / 2, ly / 2, 0, "v-nw"),
+        (-lx / 2, 0, 0, "v-w"),
+        (0, 0, h_max, "v-c"),
+    ):
+        bmd.add_vertex(*x_y_z_name)
 
-    for v in basevs:
-        bmd.add_vertex(v.x, v.y, v.z, v.name + "-z0")
-    for v in basevs:
-        bmd.add_vertex(v.x, v.y, lz, v.name + "-z")
-    for v in basevs:
-        bmd.add_vertex(v.x, v.y, lz + l_p, v.name + "-sponge")
+    vnames = list(bmd.vertices.keys())
 
-    b0 = bmd.add_hexblock(
-        (
-            "v-sw-z0",
-            "v-s-z0",
-            "v-c-z0",
-            "v-w-z0",
-            "v-sw-z",
-            "v-s-z",
-            "v-c-z",
-            "v-w-z",
-        ),
-        (nx, ny, nz),
+    bmd.replicate_vertices_further_z(lz, suffix="_dz1", vnames=vnames)
+    bmd.replicate_vertices_further_z(lz + l_p, suffix="_dz2", vnames=vnames)
+
+    b0 = bmd.add_hexblock_from_2d(
+        ["v-sw", "v-s", "v-c", "v-w"],
+        [nx, ny, nz],
         "sw",
         SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
+        suffix_zp="_dz1",
     )
 
-    b1 = bmd.add_hexblock(
-        (
-            "v-s-z0",
-            "v-se-z0",
-            "v-e-z0",
-            "v-c-z0",
-            "v-s-z",
-            "v-se-z",
-            "v-e-z",
-            "v-c-z",
-        ),
-        (nx, ny, nz),
+    b1 = bmd.add_hexblock_from_2d(
+        ["v-s", "v-se", "v-e", "v-c"],
+        [nx, ny, nz],
         "se",
         SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
+        suffix_zp="_dz1",
     )
 
-    b2 = bmd.add_hexblock(
-        (
-            "v-c-z0",
-            "v-e-z0",
-            "v-ne-z0",
-            "v-n-z0",
-            "v-c-z",
-            "v-e-z",
-            "v-ne-z",
-            "v-n-z",
-        ),
-        (nx, ny, nz),
+    b2 = bmd.add_hexblock_from_2d(
+        ["v-c", "v-e", "v-ne", "v-n"],
+        [nx, ny, nz],
         "ne",
         SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
+        suffix_zp="_dz1",
     )
 
-    b3 = bmd.add_hexblock(
-        (
-            "v-w-z0",
-            "v-c-z0",
-            "v-n-z0",
-            "v-nw-z0",
-            "v-w-z",
-            "v-c-z",
-            "v-n-z",
-            "v-nw-z",
-        ),
-        (nx, ny, nz),
+    b3 = bmd.add_hexblock_from_2d(
+        ["v-w", "v-c", "v-n", "v-nw"],
+        [nx, ny, nz],
         "nw",
         SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
+        suffix_zp="_dz1",
     )
 
-    b4 = bmd.add_hexblock(
-        (
-            "v-sw-z",
-            "v-se-z",
-            "v-ne-z",
-            "v-nw-z",
-            "v-sw-sponge",
-            "v-se-sponge",
-            "v-ne-sponge",
-            "v-nw-sponge",
-        ),
-        (2 * nx, 2 * ny, n_porosity),
+    b4 = bmd.add_hexblock_from_2d(
+        ["v-sw", "v-se", "v-ne", "v-nw"],
+        [2 * nx, 2 * ny, n_porosity],
         "porosity",
         SimpleGrading(x_expansion_ratio, y_expansion_ratio, z_expansion_ratio),
+        suffix_zm="_dz1",
+        suffix_zp="_dz2",
     )
 
     bmd.add_splineedge(
-        ["v-s-z0", "v-c-z0"],
+        ["v-s", "v-c"],
         "spline-s",
         make_spline_points_gaussian(
             n_points, ly / 2, sigma, -ly / 2, 0, h_max, "yz", 0
@@ -453,7 +367,7 @@ def make_code_3d_phill(bmd_params):
     )
 
     bmd.add_splineedge(
-        ["v-e-z0", "v-c-z0"],
+        ["v-e", "v-c"],
         "spline-e",
         make_spline_points_gaussian(
             n_points, lx / 2, sigma, lx / 2, 0, h_max, "xz", 0
@@ -461,7 +375,7 @@ def make_code_3d_phill(bmd_params):
     )
 
     bmd.add_splineedge(
-        ["v-n-z0", "v-c-z0"],
+        ["v-n", "v-c"],
         "spline-n",
         make_spline_points_gaussian(
             n_points, ly / 2, sigma, ly / 2, 0, h_max, "yz", 0
@@ -469,7 +383,7 @@ def make_code_3d_phill(bmd_params):
     )
 
     bmd.add_splineedge(
-        ["v-w-z0", "v-c-z0"],
+        ["v-w", "v-c"],
         "spline-w",
         make_spline_points_gaussian(
             n_points, lx / 2, sigma, -lx / 2, 0, h_max, "xz", 0
