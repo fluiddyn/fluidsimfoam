@@ -46,11 +46,16 @@ vertices
 
 blocks
 (
-    hex (0 1 5 4 12 13 17 16) left_bot (23 8 1) simpleGrading (1 1 1)  // left_bot (left_bot leftdam_bot leftdam_topdam left_topdam left_bot_dz leftdam_bot_dz leftdam_topdam_dz left_topdam_dz)
-    hex (2 3 7 6 14 15 19 18) right_bot (19 8 1) simpleGrading (1 1 1)  // right_bot (rightdam_bot right_bot right_topdam rightdam_topdam rightdam_bot_dz right_bot_dz right_topdam_dz rightdam_topdam_dz)
-    hex (4 5 9 8 16 17 21 20) left_top (23 42 1) simpleGrading (1 1 1)  // left_top (left_topdam leftdam_topdam leftdam_top left_top left_topdam_dz leftdam_topdam_dz leftdam_top_dz left_top_dz)
-    hex (5 6 10 9 17 18 22 21) top_dam (4 42 1) simpleGrading (1 1 1)  // top_dam (leftdam_topdam rightdam_topdam rightdam_top leftdam_top leftdam_topdam_dz rightdam_topdam_dz rightdam_top_dz leftdam_top_dz)
-    hex (6 7 11 10 18 19 23 22) right_top (19 42 1) simpleGrading (1 1 1)  // right_top (rightdam_topdam right_topdam right_top rightdam_top rightdam_topdam_dz right_topdam_dz right_top_dz rightdam_top_dz)
+    // left_bot (left_bot leftdam_bot leftdam_topdam left_topdam left_bot_dz leftdam_bot_dz leftdam_topdam_dz left_topdam_dz)
+    hex (0 1 5 4 12 13 17 16) left_bot (23 8 1) simpleGrading (1 1 1)
+    // right_bot (rightdam_bot right_bot right_topdam rightdam_topdam rightdam_bot_dz right_bot_dz right_topdam_dz rightdam_topdam_dz)
+    hex (2 3 7 6 14 15 19 18) right_bot (19 8 1) simpleGrading (1 1 1)
+    // left_top (left_topdam leftdam_topdam leftdam_top left_top left_topdam_dz leftdam_topdam_dz leftdam_top_dz left_top_dz)
+    hex (4 5 9 8 16 17 21 20) left_top (23 42 1) simpleGrading (1 1 1)
+    // top_dam (leftdam_topdam rightdam_topdam rightdam_top leftdam_top leftdam_topdam_dz rightdam_topdam_dz rightdam_top_dz leftdam_top_dz)
+    hex (5 6 10 9 17 18 22 21) top_dam (4 42 1) simpleGrading (1 1 1)
+    // right_top (rightdam_topdam right_topdam right_top rightdam_top rightdam_topdam_dz right_topdam_dz right_top_dz rightdam_top_dz)
+    hex (6 7 11 10 18 19 23 22) right_top (19 42 1) simpleGrading (1 1 1)
 );
 
 edges

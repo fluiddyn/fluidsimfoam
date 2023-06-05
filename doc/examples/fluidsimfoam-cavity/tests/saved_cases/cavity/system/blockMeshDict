@@ -30,7 +30,8 @@ vertices
 
 blocks
 (
-    hex (0 1 2 3 4 5 6 7)  (20 20 1) simpleGrading (1 1 1)  //  (v0-bot v1-bot v2-bot v3-bot v0-top v1-top v2-top v3-top)
+    //  (v0-bot v1-bot v2-bot v3-bot v0-top v1-top v2-top v3-top)
+    hex (0 1 2 3 4 5 6 7)  (20 20 1) simpleGrading (1 1 1)
 );
 
 edges

@@ -47,4 +47,6 @@ def check_saved_case(path_saved_case, path_run, files_compare_tree=None):
             tree_from_py = parse(text_produced)
             assert dump(tree_saved_file).strip() == dump(tree_from_py).strip()
         else:
+            if text_produced != text_manual:
+                print(f"meld {path_produced} {path_manual}")
             assert text_produced == text_manual, relative_path

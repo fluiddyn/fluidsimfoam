@@ -21,8 +21,6 @@ def get_paths_input_files(directory):
 
 paths_tiny_tgv = get_paths_input_files("tiny-tgv")
 paths_cbox = get_paths_input_files("cbox/sim0")
-paths_phill_turb = get_paths_input_files("phill/sim_turb")
-paths_phill_lam = get_paths_input_files("phill/sim_lam")
 
 
 def base_test_file(path):
@@ -40,21 +38,3 @@ def test_cbox(path_name, request):
     if path_name == "topoSetDict":
         request.applymarker(pytest.mark.xfail())
     base_test_file(paths_cbox[path_name])
-
-
-@pytest.mark.parametrize("path_name", paths_phill_lam)
-def test_phill_lam(path_name, request):
-    if path_name == "topoSetDict":
-        request.applymarker(pytest.mark.xfail())
-    base_test_file(paths_phill_lam[path_name])
-
-
-@pytest.mark.parametrize("path_name", paths_phill_turb)
-def test_phill_turb(path_name, request):
-    if path_name == "rhok":
-        # too long!
-        request.applymarker(pytest.mark.xfail())
-        raise Exception
-    elif path_name == "topoSetDict":
-        request.applymarker(pytest.mark.xfail())
-    base_test_file(paths_phill_turb[path_name])

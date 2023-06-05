@@ -34,8 +34,10 @@ vertices
 
 blocks
 (
-    hex (0 1 2 5 6 7 8 11) hill (11 7 1) simpleGrading (1 ( ( 0.1 0.25 41.9 ) ( 0.9 0.75 1 ) ) 1)  // hill (v-bot-inlet v-bot-outlet v-top-outlet v-top-inlet v-bot-inlet_dz v-bot-outlet_dz v-top-outlet_dz v-top-inlet_dz)
-    hex (5 2 3 4 11 8 9 10) porosity (11 4 1) simpleGrading (1 1 1)  // porosity (v-top-inlet v-top-outlet v-sponge-outlet v-sponge-inlet v-top-inlet_dz v-top-outlet_dz v-sponge-outlet_dz v-sponge-inlet_dz)
+    // hill (v-bot-inlet v-bot-outlet v-top-outlet v-top-inlet v-bot-inlet_dz v-bot-outlet_dz v-top-outlet_dz v-top-inlet_dz)
+    hex (0 1 2 5 6 7 8 11) hill (11 7 1) simpleGrading (1 ( ( 0.1 0.25 41.9 ) ( 0.9 0.75 1 ) ) 1)
+    // porosity (v-top-inlet v-top-outlet v-sponge-outlet v-sponge-inlet v-top-inlet_dz v-top-outlet_dz v-sponge-outlet_dz v-sponge-inlet_dz)
+    hex (5 2 3 4 11 8 9 10) porosity (11 4 1) simpleGrading (1 1 1)
 );
 
 edges
