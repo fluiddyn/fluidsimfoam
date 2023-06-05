@@ -1,3 +1,13 @@
+class Point:
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def format(self):
+        return f"( {self.x:18.15g} {self.y:18.15g} {self.z:18.15g} )"
+
+
 class ArcEdge:
     def __init__(self, vnames, name, inter_vertex):
         """Initialize ArcEdge instance
@@ -34,6 +44,8 @@ class SplineEdge:
         """
         self.vnames = vnames
         self.name = name
+        if points and not isinstance(points[0], Point):
+            points = [Point(x, y, z) for x, y, z in points]
         self.points = points
 
     def format(self, vertices):

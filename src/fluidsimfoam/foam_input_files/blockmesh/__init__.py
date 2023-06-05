@@ -61,16 +61,6 @@ class Vertex:
         return hash((self.z, self.y, self.x))
 
 
-class Point:
-    def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
-
-    def format(self):
-        return f"( {self.x:18.15g} {self.y:18.15g} {self.z:18.15g} )"
-
-
 class Face:
     def __init__(self, vnames, name):
         """
@@ -86,6 +76,15 @@ class Face:
         index = " ".join(str(vertices[vn].index) for vn in self.vnames)
         comment = " ".join(self.vnames)
         return f"({index:s})  // {self.name:s} ({comment:s})"
+
+
+class MergePatchPairs:
+    def __init__(self, boundary_name1, boundary_name2):
+        self.boundary_name1 = boundary_name1
+        self.boundary_name2 = boundary_name2
+
+    def format(self):
+        return f"({self.boundary_name1} {self.boundary_name2})"
 
 
 class HexBlock:
@@ -205,8 +204,8 @@ class Boundary:
             tmp.append("{\n" + f"    type {self.type_};\n    faces\n    (")
         else:
             tmp.append(
-                "{\n"
-                + f"    type {self.type_};\n    neighbourPatch  {self.neighbour};\n    faces\n    ("
+                "{\n" + f"    type {self.type_};\n"
+                f"    neighbourPatch  {self.neighbour};\n    faces\n    ("
             )
         for face in self.faces:
             tmp.append(f"        {face.format(vertices)}")
@@ -221,6 +220,7 @@ class BlockMeshDict:
         self.blocks = {}
         self.edges = {}
         self.boundaries = {}
+        self.merge_patch_pairs = {}
         self._vertices_in_blockmesh = None
 
     def set_metric(self, metric):
@@ -293,22 +293,42 @@ class BlockMeshDict:
             names = [v[0] for v in group]
             self.reduce_vertex(*names)
 
-    def replicate_vertices_further_z(self, dz, add_to_name="_dz"):
+    def replicate_vertices_further_z(self, z, suffix="_dz", vnames=None):
         """Helper for 2d meshes"""
-        for vertex_z0 in self.vertices.copy().values():
+        if vnames is None:
+            vnames = tuple(self.vertices.keys())
+        for vname in vnames:
+            vertex_z0 = self.vertices[vname]
             vertex_z1 = vertex_z0.copy()
-            vertex_z1.z = dz
-            vertex_z1.name += add_to_name
+            vertex_z1.z = z
+            vertex_z1.name += suffix
             self.add_vertex(vertex_z1)
 
     def add_hexblock(
-        self, vnames, cells, name=None, grading=SimpleGrading(1, 1, 1)
+        self, vnames, nx_ny_nz, name=None, grading=SimpleGrading(1, 1, 1)
     ):
         if name is None:
             name = f"b{len(self.blocks)}"
-        b = HexBlock(vnames, cells, name, grading)
+        b = HexBlock(vnames, nx_ny_nz, name, grading)
         self.blocks[name] = b
         return b
+
+    def add_hexblock_from_2d(
+        self,
+        vnames,
+        nx_ny_nz,
+        name=None,
+        grading=SimpleGrading(1, 1, 1),
+        suffix_zm="",
+        suffix_zp="_dz",
+    ):
+        return self.add_hexblock(
+            [vname + suffix_zm for vname in vnames]
+            + [vname + suffix_zp for vname in vnames],
+            nx_ny_nz,
+            name,
+            grading,
+        )
 
     def add_arcedge(self, vnames, name, inter_vertex):
         e = ArcEdge(vnames, name, inter_vertex)
@@ -323,6 +343,12 @@ class BlockMeshDict:
     def add_boundary(self, type_, name, faces=None, neighbour=None):
         b = Boundary(type_, name, faces, neighbour)
         self.boundaries[name] = b
+        return b
+
+    def add_merge_patch_pairs(self, boundary_name1: str, boundary_name2: str):
+        """Add 2 boundaries to merge"""
+        b = MergePatchPairs(boundary_name1, boundary_name2)
+        self.merge_patch_pairs[boundary_name1] = b
         return b
 
     def add_cyclic_boundaries(self, name0, name1, faces0, faces1):
@@ -416,13 +442,14 @@ class BlockMeshDict:
         return "\n".join(tmp)
 
     def format_mergepatchpairs_section(self):
-        # not yet implemented
-        return ""
-
-    #         return """\
-    # mergePatchPairs
-    # (
-    # );"""
+        if not self.merge_patch_pairs:
+            return ""
+        indent = " " * 4
+        tmp = ["mergePatchPairs\n("]
+        for b in self.merge_patch_pairs.values():
+            tmp.append(indent + b.format())
+        tmp.append(");")
+        return "\n" + "\n".join(tmp) + "\n"
 
     def format(self, header=DEFAULT_HEADER, sort_vortices=True):
         self.assign_vertexid(sort=sort_vortices)
