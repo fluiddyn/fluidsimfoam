@@ -239,7 +239,7 @@ def test_spline_edge():
     }
     bmd = BlockMeshDict()
     edge = bmd.add_splineedge(
-        list("abc"), "edgename", [Point(0.1, 0.1, 0.1), Point(0.2, 0.2, 0.2)]
+        list("abc"), "edgename", [(0.1, 0.1, 0.1), (0.2, 0.2, 0.2)]
     )
     assert (
         edge.format(vertices)

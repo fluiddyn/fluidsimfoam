@@ -346,7 +346,7 @@ class BlockMeshDict:
         return e
 
     def add_splineedge(self, vnames, name, points):
-        e = SplineEdge(vnames, name, points)
+        e = SplineEdge(vnames, name, [Point(x, y, z) for x, y, z in points])
         self.edges[name] = e
         return e
 

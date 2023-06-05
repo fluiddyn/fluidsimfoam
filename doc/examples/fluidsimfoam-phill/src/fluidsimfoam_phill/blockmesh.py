@@ -1,10 +1,6 @@
 import numpy as np
 
-from fluidsimfoam.foam_input_files.blockmesh import (
-    BlockMeshDict,
-    Point,
-    SimpleGrading,
-)
+from fluidsimfoam.foam_input_files.blockmesh import BlockMeshDict, SimpleGrading
 
 possible_geometries = ("sinus", "2d_phill", "3d_phill")
 
@@ -21,7 +17,7 @@ def make_code_blockmesh(bmd_params):
 def make_spline_points_sin(nx, lx, h_max, z):
     x = np.linspace(0, lx, nx)
     fx = (h_max / 2) * (1 - np.cos(2 * np.pi * abs((x - (lx / 2)) / lx)))
-    return [Point(x, y, z) for x, y in zip(x, fx)]
+    return [(x, y, z) for x, y in zip(x, fx)]
 
 
 def make_spline_points_gaussian(
@@ -44,11 +40,11 @@ def make_spline_points_gaussian(
     x = np.linspace(curve_start, curve_end, n_points)
 
     if plane == "yz":
-        return [Point(offset, y, z) for y, z in zip(x, fx)]
+        return [(offset, y, z) for y, z in zip(x, fx)]
     elif plane == "xz":
-        return [Point(x, offset, z) for x, z in zip(x, fx)]
+        return [(x, offset, z) for x, z in zip(x, fx)]
     elif plane == "xy":
-        return [Point(x, y, offset) for x, y in zip(x, fx)]
+        return [(x, y, offset) for x, y in zip(x, fx)]
     else:
         raise NotImplementedError(f"{plane = } is not implemented!")
 
