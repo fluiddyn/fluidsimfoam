@@ -37,6 +37,8 @@ Security in case of vulnerabilities.
 
 ## [Unreleased]
 
+## [0.0.5] - 2023-06-05
+
 - `params.resources` to copy files and directories in the simulation directories. These
   files can be saved in the solver packages.
 
@@ -116,6 +118,7 @@ Security in case of vulnerabilities.
 
 [0.0.3]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.2...0.0.3
 [0.0.4]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.3...0.0.4
+[0.0.5]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.4...0.0.5
 [breaking of a dam tutorial]: https://www.openfoam.com/documentation/tutorial-guide/4-multiphase-flow/4.1-breaking-of-a-dam
 [cavity]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cavity
 [cbox]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cbox
