@@ -61,16 +61,6 @@ class Vertex:
         return hash((self.z, self.y, self.x))
 
 
-class Point:
-    def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
-
-    def format(self):
-        return f"( {self.x:18.15g} {self.y:18.15g} {self.z:18.15g} )"
-
-
 class Face:
     def __init__(self, vnames, name):
         """
@@ -214,8 +204,8 @@ class Boundary:
             tmp.append("{\n" + f"    type {self.type_};\n    faces\n    (")
         else:
             tmp.append(
-                "{\n"
-                + f"    type {self.type_};\n    neighbourPatch  {self.neighbour};\n    faces\n    ("
+                "{\n" + f"    type {self.type_};\n"
+                f"    neighbourPatch  {self.neighbour};\n    faces\n    ("
             )
         for face in self.faces:
             tmp.append(f"        {face.format(vertices)}")
@@ -346,7 +336,7 @@ class BlockMeshDict:
         return e
 
     def add_splineedge(self, vnames, name, points):
-        e = SplineEdge(vnames, name, [Point(x, y, z) for x, y, z in points])
+        e = SplineEdge(vnames, name, points)
         self.edges[name] = e
         return e
 

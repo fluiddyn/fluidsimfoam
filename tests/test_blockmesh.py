@@ -16,7 +16,6 @@ from fluidsimfoam.foam_input_files import dump, parse
 from fluidsimfoam.foam_input_files.blockmesh import (
     BlockMeshDict,
     EdgeGrading,
-    Point,
     SimpleGrading,
     SimpleGradingElement,
     Vertex,
