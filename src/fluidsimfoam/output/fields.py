@@ -61,12 +61,9 @@ class Fields:
             _, last_time_proc0 = self.get_path_dir_time(
                 time_approx, dirname="processor0"
             )
-
             if last_time_proc0 != last_time:
                 self.reconstruct_par(fields=[name], time=last_time_proc0)
-
-        path_dir, last_time = self.get_path_dir_time(time_approx)
-        if self.sim.params.parallel.nsubdoms > 1:
+            path_dir, last_time = self.get_path_dir_time(time_approx)
             assert last_time == last_time_proc0
 
         field = read_field_file(path_dir / name)
