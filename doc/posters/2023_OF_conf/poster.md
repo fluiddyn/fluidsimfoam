@@ -48,11 +48,12 @@ to design and propose a new workflow for OpenFOAM based on Python.
 
 - Good quality open-source software: tested (coverage > 95%) and documented
 
-- Description of a set of potential simulations (and not only of one "case").
-  Described in a small Python package called a "Fluidsimfoam solver" (with
-  potentially Jinja templates).
+- Description of sets of potential simulations (and not only of one "case").
+  A set is described in a small Python package called a "Fluidsimfoam solver"
 
-- Python API to describe and create parametrized input OF files
+    - Python API to describe and create parametrized input OF files
+
+    - Potentially Jinja templates
 
 - Python API and commands to launch, restart, reload simulations, and
   load/process/plot data (helped by
