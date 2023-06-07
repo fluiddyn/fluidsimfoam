@@ -49,4 +49,4 @@ cleangenerated:
 cleanall: clean cleangenerated
 
 format:
-	mdformat .
+	mdformat *.md examples

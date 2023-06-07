@@ -57,6 +57,7 @@ exclude_patterns = [
     ".pytest_cache/*",
     "**/.pytest_cache/*",
     "*.ipynb",
+    "posters/*/*.md",
 ]
 
 # The suffix of source filenames.

@@ -1,5 +1,7 @@
 """Helper to create decomposeParDict files"""
 
+from math import prod
+
 from fluidsimfoam.foam_input_files import FileHelper, FoamInputFile
 
 supported_methods = set(
@@ -97,6 +99,25 @@ class DecomposeParDictHelper(FileHelper):
             raise RuntimeError
 
         if coeffs is not None:
+            try:
+                nsubdoms_xyz = coeffs["n"]
+            except KeyError:
+                pass
+            else:
+                if nsubdoms_xyz is None:
+                    raise ValueError("params.parallel.nsubdoms_xyz is None")
+
+                if isinstance(nsubdoms_xyz, str):
+                    nsubdoms_xyz = [
+                        int(word) for word in nsubdoms_xyz.strip()[1:-1].split()
+                    ]
+
+                if prod(nsubdoms_xyz) != nsubdoms:
+                    raise ValueError(
+                        "Inconsistent parallel parameters: "
+                        f"prod({nsubdoms_xyz=}) != {nsubdoms=}"
+                    )
+
             data[key_coeffs_dict] = coeffs
 
         tree.init_from_py_objects(data)
