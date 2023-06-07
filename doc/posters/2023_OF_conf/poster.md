@@ -1,12 +1,40 @@
 <div style="height: 90pt;"></div>
-<div style="flex: 0 0 8%; margin-top: -10pt;">
-<img src="http://legi.grenoble-inp.fr/people/Pierre.Augier/docs/ipynb/lmfa20170908/fig/logo_LEGI.jpg">
+
+<div style="flex: 0 0 9%; margin-top: -10pt;">
+<img
+  style="width: 70%; margin-left: 25%; margin-bottom: 5pt;"
+  src="http://legi.grenoble-inp.fr/people/Pierre.Augier/images/logo_CNRS.jpg">
+<br>
+<img
+  style="width: 70%; margin-left: 25%;"
+  src="http://legi.grenoble-inp.fr/people/Pierre.Augier/images/logo_UGA_2020.png">
 </div>
-<div style="flex: 0 0 65%; text-align: center;">
-<h2 style="margin-bottom: 10pt;">
-Fluidsimfoam, a new Python framework for running and postprocessing OpenFOAM simulations
-</h2>
-<h3>Pierre Augier</h3>
+
+<div style="flex: 0 0 9%; margin-top: -10pt;">
+<img
+  style="display: block; margin-left: auto; margin-right: auto;width: 95%;"
+  src="http://legi.grenoble-inp.fr/people/Pierre.Augier/docs/ipynb/lmfa20170908/fig/logo_LEGI.jpg">
+</div>
+
+
+<div style="flex: 0 0 62%; text-align: center;">
+<h1 style="margin-bottom: 6pt;">
+Fluidsimfoam, a new Python framework for OpenFOAM
+</h1>
+<h3 style="margin-bottom: 4pt;">
+<a href="https://foss.heptapod.net/fluiddyn/fluidsimfoam">https://foss.heptapod.net/fluiddyn/fluidsimfoam</a>
+</h3>
+<h2>Pierre Augier, Pooria Danaeifar</h2>
+</div>
+
+<div style="flex: 0 0 19%; margin-top: -10pt;">
+<img
+  style="width: 70%; margin-left: 25%;"
+  src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/OpenFOAM_logo.svg/2560px-OpenFOAM_logo.svg.png">
+<br>
+<img
+  style="width: 70%; margin-left: 25%;"
+  src="https://www.python.org/static/community_logos/python-logo-master-v3-TM-flattened.png">
 </div>
 
 --split--
@@ -16,28 +44,29 @@ to design and propose a new workflow for OpenFOAM based on Python.
 
 ### Principles
 
-- A Python layer to help the users to interact with OF
+- Improving OpenFOAM user experience with Python
 
-- Description of a set of potential simulations (and not only of one "case"). Described
-  in Python (with potentially Jinja templates) in a small Python package called a
-  "Fluidsimfoam solver".
+- Good quality open-source software: tested (coverage > 95%) and documented
 
-- Python APIs to describe and create parametrized input OF files.
+- Description of a set of potential simulations (and not only of one "case").
+  Described in a small Python package called a "Fluidsimfoam solver" (with
+  potentially Jinja templates).
 
-- Python APIs and commands to launch, restart, reload simulations, and load/process/plot
-  data. For example easy creation of figures and movies.
+- Python API to describe and create parametrized input OF files
 
-- All directory and file creations done automatically
+- Python API and commands to launch, restart, reload simulations, and
+  load/process/plot data (helped by
+  [Fluidfoam](https://fluidfoam.readthedocs.io)). Integrated object (`sim`) to
+  interact with the simulation and the associated data
 
-- Integrated object (`sim`) to represent and interact with the simulation and the
-  associated data
+- All directories and files created automatically
 
 ### Particularly suitable for
 
 - automation of simulation launching (parametric studies, optimization, ...)
 
 - programmatic generation of complex and parametrized input files (for example
-  `blockMeshDict`) and initial conditions (computed in Python),
+  `blockMeshDict`) and initial conditions (computed in Python)
 
 - programmatic control of simulations at runtime
 
@@ -69,9 +98,32 @@ to design and propose a new workflow for OpenFOAM based on Python.
     )
     ```
 
+    Programmatic generation of `BlockMeshDict`
+
+    ```python
+
+    bmd = BlockMeshDict()
+    bmd.set_scale(params.block_mesh_dict.scale)
+    for x_y_z_name in (
+        (0, 0, 0, "left_bot"),
+        (x_dam, 0, 0, "leftdam_bot"),
+        (x1_dam, 0, 0, "rightdam_bot"),
+        (lx, 0, 0, "right_bot"),
+        ...
+    ):
+        bmd.add_vertex(*x_y_z_name)
+    bmd.replicate_vertices_further_z(lz)
+    b_bot_left = bmd.add_hexblock_from_2d(
+        ["left_bot", "leftdam_bot", "leftdam_topdam", "left_topdam"],
+        [nx_left, ny_bot, nz],
+        "left_bot",
+    )
+
+    ```
+
 --split--
 
-!!! tip "Creation and launching of a simulation"
+!!! note "Creation and launching of a simulation"
 
     ```python
 
@@ -99,7 +151,7 @@ to design and propose a new workflow for OpenFOAM based on Python.
     sim.make.exec_async("run")
     ```
 
-!!! tip "reload the simulation for simulation control / data processing / plots"
+!!! tip "Reload the simulation for simulation control / data processing / plots"
 
     One can recreate the `sim` object with the command `fluidsimfoam-ipy-load` or with:
 
@@ -114,13 +166,13 @@ to design and propose a new workflow for OpenFOAM based on Python.
 
     ```python
     sim.params.control_dict.end_time = 2
-    sim.output.input_files.control_dict.generate_file()
+    sim.input_files.control_dict.generate_file()
     ```
 
     or (even more powerfull):
 
     ```python
-    ctrl_dict = sim.output.input_files.control_dict.read()
+    ctrl_dict = sim.input_files.control_dict.read()
     ctrl_dict.set_child("endTime", 2)
     ctrl_dict.overwrite()
     ```
@@ -135,5 +187,11 @@ to design and propose a new workflow for OpenFOAM based on Python.
 !!! tip "Next steps"
 
     **Installation:** `pip install fluidsimfoam`<br>
-    **Documentation:** <https://fluidsimfoam.readthedocs.io>
+    **Documentation:** <https://fluidsimfoam.readthedocs.io><br>
     **Repository:** <https://foss.heptapod.net/fluiddyn/fluidsimfoam>
+
+!!! warning "Soon"
+
+    - Restart utilities
+    - Creation figures and movies
+    - Support for `probes`, `boundaryCloud`, `singleGraph`, `surface` functions
