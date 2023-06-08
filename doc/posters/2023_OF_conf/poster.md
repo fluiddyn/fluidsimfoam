@@ -77,7 +77,9 @@ to design and propose a new workflow for OpenFOAM based on Python.
     fluidsimfoam-initiate-solver dam -c $FOAM_TUTORIALS/multiphase/interFoam/laminar/damBreak/damBreak
     ```
 
-    Then, few modifications to parametrize the solver, for example
+    Then, few modifications to parametrize the solver. Helpers for fields
+    (initial conditions), constant files, `controlDict`, `fvOptions`,
+    `fvSchemes`, `decomposeParDict`, `BlockMeshDict`, ...
 
     ```python
     _helper_transport_properties = ConstantFileHelper(
@@ -89,12 +91,7 @@ to design and propose a new workflow for OpenFOAM based on Python.
                 "nu": 1e-06,
                 "rho": 1000,
             },
-            "air": {
-                "transportModel": "Newtonian",
-                "nu": 1.48e-05,
-                "rho": 1,
-            },
-            "sigma": 0.07,
+            "air": ...
         },
     )
     ```
@@ -105,6 +102,7 @@ to design and propose a new workflow for OpenFOAM based on Python.
 
     bmd = BlockMeshDict()
     bmd.set_scale(params.block_mesh_dict.scale)
+
     for x_y_z_name in (
         (0, 0, 0, "left_bot"),
         (x_dam, 0, 0, "leftdam_bot"),
@@ -113,7 +111,9 @@ to design and propose a new workflow for OpenFOAM based on Python.
         ...
     ):
         bmd.add_vertex(*x_y_z_name)
+
     bmd.replicate_vertices_further_z(lz)
+
     b_bot_left = bmd.add_hexblock_from_2d(
         ["left_bot", "leftdam_bot", "leftdam_topdam", "left_topdam"],
         [nx_left, ny_bot, nz],
@@ -124,7 +124,7 @@ to design and propose a new workflow for OpenFOAM based on Python.
 
 --split--
 
-!!! note "Creation and launching of a simulation"
+!!! note "Create a simulation directory and launch the simulation"
 
     ```python
 
@@ -152,7 +152,7 @@ to design and propose a new workflow for OpenFOAM based on Python.
     sim.make.exec_async("run")
     ```
 
-!!! tip "Reload the simulation for simulation control / data processing / plots"
+!!! tip "Reload the simulation for runtime control / data processing / plots"
 
     One can recreate the `sim` object with the command `fluidsimfoam-ipy-load` or with:
 
@@ -194,5 +194,5 @@ to design and propose a new workflow for OpenFOAM based on Python.
 !!! warning "Soon"
 
     - Restart utilities
-    - Creation figures and movies
+    - More figures and movies
     - Support for `probes`, `boundaryCloud`, `singleGraph`, `surface` functions
