@@ -37,6 +37,16 @@ Security in case of vulnerabilities.
 
 ## [Unreleased]
 
+## [0.0.6] - 2023-06-09
+
+Small release before [OpenFOAM users conference](https://www.foam-u.fr/) where
+[Fluidsimfoam will be
+presented](http://legi.grenoble-inp.fr/people/Pierre.Augier/fluidsimfoam-at-openfoam-users-conference.html).
+
+- Improve [phill] solver + few `blockMesh` improvements
+
+- Few bug fixes and code improvements
+
 ## [0.0.5] - 2023-06-05
 
 - `params.resources` to copy files and directories in the simulation directories. These
@@ -119,9 +129,10 @@ Security in case of vulnerabilities.
 [0.0.3]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.2...0.0.3
 [0.0.4]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.3...0.0.4
 [0.0.5]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.4...0.0.5
+[0.0.6]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.5...0.0.6
 [breaking of a dam tutorial]: https://www.openfoam.com/documentation/tutorial-guide/4-multiphase-flow/4.1-breaking-of-a-dam
 [cavity]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cavity
 [cbox]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cbox
 [dam]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-dam
 [phill]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-phill
-[unreleased]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.4...branch%2Fdefault
+[unreleased]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.6...branch%2Fdefault
