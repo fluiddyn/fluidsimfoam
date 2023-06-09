@@ -88,4 +88,18 @@ save the input of the notebook in the `.myst.md` file.
 The source of the documentation should be formatted with `mdformat`. Running
 `make format` from the `doc` directory should format all files.
 
+## Release
+
+For now, we push on PyPI manually:
+
+```sh
+hg pull
+hg up default
+hg tag 0.0.6
+hg push
+rm -rf dist
+python -m build
+twine upload dist/*
+```
+
 [poetry]: https://python-poetry.org/docs/
