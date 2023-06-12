@@ -10,9 +10,6 @@ class Operators:
     def __init__(self, sim):
         self.sim = sim
 
-        if hasattr(sim.output.input_files, "block_mesh_dict"):
-            assert (sim.output.path_run / "system/blockMeshDict").exists()
-
     def get_cells_coords(self):
         path_c = self.sim.path_run / "0/C"
 

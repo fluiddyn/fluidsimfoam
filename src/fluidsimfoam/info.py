@@ -10,17 +10,17 @@ class InfoSolver(InfoSolverCore):
         super()._init_root()
 
         self.classes._set_child(
-            "Output",
-            attribs={
-                "module_name": "fluidsimfoam.output",
-                "class_name": "Output",
-            },
-        )
-        self.classes._set_child(
             "Oper",
             attribs={
                 "module_name": "fluidsimfoam.operators",
                 "class_name": "Operators",
+            },
+        )
+        self.classes._set_child(
+            "Output",
+            attribs={
+                "module_name": "fluidsimfoam.output",
+                "class_name": "Output",
             },
         )
         self.classes._set_child(
