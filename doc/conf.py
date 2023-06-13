@@ -32,6 +32,7 @@ extensions = [
     # "myst_parser",
     "myst_nb",
     "sphinx_copybutton",
+    "sphinx_togglebutton",
 ]
 
 myst_enable_extensions = [

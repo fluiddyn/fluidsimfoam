@@ -19,6 +19,29 @@ poetry shell
 
 The `--all-extras` options installs more utilities for Fluidsimfoam developers.
 
+```{admonition} Note on installing OpenFOAM on Ubuntu/Debian
+:class: dropdown
+
+The official Ubuntu/Debian packages (installed with `sudo apt install
+openfoam`) are quite broken but work better when the environment variable
+`WM_PROJECT_DIR` is set to `/usr/share/openfoam`. If you can, use
+<https://www.openfoam.com/news/main-news/openfoam-v2212>, which works much
+better.
+
+```
+
+````{admonition} Note on activating OpenFOAM with Xonsh
+:class: dropdown
+
+To activate OpenFOAM installed from
+[openfoam.com](https://www.openfoam.com/news/main-news/openfoam-v2212), one
+needs to run something like this horrible line:
+```sh
+source-bash /usr/lib/openfoam/openfoam2212/etc/bashrc -n --seterrprevcmd "" --suppress-skip-message
+```
+
+````
+
 ## Version control
 
 We use Mercurial and the development is hosted on
