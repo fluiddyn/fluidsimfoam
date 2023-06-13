@@ -51,6 +51,7 @@ myst-nb = "^0.17.1"
 sphinx-inline-tabs = "^2022.1.2b11"
 sphinx-copybutton = "^0.5.1"
 pydata-sphinx-theme = "^0.13.1"
+sphinx-togglebutton = "^0.3.2"
 
 [tool.poetry.scripts]
 fluidsimfoam-info = 'fluidsimfoam.util.console:print_versions'
