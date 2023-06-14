@@ -26,6 +26,7 @@ mdformat-myst = {version = "^0.1.4", optional = true}
 [tool.poetry.extras]
 qt = ["PySide6"]
 jupyter = ["jupyterlab", "jupyterlab_myst", "jupytext", "mdformat-myst"]
+pyvista = ["pyvista"]
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.2.1"

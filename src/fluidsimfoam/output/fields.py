@@ -6,6 +6,13 @@ from subprocess import PIPE, run
 
 import matplotlib.pyplot as plt
 
+try:
+    import pyvista
+except ImportError:
+    pyvista_importable = False
+else:
+    pyvista_importable = True
+
 from fluidsimfoam.foam_input_files import read_field_file
 
 
