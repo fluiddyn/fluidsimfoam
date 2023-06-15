@@ -111,24 +111,30 @@ class Fields:
 
         ax.plot(y, field.get_array())
 
-    def _init_pyvista(self):
+    def _init_pyvista(self, time=None):
         path_dir = self.output.sim.path_run
         casename = f".{self.output.sim.info_solver.short_name}.foam"
         with open(casename, "w") as my_file:
             my_file.write("")
-        path_dir = self.output.sim.path_run
         filename = f"{path_dir}/{casename}"
         reader = pyvista.POpenFOAMReader(filename)
+        if time is not None:
+            if time in reader.time_values:
+                reader.set_active_time_value(time)
+            else:
+                print(f"Time ({time}) is Not available!")
+
         return reader.read()
 
     def plot_boundary(
         self,
-        name,
+        name="",
         show_edges=True,
         lighting=True,
         camera_position=None,
         color="w",
         whole_mesh_opacity=0,
+        add_legend=False,
         **kwargs,
     ):
         """
@@ -147,7 +153,8 @@ class Fields:
             color of the boundary
         whole_mesh_opacity : float
             the opacity of the whole mesh, in range (0, 1)
-
+        add_legend : bool
+            add legend for domain and boundary
         Examples
         --------
 
@@ -161,14 +168,17 @@ class Fields:
         boundaries = mesh["boundary"]
         try:
             boundary = boundaries[name]
-        except:
+        except KeyError:
             print(
                 f"Boundary name('{name}') is not correct, boundaries:\n{boundaries.keys()}"
+            )
+            print(
+                f"try something like: sim.output.fields.plot_boundary('{boundaries.keys()[0]}')"
             )
         else:
             pl = pyvista.Plotter()
             if 0 < whole_mesh_opacity <= 1:
-                pl.add_mesh(mesh, opacity=whole_mesh_opacity)
+                pl.add_mesh(mesh, opacity=whole_mesh_opacity, label="domain")
             elif whole_mesh_opacity != 0:
                 print("whole_mesh_opacity should be in the range of (0, 1).")
 
@@ -177,8 +187,76 @@ class Fields:
                 show_edges=show_edges,
                 color=color,
                 lighting=lighting,
+                label=name,
                 **kwargs,
             )
             pl.camera_position = camera_position
+            if add_legend:
+                pl.add_legend(face=None)
             pl.add_axes()
             pl.show()
+
+    def plot_contour(
+        self,
+        variable="U",
+        component=None,
+        time=None,
+        normal="y",
+        block=0,
+        whole_mesh_opacity=0,
+        **kwargs,
+    ):
+        """
+        Parameters
+        ----------
+
+        variable : str
+            variable name
+        component : int
+            components of vector field (x:0, y:1, z:2)
+        time : float
+            simulation time
+        normal : str
+            normal of the plane
+        block : int
+            block number
+        whole_mesh_opacity : float
+            the opacity of the whole mesh, in range (0, 1)
+
+        Examples
+        --------
+
+        >>> sim.output.fields.plot_contour(normal="y", variable="U", whole_mesh_opacity=0.1, time=86400.0, component=2)
+
+        """
+        if not pyvista_importable:
+            raise NotImplementedError
+
+        mesh = self._init_pyvista(time)
+        block = mesh[block]
+        internal_mesh_slice = block.slice(normal)
+        pl = pyvista.Plotter()
+
+        if 0 < whole_mesh_opacity <= 1:
+            pl.add_mesh(mesh, color="w", opacity=whole_mesh_opacity)
+        elif whole_mesh_opacity != 0:
+            print("whole_mesh_opacity should be in the range of (0, 1).")
+        components = ["x", "y", "z"]
+        if component:
+            pl.add_mesh(
+                internal_mesh_slice,
+                scalars=variable,
+                component=component,
+                scalar_bar_args={"title": f"{variable}{components[component]}"},
+                **kwargs,
+            )
+        else:
+            pl.add_mesh(
+                internal_mesh_slice,
+                scalars=variable,
+                scalar_bar_args={"title": f"{variable}"},
+                **kwargs,
+            )
+
+        pl.add_axes()
+        pl.show()
