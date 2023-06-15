@@ -7,7 +7,7 @@ from subprocess import PIPE, run
 import matplotlib.pyplot as plt
 
 try:
-    import pyvista as pv
+    import pyvista
 except ImportError:
     pyvista_importable = False
 else:
@@ -113,11 +113,12 @@ class Fields:
 
     def _init_pyvista(self):
         path_dir = self.output.sim.path_run
-        with open(f"{path_dir.name}.foam", "w") as my_file:
+        casename = f".{self.output.sim.info_solver.short_name}.foam"
+        with open(casename, "w") as my_file:
             my_file.write("")
         path_dir = self.output.sim.path_run
-        filename = f"{path_dir}/{path_dir.name}.foam"
-        reader = pv.POpenFOAMReader(filename)
+        filename = f"{path_dir}/{casename}"
+        reader = pyvista.POpenFOAMReader(filename)
         return reader.read()
 
     def plot_boundary(
@@ -127,34 +128,57 @@ class Fields:
         lighting=True,
         camera_position=None,
         color="w",
-        whole_mesh=0,
+        whole_mesh_opacity=0,
+        **kwargs,
     ):
-        """name: boundary name
-        show_edges: show edges
-        lighting: lighting of this boundary
-        camera_position: camera position, like "xy"
-        color: color of boundary
-        whole_mesh: the opacity of the whole mesh
         """
-        if pyvista_importable:
-            mesh = self._init_pyvista()
-            boundaries = mesh["boundary"]
-            try:
-                boundary = boundaries[f"{name}"]
-                pl = pv.Plotter()
-                if whole_mesh:
-                    pl.add_mesh(mesh, opacity=whole_mesh)
-                pl.add_mesh(
-                    boundary,
-                    show_edges=show_edges,
-                    color=color,
-                    lighting=lighting,
-                )
-                pl.camera_position = camera_position
-                pl.show()
-            except:
-                print(
-                    f"Boundary name('{name}') is not correct, boundaries:\n{boundaries.keys()}"
-                )
+        Parameters
+        ----------
+
+        name : str
+            boundary name
+        show_edges : bool
+            show edges
+        lighting : bool
+            lighting of this boundary
+        camera_position : str
+            camera position, like "xy"
+        color : str
+            color of the boundary
+        whole_mesh_opacity : float
+            the opacity of the whole mesh, in range (0, 1)
+
+        Examples
+        --------
+
+        >>> sim.output.fields.plot_boundary("bottom", color="g", whole_mesh_opacity=0.05)
+
+        """
+        if not pyvista_importable:
+            raise NotImplementedError
+
+        mesh = self._init_pyvista()
+        boundaries = mesh["boundary"]
+        try:
+            boundary = boundaries[name]
+        except:
+            print(
+                f"Boundary name('{name}') is not correct, boundaries:\n{boundaries.keys()}"
+            )
         else:
-            return NotImplementedError
+            pl = pyvista.Plotter()
+            if 0 < whole_mesh_opacity <= 1:
+                pl.add_mesh(mesh, opacity=whole_mesh_opacity)
+            elif whole_mesh_opacity != 0:
+                print("whole_mesh_opacity should be in the range of (0, 1).")
+
+            pl.add_mesh(
+                boundary,
+                show_edges=show_edges,
+                color=color,
+                lighting=lighting,
+                **kwargs,
+            )
+            pl.camera_position = camera_position
+            pl.add_axes()
+            pl.show()
