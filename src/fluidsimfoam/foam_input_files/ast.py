@@ -339,10 +339,13 @@ class Dict(dict, Node, NodeLikePyDict):
         tmp = []
         indentation = indent * " "
         if self._name is not None:
-            line = indentation + self._name
+            star = indentation + self._name
             if self._directive is not None:
-                line += "  " + self._directive
-            tmp.append(line + f"\n{indentation}" + "{")
+                star += "  " + self._directive
+            star += "\n"
+        else:
+            star = ""
+        tmp.append(star + indentation + "{")
 
         num_spaces = _compute_spaces_to_align(self)
         for key, node in self.items():

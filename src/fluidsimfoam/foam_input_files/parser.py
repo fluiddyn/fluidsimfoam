@@ -173,6 +173,16 @@ class FoamTransformer(Transformer):
                 )
         return VariableAssignment(name, value)
 
+    def unnamed_dict(self, nodes):
+        nodes_assign = [
+            node
+            for node in nodes
+            if hasattr(node, "name") and hasattr(node, "value")
+        ]
+        return Dict(
+            data={node.name: node.value for node in nodes_assign},
+        )
+
     def dict_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
         directive = None

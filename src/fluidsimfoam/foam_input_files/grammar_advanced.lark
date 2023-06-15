@@ -7,7 +7,7 @@ DOUBLE_NAME.1 : /[a-zA-Z][a-zA-Z\d]*[:\.-][:]?[a-zA-Z\d\._]+/
 TRIPLE_NAME.3 :  /[a-zA-Z][a-zA-Z\d]*[:\-][a-zA-Z\d\._]+[:\-][a-zA-Z\d\._]/
 
 _list_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|MACRO|SIGNED_NUMBER|EQKEY|directive
-_dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY|TRIPLE_NAME|list
+_dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY|TRIPLE_NAME
 _var_name : CNAME|ESCAPED_STRING|DOUBLE_NAME|MACRO|EQKEY
 
 LIST_TYPE.2 : /List<[\w]+>/
@@ -17,7 +17,8 @@ directive: /#[a-zA-Z]+/ | /#[a-zA-Z]+{[^}]*}/
 dimension_set : "[" (SIGNED_NUMBER)+ "]"
 _dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | MACRO | directive
     | SIGNED_NUMBER | dimension_set | EQKEY
-list : "(" (_dataentry|NEWLINE|dict_assignment)* ")"
+list : "(" (_dataentry|NEWLINE|dict_assignment|unnamed_dict)* ")"
+unnamed_dict : "{" [NEWLINE] [(_assignment)+] "}"
 
 equal_assign: CNAME "=" (CNAME|SIGNED_NUMBER|list) | CNAME "=" NEWLINE list
 _in_funtion_call : CNAME|DOUBLE_NAME|equal_assign|_funtion_call
