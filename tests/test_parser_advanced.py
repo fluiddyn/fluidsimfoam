@@ -165,7 +165,7 @@ def test_strange_assignment():
     )
 
 
-def test_dict_with_list_name():
+def test_unnamed_dict_in_list():
     """In transportProperties files (found 4 times)"""
     tree = base_test_advanced(
         """
@@ -173,14 +173,28 @@ def test_dict_with_list_name():
         (
             (air water)
             {
-                type blended;
-
-                residualPhaseFraction 1e-3;
-                residualSlip 1e-3;
+                type                    blended;
+                residualPhaseFraction   0.001;
+                residualSlip            0.001;
             }
         );
         """,
-        check_dump_parse=True,
+        check_dump=True,
+    )
+
+
+def test_unnamed_dict_in_list1():
+    base_test_advanced(
+        """
+        features
+        (
+            {
+                file     "geom.extendedFeatureEdgeMesh";
+                level    1;
+            }
+        );
+        """,
+        check_dump=True,
     )
 
 
@@ -288,5 +302,12 @@ def test_list_as_writeCellCentres():
         )
         ;
         """,
+        check_dump_parse=True,
+    )
+
+
+def test_list_as_writeCellCentres_short():
+    base_test_advanced(
+        "value           nonuniform List<scalar> 4(250 750 1250 1750);\n",
         check_dump_parse=True,
     )

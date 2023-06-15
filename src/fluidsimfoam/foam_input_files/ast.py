@@ -252,8 +252,11 @@ class Assignment:
     def dump(self, indent=0):
         if hasattr(self.value, "dump"):
             return self.value.dump(indent)
+        if hasattr(self.value, "dump_without_assignment"):
+            value = self.value.dump_without_assignment()
         else:
-            return indent * " " + f"{self.name}  {self.value};"
+            value = self.value
+        return indent * " " + f"{self.name}  {value};"
 
 
 class VariableAssignment(Assignment):
@@ -264,8 +267,11 @@ class VariableAssignment(Assignment):
     def dump(self, indent=0):
         if hasattr(self.value, "dump"):
             return indent * " " + f"{self.name}  {self.value.dump(indent)};"
+        if hasattr(self.value, "dump_without_assignment"):
+            value = self.value.dump_without_assignment()
         else:
-            return indent * " " + f"{self.name}  {self.value};"
+            value = self.value
+        return indent * " " + f"{self.name}  {value};"
 
 
 @dataclass
@@ -339,10 +345,13 @@ class Dict(dict, Node, NodeLikePyDict):
         tmp = []
         indentation = indent * " "
         if self._name is not None:
-            line = indentation + self._name
+            star = indentation + self._name
             if self._directive is not None:
-                line += "  " + self._directive
-            tmp.append(line + f"\n{indentation}" + "{")
+                star += "  " + self._directive
+            star += "\n"
+        else:
+            star = ""
+        tmp.append(star + indentation + "{")
 
         num_spaces = _compute_spaces_to_align(self)
         for key, node in self.items():

@@ -173,6 +173,16 @@ class FoamTransformer(Transformer):
                 )
         return VariableAssignment(name, value)
 
+    def unnamed_dict(self, nodes):
+        nodes_assign = [
+            node
+            for node in nodes
+            if hasattr(node, "name") and hasattr(node, "value")
+        ]
+        return Dict(
+            data={node.name: node.value for node in nodes_assign},
+        )
+
     def dict_assignment(self, nodes):
         nodes = filter_no_newlines(nodes)
         directive = None
@@ -273,17 +283,6 @@ class FoamTransformer(Transformer):
 
         the_list._name = name_internal
         return Assignment(name, the_list)
-
-    def dimension_assignment(self, nodes):
-        nodes = [node for node in nodes if node is not None]
-        name = nodes.pop(0)
-
-        if len(nodes) == 3:
-            return Assignment(name, Value(nodes[-1], nodes[0], nodes[-2]))
-        elif len(nodes) == 2:
-            return Assignment(name, Value(nodes[-1], dimension=nodes[-2]))
-        else:
-            raise RuntimeError(nodes)
 
     def macro_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
