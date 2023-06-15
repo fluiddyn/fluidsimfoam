@@ -26,7 +26,11 @@ class FoamFormatError(RuntimeError):
 
 def format_code(code, as_field=False, check=True):
     if not as_field:
-        tree = parse(code)
+        try:
+            tree = parse(code)
+        except lark.exceptions.LarkError:
+            raise FoamFormatError(f"LarkError while formatting code\n{code}")
+
         result = dump(tree)
         if check:
             try:
