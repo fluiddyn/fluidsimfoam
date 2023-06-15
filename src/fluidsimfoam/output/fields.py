@@ -7,7 +7,7 @@ from subprocess import PIPE, run
 import matplotlib.pyplot as plt
 
 try:
-    import pyvista
+    import pyvista as pv
 except ImportError:
     pyvista_importable = False
 else:
@@ -110,3 +110,51 @@ class Fields:
         fig, ax = plt.subplots()
 
         ax.plot(y, field.get_array())
+
+    def _init_pyvista(self):
+        path_dir = self.output.sim.path_run
+        with open(f"{path_dir.name}.foam", "w") as my_file:
+            my_file.write("")
+        path_dir = self.output.sim.path_run
+        filename = f"{path_dir}/{path_dir.name}.foam"
+        reader = pv.POpenFOAMReader(filename)
+        return reader.read()
+
+    def plot_boundary(
+        self,
+        name,
+        show_edges=True,
+        lighting=True,
+        camera_position=None,
+        color="w",
+        whole_mesh=0,
+    ):
+        """name: boundary name
+        show_edges: show edges
+        lighting: lighting of this boundary
+        camera_position: camera position, like "xy"
+        color: color of boundary
+        whole_mesh: the opacity of the whole mesh
+        """
+        if pyvista_importable:
+            mesh = self._init_pyvista()
+            boundaries = mesh["boundary"]
+            try:
+                boundary = boundaries[f"{name}"]
+                pl = pv.Plotter()
+                if whole_mesh:
+                    pl.add_mesh(mesh, opacity=whole_mesh)
+                pl.add_mesh(
+                    boundary,
+                    show_edges=show_edges,
+                    color=color,
+                    lighting=lighting,
+                )
+                pl.camera_position = camera_position
+                pl.show()
+            except:
+                print(
+                    f"Boundary name('{name}') is not correct, boundaries:\n{boundaries.keys()}"
+                )
+        else:
+            return NotImplementedError
