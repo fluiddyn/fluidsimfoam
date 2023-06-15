@@ -284,17 +284,6 @@ class FoamTransformer(Transformer):
         the_list._name = name_internal
         return Assignment(name, the_list)
 
-    def dimension_assignment(self, nodes):
-        nodes = [node for node in nodes if node is not None]
-        name = nodes.pop(0)
-
-        if len(nodes) == 3:
-            return Assignment(name, Value(nodes[-1], nodes[0], nodes[-2]))
-        elif len(nodes) == 2:
-            return Assignment(name, Value(nodes[-1], dimension=nodes[-2]))
-        else:
-            raise RuntimeError(nodes)
-
     def macro_assignment(self, nodes):
         nodes = [node for node in nodes if node is not None]
         if len(nodes) != 1:

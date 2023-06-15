@@ -463,11 +463,11 @@ def test_dict_isolated_key(grammar):
 def test_dimension_set(grammar):
     tree = base_test(
         """
-        dimension    [0 2 -1 0 0 0 0];
+        dimensions    [0 2 -1 0 0 0 0];
 
-        nu           [0 2 -1 0 0 0 0] 1e-05;
+        nu            [0 2 -1 0 0 0 0] 1e-05;
 
-        nu1          nu [0 2 -1 0 0 0 0] 1e-06;
+        nu1           nu [0 2 -1 0 0 0 0] 1e-06;
 
         SIMPLE
         {
@@ -478,7 +478,19 @@ def test_dimension_set(grammar):
         check_dump=True,
     )
     assert isinstance(tree.children["nu"], Value)
-    assert isinstance(tree.children["dimension"], DimensionSet)
+    assert isinstance(tree.children["dimensions"], DimensionSet)
+
+
+@both_grammars
+def test_dimension_assigment(grammar):
+    tree = base_test(
+        """
+        dimensions  [0 1 -1 0 0 0 0];
+        """,
+        grammar=grammar,
+        check_dump=True,
+    )
+    assert isinstance(tree.value, DimensionSet)
 
 
 @both_grammars
