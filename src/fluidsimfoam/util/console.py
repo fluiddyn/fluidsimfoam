@@ -146,6 +146,7 @@ def initiate_solver():
 
     path_templates = path_package / "templates"
     path_templates.mkdir(parents=True)
+    (path_templates / "__init__.py").touch()
     name = "tasks.py"
     templates[path_templates / name] = name + ".template"
 
