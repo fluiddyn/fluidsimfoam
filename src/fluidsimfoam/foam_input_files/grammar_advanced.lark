@@ -11,7 +11,7 @@ _dict_name: CNAME|ESCAPED_STRING|DOUBLE_NAME|EQKEY|TRIPLE_NAME
 _var_name : CNAME|ESCAPED_STRING|DOUBLE_NAME|MACRO|EQKEY
 
 LIST_TYPE.2 : /List<[\w]+>/
-list_info : _list_name [CNAME] [NEWLINE] [LIST_TYPE] [NEWLINE SIGNED_NUMBER]
+list_info : _list_name CNAME? NEWLINE? LIST_TYPE? [NEWLINE? SIGNED_NUMBER]
 
 directive: /#[a-zA-Z]+/ | /#[a-zA-Z]+{[^}]*}/
 dimension_set : "[" (SIGNED_NUMBER)+ "]"

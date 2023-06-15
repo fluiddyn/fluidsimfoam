@@ -304,3 +304,10 @@ def test_list_as_writeCellCentres():
         """,
         check_dump_parse=True,
     )
+
+
+def test_list_as_writeCellCentres_short():
+    base_test_advanced(
+        "value           nonuniform List<scalar> 4(250 750 1250 1750);\n",
+        check_dump_parse=True,
+    )
