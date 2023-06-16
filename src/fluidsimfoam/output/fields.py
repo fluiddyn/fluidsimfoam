@@ -5,6 +5,7 @@ from numbers import Number
 from subprocess import PIPE, run
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 try:
     import pyvista
@@ -124,7 +125,7 @@ class Fields:
             else:
                 print(f"Time ({time}) is Not available!")
 
-        return reader.read()
+        return reader.read(), reader.time_values
 
     def plot_boundary(
         self,
@@ -164,7 +165,7 @@ class Fields:
         if not pyvista_importable:
             raise NotImplementedError
 
-        mesh = self._init_pyvista()
+        mesh, times = self._init_pyvista()
         boundaries = mesh["boundary"]
         try:
             boundary = boundaries[name]
@@ -202,8 +203,11 @@ class Fields:
         component=None,
         time=None,
         normal="y",
+        camera_position=None,
         block=0,
         whole_mesh_opacity=0,
+        show=True,
+        plotter=None,
         **kwargs,
     ):
         """
@@ -218,6 +222,8 @@ class Fields:
             simulation time
         normal : str
             normal of the plane
+        camera_position : str
+            camera position plane
         block : int
             block number
         whole_mesh_opacity : float
@@ -232,18 +238,19 @@ class Fields:
         if not pyvista_importable:
             raise NotImplementedError
 
-        mesh = self._init_pyvista(time)
+        mesh, times = self._init_pyvista(time)
         block = mesh[block]
         internal_mesh_slice = block.slice(normal)
-        pl = pyvista.Plotter()
+        if not plotter:
+            plotter = pyvista.Plotter()
 
         if 0 < whole_mesh_opacity <= 1:
-            pl.add_mesh(mesh, color="w", opacity=whole_mesh_opacity)
+            plotter.add_mesh(mesh, color="w", opacity=whole_mesh_opacity)
         elif whole_mesh_opacity != 0:
             print("whole_mesh_opacity should be in the range of (0, 1).")
         components = ["x", "y", "z"]
         if component:
-            pl.add_mesh(
+            plotter.add_mesh(
                 internal_mesh_slice,
                 scalars=variable,
                 component=component,
@@ -251,12 +258,80 @@ class Fields:
                 **kwargs,
             )
         else:
-            pl.add_mesh(
+            plotter.add_mesh(
                 internal_mesh_slice,
                 scalars=variable,
                 scalar_bar_args={"title": f"{variable}"},
                 **kwargs,
             )
 
-        pl.add_axes()
-        pl.show()
+        plotter.add_axes()
+        plotter.show()
+
+    def plot_animation(
+        self,
+        filename="filename",
+        variable="U",
+        component=None,
+        start=0,
+        end=None,
+        normal="y",
+        camera_position="xz",
+        block=0,
+        whole_mesh_opacity=0,
+        **kwargs,
+    ):
+        """
+        Parameters
+        ----------
+
+        filename : str
+            animation file name (without postfix)
+        variable : str
+            variable name
+        component : int
+            components of vector field (x:0, y:1, z:2)
+        start : float
+            start time
+        end : float
+            end time
+        normal : str
+            normal of the plane
+        camera_position : str
+            camera position plane
+        block : int
+            block number
+
+        Examples
+        --------
+
+        >>> sim.output.fields.plot_animation(filename="my_animation", variable="U", component=0, start=360, end=3600)
+
+        """
+        if not pyvista_importable:
+            raise NotImplementedError
+
+        plotter = pyvista.Plotter()
+        filename += ".mp4"
+        plotter.open_movie(filename)
+        mesh, time_pv = self._init_pyvista()
+
+        if end:
+            times = np.arange(
+                start, end + 1, self.sim.params.control_dict.write_interval
+            )
+        else:
+            times = time_pv
+
+        for time in times:
+            mesh, times = self._init_pyvista(time)
+            block_ = mesh[0]
+            internal_mesh_slice = block_.slice(normal)
+            plotter.add_mesh(
+                internal_mesh_slice, scalars=variable, component=component
+            )
+            plotter.add_text(f"Simulation Time: {time}s", name="time-label")
+            plotter.camera_position = camera_position
+            plotter.write_frame()
+
+        plotter.close()
