@@ -1,0 +1,18 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p_rgh;
+}
+dimensions       [1 -1 -2 0 0 0 0];
+internalField    uniform 100000.0;
+boundaryField
+{
+    #includeEtc  "caseDicts/setConstraintTypes";
+    ".*"
+    {
+        type     calculated;
+        value    $internalField;
+    }
+}

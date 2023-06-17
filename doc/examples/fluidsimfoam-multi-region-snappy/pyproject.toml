@@ -1,0 +1,26 @@
+[build-system]
+requires = [
+    "setuptools>=61.0.0",
+    "wheel",
+    ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fluidsimfoam-multi-region-snappy"
+authors = [
+    {name = "Fluidsimfoam developers"},
+]
+description = "???"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "BSD-3-Clause"}
+version = "0.0.1"
+dependencies = [
+    "fluidsimfoam >= 0.0.6",
+]
+
+[project.entry-points."fluidsimfoam.solvers"]
+multi-region-snappy = "fluidsimfoam_multi_region_snappy"
+
+[tool.setuptools.package-data]
+fluidsimfoam_multi_region_snappy = ["templates"]
