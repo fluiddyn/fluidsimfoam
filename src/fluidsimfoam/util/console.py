@@ -140,7 +140,7 @@ def initiate_solver():
         templates[relative_path] = name + ".template"
 
     path_package = path_result / f"src/{name_package}"
-    for name in ["__init__.py", "output.py", "tasks.py"]:
+    for name in ["__init__.py", "output.py"]:
         relative_path = path_package / name
         templates[relative_path] = name + ".template"
 
