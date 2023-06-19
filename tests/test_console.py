@@ -42,6 +42,10 @@ if path_foam_tutorials is not None and FLUIDSIMFOAM_LONG_TESTS:
     """.strip().split(
         "\n"
     )
+    # advanced solver (multiRegion + snappyHexMesh)
+    main_tutorials.append(
+        "heatTransfer/chtMultiRegionFoam/snappyMultiRegionHeater"
+    )
     path_foam_tutorials = Path(path_foam_tutorials)
     path_main_tutorials = [
         path_foam_tutorials / rel_path.strip() for rel_path in main_tutorials

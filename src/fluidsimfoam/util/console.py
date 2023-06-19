@@ -10,8 +10,9 @@ from functools import partial
 from importlib import resources
 from pathlib import Path
 from pprint import pprint
-from shutil import copy
+from shutil import copy, which
 from string import Template
+from subprocess import run
 
 from inflection import camelize
 
@@ -98,22 +99,54 @@ def initiate_solver():
         print(f"Using case {path_case}")
 
         path_files = {}
-        name_files = {}
-
         for name_dir in ("system", "constant", "0", "0.orig"):
-            path_files[name_dir] = sorted(
+            paths_in_dir = sorted(path_case.glob(name_dir + "/*"))
+
+            path_files[name_dir] = [
                 path.relative_to(path_case)
-                for path in path_case.glob(name_dir + "/*")
-                # directories are not supported...
-                if path.is_file()
+                for path in paths_in_dir
+                if path.is_file() and not path.is_symlink()
+            ]
+
+            path_subdirs = [
+                path
+                for path in paths_in_dir
+                if path.is_dir() and path.name != "polyMesh"
+            ]
+
+            for path_subdir in path_subdirs:
+                path_files[name_dir].extend(
+                    sorted(
+                        path.relative_to(path_case)
+                        for path in path_subdir.glob("*")
+                        if path.is_file() and not path.is_symlink()
+                    )
+                )
+
+        internal_symlinks = {}
+        for path in path_case.rglob("*"):
+            if not path.is_symlink():
+                continue
+            path_resolved = path.resolve()
+            if path_case not in path_resolved.parents:
+                raise NotImplementedError("External symlinks not implemented")
+            internal_symlinks[str(path.relative_to(path_case))] = str(
+                path.readlink()
             )
+
+        if internal_symlinks:
+            print("internal_symlinks:")
+            pprint(internal_symlinks)
 
         paths_orig = path_files.pop("0.orig")
         if paths_orig:
             path_files["0"] = paths_orig
 
+        name_files = {}
         for name_dir in path_files.keys():
-            name_files[name_dir] = [p.name for p in path_files[name_dir]]
+            name_files[name_dir] = sorted(
+                str(Path(*p.parts[1:])) for p in path_files[name_dir]
+            )
 
         pprint(name_files)
 
@@ -131,6 +164,7 @@ def initiate_solver():
         "name_variables": str(name_files["0"]),
         "name_system_files": str(name_files["system"]),
         "name_constant_files": str(name_files["constant"]),
+        "internal_symlinks": str(internal_symlinks),
     }
 
     templates = {}
@@ -140,7 +174,7 @@ def initiate_solver():
         templates[relative_path] = name + ".template"
 
     path_package = path_result / f"src/{name_package}"
-    for name in ["__init__.py", "output.py", "tasks.py"]:
+    for name in ["__init__.py", "output.py"]:
         relative_path = path_package / name
         templates[relative_path] = name + ".template"
 
@@ -181,7 +215,7 @@ def initiate_solver():
                 print(f"Not able to format file {relative_path}")
 
             # Trim trailing whitespaces
-            code = re.sub(r"\s+\n", "\n", code).strip() + "\n"
+            code = re.sub(r"[^\S\n\r]+\n", "\n", code).strip() + "\n"
 
             if "{{" in code:
                 # Escape jinja syntax
@@ -195,16 +229,28 @@ def initiate_solver():
                     parts[0] = "0"
                     relative_path = Path(*parts)
 
-            (path_saved_case / relative_path).write_text(code)
-            (path_templates / (relative_path.name + ".jinja")).write_text(
-                code_template
-            )
+            path_in_saved_case = path_saved_case / relative_path
+            path_in_saved_case.parent.mkdir(exist_ok=True)
+            path_in_saved_case.write_text(code)
+
+            path_template = path_templates / relative_path
+            path_template = path_template.with_name(path_template.name + ".jinja")
+            path_template.parent.mkdir(exist_ok=True)
+            path_template.write_text(code_template)
+
+    # create the symlinks
+    for relative_path, target in internal_symlinks.items():
+        path_in_saved_case = path_saved_case / relative_path
+        path_in_saved_case.parent.mkdir(exist_ok=True)
+        path_in_saved_case.symlink_to(target)
 
     if args.from_case is not None:
-        for name in ("Allclean", "Allrun"):
-            path = path_case / name
+        for path in path_case.glob("All*"):
             if path.exists():
                 copy(path, path_saved_case)
+
+    if which("black") is not None:
+        run(["black", "-l", "82", str(path_result)])
 
     print(
         f"""

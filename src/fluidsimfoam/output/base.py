@@ -53,6 +53,7 @@ def copy_resources(resources, path_run):
             resource = Path(os.path.expandvars(resource)).expanduser()
             context_manager = nullcontext
 
+        destination.parent.mkdir(exist_ok=True)
         with context_manager(resource) as resource:
             if resource.is_file():
                 shutil.copy(resource, destination)
@@ -278,7 +279,7 @@ class Output(OutputCore):
                 "tasks.py missing in solver templates_dir "
                 f"{self.input_files.templates_dir}"
             )
-        shutil.copy(path_tasks_py, self.sim.path_run)
+        shutil.copy(path_tasks_py, self.path_run)
 
         for file_generator in vars(self.input_files).values():
             if hasattr(
@@ -286,6 +287,12 @@ class Output(OutputCore):
             ) and not file_generator.rel_path.startswith("system"):
                 # system files are already generated
                 file_generator.generate_file()
+
+        if hasattr(self, "internal_symlinks"):
+            for relative_path, target in self.internal_symlinks.items():
+                path_symlink = self.path_run / relative_path
+                path_symlink.parent.mkdir(exist_ok=True)
+                path_symlink.symlink_to(target)
 
     @classmethod
     def _complete_params_block_mesh_dict(cls, params):

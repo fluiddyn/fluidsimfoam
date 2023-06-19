@@ -7,6 +7,7 @@ class Output$suffix_for_class(Output):
     name_variables = $name_variables
     name_system_files = $name_system_files
     name_constant_files = $name_constant_files
+    internal_symlinks = $internal_symlinks
 
     _helper_control_dict = None
     # can be replaced by:

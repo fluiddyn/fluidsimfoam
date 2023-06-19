@@ -127,11 +127,6 @@ class FoamTransformer(Transformer):
             nodes = nodes[1:]
         else:
             info_dict = None
-
-        for node in nodes:
-            if isinstance(node.value, List):
-                node.value.add_name(node.name)
-
         return FoamInputFile(info_dict, {node.name: node.value for node in nodes})
 
     def var_assignment(self, nodes):
@@ -209,10 +204,6 @@ class FoamTransformer(Transformer):
             for node in nodes
             if hasattr(node, "name") and hasattr(node, "value")
         ]
-
-        for node in nodes_assign:
-            if isinstance(node.value, List):
-                node.value.add_name(node.name)
 
         if directive is not None and directive == "#codeStream":
             cls = CodeStream
