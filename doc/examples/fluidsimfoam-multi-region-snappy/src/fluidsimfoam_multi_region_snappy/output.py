@@ -5,16 +5,54 @@ class OutputMultiRegionSnappy(Output):
     name_variables = ["T", "U", "alphat", "epsilon", "k", "p", "p_rgh", "rho"]
     name_system_files = [
         "blockMeshDict",
+        "bottomAir/changeDictionaryDict",
+        "bottomAir/fvSchemes",
+        "bottomAir/fvSolution",
         "controlDict",
         "decomposeParDict",
         "decomposeParDict.6",
         "fvSchemes",
         "fvSolution",
+        "heater/changeDictionaryDict",
+        "heater/fvSchemes",
+        "heater/fvSolution",
+        "leftSolid/changeDictionaryDict",
+        "leftSolid/fvSolution",
         "meshQualityDict",
+        "rightSolid/changeDictionaryDict",
+        "rightSolid/fvSolution",
         "snappyHexMeshDict",
         "surfaceFeatureExtractDict",
+        "topAir/changeDictionaryDict",
+        "topAir/fvSolution",
     ]
-    name_constant_files = ["g", "regionProperties"]
+    name_constant_files = [
+        "bottomAir/radiationProperties",
+        "bottomAir/thermophysicalProperties",
+        "bottomAir/turbulenceProperties",
+        "g",
+        "heater/radiationProperties",
+        "heater/thermophysicalProperties",
+        "regionProperties",
+    ]
+    internal_symlinks = {
+        "Allrun": "Allrun-parallel",
+        "system/leftSolid/fvSchemes": "../heater/fvSchemes",
+        "system/leftSolid/decomposeParDict": "../heater/decomposeParDict",
+        "system/rightSolid/fvSchemes": "../heater/fvSchemes",
+        "system/rightSolid/decomposeParDict": "../heater/decomposeParDict",
+        "system/topAir/fvSchemes": "../bottomAir/fvSchemes",
+        "system/topAir/decomposeParDict": "../bottomAir/decomposeParDict",
+        "system/bottomAir/decomposeParDict": "../decomposeParDict",
+        "system/heater/decomposeParDict": "../decomposeParDict",
+        "constant/leftSolid/thermophysicalProperties": "../heater/thermophysicalProperties",
+        "constant/leftSolid/radiationProperties": "../heater/radiationProperties",
+        "constant/rightSolid/thermophysicalProperties": "../heater/thermophysicalProperties",
+        "constant/rightSolid/radiationProperties": "../heater/radiationProperties",
+        "constant/topAir/turbulenceProperties": "../bottomAir/turbulenceProperties",
+        "constant/topAir/thermophysicalProperties": "../bottomAir/thermophysicalProperties",
+        "constant/topAir/radiationProperties": "../bottomAir/radiationProperties",
+    }
 
     _helper_control_dict = Output._helper_control_dict.new(
         """
