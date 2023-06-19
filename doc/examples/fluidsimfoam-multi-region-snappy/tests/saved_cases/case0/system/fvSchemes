@@ -5,21 +5,27 @@ FoamFile
     class       dictionary;
     object      fvSchemes;
 }
+
 ddtSchemes
 {
 }
+
 gradSchemes
 {
 }
+
 divSchemes
 {
 }
+
 laplacianSchemes
 {
 }
+
 interpolationSchemes
 {
 }
+
 snGradSchemes
 {
 }

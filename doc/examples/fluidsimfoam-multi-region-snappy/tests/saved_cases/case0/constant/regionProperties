@@ -5,6 +5,7 @@ FoamFile
     class       dictionary;
     object      regionProperties;
 }
+
 regions
 (
     fluid

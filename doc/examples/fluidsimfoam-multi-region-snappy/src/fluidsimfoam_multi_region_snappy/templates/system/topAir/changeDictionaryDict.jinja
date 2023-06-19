@@ -13,9 +13,11 @@ FoamFile
     object      changeDictionaryDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
 U
 {
     internalField   uniform (0.1 0 0);
+
     boundaryField
     {
         ".*"
@@ -40,9 +42,11 @@ U
         }
     }
 }
+
 T
 {
     internalField   uniform 300;
+
     boundaryField
     {
         ".*"
@@ -53,6 +57,7 @@ T
         {
             type            processor;
         }
+
         minX
         {
             type            fixedValue;
@@ -64,6 +69,7 @@ T
             inletValue      uniform 300;
             value           uniform 300;
         }
+
         "topAir_to_.*"
         {
             type            compressible::turbulentTemperatureRadCoupledMixed;
@@ -73,9 +79,11 @@ T
         }
     }
 }
+
 epsilon
 {
     internalField   uniform 0.01;
+
     boundaryField
     {
         ".*"
@@ -87,6 +95,7 @@ epsilon
         {
             type            processor;
         }
+
         minX
         {
             type            fixedValue;
@@ -100,9 +109,11 @@ epsilon
         }
     }
 }
+
 k
 {
     internalField   uniform 0.1;
+
     boundaryField
     {
         ".*"
@@ -114,6 +125,7 @@ k
         {
             type            processor;
         }
+
         minX
         {
             type            fixedValue;
@@ -127,9 +139,11 @@ k
         }
     }
 }
+
 p_rgh
 {
     internalField   uniform 1e5;
+
     boundaryField
     {
         ".*"
@@ -141,6 +155,7 @@ p_rgh
         {
             type            processor;
         }
+
         maxX
         {
             type            fixedValue;
@@ -148,9 +163,11 @@ p_rgh
         }
     }
 }
+
 p
 {
     internalField   uniform 1e5;
+
     boundaryField
     {
         ".*"
@@ -162,6 +179,7 @@ p
         {
             type            processor;
         }
+
         maxX
         {
             type            calculated;
@@ -169,4 +187,6 @@ p
         }
     }
 }
+
+
 // ************************************************************************* //

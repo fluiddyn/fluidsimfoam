@@ -5,6 +5,7 @@ FoamFile
     class       dictionary;
     object      changeDictionaryDict;
 }
+
 boundary
 {
     minZ
@@ -16,6 +17,7 @@ boundary
         type    patch;
     }
 }
+
 T
 {
     internalField    uniform 300;

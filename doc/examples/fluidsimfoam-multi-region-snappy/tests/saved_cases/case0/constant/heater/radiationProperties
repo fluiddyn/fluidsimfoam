@@ -5,5 +5,7 @@ FoamFile
     class       dictionary;
     object      radiationProperties;
 }
+
 radiation         off;
+
 radiationModel    none;

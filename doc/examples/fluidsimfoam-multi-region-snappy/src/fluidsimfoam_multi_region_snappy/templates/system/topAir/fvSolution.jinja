@@ -5,6 +5,7 @@ FoamFile
     class       dictionary;
     object      fvSolution;
 }
+
 solvers
 {
     "(rho|rhoFinal)"
@@ -41,6 +42,7 @@ solvers
         relTol       0;
     }
 }
+
 PIMPLE
 {
     momentumPredictor       yes;
@@ -49,6 +51,7 @@ PIMPLE
     pRefCell                0;
     pRefValue               100000.0;
 }
+
 relaxationFactors
 {
     equations

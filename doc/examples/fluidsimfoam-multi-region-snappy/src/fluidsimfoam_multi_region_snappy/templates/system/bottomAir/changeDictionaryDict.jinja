@@ -13,6 +13,7 @@ FoamFile
     object      changeDictionaryDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
 boundary
 {
     minX
@@ -24,9 +25,11 @@ boundary
         type            wall;
     }
 }
+
 U
 {
     internalField   uniform (0.01 0 0);
+
     boundaryField
     {
         ".*"
@@ -40,19 +43,23 @@ U
         }
     }
 }
+
 T
 {
     internalField   uniform 300;
+
     boundaryField
     {
         ".*"
         {
             type            zeroGradient;
         }
+
         "procBoundary.*"
         {
             type            processor;
         }
+
         "bottomAir_to_.*"
         {
             type            compressible::turbulentTemperatureRadCoupledMixed;
@@ -62,11 +69,13 @@ T
         }
     }
 }
+
 epsilon
 {
     // Set the value on all bc to non-zero. Not used in simulation
     // since zeroGradient; only used in initialisation.
     internalField   uniform 0.01;
+
     boundaryField
     {
         ".*"
@@ -80,9 +89,11 @@ epsilon
         }
     }
 }
+
 k
 {
     internalField   uniform 0.1;
+
     boundaryField
     {
         ".*"
@@ -96,9 +107,11 @@ k
         }
     }
 }
+
 p_rgh
 {
     internalField   uniform 1e5;
+
     boundaryField
     {
         ".*"
@@ -112,9 +125,11 @@ p_rgh
         }
     }
 }
+
 p
 {
     internalField   uniform 1e5;
+
     boundaryField
     {
         ".*"
@@ -128,4 +143,6 @@ p
         }
     }
 }
+
+
 // ************************************************************************* //

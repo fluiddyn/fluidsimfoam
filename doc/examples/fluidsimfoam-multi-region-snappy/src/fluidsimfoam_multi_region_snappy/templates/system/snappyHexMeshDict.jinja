@@ -5,9 +5,13 @@ FoamFile
     class       dictionary;
     object      snappyHexMeshDict;
 }
+
 castellatedMesh   true;
+
 snap              true;
+
 addLayers         false;
+
 geometry
 {
     geom.stl
@@ -16,6 +20,7 @@ geometry
         name    geom;
     }
 }
+
 castellatedMeshControls
 {
     maxLocalCells           100000;
@@ -54,6 +59,7 @@ castellatedMeshControls
     );
     allowFreeStandingZoneFaces  false;
 }
+
 snapControls
 {
     nSmoothPatch        3;
@@ -62,6 +68,7 @@ snapControls
     nRelaxIter          5;
     nFeatureSnapIter    10;
 }
+
 addLayersControls
 {
     relativeSizes           true;
@@ -87,10 +94,12 @@ addLayersControls
     nBufferCellsNoExtrude   0;
     nLayerIter              50;
 }
+
 meshQualityControls
 {
     #include  "meshQualityDict";
     nSmoothScale            4;
     errorReduction          0.75;
 }
+
 mergeTolerance    1e-06;

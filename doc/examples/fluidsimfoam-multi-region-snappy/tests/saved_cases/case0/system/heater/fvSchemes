@@ -5,27 +5,33 @@ FoamFile
     class       dictionary;
     object      fvSchemes;
 }
+
 ddtSchemes
 {
     default    Euler;
 }
+
 gradSchemes
 {
     default    Gauss linear;
 }
+
 divSchemes
 {
     default    none;
 }
+
 laplacianSchemes
 {
     default               none;
     laplacian(alpha,h)    Gauss linear corrected;
 }
+
 interpolationSchemes
 {
     default    linear;
 }
+
 snGradSchemes
 {
     default    corrected;
