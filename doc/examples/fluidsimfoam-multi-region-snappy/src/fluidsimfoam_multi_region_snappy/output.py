@@ -36,7 +36,6 @@ class OutputMultiRegionSnappy(Output):
         "regionProperties",
     ]
     internal_symlinks = {
-        "Allrun": "Allrun-parallel",
         "system/leftSolid/fvSchemes": "../heater/fvSchemes",
         "system/leftSolid/decomposeParDict": "../heater/decomposeParDict",
         "system/rightSolid/fvSchemes": "../heater/fvSchemes",
@@ -81,3 +80,11 @@ class OutputMultiRegionSnappy(Output):
     _helper_decompose_par_dict = None
     _helper_turbulence_properties = None
     _complete_params_block_mesh_dict = None
+
+    @classmethod
+    def _complete_params_with_default(cls, params, info_solver):
+        super()._complete_params_with_default(params, info_solver)
+        params.resources = (
+            "package-data(fluidsimfoam_multi_region_snappy.templates)/geom.stl.gz"
+            " -> constant/triSurface/geom.stl.gz"
+        )

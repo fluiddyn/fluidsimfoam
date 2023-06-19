@@ -53,6 +53,7 @@ def copy_resources(resources, path_run):
             resource = Path(os.path.expandvars(resource)).expanduser()
             context_manager = nullcontext
 
+        destination.parent.mkdir(exist_ok=True)
         with context_manager(resource) as resource:
             if resource.is_file():
                 shutil.copy(resource, destination)
