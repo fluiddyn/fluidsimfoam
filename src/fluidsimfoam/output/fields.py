@@ -177,13 +177,13 @@ class Fields:
                 f"try something like: sim.output.fields.plot_boundary('{boundaries.keys()[0]}')"
             )
         else:
-            pl = pyvista.Plotter()
+            plotter = pyvista.Plotter()
             if 0 < whole_mesh_opacity <= 1:
-                pl.add_mesh(mesh, opacity=whole_mesh_opacity, label="domain")
+                plotter.add_mesh(mesh, opacity=whole_mesh_opacity, label="domain")
             elif whole_mesh_opacity != 0:
                 print("whole_mesh_opacity should be in the range of (0, 1).")
 
-            pl.add_mesh(
+            plotter.add_mesh(
                 boundary,
                 show_edges=show_edges,
                 color=color,
@@ -191,11 +191,11 @@ class Fields:
                 label=name,
                 **kwargs,
             )
-            pl.camera_position = camera_position
+            plotter.camera_position = camera_position
             if add_legend:
-                pl.add_legend(face=None)
-            pl.add_axes()
-            pl.show()
+                plotter.add_legend(face=None)
+            plotter.add_axes()
+            plotter.show()
 
     def plot_contour(
         self,
@@ -223,7 +223,7 @@ class Fields:
         normal : str
             normal of the plane
         camera_position : str
-            camera position plane
+            camera position plane like: "xy"
         block : int
             block number
         whole_mesh_opacity : float
@@ -248,25 +248,24 @@ class Fields:
             plotter.add_mesh(mesh, color="w", opacity=whole_mesh_opacity)
         elif whole_mesh_opacity != 0:
             print("whole_mesh_opacity should be in the range of (0, 1).")
-        components = ["x", "y", "z"]
-        if component:
-            plotter.add_mesh(
-                internal_mesh_slice,
-                scalars=variable,
-                component=component,
-                scalar_bar_args={"title": f"{variable}{components[component]}"},
-                **kwargs,
-            )
-        else:
-            plotter.add_mesh(
-                internal_mesh_slice,
-                scalars=variable,
-                scalar_bar_args={"title": f"{variable}"},
-                **kwargs,
-            )
+        components = {0: "x", 1: "y", 2: "z", None: ""}
+        plotter.add_mesh(
+            internal_mesh_slice,
+            scalars=variable,
+            component=component,
+            scalar_bar_args={"title": f"{variable}{components[component]}"},
+            **kwargs,
+        )
 
+        cpositions = {"x": "yz", "y": "xz", "z": "xy"}
+        if not camera_position:
+            camera_position = cpositions[normal]
+        plotter.camera_position = camera_position
         plotter.add_axes()
-        plotter.show()
+        if show:
+            plotter.show()
+        else:
+            return plotter
 
     def plot_animation(
         self,
@@ -316,22 +315,26 @@ class Fields:
         plotter.open_movie(filename)
         mesh, time_pv = self._init_pyvista()
 
-        if end:
+        if not end:
+            times = time_pv
+        else:
             times = np.arange(
                 start, end + 1, self.sim.params.control_dict.write_interval
             )
-        else:
-            times = time_pv
 
         for time in times:
-            mesh, times = self._init_pyvista(time)
-            block_ = mesh[0]
-            internal_mesh_slice = block_.slice(normal)
-            plotter.add_mesh(
-                internal_mesh_slice, scalars=variable, component=component
+            plotter = self.plot_contour(
+                variable=variable,
+                block=block,
+                component=component,
+                time=time,
+                normal=normal,
+                camera_position=camera_position,
+                plotter=plotter,
+                show=False,
+                **kwargs,
             )
             plotter.add_text(f"Simulation Time: {time}s", name="time-label")
-            plotter.camera_position = camera_position
             plotter.write_frame()
 
         plotter.close()
