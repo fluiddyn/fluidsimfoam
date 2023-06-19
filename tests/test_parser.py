@@ -138,7 +138,13 @@ def test_list_simple(grammar):
 def test_list_assignment(grammar):
     tree = base_test(
         """
-        faces  (1 5 4 0);
+        faces
+        (
+            1
+            5
+            4
+            0
+        );
     """,
         grammar=grammar,
         check_dump=True,
@@ -768,3 +774,21 @@ def test_code_stream():
     assert code_stream.code.strip().startswith("const IOdictionary")
     code_stream.code_include = "toto"
     code_stream["codeInclude"] == "toto"
+
+
+def test_list_uniform():
+    tree = base_test(
+        r"""
+        a    1;
+
+        internalField uniform
+        (
+            0.1
+            0
+            0
+        );
+        """,
+        check_dump=True,
+    )
+
+    assert tree["internalField"]._name == "internalField uniform"

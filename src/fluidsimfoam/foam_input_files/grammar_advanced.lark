@@ -15,9 +15,9 @@ list_info : _list_name CNAME? NEWLINE? LIST_TYPE? [NEWLINE? SIGNED_NUMBER]
 
 directive: /#[a-zA-Z]+/ | /#[a-zA-Z]+{[^}]*}/
 dimension_set : "[" (SIGNED_NUMBER)+ "]"
-_dataentry : DOUBLE_NAME | CNAME | list | ESCAPED_STRING | MACRO | directive
+_dataentry : DOUBLE_NAME | CNAME | ESCAPED_STRING | MACRO | directive
     | SIGNED_NUMBER | dimension_set | EQKEY
-list : "(" (_dataentry|NEWLINE|dict_assignment|unnamed_dict)* ")"
+list : "(" (_dataentry|NEWLINE|list|dict_assignment|unnamed_dict)* ")"
 unnamed_dict : "{" [NEWLINE] [(_assignment)+] "}"
 
 equal_assign: CNAME "=" (CNAME|SIGNED_NUMBER|list) | CNAME "=" NEWLINE list
