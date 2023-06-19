@@ -52,8 +52,9 @@ class FileGeneratorABC(ABC):
         if code is False:
             return
 
-        with open(self.output.path_run / self.rel_path, "w") as file:
-            file.write(code)
+        path = self.output.path_run / self.rel_path
+        path.parent.mkdir(exist_ok=True)
+        path.write_text(code)
 
     @abstractmethod
     def generate_code(self):
@@ -71,8 +72,7 @@ class FileGeneratorABC(ABC):
             return read_field_file(path)
 
     def overwrite(self, dumpable):
-        with open(self.output.path_run / self.rel_path, "w") as file:
-            file.write(dumpable.dump())
+        (self.output.path_run / self.rel_path).write_text(dumpable.dump())
 
 
 class FileGenerator(FileGeneratorABC):

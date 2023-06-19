@@ -124,7 +124,7 @@ def initiate_solver():
                 )
 
         internal_symlinks = {}
-        for path in path_case.glob("**/*"):
+        for path in path_case.rglob("*"):
             if not path.is_symlink():
                 continue
             path_resolved = path.resolve()
@@ -233,7 +233,8 @@ def initiate_solver():
             path_in_saved_case.parent.mkdir(exist_ok=True)
             path_in_saved_case.write_text(code)
 
-            path_template = (path_templates / relative_path).with_suffix(".jinja")
+            path_template = path_templates / relative_path
+            path_template = path_template.with_name(path_template.name + ".jinja")
             path_template.parent.mkdir(exist_ok=True)
             path_template.write_text(code_template)
 
