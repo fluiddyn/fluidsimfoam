@@ -18,7 +18,7 @@ def test_generate_base_case():
 # def test_run():
 #     params = Simul.create_default_params()
 #     params.output.sub_directory = "tests_fluidsimfoam/$name_short"
-#     # change parameters to get a very short and small simulations
+#     # change parameters to get a very short and small simulation
 #     ...
 #     sim = Simul(params)
 #     sim.make.exec("run")
