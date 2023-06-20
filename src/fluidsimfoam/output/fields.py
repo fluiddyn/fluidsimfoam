@@ -267,79 +267,7 @@ class Fields:
         else:
             return plotter
 
-    def plot_animation(
-        self,
-        filename="filename",
-        variable="U",
-        component=None,
-        start=0,
-        end=None,
-        normal="y",
-        camera_position="xz",
-        block=0,
-        whole_mesh_opacity=0,
-        **kwargs,
-    ):
-        """
-        Parameters
-        ----------
-
-        filename : str
-            animation file name (without postfix)
-        variable : str
-            variable name
-        component : int
-            components of vector field (x:0, y:1, z:2)
-        start : float
-            start time
-        end : float
-            end time
-        normal : str
-            normal of the plane
-        camera_position : str
-            camera position plane
-        block : int
-            block number
-
-        Examples
-        --------
-
-        >>> sim.output.fields.plot_animation(filename="my_animation", variable="U", component=0, start=360, end=3600)
-
-        """
-        if not pyvista_importable:
-            raise NotImplementedError
-
-        plotter = pyvista.Plotter()
-        filename += ".mp4"
-        plotter.open_movie(filename)
-        mesh, time_pv = self._init_pyvista()
-
-        if not end:
-            times = time_pv
-        else:
-            times = np.arange(
-                start, end + 1, self.sim.params.control_dict.write_interval
-            )
-
-        for time in times:
-            plotter = self.plot_contour(
-                variable=variable,
-                block=block,
-                component=component,
-                time=time,
-                normal=normal,
-                camera_position=camera_position,
-                plotter=plotter,
-                show=False,
-                **kwargs,
-            )
-            plotter.add_text(f"Simulation Time: {time}s", name="time-label")
-            plotter.write_frame()
-
-        plotter.close()
-
-    def plot_line(
+    def plot_profile(
         self,
         point0=[0, 0, 0],
         point1=[0, 1, 0],
@@ -375,7 +303,7 @@ class Fields:
         Examples
         --------
 
-        >>> sim.output.fields.plot_line(point0=[0,0,5],point1=[0,0,20], variable="T", time=3600, ylabel="T(K)", title="Temperature")
+        >>> sim.output.fields.plot_profile(point0=[0,0,5],point1=[0,0,20], variable="T", time=3600, ylabel="T(K)", title="Temperature")
 
         """
         if not pyvista_importable:
