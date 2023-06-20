@@ -77,7 +77,6 @@ class OutputMultiRegionSnappy(Output):
     )
 
     # remove these lines to get fluidsimfoam default helpers
-    _helper_decompose_par_dict = None
     _helper_turbulence_properties = None
     _complete_params_block_mesh_dict = None
 
@@ -88,3 +87,13 @@ class OutputMultiRegionSnappy(Output):
             "package-data(fluidsimfoam_multi_region_snappy.templates)/geom.stl.gz"
             " -> constant/triSurface/geom.stl.gz"
         )
+
+    _helper_decompose_par_dict = Output._helper_decompose_par_dict.new()
+    _helper_decompose_par_dict.add_region(
+        "heater",
+        {
+            "numberOfSubdomains": 1,
+            "method": "simple",
+            "coeffs": {"n": [1, 1, 1]},
+        },
+    )

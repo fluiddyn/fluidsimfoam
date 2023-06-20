@@ -1,8 +1,14 @@
 """Helper to create decomposeParDict files"""
 
+from copy import deepcopy
 from math import prod
 
-from fluidsimfoam.foam_input_files import FileHelper, FoamInputFile
+from fluidsimfoam.foam_input_files import (
+    FileHelper,
+    FoamInputFile,
+    _complete_params_dict,
+    _update_dict_with_params,
+)
 
 supported_methods = set(
     [
@@ -43,6 +49,10 @@ class DecomposeParDictHelper(FileHelper):
         self.nsubdoms = nsubdoms
         check_method(method)
         self.method = method
+        self.regions = {}
+
+    def add_region(self, name, data):
+        self.regions[name] = data
 
     def complete_params(self, params):
         par_params = params._set_child(
@@ -58,6 +68,9 @@ class DecomposeParDictHelper(FileHelper):
         )
 
         par_params._set_child("scotch", attribs={"strategy": None})
+
+        if self.regions:
+            _complete_params_dict(par_params, "regions", self.regions)
 
     def make_tree(self, params):
         par_params = params.parallel
@@ -122,4 +135,17 @@ class DecomposeParDictHelper(FileHelper):
 
         tree.init_from_py_objects(data)
 
+        if self.regions:
+            regions = deepcopy(self.regions)
+            _update_dict_with_params(regions, params["parallel"].regions)
+            tree.set_child("regions", {})
+            tree["regions"].init_from_py_objects(regions)
+
         return tree
+
+    def new(self, nsubdoms=None, method=None):
+        if nsubdoms is None:
+            nsubdoms = self.nsubdoms
+        if method is None:
+            method = self.method
+        return type(self)(nsubdoms, method)
