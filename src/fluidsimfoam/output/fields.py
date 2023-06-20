@@ -339,6 +339,65 @@ class Fields:
 
         plotter.close()
 
+    def plot_line(
+        self,
+        point0=[0, 0, 0],
+        point1=[0, 1, 0],
+        variable="U",
+        component=None,
+        time=None,
+        line_width=1,
+        color="b",
+        block=0,
+        **kwargs,
+    ):
+        """
+        Parameters
+        ----------
+
+        point0 : list
+            coordinate of first point
+        point1 : list
+            coordinate of second point
+        variable : str
+            variable name
+        component : int
+            components of vector field (x:0, y:1, z:2)
+        line_width : str
+            line width of preview plot
+        color : str
+            line color of preview plot
+        time : float
+            simulation time
+        block : int
+            block number
+
+        Examples
+        --------
+
+        >>> sim.output.fields.plot_line(point0=[0,0,5],point1=[0,0,20], variable="T", time=3600, ylabel="T(K)", title="Temperature")
+
+        """
+        if not pyvista_importable:
+            raise NotImplementedError
+
+        mesh, times = self._init_pyvista(time)
+        block = mesh[block]
+        block.set_active_scalars(variable)
+        line = pyvista.Line(point0, point1)
+
+        block.plot_over_line(point0, point1, **kwargs)
+
+        plotter = pyvista.Plotter()
+        plotter.add_mesh(mesh, style="wireframe", color="w")
+        plotter.add_mesh(
+            line,
+            color=color,
+            line_width=line_width,
+        )
+
+        plotter.show()
+
     def plot_mesh(
         self,
         color="w",
