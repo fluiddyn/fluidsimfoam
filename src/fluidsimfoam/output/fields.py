@@ -338,3 +338,39 @@ class Fields:
             plotter.write_frame()
 
         plotter.close()
+
+    def plot_mesh(
+        self,
+        color="w",
+        style="wireframe",
+        **kwargs,
+    ):
+        """
+        Parameters
+        ----------
+
+        color : str
+            color of mesh
+        style : int
+            style of mesh
+
+        Examples
+        --------
+
+        >>> sim.output.fields.plot_mesh()
+
+        """
+        if not pyvista_importable:
+            raise NotImplementedError
+
+        mesh, times = self._init_pyvista()
+        plotter = pyvista.Plotter()
+
+        plotter.add_mesh(
+            mesh,
+            style=style,
+            color=color,
+            **kwargs,
+        )
+
+        plotter.show()
