@@ -6,7 +6,9 @@ from fluidsimfoam.tasks import clean, polymesh, run, task
 
 @task
 def split_mesh_regions(ctx):
-    ctx.run_appl("splitMeshRegions -cellZones -overwrite")
+    ctx.run_appl_once(
+        "splitMeshRegions -cellZones -overwrite", check_dict_file=False
+    )
 
 
 polymesh.pre.append(split_mesh_regions)
@@ -31,4 +33,11 @@ def init_run(ctx):
     regions = process.stdout.split()
 
     for region in regions:
-        ctx.run_appl(f"changeDictionary -region {region}", suffix_log=region)
+        ctx.run_appl_once(
+            f"changeDictionary -region {region}",
+            suffix_log=region,
+            check_dict_file=False,
+        )
+
+
+run.pre = [polymesh, init_run]
