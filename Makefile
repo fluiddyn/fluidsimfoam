@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 test:
-	time pytest tests doc/examples
+	time pytest tests doc/examples -v
 
 bench_parser:
 	time pytest tests/test_parser_saved_cases.py

@@ -5,10 +5,30 @@ from pathlib import Path
 from subprocess import Popen
 from time import sleep, time
 
+import invoke.context
 from invoke import task
 
 from fluiddyn.util import time_as_str
 from fluidsimfoam.foam_input_files import parse
+
+
+class Context(invoke.context.Context):
+    time_as_str = time_as_str()
+
+    def run_appl(self, command, suffix_log=None):
+        name_log = f"log.{command.split()[0]}"
+
+        if suffix_log is not None:
+            name_log += suffix_log
+
+        path_log = Path(f"logs{self.time_as_str}/{name_log}")
+
+        path_log.parent.mkdir(exist_ok=True)
+        with open(path_log, "w") as file:
+            self.run(command, echo=True, out_stream=file, err_stream=file)
+
+
+invoke.tasks.Context = Context
 
 
 @task
@@ -22,10 +42,22 @@ def block_mesh(context):
         Path("system/blockMeshDict").exists()
         and not Path("constant/polyMesh").is_dir()
     ):
-        context.run("blockMesh")
+        context.run_appl("blockMesh")
 
 
-@task(block_mesh)
+@task
+def surface_feature_extract(context):
+    if Path("system/surfaceFeatureExtractDict").exists():
+        context.run_appl("surfaceFeatureExtract")
+
+
+@task
+def snappy_hex_mesh(context):
+    if Path("system/snappyHexMeshDict").exists():
+        context.run_appl("snappyHexMesh -overwrite")
+
+
+@task(pre=[block_mesh, surface_feature_extract, snappy_hex_mesh])
 def polymesh(context):
     """Create the polymesh directory"""
 
@@ -40,7 +72,7 @@ def set_fields(context, force=False):
             context.run("setFields")
 
 
-@task(polymesh, set_fields)
+@task(pre=[polymesh, set_fields])
 def run(context):
     """Main target to launch a simulation"""
     with open("system/controlDict") as file:
@@ -70,7 +102,7 @@ def run(context):
     else:
         command = application
 
-    path_log = path_run / f"log_{time_as_str()}.txt"
+    path_log = path_run / f"log_{context.time_as_str}.txt"
     print(f"Starting simulation in \n{path_run}")
     with open(path_log, "w") as file_log:
         file_log.write(f"{start_time = }\n{end_time = }\n")
