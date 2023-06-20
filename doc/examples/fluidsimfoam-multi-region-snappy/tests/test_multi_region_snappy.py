@@ -14,11 +14,14 @@ def test_generate_base_case():
     check_saved_case(here / "saved_cases/case0", sim.path_run)
 
 
-# @skipif_executable_not_available("interFoam")
-# def test_run():
-#     params = Simul.create_default_params()
-#     params.output.sub_directory = "tests_fluidsimfoam/multi-region-snappy"
-#     # change parameters to get a very short and small simulations
-#     ...
-#     sim = Simul(params)
-#     sim.make.exec("run")
+@skipif_executable_not_available("chtMultiRegionFoam")
+def test_run():
+    params = Simul.create_default_params()
+    params.output.sub_directory = "tests_fluidsimfoam/multi-region-snappy"
+    # change parameters to get a very short and small simulation
+    params.control_dict.end_time = 0.002
+    sim = Simul(params)
+    # for now we remove decomposeParDict to run in sequential
+    (sim.path_run / "system/decomposeParDict").unlink()
+    sim.make.exec("run")
+    sim.make.exec("clean")
