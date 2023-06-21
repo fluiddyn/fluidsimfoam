@@ -115,9 +115,9 @@ class Fields:
     def _init_pyvista(self, time=None):
         path_dir = self.output.sim.path_run
         casename = f".{self.output.sim.info_solver.short_name}.foam"
-        with open(casename, "w") as my_file:
-            my_file.write("")
         filename = f"{path_dir}/{casename}"
+        with open(filename, "w") as my_file:
+            my_file.write("")
         reader = pyvista.POpenFOAMReader(filename)
         if time is not None:
             if time in reader.time_values:
@@ -136,6 +136,7 @@ class Fields:
         color="w",
         whole_mesh_opacity=0,
         add_legend=False,
+        show=True,
         **kwargs,
     ):
         """
@@ -156,6 +157,9 @@ class Fields:
             the opacity of the whole mesh, in range (0, 1)
         add_legend : bool
             add legend for domain and boundary
+        show : bool
+            show plot
+
         Examples
         --------
 
@@ -195,7 +199,8 @@ class Fields:
             if add_legend:
                 plotter.add_legend(face=None)
             plotter.add_axes()
-            plotter.show()
+            if show:
+                plotter.show()
 
     def plot_contour(
         self,
@@ -277,6 +282,7 @@ class Fields:
         line_width=1,
         color="b",
         block=0,
+        show_line_in_domain=False,
         **kwargs,
     ):
         """
@@ -299,6 +305,8 @@ class Fields:
             simulation time
         block : int
             block number
+        show_line_in_domain : bool
+            preview line in the domain
 
         Examples
         --------
@@ -315,21 +323,22 @@ class Fields:
         line = pyvista.Line(point0, point1)
 
         block.plot_over_line(point0, point1, **kwargs)
+        if show_line_in_domain:
+            plotter = pyvista.Plotter()
+            plotter.add_mesh(mesh, style="wireframe", color="w")
+            plotter.add_mesh(
+                line,
+                color=color,
+                line_width=line_width,
+            )
 
-        plotter = pyvista.Plotter()
-        plotter.add_mesh(mesh, style="wireframe", color="w")
-        plotter.add_mesh(
-            line,
-            color=color,
-            line_width=line_width,
-        )
-
-        plotter.show()
+            plotter.show()
 
     def plot_mesh(
         self,
         color="w",
         style="wireframe",
+        show=True,
         **kwargs,
     ):
         """
@@ -338,8 +347,10 @@ class Fields:
 
         color : str
             color of mesh
-        style : int
-            style of mesh
+        style : str
+            style of mesh ('wireframe', 'points', 'surface')
+        show : bool
+            show plot
 
         Examples
         --------
@@ -360,4 +371,6 @@ class Fields:
             **kwargs,
         )
 
-        plotter.show()
+        plotter.add_axes()
+        if show:
+            plotter.show()
