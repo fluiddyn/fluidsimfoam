@@ -252,10 +252,15 @@ class Fields:
 
         mesh, times = self._init_pyvista(time)
         block = mesh[block]
+        block.set_active_scalars(variable, preference="point")
         equation = equation.replace(" ", "")
-        normal, _ = tuple(equation.split("="))
-
-        internal_mesh_slice = block.slice(normal=normal, contour=contour)
+        normal, coordinate = tuple(equation.split("="))
+        origin = [
+            float(coordinate) if x == normal else 0 for x in ["x", "y", "z"]
+        ]
+        internal_mesh_slice = block.slice(
+            normal=normal, origin=origin, contour=contour
+        )
 
         if not plotter:
             plotter = pyvista.Plotter()
@@ -265,13 +270,17 @@ class Fields:
         elif whole_mesh_opacity != 0:
             print("whole_mesh_opacity should be in the range of (0, 1).")
         components = {0: "x", 1: "y", 2: "z", None: ""}
-        plotter.add_mesh(
-            internal_mesh_slice,
-            scalars=variable,
-            component=component,
-            scalar_bar_args={"title": f"{variable}{components[component]}"},
-            **kwargs,
-        )
+
+        try:
+            plotter.add_mesh(
+                internal_mesh_slice,
+                scalars=variable,
+                component=component,
+                scalar_bar_args={"title": f"{variable}{components[component]}"},
+                **kwargs,
+            )
+        except ValueError:
+            return "Selected plane is out of domain, change the equation!"
 
         cpositions = {"x": "yz", "y": "xz", "z": "xy"}
         if not camera_position:
