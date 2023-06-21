@@ -97,3 +97,7 @@ class OutputMultiRegionSnappy(Output):
             "coeffs": {"n": [1, 1, 1]},
         },
     )
+
+    _helper_decompose_par_dict_mesh = Output._helper_decompose_par_dict.new(
+        nsubdoms=6, method="scotch", key_in_params="parallel_mesh"
+    )

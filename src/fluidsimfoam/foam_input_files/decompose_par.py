@@ -45,10 +45,12 @@ class DecomposeParDictHelper(FileHelper):
         self,
         nsubdoms=1,
         method="scotch",
+        key_in_params="parallel",
     ):
         self.nsubdoms = nsubdoms
         check_method(method)
         self.method = method
+        self.key_in_params = key_in_params
         self.regions = {}
 
     def add_region(self, name, data):
@@ -56,9 +58,9 @@ class DecomposeParDictHelper(FileHelper):
 
     def complete_params(self, params):
         par_params = params._set_child(
-            "parallel",
+            self.key_in_params,
             attribs={
-                "nsubdoms": 1,
+                "nsubdoms": self.nsubdoms,
                 "method": self.method,
                 "nsubdoms_xyz": None,
                 "order": "xyz",
@@ -73,7 +75,7 @@ class DecomposeParDictHelper(FileHelper):
             _complete_params_dict(par_params, "regions", self.regions)
 
     def make_tree(self, params):
-        par_params = params.parallel
+        par_params = params[self.key_in_params]
 
         nsubdoms = par_params.nsubdoms
         if nsubdoms == 1:
@@ -137,15 +139,17 @@ class DecomposeParDictHelper(FileHelper):
 
         if self.regions:
             regions = deepcopy(self.regions)
-            _update_dict_with_params(regions, params["parallel"].regions)
+            _update_dict_with_params(regions, par_params.regions)
             tree.set_child("regions", {})
             tree["regions"].init_from_py_objects(regions)
 
         return tree
 
-    def new(self, nsubdoms=None, method=None):
+    def new(self, nsubdoms=None, method=None, key_in_params=None):
         if nsubdoms is None:
             nsubdoms = self.nsubdoms
         if method is None:
             method = self.method
-        return type(self)(nsubdoms, method)
+        if key_in_params is None:
+            key_in_params = self.key_in_params
+        return type(self)(nsubdoms, method, key_in_params)
