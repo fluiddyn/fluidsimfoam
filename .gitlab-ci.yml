@@ -41,7 +41,7 @@ pages:
   stage: publish
   script:
     # first line can be uncommented to purge the old doc versions
-    # - rm -rf public/*
+    - rm -rf public/*
     - apt-get update && apt-get install -y rsync
     - pip install poetry
     # see https://github.com/pydata/pydata-sphinx-theme/issues/1253
