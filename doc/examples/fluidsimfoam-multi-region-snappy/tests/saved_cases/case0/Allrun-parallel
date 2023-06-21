@@ -10,7 +10,7 @@ cp -f "$FOAM_TUTORIALS"/resources/geometry/geom.stl.gz constant/triSurface
 rm -rf constant/polyMesh/sets
 
 # For meshing only
-decompDict="-decomposeParDict system/decomposeParDict.6"
+decompDict="-decomposeParDict system/decomposeParDict.mesh"
 
 runApplication blockMesh
 
