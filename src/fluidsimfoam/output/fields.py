@@ -144,26 +144,27 @@ class Fields:
         ----------
 
         name : str
-            boundary name
+            Boundary name
         show_edges : bool
-            show edges
+            Show edges
         lighting : bool
-            lighting of this boundary
+            Lighting of this boundary
         camera_position : str
-            camera position, like "xy"
+            Camera position, like "xy"
         color : str
-            color of the boundary
+            Color of the boundary
         whole_mesh_opacity : float
-            the opacity of the whole mesh, in range (0, 1)
+            The opacity of the whole mesh, in range (0, 1)
         add_legend : bool
-            add legend for domain and boundary
+            Add legend for domain and boundary
         show : bool
-            show plot
+            Show plot
 
         Examples
         --------
 
         >>> sim.output.fields.plot_boundary("bottom", color="g", whole_mesh_opacity=0.05)
+        >>> sim.output.fields.plot_boundary("lowerBoundary", color="b", whole_mesh_opacity=0.05, add_legend=True)
 
         """
         if not pyvista_importable:
@@ -183,7 +184,9 @@ class Fields:
         else:
             plotter = pyvista.Plotter()
             if 0 < whole_mesh_opacity <= 1:
-                plotter.add_mesh(mesh, opacity=whole_mesh_opacity, label="domain")
+                plotter.add_mesh(
+                    mesh, opacity=whole_mesh_opacity, color="w", label="domain"
+                )
             elif whole_mesh_opacity != 0:
                 print("whole_mesh_opacity should be in the range of (0, 1).")
 
@@ -207,12 +210,13 @@ class Fields:
         variable="U",
         component=None,
         time=None,
-        normal="y",
+        equation="y=0",
         camera_position=None,
         block=0,
         whole_mesh_opacity=0,
         show=True,
         plotter=None,
+        contour=False,
         **kwargs,
     ):
         """
@@ -220,24 +224,27 @@ class Fields:
         ----------
 
         variable : str
-            variable name
+            Variable name
         component : int
-            components of vector field (x:0, y:1, z:2)
+            Components of vector field (x:0, y:1, z:2)
         time : float
-            simulation time
-        normal : str
-            normal of the plane
+            Simulation time
+        normal : sequence[float]|str
+            Normal vector direction of the plane
         camera_position : str
-            camera position plane like: "xy"
+            Camera position plane like: "xy"
         block : int
-            block number
+            Block number
         whole_mesh_opacity : float
-            the opacity of the whole mesh, in range (0, 1)
+            The opacity of the whole mesh, in range (0, 1)
+        contour : bool
+            Apply a contour filter after slicing.
 
         Examples
         --------
 
-        >>> sim.output.fields.plot_contour(normal="y", variable="U", whole_mesh_opacity=0.1, time=86400.0, component=2)
+        >>> sim.output.fields.plot_contour(equation="y=0", variable="U", whole_mesh_opacity=0.1, time=86400.0, component=2)
+        >>> sim.output.fields.plot_contour(equation="z=0", variable="T", time=3600.0, contour=True)
 
         """
         if not pyvista_importable:
@@ -245,7 +252,11 @@ class Fields:
 
         mesh, times = self._init_pyvista(time)
         block = mesh[block]
-        internal_mesh_slice = block.slice(normal)
+        equation = equation.replace(" ", "")
+        normal, _ = tuple(equation.split("="))
+
+        internal_mesh_slice = block.slice(normal=normal, contour=contour)
+
         if not plotter:
             plotter = pyvista.Plotter()
 
@@ -290,23 +301,23 @@ class Fields:
         ----------
 
         point0 : list
-            coordinate of first point
+            Coordinate of first point
         point1 : list
-            coordinate of second point
+            Coordinate of second point
         variable : str
-            variable name
+            Variable name
         component : int
-            components of vector field (x:0, y:1, z:2)
+            Components of vector field (x:0, y:1, z:2)
         line_width : str
-            line width of preview plot
+            Line width of preview plot
         color : str
-            line color of preview plot
+            Line color of preview plot
         time : float
-            simulation time
+            Simulation time
         block : int
-            block number
+            Block number
         show_line_in_domain : bool
-            preview line in the domain
+            Preview line in the domain
 
         Examples
         --------
@@ -346,16 +357,16 @@ class Fields:
         ----------
 
         color : str
-            color of mesh
+            Color of mesh
         style : str
-            style of mesh ('wireframe', 'points', 'surface')
+            Style of mesh ('wireframe', 'points', 'surface')
         show : bool
-            show plot
+            Show plot
 
         Examples
         --------
 
-        >>> sim.output.fields.plot_mesh()
+        >>> sim.output.fields.plot_mesh(color="g")
 
         """
         if not pyvista_importable:

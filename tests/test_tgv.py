@@ -166,6 +166,13 @@ def test_run_exec_async():
     sim.output.fields.plot_boundary(
         "lowerBoundary", color="g", whole_mesh_opacity=0.05, show=False
     )
+    sim.output.fields.plot_boundary(
+        "lowerBoundary",
+        color="b",
+        whole_mesh_opacity=0.05,
+        add_legend=True,
+        show=False,
+    )
     sim.output.fields.plot_mesh(color="g", style="points", show=False)
     sim.output.fields.plot_profile(
         show=False,
@@ -177,8 +184,11 @@ def test_run_exec_async():
     )
     sim.output.fields.plot_contour(
         variable="U",
-        normal="z",
+        equation="y=0",
         whole_mesh_opacity=0.1,
         component=2,
         show=False,
+    )
+    sim.output.fields.plot_contour(
+        equation="z=0", variable="U", contour=True, show=False
     )
