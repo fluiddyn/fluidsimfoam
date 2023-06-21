@@ -10,7 +10,7 @@ class OutputMultiRegionSnappy(Output):
         "bottomAir/fvSolution",
         "controlDict",
         "decomposeParDict",
-        "decomposeParDict.6",
+        "decomposeParDict.mesh",
         "fvSchemes",
         "fvSolution",
         "heater/changeDictionaryDict",
