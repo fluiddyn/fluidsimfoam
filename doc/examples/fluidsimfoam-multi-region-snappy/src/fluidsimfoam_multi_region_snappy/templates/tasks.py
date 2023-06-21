@@ -1,21 +1,64 @@
 import subprocess
 from pathlib import Path
 
-from fluidsimfoam.tasks import clean, polymesh, run, task
+import fluidsimfoam.invoke.tasks
+from fluidsimfoam.invoke.tasks import (
+    block_mesh,
+    clean,
+    polymesh,
+    run,
+    snappy_hex_mesh,
+    surface_feature_extract,
+    task,
+)
+
+path_decomp_dict = "system/decomposeParDict.mesh"
+
+fluidsimfoam.invoke.tasks.PATH_DECOMPOSE_PAR_DICT_MESH = path_decomp_dict
 
 
 @task
-def split_mesh_regions(ctx):
-    ctx.run_appl_once(
-        "splitMeshRegions -cellZones -overwrite", check_dict_file=False
+def save_0_dir(context):
+    """Save 0 directory as 0.orig"""
+    if not context.parallel:
+        return
+    context.save_0_dir()
+
+
+@task
+def split_mesh_regions(context):
+    """Call splitMeshRegions"""
+    if context.parallel:
+        context.restore_0_dir()
+    context.run_appl_once(
+        "splitMeshRegions -cellZones -overwrite",
+        check_dict_file=False,
+        parallel_if_needed=True,
+        path_decompose_par_dict=path_decomp_dict,
     )
 
 
-polymesh.pre.append(split_mesh_regions)
+@task
+def decompose_par(context):
+    """Call decomposePar using system/decomposeParDict.mesh"""
+    command = "decomposePar"
+    if context.parallel:
+        command += f" -decomposeParDict {path_decomp_dict}"
+    context.run_appl_once(command)
+
+
+polymesh.pre = [
+    save_0_dir,
+    block_mesh,
+    surface_feature_extract,
+    decompose_par,
+    snappy_hex_mesh,
+    split_mesh_regions,
+]
 
 
 @task(polymesh)
-def init_run(ctx):
+def init_run(context):
     process = subprocess.run(
         "foamListRegions solid".split(), capture_output=True, text=True
     )
@@ -31,13 +74,42 @@ def init_run(ctx):
 
     process = subprocess.run("foamListRegions", capture_output=True, text=True)
     regions = process.stdout.split()
+    context.update({"regions": regions})
 
     for region in regions:
-        ctx.run_appl_once(
+        context.run_appl_once(
             f"changeDictionary -region {region}",
+            parallel_if_needed=True,
+            path_decompose_par_dict=path_decomp_dict,
             suffix_log=region,
             check_dict_file=False,
         )
 
+    if not context.parallel:
+        return
+
+    for region in regions:
+        context.run_appl_once(
+            f"redistributePar -overwrite -region {region}",
+            parallel_if_needed=True,
+            suffix_log=region,
+            check_dict_file=False,
+            nsubdoms=6,
+        )
+
 
 run.pre = [polymesh, init_run]
+
+
+@task
+def reconstruct(context):
+    for region in context.regions:
+        context.run_appl_once(
+            f"redistributePar -reconstruct -region {region}",
+            parallel_if_needed=True,
+            suffix_log="reconstruct-" + region,
+            check_dict_file=False,
+        )
+
+
+run.post = [reconstruct]

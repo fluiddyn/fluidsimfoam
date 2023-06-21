@@ -1,1 +1,1 @@
-from fluidsimfoam.tasks import block_mesh, clean, polymesh, run
+from fluidsimfoam.invoke.tasks import block_mesh, clean, polymesh, run

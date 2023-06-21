@@ -1,6 +1,5 @@
 """Invoke tasks to be used from the ``tasks.py`` file in the solvers"""
 
-import hashlib
 import re
 from pathlib import Path
 from subprocess import Popen
@@ -10,58 +9,9 @@ import invoke.context
 from invoke import task
 from invoke.exceptions import Exit
 
-from fluiddyn.util import time_as_str
 from fluidsimfoam.foam_input_files import parse
 
-
-def make_hex(src):
-    """Produce a hash from a string"""
-    return hashlib.md5(src.encode("utf8")).hexdigest()
-
-
-class Context(invoke.context.Context):
-    time_as_str = time_as_str()
-
-    def run_appl(self, command, suffix_log=None):
-        name_log = f"log.{command.split()[0]}"
-
-        if suffix_log is not None:
-            name_log += suffix_log
-
-        path_log = Path(f"logs{self.time_as_str}/{name_log}")
-
-        path_log.parent.mkdir(exist_ok=True)
-        with open(path_log, "w") as file:
-            self.run(command, echo=True, out_stream=file, err_stream=file)
-
-    def run_appl_once(
-        self,
-        command,
-        suffix_log=None,
-        dict_file=None,
-        check_dict_file=True,
-        force=False,
-    ):
-        command_name = command.split()[0]
-
-        if check_dict_file and not force:
-            if dict_file is None:
-                dict_file = "system/" + command_name + "Dict"
-
-            path_dict_file = Path(dict_file)
-            if not path_dict_file.exists():
-                return
-
-        lock_name = f"{command_name}_called"
-        if command_name != command:
-            lock_name += make_hex(command)
-
-        path_command_called = Path(f".data_fluidsim/{lock_name}")
-        path_command_called.parent.mkdir(exist_ok=True)
-        if force or not path_command_called.exists():
-            path_command_called.touch()
-            self.run_appl(command, suffix_log=suffix_log)
-
+from .context import Context
 
 invoke.tasks.Context = Context
 
@@ -83,9 +33,16 @@ def surface_feature_extract(context):
     context.run_appl_once("surfaceFeatureExtract")
 
 
+PATH_DECOMPOSE_PAR_DICT_MESH = None
+
+
 @task
 def snappy_hex_mesh(context):
-    context.run_appl_once("snappyHexMesh -overwrite")
+    context.run_appl_once(
+        "snappyHexMesh -overwrite",
+        parallel_if_needed=True,
+        path_decompose_par_dict=PATH_DECOMPOSE_PAR_DICT_MESH,
+    )
 
 
 @task(pre=[block_mesh, surface_feature_extract, snappy_hex_mesh])
@@ -98,7 +55,12 @@ def set_fields(context, force=False):
     context.run_appl_once("setFields")
 
 
-@task(pre=[polymesh, set_fields])
+@task
+def decompose_par(context):
+    context.run_appl_once("decomposePar")
+
+
+@task(pre=[polymesh, set_fields, decompose_par])
 def run(context):
     """Main target to launch a simulation"""
     with open("system/controlDict") as file:
@@ -111,20 +73,15 @@ def run(context):
 
     path_run = Path.cwd()
 
-    path_decompose_par_dict = path_run / "system/decomposeParDict"
-    parallel = path_decompose_par_dict.exists()
-    if parallel:
-        context.run("decomposePar")
-        nsubdoms = None
-        with open(path_decompose_par_dict) as file:
-            for line in file:
-                if "numberOfSubdomains" in line:
-                    line = line.strip().removesuffix(";")
-                    nsubdoms = int(line.split()[-1])
-                    break
-        if nsubdoms is None:
-            raise RuntimeError(f"Bad decomposeParDict {path_decompose_par_dict}")
-        command = ["mpirun", "-np", str(nsubdoms), application, "-parallel"]
+    if context.parallel:
+        # Options '-n' and '-np' are synonymous, but msmpi only supports '-n'
+        command = [
+            context.mpi_command,
+            "-n",
+            str(context.nsubdoms),
+            application,
+            "-parallel",
+        ]
     else:
         command = application
 
@@ -159,4 +116,4 @@ def run(context):
 
     print(f"Simulation done. path_run:\n{path_run}")
     if process.returncode:
-        Exit(process.returncode)
+        raise Exit(process.returncode)

@@ -11,7 +11,7 @@ def test_generate_base_case():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/multi-region-snappy"
     params.parallel.nsubdoms = 4
-    params.parallel.method = "scotch"
+    params.parallel_mesh.nsubdoms = 6
     sim = Simul(params)
     check_saved_case(here / "saved_cases/case0", sim.path_run)
 
@@ -25,3 +25,20 @@ def test_run():
     sim = Simul(params)
     sim.make.exec("run")
     sim.make.exec("clean")
+
+
+@skipif_executable_not_available("chtMultiRegionFoam")
+def test_run_parallel():
+    params = Simul.create_default_params()
+    params.output.sub_directory = "tests_fluidsimfoam/multi-region-snappy"
+    params.parallel.nsubdoms = 4
+    params.parallel_mesh.nsubdoms = 6
+    # change parameters to get a very short and small simulation
+    params.control_dict.end_time = 0.002
+    params.control_dict.write_interval = 0.002
+    sim = Simul(params)
+    sim.make.exec("run")
+
+    assert len(list(p.name for p in sim.path_run.glob("0.002/*"))) == 6
+    assert len(list(p.name for p in sim.path_run.glob("0.002/topAir/*"))) == 8
+    assert len(list(p.name for p in sim.path_run.glob("0.002/heater/*"))) == 2
