@@ -1,17 +1,47 @@
 import subprocess
 from pathlib import Path
 
-from fluidsimfoam.tasks import clean, polymesh, run, task
+import fluidsimfoam.tasks
+from fluidsimfoam.tasks import (
+    block_mesh,
+    clean,
+    polymesh,
+    run,
+    snappy_hex_mesh,
+    surface_feature_extract,
+    task,
+)
+
+path_decomp_dict = "system/decomposeParDict.mesh"
+
+fluidsimfoam.tasks.PATH_DECOMPOSE_PAR_DICT_MESH = path_decomp_dict
 
 
 @task
 def split_mesh_regions(ctx):
     ctx.run_appl_once(
-        "splitMeshRegions -cellZones -overwrite", check_dict_file=False
+        "splitMeshRegions -cellZones -overwrite",
+        check_dict_file=False,
+        parallel_if_needed=True,
+        path_decompose_par_dict=path_decomp_dict,
     )
 
 
-polymesh.pre.append(split_mesh_regions)
+@task
+def decompose_par(context):
+    command = "decomposePar"
+    if context.parallel:
+        command += f" -decomposeParDict {path_decomp_dict}"
+    context.run_appl_once(command)
+
+
+polymesh.pre = [
+    block_mesh,
+    surface_feature_extract,
+    decompose_par,
+    snappy_hex_mesh,
+    split_mesh_regions,
+]
 
 
 @task(polymesh)

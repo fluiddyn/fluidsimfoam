@@ -1,6 +1,7 @@
 """Invoke tasks to be used from the ``tasks.py`` file in the solvers"""
 
 import hashlib
+import os
 import re
 from pathlib import Path
 from subprocess import Popen
@@ -19,8 +20,52 @@ def make_hex(src):
     return hashlib.md5(src.encode("utf8")).hexdigest()
 
 
+def _get_nsubdoms_from_decomposeParDict(path_decompose_par_dict=None):
+    if path_decompose_par_dict is None:
+        path_decompose_par_dict = "system/decomposeParDict"
+    path_decompose_par_dict = Path(path_decompose_par_dict)
+    if not path_decompose_par_dict.exists():
+        raise ValueError(f"{path_decompose_par_dict = } does not exist")
+    nsubdoms = None
+    with open(path_decompose_par_dict) as file:
+        for line in file:
+            if "numberOfSubdomains" in line:
+                line = line.strip().removesuffix(";")
+                nsubdoms = int(line.split()[-1])
+                break
+    if nsubdoms is None:
+        raise RuntimeError(f"Bad decomposeParDict {path_decompose_par_dict}")
+    return nsubdoms
+
+
+def _get_parallel_info(path_decompose_par_dict=None):
+    try:
+        nsubdoms = _get_nsubdoms_from_decomposeParDict(path_decompose_par_dict)
+    except ValueError:
+        nsubdoms = 1
+        parallel = False
+    else:
+        parallel = nsubdoms > 1
+    return parallel, nsubdoms
+
+
 class Context(invoke.context.Context):
     time_as_str = time_as_str()
+
+    def __init__(self, *args, **kwargs):
+        self._set(path_run=Path.cwd())
+
+        parallel, nsubdoms = _get_parallel_info()
+        self._set(parallel=parallel)
+        self._set(nsubdoms=nsubdoms)
+
+        if os.environ.get("FOAM_MPI", "") == "msmpi":
+            mpi_command = "mpiexec"
+        else:
+            mpi_command = "mpirun"
+        self._set(mpi_command=mpi_command)
+
+        super().__init__(*args, **kwargs)
 
     def run_appl(self, command, suffix_log=None):
         name_log = f"log.{command.split()[0]}"
@@ -41,6 +86,8 @@ class Context(invoke.context.Context):
         dict_file=None,
         check_dict_file=True,
         force=False,
+        parallel_if_needed=False,
+        path_decompose_par_dict=None,
     ):
         command_name = command.split()[0]
 
@@ -60,6 +107,22 @@ class Context(invoke.context.Context):
         path_command_called.parent.mkdir(exist_ok=True)
         if force or not path_command_called.exists():
             path_command_called.touch()
+
+            if not parallel_if_needed:
+                parallel = False
+            else:
+                if path_decompose_par_dict is None:
+                    parallel = self.parallel
+                    nsubdoms = self.nsubdoms
+                else:
+                    parallel, nsubdoms = _get_parallel_info(
+                        path_decompose_par_dict
+                    )
+                    command += f" -decomposeParDict {path_decompose_par_dict}"
+
+            if parallel:
+                command = f"{self.mpi_command} -n {nsubdoms} {command} -parallel"
+
             self.run_appl(command, suffix_log=suffix_log)
 
 
@@ -83,9 +146,16 @@ def surface_feature_extract(context):
     context.run_appl_once("surfaceFeatureExtract")
 
 
+PATH_DECOMPOSE_PAR_DICT_MESH = None
+
+
 @task
 def snappy_hex_mesh(context):
-    context.run_appl_once("snappyHexMesh -overwrite")
+    context.run_appl_once(
+        "snappyHexMesh -overwrite",
+        parallel_if_needed=True,
+        path_decompose_par_dict=PATH_DECOMPOSE_PAR_DICT_MESH,
+    )
 
 
 @task(pre=[block_mesh, surface_feature_extract, snappy_hex_mesh])
@@ -98,7 +168,12 @@ def set_fields(context, force=False):
     context.run_appl_once("setFields")
 
 
-@task(pre=[polymesh, set_fields])
+@task
+def decompose_par(context):
+    context.run_appl_once("decomposePar")
+
+
+@task(pre=[polymesh, set_fields, decompose_par])
 def run(context):
     """Main target to launch a simulation"""
     with open("system/controlDict") as file:
@@ -111,20 +186,15 @@ def run(context):
 
     path_run = Path.cwd()
 
-    path_decompose_par_dict = path_run / "system/decomposeParDict"
-    parallel = path_decompose_par_dict.exists()
-    if parallel:
-        context.run("decomposePar")
-        nsubdoms = None
-        with open(path_decompose_par_dict) as file:
-            for line in file:
-                if "numberOfSubdomains" in line:
-                    line = line.strip().removesuffix(";")
-                    nsubdoms = int(line.split()[-1])
-                    break
-        if nsubdoms is None:
-            raise RuntimeError(f"Bad decomposeParDict {path_decompose_par_dict}")
-        command = ["mpirun", "-np", str(nsubdoms), application, "-parallel"]
+    if context.parallel:
+        # Options '-n' and '-np' are synonymous, but msmpi only supports '-n'
+        command = [
+            context.mpi_command,
+            "-n",
+            str(context.nsubdoms),
+            application,
+            "-parallel",
+        ]
     else:
         command = application
 
@@ -159,4 +229,4 @@ def run(context):
 
     print(f"Simulation done. path_run:\n{path_run}")
     if process.returncode:
-        Exit(process.returncode)
+        raise Exit(process.returncode)
