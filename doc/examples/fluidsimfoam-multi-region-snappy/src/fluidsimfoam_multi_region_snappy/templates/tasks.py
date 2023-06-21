@@ -18,8 +18,17 @@ fluidsimfoam.tasks.PATH_DECOMPOSE_PAR_DICT_MESH = path_decomp_dict
 
 
 @task
-def split_mesh_regions(ctx):
-    ctx.run_appl_once(
+def save_0_dir(context):
+    if not context.parallel:
+        return
+    context.save_0_dir()
+
+
+@task
+def split_mesh_regions(context):
+    if context.parallel:
+        context.restore_0_dir()
+    context.run_appl_once(
         "splitMeshRegions -cellZones -overwrite",
         check_dict_file=False,
         parallel_if_needed=True,
@@ -36,6 +45,7 @@ def decompose_par(context):
 
 
 polymesh.pre = [
+    save_0_dir,
     block_mesh,
     surface_feature_extract,
     decompose_par,
@@ -45,7 +55,7 @@ polymesh.pre = [
 
 
 @task(polymesh)
-def init_run(ctx):
+def init_run(context):
     process = subprocess.run(
         "foamListRegions solid".split(), capture_output=True, text=True
     )
@@ -63,10 +73,24 @@ def init_run(ctx):
     regions = process.stdout.split()
 
     for region in regions:
-        ctx.run_appl_once(
+        context.run_appl_once(
             f"changeDictionary -region {region}",
+            parallel_if_needed=True,
+            path_decompose_par_dict=path_decomp_dict,
             suffix_log=region,
             check_dict_file=False,
+        )
+
+    if not context.parallel:
+        return
+
+    for region in regions:
+        context.run_appl_once(
+            f"redistributePar -overwrite -region {region}",
+            parallel_if_needed=True,
+            suffix_log=region,
+            check_dict_file=False,
+            nsubdoms=6,
         )
 
 

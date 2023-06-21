@@ -4,6 +4,7 @@ import hashlib
 import os
 import re
 from pathlib import Path
+from shutil import copytree, rmtree
 from subprocess import Popen
 from time import sleep, time
 
@@ -88,6 +89,7 @@ class Context(invoke.context.Context):
         force=False,
         parallel_if_needed=False,
         path_decompose_par_dict=None,
+        nsubdoms=None,
     ):
         command_name = command.split()[0]
 
@@ -113,17 +115,31 @@ class Context(invoke.context.Context):
             else:
                 if path_decompose_par_dict is None:
                     parallel = self.parallel
-                    nsubdoms = self.nsubdoms
+                    nsubdoms_file = self.nsubdoms
                 else:
-                    parallel, nsubdoms = _get_parallel_info(
+                    parallel, nsubdoms_file = _get_parallel_info(
                         path_decompose_par_dict
                     )
                     command += f" -decomposeParDict {path_decompose_par_dict}"
 
             if parallel:
+                if nsubdoms is None:
+                    nsubdoms = nsubdoms_file
                 command = f"{self.mpi_command} -n {nsubdoms} {command} -parallel"
 
             self.run_appl(command, suffix_log=suffix_log)
+
+    def save_0_dir(self):
+        print("Saving 0 to O.orig")
+        copytree("0", "O.orig", dirs_exist_ok=True)
+
+    def restore_0_dir(self):
+        print("Restoring 0 directory")
+        paths_0 = ["0"]
+        paths_0.extend(Path.cwd().glob("processor*/0"))
+        for path0 in paths_0:
+            rmtree(path0, ignore_errors=True)
+            copytree("O.orig", path0)
 
 
 invoke.tasks.Context = Context
