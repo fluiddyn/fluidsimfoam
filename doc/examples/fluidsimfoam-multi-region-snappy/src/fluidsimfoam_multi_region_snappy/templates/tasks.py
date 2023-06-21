@@ -1,8 +1,8 @@
 import subprocess
 from pathlib import Path
 
-import fluidsimfoam.tasks
-from fluidsimfoam.tasks import (
+import fluidsimfoam.invoke.tasks
+from fluidsimfoam.invoke.tasks import (
     block_mesh,
     clean,
     polymesh,
@@ -14,11 +14,12 @@ from fluidsimfoam.tasks import (
 
 path_decomp_dict = "system/decomposeParDict.mesh"
 
-fluidsimfoam.tasks.PATH_DECOMPOSE_PAR_DICT_MESH = path_decomp_dict
+fluidsimfoam.invoke.tasks.PATH_DECOMPOSE_PAR_DICT_MESH = path_decomp_dict
 
 
 @task
 def save_0_dir(context):
+    """Save 0 directory as 0.orig"""
     if not context.parallel:
         return
     context.save_0_dir()
@@ -26,6 +27,7 @@ def save_0_dir(context):
 
 @task
 def split_mesh_regions(context):
+    """Call splitMeshRegions"""
     if context.parallel:
         context.restore_0_dir()
     context.run_appl_once(
@@ -38,6 +40,7 @@ def split_mesh_regions(context):
 
 @task
 def decompose_par(context):
+    """Call decomposePar using system/decomposeParDict.mesh"""
     command = "decomposePar"
     if context.parallel:
         command += f" -decomposeParDict {path_decomp_dict}"
@@ -71,6 +74,7 @@ def init_run(context):
 
     process = subprocess.run("foamListRegions", capture_output=True, text=True)
     regions = process.stdout.split()
+    context.update({"regions": regions})
 
     for region in regions:
         context.run_appl_once(
@@ -95,3 +99,17 @@ def init_run(context):
 
 
 run.pre = [polymesh, init_run]
+
+
+@task
+def reconstruct(context):
+    for region in context.regions:
+        context.run_appl_once(
+            f"redistributePar -reconstruct -region {region}",
+            parallel_if_needed=True,
+            suffix_log="reconstruct-" + region,
+            check_dict_file=False,
+        )
+
+
+run.post = [reconstruct]

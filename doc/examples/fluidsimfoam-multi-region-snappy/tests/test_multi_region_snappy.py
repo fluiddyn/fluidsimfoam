@@ -35,6 +35,10 @@ def test_run_parallel():
     params.parallel_mesh.nsubdoms = 6
     # change parameters to get a very short and small simulation
     params.control_dict.end_time = 0.002
+    params.control_dict.write_interval = 0.002
     sim = Simul(params)
     sim.make.exec("run")
-    sim.make.exec("clean")
+
+    assert len(list(p.name for p in sim.path_run.glob("0.002/*"))) == 6
+    assert len(list(p.name for p in sim.path_run.glob("0.002/topAir/*"))) == 8
+    assert len(list(p.name for p in sim.path_run.glob("0.002/heater/*"))) == 2
