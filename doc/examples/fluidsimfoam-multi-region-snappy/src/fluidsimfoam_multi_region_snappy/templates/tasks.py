@@ -103,6 +103,8 @@ run.pre = [polymesh, init_run]
 
 @task
 def reconstruct(context):
+    if not context.parallel:
+        return
     for region in context.regions:
         context.run_appl_once(
             f"redistributePar -reconstruct -region {region}",
