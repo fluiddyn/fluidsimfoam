@@ -6,6 +6,7 @@ import sys
 intersphinx_mapping = dict(
     python=("https://docs.python.org/3", None),
     jinja2=("https://jinja.palletsprojects.com/en/3.0.x", None),
+    invoke=("https://www.pyinvoke.org/", None),
     fluiddyn=("https://fluiddyn.readthedocs.io/en/latest", None),
     fluidsim=("https://fluidsim.readthedocs.io/en/latest", None),
 )

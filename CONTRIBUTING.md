@@ -20,8 +20,9 @@ poetry shell
 The `--all-extras` options installs more utilities for Fluidsimfoam developers.
 
 ```{admonition} Note on installing OpenFOAM on Ubuntu/Debian
-:class: dropdown
-
+---
+class: dropdown
+---
 The official Ubuntu/Debian packages (installed with `sudo apt install
 openfoam`) are quite broken but work better when the environment variable
 `WM_PROJECT_DIR` is set to `/usr/share/openfoam`. If you can, use
@@ -31,8 +32,9 @@ better.
 ```
 
 ````{admonition} Note on activating OpenFOAM with Xonsh
-:class: dropdown
-
+---
+class: dropdown
+---
 To activate OpenFOAM installed from
 [openfoam.com](https://www.openfoam.com/news/main-news/openfoam-v2212), one
 needs to run something like this horrible line:

@@ -1,4 +1,15 @@
-"""Invoke tasks to be used from the ``tasks.py`` file in the solvers"""
+"""Invoke tasks to be used from the ``tasks.py`` file in the solvers
+
+.. autodata:: clean
+.. autodata:: block_mesh
+.. autodata:: surface_feature_extract
+.. autodata:: snappy_hex_mesh
+.. autodata:: polymesh
+.. autodata:: set_fields
+.. autodata:: decompose_par
+.. autodata:: run
+
+"""
 
 import re
 from pathlib import Path
@@ -18,6 +29,7 @@ invoke.tasks.Context = Context
 
 @task
 def clean(context):
+    """clean with foamCleanTutorials"""
     context.run("foamCleanTutorials", warn=True)
     for path in Path(".").glob(".data_fluidsim/*_called*"):
         path.unlink()
@@ -25,11 +37,13 @@ def clean(context):
 
 @task
 def block_mesh(context):
+    """Run ``blockMesh``"""
     context.run_appl_once("blockMesh")
 
 
 @task
 def surface_feature_extract(context):
+    """Run ``surfaceFeatureExtract``"""
     context.run_appl_once("surfaceFeatureExtract")
 
 
@@ -38,6 +52,7 @@ PATH_DECOMPOSE_PAR_DICT_MESH = None
 
 @task
 def snappy_hex_mesh(context):
+    """Run ``snappyHexMesh -overwrite``"""
     context.run_appl_once(
         "snappyHexMesh -overwrite",
         parallel_if_needed=True,
@@ -52,11 +67,13 @@ def polymesh(context):
 
 @task
 def set_fields(context, force=False):
+    """Run ``setFields``"""
     context.run_appl_once("setFields")
 
 
 @task
 def decompose_par(context):
+    """Run ``decomposePar``"""
     context.run_appl_once("decomposePar")
 
 

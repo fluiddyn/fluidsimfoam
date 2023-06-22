@@ -7,7 +7,8 @@ fluidsimfoam-initiate-solver multi-region-snappy \
   -c $FOAM_TUTORIALS/heatTransfer/chtMultiRegionFoam/snappyMultiRegionHeater
 ```
 
-See https://www.xsim.info/articles/OpenFOAM/en-US/tutorials/heatTransfer-chtMultiRegionFoam-snappyMultiRegionHeater.html
+See
+https://www.xsim.info/articles/OpenFOAM/en-US/tutorials/heatTransfer-chtMultiRegionFoam-snappyMultiRegionHeater.html
 
 ## Installation
 
