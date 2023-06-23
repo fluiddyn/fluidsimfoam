@@ -11,6 +11,7 @@ Fluidsimfoam API reference
    output
    util
    resources
+   invoke
 
 .. rubric:: Modules
 
@@ -22,7 +23,6 @@ Fluidsimfoam API reference
    init_fields
    operators
    log
-   tasks
    testing
    params
 

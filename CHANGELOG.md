@@ -37,11 +37,33 @@ Security in case of vulnerabilities.
 
 ## [Unreleased]
 
+## [0.0.7] - 2023-06-2?
+
+```{warning}
+
+This release contains important incompatible changes:
+
+- The template files now have to be organized as in a standard OpenFOAM case
+  (in `system`, `constant` and `0` subdirectories).
+
+- New {mod}`fluidsimfoam.invoke` subpackage. The Invoke tasks are now defined
+  in {mod}`fluidsimfoam.invoke.tasks`.
+
+```
+
+- [multi-region-snappy] solver (advanced solver using `snappyHexMesh` and
+  `chtMultiRegionFoam`).
+
+- Few grammar/parser/formatter fixes and improvements ([!86], [!87], [!89])
+
+- Much better Invoke related code. New {class}`fluidsimfoam.invoke.context.Context` for
+  OpenFOAM. New tasks for `decomposePar`, `snappyHexMesh`, etc... (see
+  {mod}`fluidsimfoam.invoke.tasks`).
+
 ## [0.0.6] - 2023-06-09
 
 Small release before [OpenFOAM users conference](https://www.foam-u.fr/) where
-[Fluidsimfoam will be
-presented](http://legi.grenoble-inp.fr/people/Pierre.Augier/fluidsimfoam-at-openfoam-users-conference.html).
+[Fluidsimfoam will be presented](http://legi.grenoble-inp.fr/people/Pierre.Augier/fluidsimfoam-at-openfoam-users-conference.html).
 
 - Improve [phill] solver + few `blockMesh` improvements
 
@@ -126,13 +148,18 @@ presented](http://legi.grenoble-inp.fr/people/Pierre.Augier/fluidsimfoam-at-open
 - Parser for OpenFOAM input files ({mod}`fluidsimfoam.foam_input_files`)
 - Utility to create blockMeshDict files ({mod}`fluidsimfoam.foam_input_files.blockmesh`)
 
+[!86]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/merge_requests/86
+[!87]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/merge_requests/87
+[!89]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/merge_requests/89
 [0.0.3]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.2...0.0.3
 [0.0.4]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.3...0.0.4
 [0.0.5]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.4...0.0.5
 [0.0.6]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.5...0.0.6
+[0.0.7]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.6...0.0.7
 [breaking of a dam tutorial]: https://www.openfoam.com/documentation/tutorial-guide/4-multiphase-flow/4.1-breaking-of-a-dam
 [cavity]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cavity
 [cbox]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cbox
 [dam]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-dam
+[multi-region-snappy]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-multi-region-snappy
 [phill]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-phill
-[unreleased]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.6...branch%2Fdefault
+[unreleased]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.7...branch%2Fdefault

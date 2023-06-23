@@ -89,7 +89,7 @@ autodoc_default_options = {
     #  'special-members': '__init__',
     "undoc-members": True,
     "exclude-members": "__weakref__",
-    "inherited-members": True,
+    "inherited-members": False,
 }
 autodoc_mock_imports = ["IPython"]
 

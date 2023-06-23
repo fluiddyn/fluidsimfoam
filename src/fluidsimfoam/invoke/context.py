@@ -5,6 +5,7 @@
 import os
 from pathlib import Path
 from shutil import copytree, rmtree
+from typing import Optional
 
 import invoke.context
 
@@ -13,7 +14,11 @@ from fluidsimfoam.util import get_parallel_info, make_hex
 
 
 class Context(invoke.context.Context):
+    """Extended Invoke Context for OpenFOAM"""
+
     time_as_str = time_as_str()
+    """Time of Invoke call
+    """
 
     def __init__(self, *args, **kwargs):
         self._set(path_run=Path.cwd())
@@ -30,7 +35,13 @@ class Context(invoke.context.Context):
 
         super().__init__(*args, **kwargs)
 
-    def run_appl(self, command, name_command=None, suffix_log=None):
+    def run_appl(
+        self,
+        command: str,
+        name_command: Optional[str] = None,
+        suffix_log: Optional[str] = None,
+    ):
+        """Run an OpenFOAM application and save the log"""
         if name_command is None:
             name_command = command.split()[0]
 
@@ -47,15 +58,16 @@ class Context(invoke.context.Context):
 
     def run_appl_once(
         self,
-        command,
-        suffix_log=None,
-        dict_file=None,
-        check_dict_file=True,
-        force=False,
-        parallel_if_needed=False,
-        path_decompose_par_dict=None,
-        nsubdoms=None,
+        command: str,
+        suffix_log: Optional[str] = None,
+        dict_file: Optional[str] = None,
+        check_dict_file: bool = True,
+        force: bool = False,
+        parallel_if_needed: bool = False,
+        path_decompose_par_dict: Optional[str] = None,
+        nsubdoms: Optional[int] = None,
     ):
+        """Run an OpenFOAM application only once per simulation"""
         command_name = command.split()[0]
 
         if check_dict_file and not force:
@@ -99,10 +111,12 @@ class Context(invoke.context.Context):
             )
 
     def save_0_dir(self):
+        """Save ``0`` directory in ``O.orig``"""
         print("Saving 0 to O.orig")
         copytree("0", "O.orig", dirs_exist_ok=True)
 
     def restore_0_dir(self):
+        """Restore ``0`` directory from ``O.orig``"""
         print("Restoring 0 directory")
         paths_0 = ["0"]
         paths_0.extend(Path.cwd().glob("processor*/0"))
