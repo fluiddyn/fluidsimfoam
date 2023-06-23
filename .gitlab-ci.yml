@@ -40,8 +40,6 @@ pytest:
 pages:
   stage: publish
   script:
-    # first line can be uncommented to purge the old doc versions
-    # - rm -rf public/*
     - apt-get update && apt-get install -y rsync
     - pip install poetry
     # see https://github.com/pydata/pydata-sphinx-theme/issues/1253
@@ -50,6 +48,9 @@ pages:
     - poetry run sphinx-build -b html -d doc/_build/doctrees doc doc/_build/html
     - mkdir -p public/$CI_COMMIT_REF_NAME
     - rsync -rvc --delete doc/_build/html/* public/$CI_COMMIT_REF_NAME/
+    # This directory can become too large leading to error.
+    # It can be purged with the botton "Clear runner caches"
+    # in https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/pipelines
     - ls public
     - echo "CI_COMMIT_REF_NAME="$CI_COMMIT_REF_NAME
     - echo See https://fluiddyn.pages.heptapod.net/fluidsimfoam/$CI_COMMIT_REF_NAME
