@@ -1,5 +1,6 @@
 """Class for the ``sim.output.fields`` object"""
 
+import math
 import shutil
 from numbers import Number
 from subprocess import PIPE, run
@@ -10,15 +11,57 @@ import numpy as np
 try:
     import pyvista
 except ImportError:
-    pyvista_importable = False
-else:
-    pyvista_importable = True
+    pass
+
 
 from fluidsimfoam.foam_input_files import read_field_file
 
 
+def check_pyvista_importable():
+    try:
+        import pyvista
+    except ImportError:
+        print(
+            "pyvista is not importable so it cannot be used. "
+            "You could install it (`pip install pyvista`) and retry."
+        )
+        return False
+    else:
+        return True
+
+
 def is_time_name(name):
     return all(c.isdigit() or c == "." for c in name)
+
+
+def find_nearest(arr, value):
+    idx = np.searchsorted(arr, value, side="left")
+    if idx > 0 and (
+        idx == len(arr)
+        or math.fabs(value - arr[idx - 1]) < math.fabs(value - arr[idx])
+    ):
+        return arr[idx - 1]
+    else:
+        return arr[idx]
+
+
+def check_opacity(opacity):
+    if not (0 <= opacity < 1):
+        raise ValueError("opacity should be in [0, 1[.")
+
+
+if check_pyvista_importable():
+
+    class Reader(pyvista.POpenFOAMReader):
+        def set_active_time(self, time=None):
+            if time is not None:
+                time = float(time)
+            if time is None:
+                time = self.time_values[-1]
+            elif time not in self.time_values:
+                time = find_nearest(self.time_values, time)
+            self.set_active_time_value(time)
+            return time
 
 
 class Fields:
@@ -112,29 +155,22 @@ class Fields:
 
         ax.plot(y, field.get_array())
 
-    def _init_pyvista(self, time=None):
-        path_dir = self.output.sim.path_run
+    def _init_pyvista_reader(self):
+        check_pyvista_importable()
         casename = f".{self.output.sim.info_solver.short_name}.foam"
-        filename = f"{path_dir}/{casename}"
-        with open(filename, "w") as my_file:
-            my_file.write("")
-        reader = pyvista.POpenFOAMReader(filename)
-        if time is not None:
-            if time in reader.time_values:
-                reader.set_active_time_value(time)
-            else:
-                print(f"Time ({time}) is Not available!")
-
-        return reader.read(), reader.time_values
+        path = self.output.sim.path_run / casename
+        if not path.exists():
+            path.write_text("")
+        return Reader(path)
 
     def plot_boundary(
         self,
-        name="",
+        name=None,
         show_edges=True,
         lighting=True,
         camera_position=None,
         color="w",
-        whole_mesh_opacity=0,
+        mesh_opacity=0,
         add_legend=False,
         show=True,
         **kwargs,
@@ -153,7 +189,7 @@ class Fields:
             Camera position, like "xy"
         color : str
             Color of the boundary
-        whole_mesh_opacity : float
+        mesh_opacity : float
             The opacity of the whole mesh, in range (0, 1)
         add_legend : bool
             Add legend for domain and boundary
@@ -163,47 +199,43 @@ class Fields:
         Examples
         --------
 
-        >>> sim.output.fields.plot_boundary("bottom", color="g", whole_mesh_opacity=0.05)
-        >>> sim.output.fields.plot_boundary("lowerBoundary", color="b", whole_mesh_opacity=0.05, add_legend=True)
+        >>> sim.output.fields.plot_boundary(
+        ...     "bottom", color="g", mesh_opacity=0.05)
+        >>> sim.output.fields.plot_boundary(
+        ...     "lowerBoundary", color="b", mesh_opacity=0.05, add_legend=True)
 
         """
-        if not pyvista_importable:
-            raise NotImplementedError
+        check_opacity(mesh_opacity)
 
-        mesh, times = self._init_pyvista()
+        reader = self._init_pyvista_reader()
+        mesh = reader.read()
         boundaries = mesh["boundary"]
+
+        if name is None:
+            print(f"Boundary names: {boundaries.keys()}")
+
         try:
             boundary = boundaries[name]
         except KeyError:
-            print(
-                f"Boundary name('{name}') is not correct, boundaries:\n{boundaries.keys()}"
-            )
-            print(
-                f"try something like: sim.output.fields.plot_boundary('{boundaries.keys()[0]}')"
-            )
-        else:
-            plotter = pyvista.Plotter()
-            if 0 < whole_mesh_opacity <= 1:
-                plotter.add_mesh(
-                    mesh, opacity=whole_mesh_opacity, color="w", label="domain"
-                )
-            elif whole_mesh_opacity != 0:
-                print("whole_mesh_opacity should be in the range of (0, 1).")
+            print(f'Boundary name "{name}" not in {boundaries.keys()}')
+            return
 
-            plotter.add_mesh(
-                boundary,
-                show_edges=show_edges,
-                color=color,
-                lighting=lighting,
-                label=name,
-                **kwargs,
-            )
-            plotter.camera_position = camera_position
-            if add_legend:
-                plotter.add_legend(face=None)
-            plotter.add_axes()
-            if show:
-                plotter.show()
+        plotter = pyvista.Plotter()
+        plotter.add_mesh(mesh, opacity=mesh_opacity, color="w", label="domain")
+        plotter.add_mesh(
+            boundary,
+            show_edges=show_edges,
+            color=color,
+            lighting=lighting,
+            label=name,
+            **kwargs,
+        )
+        plotter.camera_position = camera_position
+        if add_legend:
+            plotter.add_legend(face=None)
+        plotter.add_axes()
+        if show:
+            plotter.show()
 
     def plot_contour(
         self,
@@ -213,7 +245,7 @@ class Fields:
         equation="y=0",
         camera_position=None,
         block=0,
-        whole_mesh_opacity=0,
+        mesh_opacity=0,
         show=True,
         plotter=None,
         contour=False,
@@ -235,7 +267,7 @@ class Fields:
             Camera position plane like: "xy"
         block : int
             Block number
-        whole_mesh_opacity : float
+        mesh_opacity : float
             The opacity of the whole mesh, in range (0, 1)
         contour : bool
             Apply a contour filter after slicing.
@@ -243,15 +275,21 @@ class Fields:
         Examples
         --------
 
-        >>> sim.output.fields.plot_contour(equation="y=0", variable="U", whole_mesh_opacity=0.1, time=86400.0, component=2)
-        >>> sim.output.fields.plot_contour(equation="z=0", variable="T", time=3600.0, contour=True)
+        >>> sim.output.fields.plot_contour(
+        ...     equation="y=0", variable="U",
+        ...     mesh_opacity=0.1, time=86400.0, component=2)
+
+        >>> sim.output.fields.plot_contour(
+        ...     equation="z=0", variable="T", time=3600.0, contour=True)
 
         """
-        if not pyvista_importable:
-            raise NotImplementedError
+        check_opacity(mesh_opacity)
 
-        mesh, times = self._init_pyvista(time)
-        block = mesh[block]
+        reader = self._init_pyvista_reader()
+        time = reader.set_active_time(time)
+        data = reader.read()
+
+        block = data[block]
         block.set_active_scalars(variable, preference="point")
         equation = equation.replace(" ", "")
         normal, coordinate = tuple(equation.split("="))
@@ -265,12 +303,9 @@ class Fields:
         if not plotter:
             plotter = pyvista.Plotter()
 
-        if 0 < whole_mesh_opacity <= 1:
-            plotter.add_mesh(mesh, color="w", opacity=whole_mesh_opacity)
-        elif whole_mesh_opacity != 0:
-            print("whole_mesh_opacity should be in the range of (0, 1).")
-        components = {0: "x", 1: "y", 2: "z", None: ""}
+        plotter.add_mesh(data, color="w", opacity=mesh_opacity)
 
+        components = {0: "x", 1: "y", 2: "z", None: ""}
         try:
             plotter.add_mesh(
                 internal_mesh_slice,
@@ -282,9 +317,9 @@ class Fields:
         except ValueError:
             return "Selected plane is out of domain, change the equation!"
 
-        cpositions = {"x": "yz", "y": "xz", "z": "xy"}
-        if not camera_position:
-            camera_position = cpositions[normal]
+        cam_positions = {"x": "yz", "y": "xz", "z": "xy"}
+        if camera_position is None:
+            camera_position = cam_positions[normal]
         plotter.camera_position = camera_position
         plotter.add_axes()
         if show:
@@ -331,27 +366,28 @@ class Fields:
         Examples
         --------
 
-        >>> sim.output.fields.plot_profile(point0=[0,0,5],point1=[0,0,20], variable="T", time=3600, ylabel="T(K)", title="Temperature")
+        >>> sim.output.fields.plot_profile(
+        ...     point0=[0,0,5], point1=[0,0,20], variable="T", time=3600,
+        ...     ylabel="T(K)", title="Temperature")
 
         """
-        if not pyvista_importable:
-            raise NotImplementedError
+        reader = self._init_pyvista_reader()
+        time = reader.set_active_time(time)
+        data = reader.read()
 
-        mesh, times = self._init_pyvista(time)
-        block = mesh[block]
+        block = data[block]
         block.set_active_scalars(variable)
         line = pyvista.Line(point0, point1)
 
         block.plot_over_line(point0, point1, **kwargs)
         if show_line_in_domain:
             plotter = pyvista.Plotter()
-            plotter.add_mesh(mesh, style="wireframe", color="w")
+            plotter.add_mesh(data, style="wireframe", color="w")
             plotter.add_mesh(
                 line,
                 color=color,
                 line_width=line_width,
             )
-
             plotter.show()
 
     def plot_mesh(
@@ -378,19 +414,16 @@ class Fields:
         >>> sim.output.fields.plot_mesh(color="g")
 
         """
-        if not pyvista_importable:
-            raise NotImplementedError
+        reader = self._init_pyvista_reader()
+        mesh = reader.read()
 
-        mesh, times = self._init_pyvista()
         plotter = pyvista.Plotter()
-
         plotter.add_mesh(
             mesh,
             style=style,
             color=color,
             **kwargs,
         )
-
         plotter.add_axes()
         if show:
             plotter.show()
