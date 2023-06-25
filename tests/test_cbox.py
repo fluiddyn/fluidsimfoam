@@ -62,3 +62,5 @@ def test_run():
     assert len(df.index) == 1
 
     sim.output.fields.get_saved_times()
+    x, y, z = sim.oper.get_cells_coords()
+    assert z.max() - z.min() < 5e-16

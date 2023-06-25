@@ -40,6 +40,9 @@ class ListInfo:
 
 
 def parse(text, grammar=None):
+    if isinstance(text, bytes):
+        text = text.decode()
+
     text = "\n".join(line.rstrip() for line in text.split("\n"))
     if not text.endswith("\n"):
         text += "\n"

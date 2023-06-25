@@ -3,8 +3,9 @@
 """
 
 import re
+import struct
 from abc import ABC, abstractmethod
-from io import StringIO
+from io import BytesIO
 from numbers import Number
 from pathlib import Path
 
@@ -28,33 +29,131 @@ DEFAULT_CODE_OPTIONS = (
 DEFAULT_CODE_LIBS = "-lmeshTools \\\n-lfiniteVolume"
 
 
+def _isplit(source, sep=b"\n"):
+    sepsize = len(sep)
+    start = 0
+    while True:
+        idx = source.find(sep, start)
+        if idx == -1:
+            yield source[start:]
+            return
+        yield source[start:idx]
+        start = idx + sepsize
+
+
+def get_header_var(code: bytes, name: bytes):
+    var = None
+    for line in _isplit(code):
+        line = line.strip()
+        if line.startswith(name):
+            var = line.split()[-1][:-1]
+            break
+    if var is None:
+        raise ValueError
+    return var.decode()
+
+
+def get_arch(code: bytes):
+    """Get architecture info
+
+    From OpenFOAM documentation: "The arch specification indicates the machine
+    endian (LSB|MSB), the label width (32|64) and the scalar precision (32|64)."
+
+    """
+    arch = get_header_var(code, b"arch")
+    arch = arch.removeprefix('"').removesuffix('"')
+    endianess, label_width, scalar_precision = arch.split(";")
+    label_width = int(label_width[len("label=") :])
+    scalar_precision = int(scalar_precision[len("scalar=") :])
+    return endianess, label_width, scalar_precision
+
+
+byte_order_codes = {
+    # Little-endian, least significant byte (LSB) first
+    "LSB": "<",
+    # Big-endian, most significant byte (MSB) first
+    "MSB": ">",
+}
+
+dcode_types = {
+    32: "f",
+    64: "d",
+}
+
+
+def create_array_from_bin_data(
+    bin_data: bytes,
+    cls_name: str,
+    endianess: str,
+    nb_elems: int,
+    scalar_precision: int,
+):
+    nb_numbers_per_elem = 1
+    if "Vector" in cls_name:
+        nb_numbers_per_elem = 3
+    elif "SymmTensor" in cls_name:
+        nb_numbers_per_elem = 6
+    elif "Tensor" in cls_name:
+        nb_numbers_per_elem = 9
+
+    fmt = (
+        byte_order_codes[endianess]
+        + f"{nb_elems*nb_numbers_per_elem:d}"
+        + dcode_types[scalar_precision]
+    )
+
+    arr = np.array(struct.unpack(fmt, bin_data))
+    if nb_numbers_per_elem > 1:
+        arr = arr.reshape((nb_elems, nb_numbers_per_elem))
+    return arr
+
+
 class FieldABC(ABC):
-    cls: str
+    cls_name: str
 
     @classmethod
-    def from_code(cls, code: str, skip_boundary_field=False):
-        if "nonuniform" not in code:
+    def from_code(cls, code: bytes, skip_boundary_field=False):
+        if isinstance(code, str):
+            code = code.encode()
+
+        if b"nonuniform" not in code:
             tree = parse(code)
             return cls(None, None, tree=tree)
 
-        index_nonuniform = code.index("nonuniform")
-        index_boundaryField = code.rindex("boundaryField", index_nonuniform)
-        index_opening_par = code.index("(", index_nonuniform, index_boundaryField)
+        index_nonuniform = code.index(b"nonuniform")
+        try:
+            index_boundaryField = code.rindex(b"boundaryField", index_nonuniform)
+        except ValueError:
+            index_boundaryField = len(code)
+
+        index_opening_par = code.index(
+            b"(", index_nonuniform, index_boundaryField
+        )
         index_closing_par = code.rindex(
-            ")", index_nonuniform, index_boundaryField
+            b")", index_nonuniform, index_boundaryField
         )
 
-        code_to_parse = code[:index_nonuniform] + ";\n"
+        code_to_parse = code[:index_nonuniform] + b";\n"
         if not skip_boundary_field:
-            code_to_parse += "\n" + code[index_boundaryField:]
+            code_to_parse += b"\n" + code[index_boundaryField:]
 
-        tree = parse(code_to_parse)
+        tree = parse(code_to_parse.decode())
         code_data = code[index_opening_par + 1 : index_closing_par].strip()
 
-        if code_data.startswith("("):
-            code_data = re.sub("[()]", "", code_data)
+        format = get_header_var(code, b"format")
 
-        data = np.loadtxt(StringIO(code_data))
+        if format == "ascii":
+            if code_data.startswith(b"("):
+                code_data = re.sub(b"[()]", b"", code_data)
+            data = np.loadtxt(BytesIO(code_data))
+        elif format == "binary":
+            endianess, label_width, scalar_precision = get_arch(code)
+            nb_elems = int(
+                code[index_nonuniform:index_opening_par].split(b">")[1].strip()
+            )
+            data = create_array_from_bin_data(
+                code_data, cls.cls_name, endianess, nb_elems, scalar_precision
+            )
 
         tree.data = data
         return cls("", "", tree=tree, values=data)
@@ -63,7 +162,7 @@ class FieldABC(ABC):
     def from_path(cls, path: str or Path, skip_boundary_field=False):
         path = Path(path)
         field = cls.from_code(
-            path.read_text(), skip_boundary_field=skip_boundary_field
+            path.read_bytes(), skip_boundary_field=skip_boundary_field
         )
         field.path = path
         return field
@@ -75,7 +174,7 @@ class FieldABC(ABC):
             info = {
                 "version": "2.0",
                 "format": "ascii",
-                "class": self.cls,
+                "class": self.cls_name,
                 "object": name,
             }
 
@@ -141,7 +240,7 @@ class FieldABC(ABC):
 
 
 class VolScalarField(FieldABC):
-    cls = "volScalarField"
+    cls_name = "volScalarField"
 
     def set_values(self, values):
         if isinstance(values, Number):
@@ -155,7 +254,7 @@ class VolScalarField(FieldABC):
 
 
 class VolVectorField(FieldABC):
-    cls = "volVectorField"
+    cls_name = "volVectorField"
 
     def set_values(self, values, vy=None, vz=None):
         if vy is not None:
@@ -184,7 +283,7 @@ class VolVectorField(FieldABC):
 
 
 class VolTensorField(FieldABC):
-    cls = "volTensorField"
+    cls_name = "volTensorField"
 
     def set_values(self, values):
         if not isinstance(values, np.ndarray) or values.ndim != 2:
@@ -196,49 +295,35 @@ class VolTensorField(FieldABC):
 
 
 classes = {
-    cls.cls: cls for cls in (VolScalarField, VolVectorField, VolTensorField)
+    cls.cls_name: cls for cls in (VolScalarField, VolVectorField, VolTensorField)
 }
 
 
-def read_field_file(path):
-    cls = None
-    with open(path, "r") as file:
+def read_field_file(path, skip_boundary_field=True):
+    cls_name = None
+    with open(path, "rb") as file:
         for line in file:
             line = line.strip()
-            if line.startswith("class "):
-                cls = line.split()[-1][:-1]
+            if line.startswith(b"class "):
+                cls_name = line.split()[-1][:-1].decode()
                 break
 
-    if cls is None:
+    if cls_name is None:
         raise RuntimeError(f"no class found for file {path}")
 
-    cls = classes[cls]
+    cls = classes[cls_name]
 
-    return cls.from_path(path)
-
-
-def _isplit(source, sep="\n"):
-    sepsize = len(sep)
-    start = 0
-    while True:
-        idx = source.find(sep, start)
-        if idx == -1:
-            yield source[start:]
-            return
-        yield source[start:idx]
-        start = idx + sepsize
+    return cls.from_path(path, skip_boundary_field=skip_boundary_field)
 
 
 def create_field_from_code(code):
-    for line in _isplit(code):
-        line = line.strip()
-        if line.startswith("class "):
-            cls = line.split()[-1][:-1]
-            break
+    if isinstance(code, str):
+        code = code.encode()
 
-    if cls is None:
+    cls_name = get_header_var(code, b"class")
+    if cls_name is None:
         raise RuntimeError(f"no class found for this code: {code[:500] = }")
 
-    cls = classes[cls]
+    cls = classes[cls_name]
 
     return cls.from_code(code)
