@@ -56,6 +56,8 @@ __all__ = [
     "DecomposeParDictHelper",
     "format_code",
     "FoamFormatError",
+    "read_header",
+    "parse_header",
 ]
 
 
@@ -113,6 +115,36 @@ DEFAULT_HEADER = r"""
 """
 
 DEFAULT_HEADER = DEFAULT_HEADER[1:-1]
+
+
+def read_header(path):
+    """Read the header ("FoamFile" entry) of an OpenFOAM file"""
+    lines_header = []
+    with open(path) as file:
+        # reach header
+        for line in file:
+            if line.startswith("FoamFile\n"):
+                lines_header.append(line)
+                break
+        for line in file:
+            lines_header.append(line)
+            if line.startswith("}"):
+                break
+        if not lines_header:
+            raise ValueError("No FoamFile entry found")
+        code_header = "".join(lines_header)
+        tree = parse(code_header)
+        return tree.value
+
+
+def parse_header(code: str):
+    """Parse the header ("FoamFile" entry) of an OpenFOAM file"""
+    code_header = (
+        "FoamFile" + code.split("FoamFile", 1)[1].split("\n}", 1)[0] + "\n}"
+    )
+    tree = parse(code_header)
+    return tree.value
+
 
 from .blockmesh import BlockMeshDict, BlockMeshDictRectilinear, Vertex
 from .constant_files import ConstantFileHelper

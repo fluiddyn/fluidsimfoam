@@ -8,10 +8,11 @@ from abc import ABC, abstractmethod
 from io import BytesIO
 from numbers import Number
 from pathlib import Path
+from typing import Union
 
 import numpy as np
 
-from fluidsimfoam.foam_input_files import parse
+from fluidsimfoam.foam_input_files import parse, parse_header, read_header
 from fluidsimfoam.foam_input_files.ast import (
     Code,
     CodeStream,
@@ -29,38 +30,14 @@ DEFAULT_CODE_OPTIONS = (
 DEFAULT_CODE_LIBS = "-lmeshTools \\\n-lfiniteVolume"
 
 
-def _isplit(source, sep=b"\n"):
-    sepsize = len(sep)
-    start = 0
-    while True:
-        idx = source.find(sep, start)
-        if idx == -1:
-            yield source[start:]
-            return
-        yield source[start:idx]
-        start = idx + sepsize
-
-
-def get_header_var(code: bytes, name: bytes):
-    var = None
-    for line in _isplit(code):
-        line = line.strip()
-        if line.startswith(name):
-            var = line.split()[-1][:-1]
-            break
-    if var is None:
-        raise ValueError
-    return var.decode()
-
-
-def get_arch(code: bytes):
+def get_arch(header: dict):
     """Get architecture info
 
     From OpenFOAM documentation: "The arch specification indicates the machine
     endian (LSB|MSB), the label width (32|64) and the scalar precision (32|64)."
 
     """
-    arch = get_header_var(code, b"arch")
+    arch = header["arch"]
     arch = arch.removeprefix('"').removesuffix('"')
     endianess, label_width, scalar_precision = arch.split(";")
     label_width = int(label_width[len("label=") :])
@@ -112,7 +89,16 @@ class FieldABC(ABC):
     cls_name: str
 
     @classmethod
-    def from_code(cls, code: bytes, skip_boundary_field=False):
+    def from_code(
+        cls, code: Union[bytes, str], skip_boundary_field=False, header=None
+    ):
+        if header is None:
+            if isinstance(code, bytes):
+                code_for_header = code.split(b"\n}\n")[0].decode() + "\n}\n"
+            else:
+                code_for_header = code
+            header = parse_header(code_for_header)
+
         if isinstance(code, str):
             code = code.encode()
 
@@ -140,14 +126,13 @@ class FieldABC(ABC):
         tree = parse(code_to_parse.decode())
         code_data = code[index_opening_par + 1 : index_closing_par].strip()
 
-        format = get_header_var(code, b"format")
-
+        format = header["format"]
         if format == "ascii":
             if code_data.startswith(b"("):
                 code_data = re.sub(b"[()]", b"", code_data)
             data = np.loadtxt(BytesIO(code_data))
         elif format == "binary":
-            endianess, label_width, scalar_precision = get_arch(code)
+            endianess, label_width, scalar_precision = get_arch(header)
             nb_elems = int(
                 code[index_nonuniform:index_opening_par].split(b">")[1].strip()
             )
@@ -159,10 +144,12 @@ class FieldABC(ABC):
         return cls("", "", tree=tree, values=data)
 
     @classmethod
-    def from_path(cls, path: str or Path, skip_boundary_field=False):
+    def from_path(cls, path: str or Path, skip_boundary_field=False, header=None):
         path = Path(path)
         field = cls.from_code(
-            path.read_bytes(), skip_boundary_field=skip_boundary_field
+            path.read_bytes(),
+            skip_boundary_field=skip_boundary_field,
+            header=header,
         )
         field.path = path
         return field
@@ -300,30 +287,22 @@ classes = {
 
 
 def read_field_file(path, skip_boundary_field=True):
-    cls_name = None
-    with open(path, "rb") as file:
-        for line in file:
-            line = line.strip()
-            if line.startswith(b"class "):
-                cls_name = line.split()[-1][:-1].decode()
-                break
-
-    if cls_name is None:
+    header = read_header(path)
+    try:
+        cls_name = header["class"]
+    except KeyError:
         raise RuntimeError(f"no class found for file {path}")
-
     cls = classes[cls_name]
-
-    return cls.from_path(path, skip_boundary_field=skip_boundary_field)
+    return cls.from_path(
+        path, skip_boundary_field=skip_boundary_field, header=header
+    )
 
 
 def create_field_from_code(code):
-    if isinstance(code, str):
-        code = code.encode()
-
-    cls_name = get_header_var(code, b"class")
-    if cls_name is None:
+    header = parse_header(code)
+    try:
+        cls_name = header["class"]
+    except KeyError:
         raise RuntimeError(f"no class found for this code: {code[:500] = }")
-
     cls = classes[cls_name]
-
-    return cls.from_code(code)
+    return cls.from_code(code, header=header)
