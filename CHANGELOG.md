@@ -60,6 +60,12 @@ This release contains important incompatible changes:
   OpenFOAM. New tasks for `decomposePar`, `snappyHexMesh`, etc... (see
   {mod}`fluidsimfoam.invoke.tasks`).
 
+- {func}`fluidsimfoam.foam_input_files.parse_header` and
+  {func}`fluidsimfoam.foam_input_files.read_header`.
+
+- First support for binary OpenFOAM files
+  ([!97](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/merge_requests/97))
+
 ## [0.0.6] - 2023-06-09
 
 Small release before [OpenFOAM users conference](https://www.foam-u.fr/) where
