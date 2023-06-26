@@ -71,18 +71,18 @@ if check_pyvista_importable():
             self.set_active_time_value(time)
             return time
 
-        @property
-        def dimensions(self):
-            interior_mesh = self.mesh[0]
-            centers = interior_mesh.cell_centers()
-            points = centers.points
-            cell_coords = x, y, z = points[:, 0], points[:, 1], points[:, 2]
-            dimensions = ""
-            for count, coord in enumerate(cell_coords):
-                if coord.max() - coord.min() < 1e-15:
-                    continue
-                dimensions += "xyz"[count]
-            return dimensions
+
+def get_dimensions(mesh):
+    interior_mesh = mesh[0]
+    centers = interior_mesh.cell_centers()
+    points = centers.points
+    cell_coords = x, y, z = points[:, 0], points[:, 1], points[:, 2]
+    dimensions = ""
+    for letter, coord in zip("xyz", cell_coords):
+        if coord.max() - coord.min() < 1e-15:
+            continue
+        dimensions += letter
+    return dimensions
 
 
 class Fields:
@@ -229,9 +229,9 @@ class Fields:
         check_opacity(mesh_opacity)
 
         reader = self._init_pyvista_reader()
-        mesh = reader.mesh
+        mesh = reader.read()
         boundaries = mesh["boundary"]
-        dimensions = reader.dimensions
+        dimensions = get_dimensions(mesh)
 
         if name is None:
             print(f"Boundary names: {boundaries.keys()}")
@@ -315,7 +315,7 @@ class Fields:
 
         reader = self._init_pyvista_reader()
         time = reader.set_active_time(time)
-        data = reader.mesh
+        data = reader.read()
 
         block = data[0]
         block.set_active_scalars(variable, preference="point")
@@ -323,7 +323,7 @@ class Fields:
         plotter = pyvista.Plotter()
         plotter.add_mesh(data, color="w", opacity=mesh_opacity)
 
-        dimensions = reader.dimensions
+        dimensions = get_dimensions(data)
         if len(dimensions) == 2:
             axis = "xyz".replace(dimensions[:], "")
             coordinate = 0
@@ -392,6 +392,7 @@ class Fields:
         line_width=1,
         color="b",
         show_line_in_domain=False,
+        show=True,
         **kwargs,
     ):
         """
@@ -425,23 +426,24 @@ class Fields:
         """
         reader = self._init_pyvista_reader()
         time = reader.set_active_time(time)
-        data = reader.mesh
+        data = reader.read()
 
         block = data[0]
         block.set_active_scalars(variable)
-        line = pyvista.Line(point0, point1)
 
-        block.plot_over_line(point0, point1, **kwargs)
+        block.plot_over_line(point0, point1, show=show, **kwargs)
         if show_line_in_domain:
             plotter = pyvista.Plotter()
             plotter.add_mesh(data, style="wireframe", color="w")
+            line = pyvista.Line(point0, point1)
             plotter.add_mesh(
                 line,
                 color=color,
                 line_width=line_width,
             )
             plotter.add_axes()
-            plotter.show()
+            if show:
+                plotter.show()
 
     def plot_mesh(
         self,
@@ -468,7 +470,7 @@ class Fields:
 
         """
         reader = self._init_pyvista_reader()
-        mesh = reader.mesh
+        mesh = reader.read()
 
         plotter = pyvista.Plotter()
         plotter.add_mesh(
@@ -478,7 +480,7 @@ class Fields:
             **kwargs,
         )
         plotter.add_axes()
-        dimensions = reader.dimensions
+        dimensions = get_dimensions(mesh)
         if len(dimensions) == 2:
             plotter.camera_position = dimensions
         if show:

@@ -66,4 +66,4 @@ def test_run():
     x, y, z = sim.oper.get_cells_coords()
     assert z.max() - z.min() < 5e-16
 
-    sim.output.fields.plot_boundary("hot")
+    sim.output.fields.plot_boundary("hot", show=False)

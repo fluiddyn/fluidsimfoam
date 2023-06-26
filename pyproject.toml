@@ -77,4 +77,5 @@ exclude_lines = [
     "raise NotImplementedError",
     "raise RuntimeError",
     "raise ValueError",
+    "except ImportError",
 ]
