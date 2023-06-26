@@ -16,6 +16,9 @@ except ImportError:
 
 from fluidsimfoam.foam_input_files import read_field_file
 
+components = {0: "x", 1: "y", 2: "z", None: ""}
+cam_positions = {"x": "yz", "y": "xz", "z": "xy"}
+
 
 def check_pyvista_importable():
     try:
@@ -53,6 +56,11 @@ def check_opacity(opacity):
 if check_pyvista_importable():
 
     class Reader(pyvista.POpenFOAMReader):
+        def __init__(self, path):
+            super().__init__(path)
+            self.skip_zero_time = True
+            self.mesh = self.read()
+
         def set_active_time(self, time=None):
             if time is not None:
                 time = float(time)
@@ -62,6 +70,19 @@ if check_pyvista_importable():
                 time = find_nearest(self.time_values, time)
             self.set_active_time_value(time)
             return time
+
+        @property
+        def dimensions(self):
+            interior_mesh = self.mesh[0]
+            centers = interior_mesh.cell_centers()
+            points = centers.points
+            cell_coords = x, y, z = points[:, 0], points[:, 1], points[:, 2]
+            dimensions = ""
+            for count, coord in enumerate(cell_coords):
+                if coord.max() - coord.min() < 1e-15:
+                    continue
+                dimensions += "xyz"[count]
+            return dimensions
 
 
 class Fields:
@@ -170,7 +191,7 @@ class Fields:
         lighting=True,
         camera_position=None,
         color="w",
-        mesh_opacity=0,
+        mesh_opacity=0.1,
         add_legend=False,
         show=True,
         **kwargs,
@@ -208,11 +229,13 @@ class Fields:
         check_opacity(mesh_opacity)
 
         reader = self._init_pyvista_reader()
-        mesh = reader.read()
+        mesh = reader.mesh
         boundaries = mesh["boundary"]
+        dimensions = reader.dimensions
 
         if name is None:
             print(f"Boundary names: {boundaries.keys()}")
+            return
 
         try:
             boundary = boundaries[name]
@@ -221,16 +244,25 @@ class Fields:
             return
 
         plotter = pyvista.Plotter()
-        plotter.add_mesh(mesh, opacity=mesh_opacity, color="w", label="domain")
+        plotter.add_mesh(
+            mesh,
+            opacity=mesh_opacity,
+            show_edges=show_edges,
+            color="w",
+            label="domain",
+        )
         plotter.add_mesh(
             boundary,
-            show_edges=show_edges,
             color=color,
             lighting=lighting,
             label=name,
+            opacity=1,
             **kwargs,
         )
-        plotter.camera_position = camera_position
+        if len(dimensions) == 2:
+            plotter.camera_position = dimensions
+        else:
+            plotter.camera_position = camera_position
         if add_legend:
             plotter.add_legend(face=None)
         plotter.add_axes()
@@ -242,12 +274,10 @@ class Fields:
         variable="U",
         component=None,
         time=None,
-        equation="y=0",
+        equation=None,
         camera_position=None,
-        block=0,
         mesh_opacity=0,
         show=True,
-        plotter=None,
         contour=False,
         **kwargs,
     ):
@@ -261,12 +291,10 @@ class Fields:
             Components of vector field (x:0, y:1, z:2)
         time : float
             Simulation time
-        normal : sequence[float]|str
-            Normal vector direction of the plane
+        equation : str
+            The equation of the plane for contour
         camera_position : str
             Camera position plane like: "xy"
-        block : int
-            Block number
         mesh_opacity : float
             The opacity of the whole mesh, in range (0, 1)
         contour : bool
@@ -287,25 +315,49 @@ class Fields:
 
         reader = self._init_pyvista_reader()
         time = reader.set_active_time(time)
-        data = reader.read()
+        data = reader.mesh
 
-        block = data[block]
+        block = data[0]
         block.set_active_scalars(variable, preference="point")
-        equation = equation.replace(" ", "")
-        normal, coordinate = tuple(equation.split("="))
-        origin = [
-            float(coordinate) if x == normal else 0 for x in ["x", "y", "z"]
-        ]
-        internal_mesh_slice = block.slice(
-            normal=normal, origin=origin, contour=contour
-        )
 
-        if not plotter:
-            plotter = pyvista.Plotter()
-
+        plotter = pyvista.Plotter()
         plotter.add_mesh(data, color="w", opacity=mesh_opacity)
 
-        components = {0: "x", 1: "y", 2: "z", None: ""}
+        dimensions = reader.dimensions
+        if len(dimensions) == 2:
+            axis = "xyz".replace(dimensions[:], "")
+            coordinate = 0
+            internal_mesh_slice = block.slice_along_axis(
+                n=1, axis=axis, contour=contour
+            )
+        elif len(dimensions) == 3:
+            if equation is None:
+                print(
+                    f"This is the '{variable}' contour for 'y=0', specify the equation to change the plane!"
+                )
+                equation = "y=0"
+            equation = equation.replace(" ", "")
+            axis, coordinate = tuple(equation.split("="))
+            x = y = z = None
+            if axis == "x":
+                x = float(coordinate)
+            elif axis == "y":
+                y = float(coordinate)
+            else:
+                z = float(coordinate)
+            if x is None:
+                x = block.center[0]
+            if y is None:
+                y = block.center[1]
+            if z is None:
+                z = block.center[2]
+
+            internal_mesh_slice = block.slice(
+                normal=axis, origin=[x, y, z], contour=contour
+            )
+        else:
+            print("plot_contour is not available for 1D fields!")
+
         try:
             plotter.add_mesh(
                 internal_mesh_slice,
@@ -315,17 +367,20 @@ class Fields:
                 **kwargs,
             )
         except ValueError:
-            return "Selected plane is out of domain, change the equation!"
+            print(
+                f"""Selected plane is out of domain, change the equation!
+            Domain ranges:
+            x:({data[0].bounds[0]}, {data[0].bounds[1]})
+            y:({data[0].bounds[2]}, {data[0].bounds[3]})
+            z:({data[0].bounds[4]}, {data[0].bounds[5]})"""
+            )
 
-        cam_positions = {"x": "yz", "y": "xz", "z": "xy"}
         if camera_position is None:
-            camera_position = cam_positions[normal]
+            camera_position = cam_positions[axis]
         plotter.camera_position = camera_position
         plotter.add_axes()
         if show:
             plotter.show()
-        else:
-            return plotter
 
     def plot_profile(
         self,
@@ -336,7 +391,6 @@ class Fields:
         time=None,
         line_width=1,
         color="b",
-        block=0,
         show_line_in_domain=False,
         **kwargs,
     ):
@@ -358,8 +412,6 @@ class Fields:
             Line color of preview plot
         time : float
             Simulation time
-        block : int
-            Block number
         show_line_in_domain : bool
             Preview line in the domain
 
@@ -373,9 +425,9 @@ class Fields:
         """
         reader = self._init_pyvista_reader()
         time = reader.set_active_time(time)
-        data = reader.read()
+        data = reader.mesh
 
-        block = data[block]
+        block = data[0]
         block.set_active_scalars(variable)
         line = pyvista.Line(point0, point1)
 
@@ -388,6 +440,7 @@ class Fields:
                 color=color,
                 line_width=line_width,
             )
+            plotter.add_axes()
             plotter.show()
 
     def plot_mesh(
@@ -415,7 +468,7 @@ class Fields:
 
         """
         reader = self._init_pyvista_reader()
-        mesh = reader.read()
+        mesh = reader.mesh
 
         plotter = pyvista.Plotter()
         plotter.add_mesh(
@@ -425,5 +478,8 @@ class Fields:
             **kwargs,
         )
         plotter.add_axes()
+        dimensions = reader.dimensions
+        if len(dimensions) == 2:
+            plotter.camera_position = dimensions
         if show:
             plotter.show()

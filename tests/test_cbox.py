@@ -55,6 +55,7 @@ def test_run():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/cbox/"
     params.control_dict.end_time = 10
+    params.control_dict.write_interval = 10
     sim = Simul(params)
     sim.make.exec("run")
     df = get_dataframe_from_paths([sim.path_run])
