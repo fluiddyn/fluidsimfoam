@@ -73,9 +73,18 @@ if check_pyvista_importable():
 
 
 def get_dimensions(mesh):
-    interior_mesh = mesh[0]
-    centers = interior_mesh.cell_centers()
-    points = centers.points
+    n_blocks = mesh.n_blocks
+    if n_blocks > 2:
+        data = mesh[0][0]
+        points = data.cell_centers().points
+        for block in range(1, n_blocks):
+            data0 = mesh[block][0]
+            points0 = data0.cell_centers().points
+            points = np.concatenate((points, points0), axis=0)
+    else:
+        interior_mesh = mesh[0]
+        centers = interior_mesh.cell_centers()
+        points = centers.points
     cell_coords = x, y, z = points[:, 0], points[:, 1], points[:, 2]
     dimensions = ""
     for letter, coord in zip("xyz", cell_coords):
