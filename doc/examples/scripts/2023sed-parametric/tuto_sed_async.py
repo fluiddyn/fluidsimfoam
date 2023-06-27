@@ -59,6 +59,8 @@ def get_tau():
     return tau[:, 3], np.gradient(tau[:, 3], y), field.time
 
 
+cond_height = y > 1.6 * bed_height
+
 nb_saved_times = 1
 
 tau, grad_tau, t_now = get_tau()
@@ -71,7 +73,7 @@ if args.plot:
     ax1.set_xlabel("$t$")
     ax1.set_ylabel("residuals p_rbgh")
 
-    ax0.plot(gradp * (y[-1] - y[y > 0.1]), y[y > 0.1], c="r")
+    ax0.plot(gradp * (y[-1] - y[cond_height]), y[cond_height], c="r")
     (line,) = ax0.plot(tau, y)
     ax0.set_title(f"t = {t_now}")
 
@@ -101,7 +103,6 @@ while not cond_statio and t_now < params.control_dict.end_time:
             ax0.set_title(f"t = {t_now}")
             fig.canvas.draw()
 
-        cond_height = (y > 1.1 * bed_height) & (y < 1.5 * bed_height)
         percentage = 100 * abs(grad_tau[cond_height] + gradp).mean() / gradp
 
         execution_time = timedelta(seconds=time() - time_start)

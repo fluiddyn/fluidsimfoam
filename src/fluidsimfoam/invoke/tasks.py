@@ -108,7 +108,7 @@ def run(context):
         file_log.write(f"{start_time = }\n{end_time = }\n")
         file_log.flush()
         print(f"{end_time = }")
-        pattern_time = re.compile(r"\nTime = ([\d]+\.[\d]+)")
+        pattern_time = re.compile(r"\nTime = ([\d]+\.?[\d]+)")
         t_start = time()
         process = Popen(command, stdout=file_log)
         t_last = time() - 10.0
