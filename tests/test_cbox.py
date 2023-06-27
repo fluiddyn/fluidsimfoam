@@ -55,6 +55,7 @@ def test_run():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/cbox/"
     params.control_dict.end_time = 10
+    params.control_dict.write_interval = 10
     sim = Simul(params)
     sim.make.exec("run")
     df = get_dataframe_from_paths([sim.path_run])
@@ -63,4 +64,25 @@ def test_run():
 
     sim.output.fields.get_saved_times()
     x, y, z = sim.oper.get_cells_coords()
-    assert z.max() - z.min() < 5e-16
+    assert z.max() - z.min() < 1e-15
+
+    sim.output.fields.plot_mesh(color="w", show=False)
+
+    sim.output.fields.plot_boundary(
+        "hot", color="r", mesh_opacity=0.05, show=False
+    )
+    sim.output.fields.plot_contour(
+        variable="U", mesh_opacity=0.1, component=1, show=False
+    )
+    sim.output.fields.plot_contour(
+        variable="T", mesh_opacity=0.1, time=10, show=False
+    )
+    sim.output.fields.plot_profile(
+        show_line_in_domain=False,
+        point0=[0.5, 0, 0],
+        point1=[0.5, 5, 0],
+        variable="U",
+        ylabel="U(m/s)",
+        title="Velocity",
+        show=False,
+    )

@@ -162,3 +162,30 @@ def test_run_exec_async():
     assert isinstance(arr, np.ndarray)
 
     sim.output.fields.get_saved_times()
+
+    sim.output.fields.plot_boundary(
+        "lowerBoundary", color="g", mesh_opacity=0.05, show=False
+    )
+    sim.output.fields.plot_boundary(
+        "lowerBoundary", color="b", mesh_opacity=0.05, add_legend=True, show=False
+    )
+    sim.output.fields.plot_mesh(color="g", style="points", show=False)
+    sim.output.fields.plot_profile(
+        point0=[0, 0, 0],
+        point1=[0, 0, 7],
+        variable="U",
+        ylabel="U(m/s)",
+        title="Velocity",
+        show_line_in_domain=True,
+        show=False,
+    )
+    sim.output.fields.plot_contour(
+        variable="U", equation="y=1.95", mesh_opacity=0.1, component=1, show=False
+    )
+    sim.output.fields.plot_contour(
+        equation="z=5.111",
+        mesh_opacity=0.1,
+        variable="U",
+        contour=True,
+        show=False,
+    )

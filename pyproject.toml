@@ -22,10 +22,12 @@ jupyterlab = {version = "^3.6.3", optional = true}
 jupyterlab_myst = {version = "^1.1.3", optional = true}
 jupytext = {version = "^1.14.5", optional = true}
 mdformat-myst = {version = "^0.1.4", optional = true}
+pyvista = {version = "^0.39.1", optional = true}
 
 [tool.poetry.extras]
 qt = ["PySide6"]
 jupyter = ["jupyterlab", "jupyterlab_myst", "jupytext", "mdformat-myst"]
+pyvista = ["pyvista"]
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.2.1"
@@ -75,4 +77,5 @@ exclude_lines = [
     "raise NotImplementedError",
     "raise RuntimeError",
     "raise ValueError",
+    "except ImportError",
 ]

@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from fluidsimfoam_multi_region_snappy import Simul
@@ -24,11 +25,14 @@ def test_run():
     params.control_dict.end_time = 0.002
     sim = Simul(params)
     sim.make.exec("run")
+    sim.output.fields.plot_mesh(color="w", show=False)
+
     sim.make.exec("clean")
 
 
 @skipif_executable_not_available("chtMultiRegionFoam")
 def test_run_parallel():
+    os.environ["OMPI_MCA_rmaps_base_oversubscribe"] = "true"
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/multi-region-snappy"
     params.parallel.nsubdoms = 4
