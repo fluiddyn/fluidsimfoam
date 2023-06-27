@@ -49,7 +49,7 @@ def find_nearest(arr, value):
 
 
 def check_opacity(opacity):
-    if not (0 <= opacity < 1):
+    if not (0 <= opacity <= 1):
         raise ValueError("opacity should be in [0, 1[.")
 
 
@@ -74,15 +74,16 @@ if check_pyvista_importable():
 
 def get_dimensions(mesh):
     n_blocks = mesh.n_blocks
-    if n_blocks > 2:
-        data = mesh[0][0]
+    if mesh.keys() != ["internalMesh", "boundary"]:
+        # multiregion mesh
+        data = mesh[0]["internalMesh"]
         points = data.cell_centers().points
-        for block in range(1, n_blocks):
-            data0 = mesh[block][0]
+        for index_block in range(1, n_blocks):
+            data0 = mesh[index_block]["internalMesh"]
             points0 = data0.cell_centers().points
             points = np.concatenate((points, points0), axis=0)
     else:
-        interior_mesh = mesh[0]
+        interior_mesh = mesh["internalMesh"]
         centers = interior_mesh.cell_centers()
         points = centers.points
     cell_coords = x, y, z = points[:, 0], points[:, 1], points[:, 2]
@@ -272,6 +273,7 @@ class Fields:
         plotter.add_axes()
         if show:
             plotter.show()
+        return plotter
 
     def plot_contour(
         self,
@@ -321,7 +323,7 @@ class Fields:
         time = reader.set_active_time(time)
         data = reader.read()
 
-        block = data[0]
+        block = data["internalMesh"]
         block.set_active_scalars(variable, preference="point")
 
         plotter = pyvista.Plotter()
@@ -367,12 +369,13 @@ class Fields:
                 **kwargs,
             )
         except ValueError:
+            interior = data["internalMesh"]
             print(
                 f"""Selected plane is out of domain, change the equation!
             Domain ranges:
-            x:({data[0].bounds[0]}, {data[0].bounds[1]})
-            y:({data[0].bounds[2]}, {data[0].bounds[3]})
-            z:({data[0].bounds[4]}, {data[0].bounds[5]})"""
+            x:({interior.bounds[0]}, {interior.bounds[1]})
+            y:({interior.bounds[2]}, {interior.bounds[3]})
+            z:({interior.bounds[4]}, {interior.bounds[5]})"""
             )
 
         if camera_position is None:
@@ -381,6 +384,7 @@ class Fields:
         plotter.add_axes()
         if show:
             plotter.show()
+        return plotter
 
     def plot_profile(
         self,
@@ -428,7 +432,7 @@ class Fields:
         time = reader.set_active_time(time)
         data = reader.read()
 
-        block = data[0]
+        block = data["internalMesh"]
         block.set_active_scalars(variable)
         for index in range(3):
             if point0[index] < block.bounds[2 * index]:
@@ -446,9 +450,11 @@ class Fields:
                 line_width=line_width,
             )
             plotter.add_axes()
-            plotter.show()
-        if show:
-            block.plot_over_line(point0, point1, **kwargs)
+            if show:
+                plotter.show()
+
+        block.plot_over_line(point0, point1, show=show, **kwargs)
+        return plt.gcf()
 
     def plot_mesh(
         self,
@@ -490,3 +496,4 @@ class Fields:
             plotter.camera_position = dimensions
         if show:
             plotter.show()
+        return plotter

@@ -25,7 +25,7 @@ def test_run():
     params.control_dict.end_time = 0.002
     sim = Simul(params)
     sim.make.exec("run")
-    sim.output.fields.plot_mesh(color="w", show=True)
+    sim.output.fields.plot_mesh(color="w", show=False)
 
     sim.make.exec("clean")
 
