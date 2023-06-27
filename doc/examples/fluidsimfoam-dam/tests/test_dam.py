@@ -25,3 +25,26 @@ def test_run():
     params.control_dict.end_time = 0.1
     sim = Simul(params)
     sim.make.exec("run")
+
+    sim.output.fields.plot_mesh(color="w", show=False)
+
+    sim.output.fields.plot_boundary(
+        "lowerWall", color="r", mesh_opacity=0.05, show=False
+    )
+
+    sim.output.fields.plot_contour(
+        variable="U", mesh_opacity=0.1, component=1, show=False
+    )
+
+    sim.output.fields.plot_contour(
+        variable="p_rgh", mesh_opacity=0.1, time=10, show=False
+    )
+    sim.output.fields.plot_profile(
+        show_line_in_domain=False,
+        point0=[0.5, 0, 0],
+        point1=[0.5, 5, 0],
+        variable="U",
+        ylabel="U(m/s)",
+        title="Velocity",
+        show=False,
+    )
