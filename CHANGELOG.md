@@ -37,11 +37,12 @@ Security in case of vulnerabilities.
 
 ## [Unreleased]
 
-## [0.0.7] - 2023-06-2?
+## [0.0.7] - 2023-06-27
 
 ```{warning}
 
-This release contains important incompatible changes:
+This release contains major improvements in terms of usability for real
+projects! And also two important incompatible changes:
 
 - The template files now have to be organized as in a standard OpenFOAM case
   (in `system`, `constant` and `0` subdirectories).
@@ -51,12 +52,16 @@ This release contains important incompatible changes:
 
 ```
 
+- Plot methods `sim.output.fields.plot_...` using [pyvista] in
+  {class}`fluidsimfoam.output.fields.Fields` (contribution by
+  [@Pooriadf](https://foss.heptapod.net/Pooriadf)).
+
 - [multi-region-snappy] solver (advanced solver using `snappyHexMesh` and
   `chtMultiRegionFoam`).
 
 - Few grammar/parser/formatter fixes and improvements ([!86], [!87], [!89])
 
-- Much better Invoke related code. New {class}`fluidsimfoam.invoke.context.Context` for
+- Much better [Invoke] related code. New {class}`fluidsimfoam.invoke.context.Context` for
   OpenFOAM. New tasks for `decomposePar`, `snappyHexMesh`, etc... (see
   {mod}`fluidsimfoam.invoke.tasks`).
 
@@ -166,6 +171,8 @@ Small release before [OpenFOAM users conference](https://www.foam-u.fr/) where
 [cavity]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cavity
 [cbox]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-cbox
 [dam]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-dam
+[invoke]: https://docs.pyinvoke.org
 [multi-region-snappy]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-multi-region-snappy
 [phill]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/fluidsimfoam-phill
+[pyvista]: https://docs.pyvista.org
 [unreleased]: https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/compare/0.0.7...branch%2Fdefault

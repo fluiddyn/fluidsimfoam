@@ -120,7 +120,7 @@ For now, we push on PyPI manually:
 ```sh
 hg pull
 hg up default
-hg tag 0.0.6
+hg tag 0.0.7
 hg push
 rm -rf dist
 python -m build
