@@ -191,7 +191,7 @@ class Fields:
         lighting=True,
         camera_position=None,
         color="w",
-        mesh_opacity=0.1,
+        mesh_opacity=1,
         add_legend=False,
         show=True,
         **kwargs,
@@ -229,25 +229,21 @@ class Fields:
         check_opacity(mesh_opacity)
 
         reader = self._init_pyvista_reader()
-        mesh = reader.read()
+        mesh = reader.mesh
         boundaries = mesh["boundary"]
         dimensions = get_dimensions(mesh)
 
-        if name is None:
+        if name not in boundaries.keys():
             print(f"Boundary names: {boundaries.keys()}")
             return
 
-        try:
-            boundary = boundaries[name]
-        except KeyError:
-            print(f'Boundary name "{name}" not in {boundaries.keys()}')
-            return
+        boundary = boundaries[name]
 
         plotter = pyvista.Plotter()
         plotter.add_mesh(
             mesh,
             opacity=mesh_opacity,
-            show_edges=show_edges,
+            style="wireframe",
             color="w",
             label="domain",
         )
@@ -256,7 +252,6 @@ class Fields:
             color=color,
             lighting=lighting,
             label=name,
-            opacity=1,
             **kwargs,
         )
         if len(dimensions) == 2:
@@ -338,19 +333,15 @@ class Fields:
                 equation = "y=0"
             equation = equation.replace(" ", "")
             axis, coordinate = tuple(equation.split("="))
-            x = y = z = None
+            x = block.center[0]
+            y = block.center[1]
+            z = block.center[2]
             if axis == "x":
                 x = float(coordinate)
             elif axis == "y":
                 y = float(coordinate)
             else:
                 z = float(coordinate)
-            if x is None:
-                x = block.center[0]
-            if y is None:
-                y = block.center[1]
-            if z is None:
-                z = block.center[2]
 
             internal_mesh_slice = block.slice(
                 normal=axis, origin=[x, y, z], contour=contour
@@ -389,8 +380,8 @@ class Fields:
         variable="U",
         component=None,
         time=None,
-        line_width=1,
-        color="b",
+        line_width=2,
+        color="r",
         show_line_in_domain=False,
         show=True,
         **kwargs,
@@ -430,8 +421,12 @@ class Fields:
 
         block = data[0]
         block.set_active_scalars(variable)
+        for index in range(3):
+            if point0[index] < block.bounds[2 * index]:
+                point0[index] = block.bounds[2 * index]
+            if point1[index] > block.bounds[2 * index + 1]:
+                point1[index] = block.bounds[2 * index + 1]
 
-        block.plot_over_line(point0, point1, show=show, **kwargs)
         if show_line_in_domain:
             plotter = pyvista.Plotter()
             plotter.add_mesh(data, style="wireframe", color="w")
@@ -442,8 +437,9 @@ class Fields:
                 line_width=line_width,
             )
             plotter.add_axes()
-            if show:
-                plotter.show()
+            plotter.show()
+        if show:
+            block.plot_over_line(point0, point1, **kwargs)
 
     def plot_mesh(
         self,
