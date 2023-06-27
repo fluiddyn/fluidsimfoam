@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.5
+    jupytext_version: 1.14.6
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -45,9 +45,8 @@ specific to these tutorials written as notebooks so you can just look at the out
 this cell.
 
 ```{code-cell} ipython3
----
-tags: [hide-input]
----
+:tags: [hide-input]
+
 from subprocess import run, PIPE, STDOUT
 from time import perf_counter
 
@@ -68,9 +67,8 @@ to these tutorials, so you don't need to focus on this code. In real life, we ca
 read the log to know where the data has been saved.
 
 ```{code-cell} ipython3
----
-tags: [hide-input]
----
+:tags: [hide-input]
+
 path_run = None
 for line in lines:
     if "path_run: " in line:
@@ -135,4 +133,33 @@ To know how long should run a simulation, one can use:
 
 ```{code-cell} ipython3
 sim.output.log.plot_clock_times()
+```
+
+## Pyvista output
+
+After loading the simulation and have `sim` object, we can simply visualize the simulation. The `sim.output.fields` has some methods for visualization:
+- `plot_mesh()`
+- `plot_boundary()`
+- `plot_profile()`
+- `plot_contour()`
+
+Now we can try them. Firstly we can see an overview of the mesh.
+
+```{code-cell} ipython3
+sim.output.fields.plot_mesh()
+```
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour(
+        equation="z=5",
+        mesh_opacity=0.1,
+        variable="U",
+        contour=False,
+    )
+```
+
+
+
+```{code-cell} ipython3
+
 ```
