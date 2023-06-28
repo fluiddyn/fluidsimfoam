@@ -154,21 +154,78 @@ backend.
 ```{code-cell} ipython3
 import pyvista as pv
 pv.set_jupyter_backend("static")
+pv.global_theme.anti_aliasing = 'ssaa'
+pv.global_theme.background = 'white'
+pv.global_theme.font.color = 'black'
+pv.global_theme.font.label_size = 12
+pv.global_theme.font.title_size = 16
+pv.global_theme.colorbar_orientation = 'vertical'
 ```
 
 First, we can see an overview of the mesh.
 
 ```{code-cell} ipython3
-sim.output.fields.plot_mesh();
+sim.output.fields.plot_mesh(color="black")
 ```
 
-One can quickly produce contour plots with `plot_contour`, for example:
+One can see the boundries via this command:
+
+```{code-cell} ipython3
+sim.output.fields.plot_boundary("leftBoundary", color="red")
+```
+
+One can quickly produce contour plots with `plot_contour`, for example, variable `U` in
+plane with equation `z=4`:
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour(
+        equation="z=4",
+        variable="U",        
+    )
+```
+
+In order to plot other components of a vector, just assign `component` to desired one,
+for example here we added `component=2` for plotting `Uz`. In addition, to apply the
+contour filter over the plot, just use `contour=True`.
 
 ```{code-cell} ipython3
 sim.output.fields.plot_contour(
         equation="z=5",
-        mesh_opacity=0.1,
+        mesh_opacity=0.07,
         variable="U",
-        contour=False,
-    );
+        contour=True,
+        component=2,
+        cmap="plasma",
+    )
+```
+
+You can get variable names via this command:
+
+```{code-cell} ipython3
+sim.output.name_variables
+```
+
+We ploted `U` before, now we can plot `p` in another plane (x=2.3):
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour(
+        equation="x=2.3",
+        variable="p",
+        cmap="plasma",
+    )
+```
+
+One can plot a variable over a straight line, by providing two points. For simplicity and
+making sure about where is line located, you can first see the line in the domain by
+setting `show_line_in_domain=True`.
+
+```{code-cell} ipython3
+sim.output.fields.plot_profile(
+    point0=[1, 1, 0],
+    point1=[1, 1, 7],
+    variable="U",
+    ylabel="$U(m/s)$",
+    title="Velocity",
+    show_line_in_domain=True,
+)
 ```
