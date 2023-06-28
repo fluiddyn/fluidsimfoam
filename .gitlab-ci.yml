@@ -11,6 +11,7 @@ image: python:3.10-bullseye
 variables:
   WM_PROJECT_DIR: "/usr/share/openfoam"
   OMPI_ALLOW_RUN_AS_ROOT: "1"
+  OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: "1"
 
 stages:
   - test
