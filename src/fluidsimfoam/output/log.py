@@ -16,11 +16,13 @@ def get_log_tail(path_file, nbytes=1000):
 
 
 def read_time_last(path_file):
-    text = get_log_tail(path_file, 1000)
-    index = text.rfind("\nTime = ")
+    for nbytes in [1000, 10000]:
+        text = get_log_tail(path_file, nbytes)
+        index = text.rfind("\nTime = ")
+        if index != -1:
+            break
     if index == -1:
         print("'Time = ' not found in log file")
-        print(path_file.read_text())
         return None
     text = text[index + 8 :]
     return float(text.split(None, 1)[0])
