@@ -45,8 +45,9 @@ specific to these tutorials written as notebooks so you can just look at the out
 this cell.
 
 ```{code-cell} ipython3
-:tags: [hide-input]
-
+---
+tags: [hide-input]
+---
 from subprocess import run, PIPE, STDOUT
 from time import perf_counter
 
@@ -67,8 +68,9 @@ to these tutorials, so you don't need to focus on this code. In real life, we ca
 read the log to know where the data has been saved.
 
 ```{code-cell} ipython3
-:tags: [hide-input]
-
+---
+tags: [hide-input]
+---
 path_run = None
 for line in lines:
     if "path_run: " in line:
@@ -137,17 +139,30 @@ sim.output.log.plot_clock_times()
 
 ## Pyvista output
 
-After loading the simulation and have `sim` object, we can simply visualize the simulation. The `sim.output.fields` has some methods for visualization:
-- `plot_mesh()`
-- `plot_boundary()`
-- `plot_profile()`
-- `plot_contour()`
+With the `sim` object, one can simply visualize the simulation with few methods in
+`sim.output.fields`:
 
-Now we can try them. Firstly we can see an overview of the mesh.
+- {func}`fluidsimfoam.output.fields.Fields.plot_mesh`
+- {func}`fluidsimfoam.output.fields.Fields.plot_boundary`
+- {func}`fluidsimfoam.output.fields.Fields.plot_profile`
+- {func}`fluidsimfoam.output.fields.Fields.plot_contour`
+
+Let's now try them. For this tutorial which has to be rendered statically on our web
+documentation, we use a static backend. For interactive figures, use instead the `trame`
+backend.
 
 ```{code-cell} ipython3
-sim.output.fields.plot_mesh()
+import pyvista as pv
+pv.set_jupyter_backend("static")
 ```
+
+First, we can see an overview of the mesh.
+
+```{code-cell} ipython3
+sim.output.fields.plot_mesh();
+```
+
+One can quickly produce contour plots with `plot_contour`, for example:
 
 ```{code-cell} ipython3
 sim.output.fields.plot_contour(
@@ -155,11 +170,5 @@ sim.output.fields.plot_contour(
         mesh_opacity=0.1,
         variable="U",
         contour=False,
-    )
-```
-
-
-
-```{code-cell} ipython3
-
+    );
 ```
