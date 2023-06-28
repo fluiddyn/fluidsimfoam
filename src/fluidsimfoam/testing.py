@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from fluidsimfoam.foam_input_files import dump, parse
+from fluidsimfoam.util import get_openfoam_version
 
 
 class skipif_executable_not_available:
@@ -15,6 +16,30 @@ class skipif_executable_not_available:
         self.skipif = pytest.mark.skipif(
             path_foam_executable is None,
             reason=f"executable '{command_name}' not available",
+        )
+
+    def __call__(self, func):
+        return self.skipif(func)
+
+
+class skipif_openfoam_too_old:
+    def __init__(self, version_date=2206):
+        openfoam_version = get_openfoam_version()
+
+        if openfoam_version is None:
+            has_to_skip = True
+            reason = "OpenFOAM not available"
+        elif len(openfoam_version) == 5:
+            version_date_available = int(openfoam_version[1:])
+            has_to_skip = version_date_available < version_date
+            reason = f"OpenFOAM ({openfoam_version}) too old"
+        else:
+            has_to_skip = False
+            reason = ""
+
+        self.skipif = pytest.mark.skipif(
+            has_to_skip,
+            reason=reason,
         )
 
     def __call__(self, func):

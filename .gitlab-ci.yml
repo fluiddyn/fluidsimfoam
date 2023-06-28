@@ -10,6 +10,7 @@ image: python:3.10-bullseye
 
 variables:
   WM_PROJECT_DIR: "/usr/share/openfoam"
+  OMPI_ALLOW_RUN_AS_ROOT: "1"
 
 stages:
   - test
@@ -31,13 +32,11 @@ before_script:
   - rm -f /etc/apt/apt.conf.d/docker-clean
   - mkdir .apt && mkdir /var/cache/apt/archives && mount --bind .apt /var/cache/apt/archives/
   - apt-get update && apt-get install -y rsync openfoam
-  - which blockMesh
-  - which icoFoam
   - pip install poetry
   - poetry config virtualenvs.in-project true
   # see https://github.com/pydata/pydata-sphinx-theme/issues/1253
   - poetry config installer.modern-installation false
-  - poetry install --without dev
+  - poetry install --without dev -E pyvista
 
 pytest:
   stage: test
