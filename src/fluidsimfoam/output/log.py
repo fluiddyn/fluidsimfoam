@@ -20,6 +20,7 @@ def read_time_last(path_file):
     index = text.rfind("\nTime = ")
     if index == -1:
         print("'Time = ' not found in log file")
+        print(path_file.read_text())
         return None
     text = text[index + 8 :]
     return float(text.split(None, 1)[0])
