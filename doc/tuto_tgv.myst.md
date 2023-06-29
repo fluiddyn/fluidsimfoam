@@ -5,14 +5,12 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.5
+    jupytext_version: 1.14.6
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
   name: python3
 ---
-
-+++ {"user_expressions": []}
 
 # Demo Taylor-Green vortex (`fluidsimfoam-tgv` solver)
 
@@ -38,8 +36,6 @@ In normal life, we would just execute this script with something like
 command = "python3 examples/scripts/tuto_tgv.py"
 ```
 
-+++ {"user_expressions": []}
-
 However, in this notebook, we need a bit more code. How we execute this command is very
 specific to these tutorials written as notebooks so you can just look at the output of
 this cell.
@@ -59,8 +55,6 @@ process = run(
 print(f"Script executed in {perf_counter() - t_start:.2f} s")
 lines = process.stdout.split("\n")
 ```
-
-+++ {"user_expressions": []}
 
 To "load the simulation", i.e. to recreate a simulation object, we now need to extract
 from the output the path of the directory of the simulation. This is also very specific
@@ -88,8 +82,6 @@ path_run
 !ls {path_run}
 ```
 
-+++ {"user_expressions": []}
-
 ## Load the simulation
 
 We can now load the simulation and process the output.
@@ -102,14 +94,10 @@ from fluidsimfoam import load
 sim = load(path_run)
 ```
 
-+++ {"user_expressions": []}
-
 ```{admonition} Quickly start IPython and load a simulation
 The command `fluidsimfoam-ipy-load` can be used to start a IPython session and load the
 simulation saved in the current directory.
 ```
-
-+++ {"user_expressions": []}
 
 One can do many things with this `Simul` object. For example, a Numpy array corresponding
 to the last saved time can be created with:
@@ -135,4 +123,111 @@ To know how long should run a simulation, one can use:
 
 ```{code-cell} ipython3
 sim.output.log.plot_clock_times()
+```
+
+## Pyvista output
+
+With the `sim` object, one can simply visualize the simulation with few methods in
+`sim.output.fields`:
+
+- {func}`fluidsimfoam.output.fields.Fields.plot_mesh`
+- {func}`fluidsimfoam.output.fields.Fields.plot_boundary`
+- {func}`fluidsimfoam.output.fields.Fields.plot_profile`
+- {func}`fluidsimfoam.output.fields.Fields.plot_contour`
+
+Let's now try them. For this tutorial which has to be rendered statically on our web
+documentation, we use a static backend. For interactive figures, use instead the `trame`
+backend.
+
+```{code-cell} ipython3
+import pyvista as pv
+pv.set_jupyter_backend("static")
+pv.global_theme.anti_aliasing = 'ssaa'
+pv.global_theme.background = 'white'
+pv.global_theme.font.color = 'black'
+pv.global_theme.font.label_size = 12
+pv.global_theme.font.title_size = 16
+pv.global_theme.colorbar_orientation = 'vertical'
+```
+
+First, we can see an overview of the mesh.
+
+```{code-cell} ipython3
+sim.output.fields.plot_mesh(color="black");
+```
+
+One can see the boundries via this command:
+
+```{code-cell} ipython3
+sim.output.fields.plot_boundary("leftBoundary", color="red");
+```
+
+One can quickly produce contour plots with `plot_contour`, for example, variable "U" in
+plane "z=4":
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour(
+        equation="z=4",
+        variable="U",
+    );
+```
+
+In order to plot other components of a vector, just assign "component" to desired one,
+for example here we added `component=2` for plotting "Uz". In addition, to apply the
+contour filter over the plot, just use `contour=True`. For different "colormap", change
+`cmap`, for more information about colormap see
+[here](https://matplotlib.org/stable/tutorials/colors/colormaps.html).
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour(
+        equation="z=5",
+        mesh_opacity=0.07,
+        variable="U",
+        contour=True,
+        component=2,
+        cmap="magma",
+    );
+```
+
+You can get variable names via this command:
+
+```{code-cell} ipython3
+sim.output.name_variables
+```
+
+We previously plotted `U` and now we may plot `p` on a different plane, for instance:
+`yz-plane`. The equation describes a plane in three dimensions:
+
+$ax+by+cz+d=0$
+
+But in this case, we're illustrating planes that are perpendicular to the coordinate
+planes.
+
+1. The equation for the plane that is perpendicular to the `xy-plane`: $z=d$
+1. The equation for the plane that is perpendicular to the `yz-plane`: $x=d$
+1. The equation for the plane that is perpendicular to the `xz-plane`: $y=d$
+
+For `yz-plane` the equation should be set to $x=d$. Notice the axes!
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour(
+        equation="x=2.3",
+        variable="p",
+        cmap="plasma",
+    );
+```
+
+One can plot a variable over a straight line, by providing two points. By setting
+`show_line_in_domain=True`, you may first view the line in the domain for simplicity and
+to confirm its location.
+
+```{code-cell} ipython3
+sim.output.fields.plot_profile(
+    point0=[1, 1, 0],
+    point1=[1, 1, 7],
+    variable="U",
+    ylabel="$U(m/s)$",
+    title="Velocity",
+    show_line_in_domain=True,
+);
 ```
