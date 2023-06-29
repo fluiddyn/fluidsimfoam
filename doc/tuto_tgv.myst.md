@@ -45,9 +45,8 @@ specific to these tutorials written as notebooks so you can just look at the out
 this cell.
 
 ```{code-cell} ipython3
----
-tags: [hide-input]
----
+:tags: [hide-input]
+
 from subprocess import run, PIPE, STDOUT
 from time import perf_counter
 
@@ -68,9 +67,8 @@ to these tutorials, so you don't need to focus on this code. In real life, we ca
 read the log to know where the data has been saved.
 
 ```{code-cell} ipython3
----
-tags: [hide-input]
----
+:tags: [hide-input]
+
 path_run = None
 for line in lines:
     if "path_run: " in line:
@@ -174,19 +172,20 @@ One can see the boundries via this command:
 sim.output.fields.plot_boundary("leftBoundary", color="red")
 ```
 
-One can quickly produce contour plots with `plot_contour`, for example, variable `U` in
-plane with equation `z=4`:
+One can quickly produce contour plots with `plot_contour`, for example, variable "U" in
+plane "z=4":
 
 ```{code-cell} ipython3
 sim.output.fields.plot_contour(
         equation="z=4",
-        variable="U",        
+        variable="U",
     )
 ```
 
-In order to plot other components of a vector, just assign `component` to desired one,
-for example here we added `component=2` for plotting `Uz`. In addition, to apply the
+In order to plot other components of a vector, just assign "component" to desired one,
+for example here we added `component=2` for plotting "Uz". In addition, to apply the
 contour filter over the plot, just use `contour=True`.
+For different "colormap", change `cmap`, for more information about colormap see [here](https://matplotlib.org/stable/tutorials/colors/colormaps.html).
 
 ```{code-cell} ipython3
 sim.output.fields.plot_contour(
@@ -195,7 +194,7 @@ sim.output.fields.plot_contour(
         variable="U",
         contour=True,
         component=2,
-        cmap="plasma",
+        cmap="magma",
     )
 ```
 
@@ -205,7 +204,17 @@ You can get variable names via this command:
 sim.output.name_variables
 ```
 
-We ploted `U` before, now we can plot `p` in another plane (x=2.3):
+We previously plotted `U` and now we may plot `p` on a different plane, for instance: `yz-plane`.  The equation describes a plane in three dimensions:
+
+$ax+by+cz+d=0$
+
+But in this case, we're illustrating planes that are perpendicular to the coordinate planes.
+
+1) The equation for the plane that is perpendicular to the `xy-plane`: $z=d$
+2) The equation for the plane that is perpendicular to the `yz-plane`: $x=d$
+3) The equation for the plane that is perpendicular to the `xz-plane`: $y=d$
+
+For `yz-plane` the equation should be set to  $x=d$. Notice the axis!
 
 ```{code-cell} ipython3
 sim.output.fields.plot_contour(
@@ -215,9 +224,7 @@ sim.output.fields.plot_contour(
     )
 ```
 
-One can plot a variable over a straight line, by providing two points. For simplicity and
-making sure about where is line located, you can first see the line in the domain by
-setting `show_line_in_domain=True`.
+One can plot a variable over a straight line, by providing two points. By setting `show_line_in_domain=True`, you may first view the line in the domain for simplicity and to confirm its location.
 
 ```{code-cell} ipython3
 sim.output.fields.plot_profile(
