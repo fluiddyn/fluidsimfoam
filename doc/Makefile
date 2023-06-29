@@ -17,7 +17,7 @@ INTERSPHINX_TARGETS := \
 	intersphinx-fluidsim
 
 html:
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	$(SPHINXBUILD) -W -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@printf "Build finished.\nfile://"$(shell pwd)"/_build/html/index.html\n"
 

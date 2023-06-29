@@ -54,7 +54,14 @@ class Context(invoke.context.Context):
 
         path_log.parent.mkdir(exist_ok=True)
         with open(path_log, "w") as file:
-            self.run(command, echo=True, out_stream=file, err_stream=file)
+            try:
+                self.run(command, echo=True, out_stream=file, err_stream=file)
+            except invoke.exceptions.UnexpectedExit:
+                file.flush()
+                print(
+                    f"Error for command {command}\n"
+                    f"log file content:\n{path_log.read_text()}"
+                )
 
     def run_appl_once(
         self,

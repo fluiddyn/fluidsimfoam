@@ -3,7 +3,11 @@ from pathlib import Path
 
 from fluidsimfoam_multi_region_snappy import Simul
 
-from fluidsimfoam.testing import check_saved_case, skipif_executable_not_available
+from fluidsimfoam.testing import (
+    check_saved_case,
+    skipif_executable_not_available,
+    skipif_openfoam_too_old,
+)
 
 here = Path(__file__).absolute().parent
 
@@ -31,6 +35,7 @@ def test_run():
 
 
 @skipif_executable_not_available("chtMultiRegionFoam")
+@skipif_openfoam_too_old()
 def test_run_parallel():
     os.environ["OMPI_MCA_rmaps_base_oversubscribe"] = "true"
     params = Simul.create_default_params()

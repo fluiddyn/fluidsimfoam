@@ -16,20 +16,25 @@ from subprocess import run
 
 from inflection import camelize
 
+import fluiddyn
+import fluidsim_core
+import fluidsimfoam
 from fluidsim_core.ipy_load import (
     start_ipython_load_sim as _start_ipython_load_sim,
 )
 from fluidsim_core.paths import path_dir_results
 from fluidsimfoam import __version__ as fluidsimfoam_version
 from fluidsimfoam.solvers import available_solvers
+from fluidsimfoam.util import get_openfoam_version
 
 
 def print_versions():
-    import fluiddyn
-    import fluidsim_core
-    import fluidsimfoam
-
     versions = {"Package": "Version", "-------": "-------"}
+
+    openfoam_version = get_openfoam_version()
+    if openfoam_version is None:
+        openfoam_version = "not installed or not activated"
+    versions["OpenFOAM"] = openfoam_version
 
     packages = [fluidsimfoam, fluiddyn, fluidsim_core]
     for package in packages:

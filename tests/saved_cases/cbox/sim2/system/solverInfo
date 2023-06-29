@@ -1,6 +1,9 @@
 // -*- C++ -*-
 
-#includeEtc "caseDicts/postProcessing/numerical/solverInfo.cfg"
+type            solverInfo;
+libs            (utilityFunctionObjects);
+
+writeInterval   1;
 
 writeControl writeTime;
 

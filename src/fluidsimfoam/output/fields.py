@@ -187,7 +187,8 @@ class Fields:
         ax.plot(y, field.get_array())
 
     def _init_pyvista_reader(self):
-        check_pyvista_importable()
+        if not check_pyvista_importable():
+            import pyvista
         casename = f".{self.output.sim.info_solver.short_name}.foam"
         path = self.output.sim.path_run / casename
         if not path.exists():

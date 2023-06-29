@@ -8,6 +8,11 @@
 
 image: python:3.10-bullseye
 
+variables:
+  WM_PROJECT_DIR: "/usr/share/openfoam"
+  OMPI_ALLOW_RUN_AS_ROOT: "1"
+  OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: "1"
+
 stages:
   - test
   - publish
@@ -21,14 +26,22 @@ cache:
   # Required to keep artifacts from old builds, e.g. from default
   paths:
     - public
+    - .apt
+    - .venv
+
+before_script:
+  - rm -f /etc/apt/apt.conf.d/docker-clean
+  - mkdir .apt && mkdir /var/cache/apt/archives && mount --bind .apt /var/cache/apt/archives/
+  - apt-get update && apt-get install -y rsync openfoam libgl1
+  - pip install poetry
+  - poetry config virtualenvs.in-project true
+  # see https://github.com/pydata/pydata-sphinx-theme/issues/1253
+  - poetry config installer.modern-installation false
+  - poetry install --without dev -E pyvista
 
 pytest:
   stage: test
   script:
-    - pip install poetry
-    # see https://github.com/pydata/pydata-sphinx-theme/issues/1253
-    - poetry config installer.modern-installation false
-    - poetry install --without dev
     - poetry run pytest tests doc/examples --cov --cov-report term --cov-report xml
   coverage: /(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/
   artifacts:
@@ -40,12 +53,7 @@ pytest:
 pages:
   stage: publish
   script:
-    - apt-get update && apt-get install -y rsync
-    - pip install poetry
-    # see https://github.com/pydata/pydata-sphinx-theme/issues/1253
-    - poetry config installer.modern-installation false
-    - poetry install --without dev
-    - poetry run sphinx-build -b html -d doc/_build/doctrees doc doc/_build/html
+    - poetry run sphinx-build -W -b html -d doc/_build/doctrees doc doc/_build/html
     - mkdir -p public/$CI_COMMIT_REF_NAME
     - rsync -rvc --delete doc/_build/html/* public/$CI_COMMIT_REF_NAME/
     # This directory can become too large leading to error.

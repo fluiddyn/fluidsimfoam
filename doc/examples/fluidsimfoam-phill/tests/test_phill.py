@@ -9,7 +9,11 @@ from fluidsimfoam_phill.blockmesh import (
 )
 
 from fluidsimfoam.foam_input_files import dump, parse
-from fluidsimfoam.testing import check_saved_case, skipif_executable_not_available
+from fluidsimfoam.testing import (
+    check_saved_case,
+    skipif_executable_not_available,
+    skipif_openfoam_too_old,
+)
 
 
 @skipif_executable_not_available("postProcess")
@@ -25,6 +29,7 @@ def test_reproduce_case():
 
 
 @skipif_executable_not_available("icoFoam")
+@skipif_openfoam_too_old()
 def test_run():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/phill"

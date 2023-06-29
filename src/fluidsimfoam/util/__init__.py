@@ -8,6 +8,7 @@
 
 import hashlib
 from pathlib import Path
+from subprocess import run
 
 
 def make_hex(src):
@@ -44,3 +45,12 @@ def get_parallel_info(path_decompose_par_dict=None):
     else:
         parallel = nsubdoms > 1
     return parallel, nsubdoms
+
+
+def get_openfoam_version():
+    try:
+        process = run(["icoFoam", "-help"], text=True, capture_output=True)
+    except FileNotFoundError:
+        return None
+    version = process.stdout.split("Using: OpenFOAM-")[1].split()[0]
+    return version.removeprefix("v").removeprefix("(").removesuffix(")")

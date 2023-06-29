@@ -19,7 +19,11 @@ class DataframeMakerFoam(DataframeMaker):
         """Get last saved time"""
         logfiles = sorted(path.glob("log*.txt"))
         path_log = logfiles[-1]
-        return read_time_last(path_log)
+        time_last = read_time_last(path_log)
+        if time_last is None:
+            print(path_log.read_text())
+            raise RuntimeError("time_last is None")
+        return time_last
 
     def load_sim(self, path):
         """Load a simulation object"""

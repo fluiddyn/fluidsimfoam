@@ -110,7 +110,7 @@ def run(context):
         print(f"{end_time = }")
         pattern_time = re.compile(r"\nTime = ([\d]+\.?[\d]+)")
         t_start = time()
-        process = Popen(command, stdout=file_log)
+        process = Popen(command, stdout=file_log, stderr=file_log)
         t_last = time() - 10.0
         while process.poll() is None:
             sleep(0.2)
@@ -133,4 +133,11 @@ def run(context):
 
     print(f"Simulation done. path_run:\n{path_run}")
     if process.returncode:
+        with open(path_log, "r") as file_log_read:
+            file_log_read.seek(max(0, log_size - 5000))
+            tail = file_log_read.read()
+        print(
+            f"Error: simulation finished with return code {process.returncode}\n"
+            f"Tail of log file:\n{tail}"
+        )
         raise Exit(process.returncode)

@@ -14,7 +14,7 @@ sampleSets
         alpha.water
     );
     sets
-    {
+    (
         gauge_1
         {
             type       face;
@@ -51,5 +51,5 @@ sampleSets
             );
             nPoints    100;
         }
-    }
+    );
 }
