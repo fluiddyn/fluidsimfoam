@@ -12,8 +12,6 @@ kernelspec:
   name: python3
 ---
 
-+++ {"user_expressions": []}
-
 # Demo Taylor-Green vortex (`fluidsimfoam-tgv` solver)
 
 Fluidsimfoam repository contains a
@@ -38,8 +36,6 @@ In normal life, we would just execute this script with something like
 command = "python3 examples/scripts/tuto_tgv.py"
 ```
 
-+++ {"user_expressions": []}
-
 However, in this notebook, we need a bit more code. How we execute this command is very
 specific to these tutorials written as notebooks so you can just look at the output of
 this cell.
@@ -59,8 +55,6 @@ process = run(
 print(f"Script executed in {perf_counter() - t_start:.2f} s")
 lines = process.stdout.split("\n")
 ```
-
-+++ {"user_expressions": []}
 
 To "load the simulation", i.e. to recreate a simulation object, we now need to extract
 from the output the path of the directory of the simulation. This is also very specific
@@ -88,8 +82,6 @@ path_run
 !ls {path_run}
 ```
 
-+++ {"user_expressions": []}
-
 ## Load the simulation
 
 We can now load the simulation and process the output.
@@ -102,14 +94,10 @@ from fluidsimfoam import load
 sim = load(path_run)
 ```
 
-+++ {"user_expressions": []}
-
 ```{admonition} Quickly start IPython and load a simulation
 The command `fluidsimfoam-ipy-load` can be used to start a IPython session and load the
 simulation saved in the current directory.
 ```
-
-+++ {"user_expressions": []}
 
 One can do many things with this `Simul` object. For example, a Numpy array corresponding
 to the last saved time can be created with:
