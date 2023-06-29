@@ -35,7 +35,7 @@ def test_run():
 
 
 @skipif_executable_not_available("chtMultiRegionFoam")
-@skipif_openfoam_too_old
+@skipif_openfoam_too_old()
 def test_run_parallel():
     os.environ["OMPI_MCA_rmaps_base_oversubscribe"] = "true"
     params = Simul.create_default_params()

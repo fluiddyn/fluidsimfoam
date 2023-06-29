@@ -52,4 +52,5 @@ def get_openfoam_version():
         process = run(["icoFoam", "-help"], text=True, capture_output=True)
     except FileNotFoundError:
         return None
-    return process.stdout.split("Using: OpenFOAM-")[1].split()[0]
+    version = process.stdout.split("Using: OpenFOAM-")[1].split()[0]
+    return version.removeprefix("v").removeprefix("(").removesuffix(")")

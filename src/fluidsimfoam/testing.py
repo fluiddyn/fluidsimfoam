@@ -29,8 +29,8 @@ class skipif_openfoam_too_old:
         if openfoam_version is None:
             has_to_skip = True
             reason = "OpenFOAM not available"
-        elif len(openfoam_version) == 5:
-            version_date_available = int(openfoam_version[1:])
+        elif len(openfoam_version) == 4:
+            version_date_available = int(openfoam_version)
             has_to_skip = version_date_available < version_date
             reason = f"OpenFOAM ({openfoam_version}) too old"
         else:
