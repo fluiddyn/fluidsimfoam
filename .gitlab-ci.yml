@@ -53,7 +53,7 @@ pytest:
 pages:
   stage: publish
   script:
-    - poetry run sphinx-build -b html -d doc/_build/doctrees doc doc/_build/html
+    - poetry run sphinx-build -W -b html -d doc/_build/doctrees doc doc/_build/html
     - mkdir -p public/$CI_COMMIT_REF_NAME
     - rsync -rvc --delete doc/_build/html/* public/$CI_COMMIT_REF_NAME/
     # This directory can become too large leading to error.
