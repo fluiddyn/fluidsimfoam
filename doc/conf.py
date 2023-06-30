@@ -6,9 +6,16 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import os
 import runpy
 
+import pyvista
+
 import fluidsimfoam
+
+os.environ["OMPI_MCA_rmaps_base_oversubscribe"] = "true"
+
+pyvista.OFF_SCREEN = True
 
 project = "Fluidsimfoam"
 copyright = "2023, Pierre Augier, Pooria Danaeifar"

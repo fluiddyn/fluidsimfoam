@@ -140,14 +140,14 @@ documentation, we use a static backend. For interactive figures, use instead the
 backend.
 
 ```{code-cell} ipython3
-import pyvista as pv
-pv.set_jupyter_backend("static")
-pv.global_theme.anti_aliasing = 'ssaa'
-pv.global_theme.background = 'white'
-pv.global_theme.font.color = 'black'
-pv.global_theme.font.label_size = 12
-pv.global_theme.font.title_size = 16
-pv.global_theme.colorbar_orientation = 'vertical'
+import pyvista
+pyvista.set_jupyter_backend("static")
+pyvista.global_theme.anti_aliasing = 'ssaa'
+pyvista.global_theme.background = 'white'
+pyvista.global_theme.font.color = 'black'
+pyvista.global_theme.font.label_size = 12
+pyvista.global_theme.font.title_size = 16
+pyvista.global_theme.colorbar_orientation = 'vertical'
 ```
 
 First, we can see an overview of the mesh.
