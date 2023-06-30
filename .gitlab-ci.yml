@@ -82,6 +82,8 @@ CI image:
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [ "" ]
+  before_script:
+    - ""
   script:
     - |
       cat > /kaniko/.docker/config.json <<EOF
