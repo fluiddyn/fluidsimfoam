@@ -6,7 +6,6 @@ build:
     python: "3.10"
   apt_packages:
     - openfoam
-    - libgl1
   jobs:
     post_create_environment:
       - pip install poetry
@@ -15,6 +14,8 @@ build:
       - poetry config installer.modern-installation false
     post_install:
       - poetry install --with doc
+      - poetry run pip uninstall vtk -y
+      - poetry run pip install vtk-osmesa --extra-index-url https://gitlab.kitware.com/api/v4/projects/13/packages/pypi/simple
 
 sphinx:
   configuration: doc/conf.py
