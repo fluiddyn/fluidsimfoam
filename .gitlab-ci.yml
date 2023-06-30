@@ -27,11 +27,8 @@ cache:
   # Required to keep artifacts from old builds, e.g. from default
   paths:
     - public
-    - .apt
-    - .venv
 
 before_script:
-  - poetry config virtualenvs.in-project true
   # see https://github.com/pydata/pydata-sphinx-theme/issues/1253
   - poetry config installer.modern-installation false
   - poetry install --without dev -E pyvista
