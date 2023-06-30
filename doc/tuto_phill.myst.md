@@ -21,7 +21,7 @@ Fluidsimfoam repository contains a
 for the flow over Periodic Hill. In a brief simulation, we'll demonstrate how it may be
 utilized.
 
-## Run a simulation by executing a script
+## Run simulations by executing a scripts
 
 There are three different geometeries available for this solver. We will run the
 simulation by executing these three scripts:
@@ -30,7 +30,9 @@ simulation by executing these three scripts:
 - [doc/examples/scripts/tuto_phill_2d.py](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/scripts/tuto_phill_2d.py)
 - [doc/examples/scripts/tuto_phill_3d.py](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/scripts/tuto_phill_3d.py)
 
-At first, we start with '3d_phill' geometery, which is located in this relative path:
+### 3D PHill
+
+At first, we start with '3d_phill' geometery, which contains:
 
 ```{eval-rst}
 .. literalinclude:: ./examples/scripts/tuto_phill_3d.py
@@ -259,4 +261,146 @@ sim.output.fields.plot_profile(
     title="Velocity",
     show_line_in_domain=True,
 );
+```
+
++++ {"user_expressions": []}
+
+### 2D PHill
+
+Now we are going to run '2d_phill' geometery simulation, which contains:
+
+```{eval-rst}
+.. literalinclude:: ./examples/scripts/tuto_phill_2d.py
+```
+
+```{code-cell} ipython3
+command = "python3 examples/scripts/tuto_phill_2d.py -nx 120"
+from subprocess import run, PIPE, STDOUT
+from time import perf_counter
+
+print("Running the script tuto_phill_async.py... (It can take few minutes.)")
+t_start = perf_counter()
+process = run(
+    command.split(), check=True, text=True, stdout=PIPE,  stderr=STDOUT
+)
+print(f"Script executed in {perf_counter() - t_start:.2f} s")
+lines = process.stdout.split("\n")
+```
+
+```{code-cell} ipython3
+path_run = None
+for line in lines:
+    if "path_run: " in line:
+        path_run = line.split("path_run: ")[1].split(" ", 1)[0]
+        break
+if path_run is None:
+    raise RuntimeError
+```
+
+```{code-cell} ipython3
+path_run
+```
+
+```{code-cell} ipython3
+!ls {path_run}
+```
+
++++ {"user_expressions": []}
+
+And for getting the `sim` object we can load the simulation:
+
+```{code-cell} ipython3
+from fluidsimfoam import load
+
+sim = load(path_run)
+```
+
++++ {"user_expressions": []}
+
+Similar to *3d_phill*, in order to plot the outputs, we are using `sim.output.fields`. We
+start to plot overall mesh.
+
+```{code-cell} ipython3
+sim.output.fields.plot_mesh(color="black");
+```
+
++++ {"user_expressions": []}
+
+This is the contour plot of variable 'U':
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour("U", cmap="plasma")
+```
+
+```{code-cell} ipython3
+sim.output.fields.plot_profile(
+    point0=[1, 0.1, 0],
+    point1=[1, 10, 0],
+    variable="U",
+    ylabel="$U(m/s)$",
+    title="Velocity",
+    show_line_in_domain=False,
+);
+```
+
++++ {"user_expressions": []}
+
+### Sinusoidal PHill
+
+And finally for 'sinus_phill' geometery simulation, which contains:
+
+```{eval-rst}
+.. literalinclude:: ./examples/scripts/tuto_phill_2d.py
+```
+
+```{code-cell} ipython3
+command = "python3 examples/scripts/tuto_phill_sinus.py -nx 120 --end_time 200"
+from subprocess import run, PIPE, STDOUT
+from time import perf_counter
+
+print("Running the script tuto_phill_sinus.py... (It can take few minutes.)")
+t_start = perf_counter()
+process = run(
+    command.split(), check=True, text=True, stdout=PIPE,  stderr=STDOUT
+)
+print(f"Script executed in {perf_counter() - t_start:.2f} s")
+lines = process.stdout.split("\n")
+```
+
+```{code-cell} ipython3
+path_run = None
+for line in lines:
+    if "path_run: " in line:
+        path_run = line.split("path_run: ")[1].split(" ", 1)[0]
+        break
+if path_run is None:
+    raise RuntimeError
+
+path_run
+```
+
++++ {"user_expressions": []}
+
+And for getting the `sim` object we can load the simulation:
+
+```{code-cell} ipython3
+from fluidsimfoam import load
+
+sim = load(path_run)
+```
+
++++ {"user_expressions": []}
+
+Let's see the grid!
+
+```{code-cell} ipython3
+sim.output.fields.plot_mesh(color="black");
+```
+
++++ {"user_expressions": []}
+
+For plotting contour of variable 'U':
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour("U")
 ```
