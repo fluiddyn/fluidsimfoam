@@ -6,7 +6,7 @@
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 
-image: python:3.10-bullseye
+image: registry.heptapod.net:443/fluiddyn/fluidsimfoam/ci/default:stable
 
 variables:
   WM_PROJECT_DIR: "/usr/share/openfoam"
@@ -31,10 +31,6 @@ cache:
     - .venv
 
 before_script:
-  - rm -f /etc/apt/apt.conf.d/docker-clean
-  - mkdir .apt && mkdir /var/cache/apt/archives && mount --bind .apt /var/cache/apt/archives/
-  - apt-get update && apt-get install -y rsync openfoam libgl1 xvfb libgl1-mesa-dev
-  - pip install poetry
   - poetry config virtualenvs.in-project true
   # see https://github.com/pydata/pydata-sphinx-theme/issues/1253
   - poetry config installer.modern-installation false
