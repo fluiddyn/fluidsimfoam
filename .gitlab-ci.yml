@@ -14,6 +14,7 @@ variables:
   OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: "1"
 
 stages:
+  - image
   - test
   - publish
 
@@ -69,10 +70,10 @@ pages:
     expire_in: 5 days
   when: always
 
-# Build images for the above tasks; this should be a scheduled job, as
+# Build an image for the above tasks; this should be a scheduled job, as
 # it is quite unnecessary to run on every invocation.
-CI images:
-  stage: images
+CI image:
+  stage: image
   tags:
     - container-registry-push
   rules:
