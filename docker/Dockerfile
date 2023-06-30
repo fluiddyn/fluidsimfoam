@@ -1,6 +1,8 @@
 FROM python:3.10-bullseye
 LABEL Pierre Augier <pierre.augier@univ-grenoble-alpes.fr>
 
+COPY docker/hgrc $HOME/.hgrc
+
 RUN apt-get update
 
 RUN apt-get install -y --no-install-recommends emacs vim
@@ -16,5 +18,3 @@ RUN /usr/bin/python3 -m pip install hg-git hg-evolve
 RUN git config --global pull.rebase false
 
 RUN /usr/bin/python3 -m pip install poetry
-
-COPY hgrc $HOME/.hgrc
