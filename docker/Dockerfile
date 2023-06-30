@@ -7,7 +7,7 @@ RUN apt-get update
 
 RUN apt-get install -y --no-install-recommends emacs vim
 RUN apt-get install -y --no-install-recommends mercurial python3-pip git
-RUN apt-get install -y --no-install-recommends rsync openfoam libgl1 xvfb libgl1-mesa-dev
+RUN apt-get install -y --no-install-recommends rsync openfoam libgl1 xvfb xauth libgl1-mesa-dev
 
 RUN rm -rf /var/lib/apt/lists/*
 
