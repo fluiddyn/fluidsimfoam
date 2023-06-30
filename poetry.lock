@@ -2792,7 +2792,7 @@ testing = ["pytest", "pytest-benchmark"]
 name = "pooch"
 version = "1.7.0"
 description = "\"Pooch manages your Python library's sample data files: it automatically downloads and stores them in a local directory, with support for versioning and corruption checks.\""
-optional = true
+optional = false
 python-versions = ">=3.7"
 files = [
     {file = "pooch-1.7.0-py3-none-any.whl", hash = "sha256:74258224fc33d58f53113cf955e8d51bf01386b91492927d0d1b6b341a765ad7"},
@@ -3179,7 +3179,7 @@ files = [
 name = "pyvista"
 version = "0.39.1"
 description = "Easier Pythonic interface to VTK"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "pyvista-0.39.1-py3-none-any.whl", hash = "sha256:d4c9c314d0a1151a950a7dba67505e3148385ae0f7974f614252700f48cc01f4"},
@@ -3584,7 +3584,7 @@ files = [
 name = "scooby"
 version = "0.7.2"
 description = "A Great Dane turned Python environment detective"
-optional = true
+optional = false
 python-versions = ">=3.7"
 files = [
     {file = "scooby-0.7.2-py3-none-any.whl", hash = "sha256:75b77d22ecc22a5578fb0bb2957e8d024fa863fe905cd43447a86860afe37978"},
@@ -4154,7 +4154,7 @@ zstd = ["zstandard (>=0.18.0)"]
 name = "vtk"
 version = "9.2.6"
 description = "VTK is an open-source toolkit for 3D computer graphics, image processing, and visualization"
-optional = true
+optional = false
 python-versions = "*"
 files = [
     {file = "vtk-9.2.6-cp310-cp310-macosx_10_10_x86_64.whl", hash = "sha256:acf8b0e0a2b51b8aa36cee1ea1ba0b73c565871efaa14cf2606d9bef36feba3a"},
@@ -4371,4 +4371,4 @@ qt = ["PySide6"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "12102e3c1713c41b1eb3059f073485ec47c0195aed89e058ffcc8d6bd87e1f0c"
+content-hash = "72b022407d2d5b37787766b92bbac688f652f4edc51aaa4a70ca14dfbf5b9c8a"
