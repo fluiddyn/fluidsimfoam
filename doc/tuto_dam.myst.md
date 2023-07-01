@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.5
+    jupytext_version: 1.14.7
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -31,9 +31,6 @@ sim = Simul(params)
 ```
 
 ```{code-cell} ipython3
----
-tags: [hide-output]
----
 sim.make.exec("polymesh")
 ```
 
@@ -41,7 +38,31 @@ sim.make.exec("polymesh")
 sim.make.exec("run")
 ```
 
-To run a parallel simulation:
+```{code-cell} ipython3
+import pyvista
+pyvista.set_jupyter_backend("static")
+
+pyvista.global_theme.anti_aliasing = 'ssaa'
+pyvista.global_theme.background = 'white'
+pyvista.global_theme.font.color = 'black'
+pyvista.global_theme.font.label_size = 12
+pyvista.global_theme.font.title_size = 16
+pyvista.global_theme.colorbar_orientation = 'vertical'
+```
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour("alpha.water", time=0.1);
+```
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour("alpha.water", time=0.4);
+```
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour("alpha.water", time=1);
+```
+
+To run the same simulation but in parallel:
 
 ```{code-cell} ipython3
 params = Simul.create_default_params()
@@ -56,22 +77,30 @@ sim = Simul(params)
 ```
 
 ```{code-cell} ipython3
----
-tags: [hide-output]
----
 sim.make.exec("run")
 ```
 
 One can also try with a higher dam:
 
 ```{code-cell} ipython3
+params.parallel.nsubdoms = 1
+
 params.block_mesh_dict.height_dam *= 2
 sim = Simul(params)
 ```
 
 ```{code-cell} ipython3
----
-tags: [hide-output]
----
 sim.make.exec("run")
+```
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour("alpha.water", time=0.1);
+```
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour("alpha.water", time=0.4);
+```
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour("alpha.water", time=1);
 ```
