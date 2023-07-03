@@ -5,14 +5,12 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.14.6
+    jupytext_version: 1.14.7
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
   name: python3
 ---
-
-+++ {"user_expressions": []}
 
 # Flow over Periodic Hill (`fluidsimfoam-phill` solver)
 
@@ -38,28 +36,27 @@ At first, we start with '3d_phill' geometery, which contains:
 .. literalinclude:: ./examples/scripts/tuto_phill_3d.py
 ```
 
-Generally, we would just execute this script with something like
+Generally, we would just execute this script with something like `python tuto_phill_3d.py`. In this case we added some options to script:
 
-`python tuto_phill_3d.py`.
+* **-nx:** number of mesh grid in x direction
+* **--end-time:** end time
+* **-nsave:** number of outputs saving during run
 
 ```{code-cell} ipython3
-command = "python3 examples/scripts/tuto_phill_3d.py -nx 20"
+command = "python3 examples/scripts/tuto_phill_3d.py -nx 20 --end-time 100 -nsave 5"
 ```
-
-+++ {"user_expressions": []}
 
 However, in this notebook, we need a bit more code. How we execute this command is very
 specific to these tutorials written as notebooks so you can just look at the output of
 this cell.
 
 ```{code-cell} ipython3
----
-tags: [hide-input]
----
+:tags: [hide-input]
+
 from subprocess import run, PIPE, STDOUT
 from time import perf_counter
 
-print("Running the script tuto_phill_async.py... (It can take few minutes.)")
+print("Running the script tuto_phill_3d.py... (It can take few minutes.)")
 t_start = perf_counter()
 process = run(
     command.split(), check=True, text=True, stdout=PIPE,  stderr=STDOUT
@@ -68,17 +65,14 @@ print(f"Script executed in {perf_counter() - t_start:.2f} s")
 lines = process.stdout.split("\n")
 ```
 
-+++ {"user_expressions": []}
-
 To **load the simulation**, i.e. to recreate a simulation object, we now need to extract
 from the output the path of the directory of the simulation. This is also very specific
 to these tutorials, so you don't need to focus on this code. Generally, we can just read
 the log to know where the data has been saved.
 
 ```{code-cell} ipython3
----
-tags: [hide-input]
----
+:tags: [hide-input]
+
 path_run = None
 for line in lines:
     if "path_run: " in line:
@@ -96,8 +90,6 @@ path_run
 !ls {path_run}
 ```
 
-+++ {"user_expressions": []}
-
 ## Load the simulation
 
 We can now load the simulation and process the output.
@@ -110,10 +102,8 @@ from fluidsimfoam import load
 sim = load(path_run)
 ```
 
-+++ {"user_expressions": []}
-
 ```{admonition} Quickly start IPython and load a simulation
-The command `fluidsimfoam-ipy-load` can be used to start a IPython session and load the
+First go to simulation directory by `cd path_run` and then command `fluidsimfoam-ipy-load` can be used to start a IPython session and load the
 simulation saved in the current directory.
 ```
 
@@ -126,20 +116,16 @@ arr_u = field_u.get_array()
 arr_u.shape
 ```
 
-+++ {"user_expressions": []}
-
 Data saved in the OpenFOAM log file can be loaded and plotted with the object
 `sim.output.log`, an instance of the class {class}`fluidsimfoam.output.log.Log`:
 
-+++ {"user_expressions": []}
++++
 
 To know how long does it take to run a simulation, one can use:
 
 ```{code-cell} ipython3
 sim.output.log.plot_clock_times()
 ```
-
-+++ {"user_expressions": []}
 
 ## Pyvista output
 
@@ -166,36 +152,40 @@ pv.global_theme.font.title_size = 16
 pv.global_theme.colorbar_orientation = 'vertical'
 ```
 
-+++ {"user_expressions": []}
-
 First, we can see an overview of the mesh.
 
 ```{code-cell} ipython3
 sim.output.fields.plot_mesh(color="black");
 ```
 
-+++ {"user_expressions": []}
-
 One can see the boundries via this command:
 
 ```{code-cell} ipython3
-sim.output.fields.plot_boundary("bottom", color="grey", mesh_opacity=0.2, show_edges=True);
+sim.output.fields.plot_boundary("bottom", color="grey", mesh_opacity=0.2);
 ```
 
-+++ {"user_expressions": []}
-
 One can quickly produce contour plots with `plot_contour`, for example, variable *U* in
-plane "z=4":
+plane *y=0* and *time=20s*:
 
 ```{code-cell} ipython3
 sim.output.fields.plot_contour(
         equation="y=0",
         variable="U",
         mesh_opacity=0.1,
+        time=20,
     );
 ```
 
-+++ {"user_expressions": []}
+Same contour in *time=100s*:
+
+```{code-cell} ipython3
+sim.output.fields.plot_contour(
+        equation="y=0",
+        variable="U",
+        mesh_opacity=0.1,
+        time=100,
+    );
+```
 
 In order to plot other components of a vector, just assign *component* to desired one,
 for example here we added `component=2` for plotting "Uz". In addition, to apply the
@@ -208,45 +198,11 @@ sim.output.fields.plot_contour(
         equation="y=0",
         mesh_opacity=0.1,
         variable="U",
-        contour=True,
+        contour=False,
         component=2,
         cmap="plasma",
     );
 ```
-
-+++ {"user_expressions": []}
-
-You can get variable names via this command:
-
-```{code-cell} ipython3
-sim.output.name_variables
-```
-
-+++ {"user_expressions": []}
-
-We previously plotted `U` and now we may plot `p` on a different plane, for instance:
-`yz-plane`. The equation describes a plane in three dimensions:
-
-$ax+by+cz+d=0$
-
-But in this case, we're illustrating planes that are perpendicular to the coordinate
-planes.
-
-1. The equation for the plane that is perpendicular to the `xy-plane`: $z=d$
-1. The equation for the plane that is perpendicular to the `yz-plane`: $x=d$
-1. The equation for the plane that is perpendicular to the `xz-plane`: $y=d$
-
-For `yz-plane` the equation should be set to $x=d$. Notice the axes!
-
-```{code-cell} ipython3
-sim.output.fields.plot_contour(
-        equation="x=0",
-        variable="p_rgh",
-        cmap="plasma",
-    );
-```
-
-+++ {"user_expressions": []}
 
 One can plot a variable over a straight line, by providing two points. By setting
 `show_line_in_domain=True`, you may first view the line in the domain for simplicity and
@@ -254,16 +210,14 @@ to confirm its location.
 
 ```{code-cell} ipython3
 sim.output.fields.plot_profile(
-    point0=[0, 0.5, 2.5],
-    point1=[0, 0.5, 20],
+    point0=[0.5, 0.5, 2],
+    point1=[0.5, 0.5, 20],
     variable="U",
     ylabel="$U(m/s)$",
     title="Velocity",
     show_line_in_domain=True,
 );
 ```
-
-+++ {"user_expressions": []}
 
 ### 2D PHill
 
@@ -275,10 +229,11 @@ Now we are going to run '2d_phill' geometery simulation, which contains:
 
 ```{code-cell} ipython3
 command = "python3 examples/scripts/tuto_phill_2d.py -nx 120"
+
 from subprocess import run, PIPE, STDOUT
 from time import perf_counter
 
-print("Running the script tuto_phill_async.py... (It can take few minutes.)")
+print("Running the script tuto_phill_2d.py... (It can take few minutes.)")
 t_start = perf_counter()
 process = run(
     command.split(), check=True, text=True, stdout=PIPE,  stderr=STDOUT
@@ -317,11 +272,12 @@ sim = load(path_run)
 
 +++ {"user_expressions": []}
 
-Similar to *3d_phill*, in order to plot the outputs, we are using `sim.output.fields`. We
-start to plot overall mesh.
+Similar to *3d_phill*, in order to plot the outputs, we are using `sim.output.fields`.  All these plot methods return plotter object, we can get this object and modify some properties and then plot it. We start by plot overall mesh and try to zoom it. Note that `show=False` in this situation!
 
 ```{code-cell} ipython3
-sim.output.fields.plot_mesh(color="black");
+plotter = sim.output.fields.plot_mesh(color="black", show=False);
+plotter.camera.zoom(1.3)
+plotter.show()
 ```
 
 +++ {"user_expressions": []}
@@ -329,17 +285,32 @@ sim.output.fields.plot_mesh(color="black");
 This is the contour plot of variable 'U':
 
 ```{code-cell} ipython3
-sim.output.fields.plot_contour("U", cmap="plasma")
+pv.global_theme.colorbar_orientation = 'horizontal'
+plotter = sim.output.fields.plot_contour("U", cmap="plasma", time=20, show=False)
+plotter.camera.zoom(1.3)
+plotter.show()
 ```
+
++++ {"user_expressions": []}
+
+For plotting velocity profile in a vertical line located in 'x=1', 'z=0', we can define each point like this:
+
+- 'x0=1', 'x1=1'
+- 'z0=0', 'z1=0'
+
+And for **y**, y0 <= ymin and y1 >= ymax
+
+As a result, points can be like this: point0 = [1, -10, 0], point1 = [1, 10, 0]
 
 ```{code-cell} ipython3
 sim.output.fields.plot_profile(
-    point0=[1, 0.1, 0],
+    point0=[1, -10, 0],
     point1=[1, 10, 0],
     variable="U",
     ylabel="$U(m/s)$",
-    title="Velocity",
-    show_line_in_domain=False,
+    title="Velocity Profile",
+    show_line_in_domain=True,
+    show=True
 );
 ```
 
@@ -399,8 +370,24 @@ sim.output.fields.plot_mesh(color="black");
 
 +++ {"user_expressions": []}
 
-For plotting contour of variable 'U':
+For plotting 'Uz' component of velocity at `time=200s`:
 
 ```{code-cell} ipython3
-sim.output.fields.plot_contour("U")
+pv.global_theme.colorbar_orientation = 'vertical'
+sim.output.fields.plot_contour("U", time=200, component=2);
+```
+
++++ {"user_expressions": []}
+
+Profile of the velocity:
+
+```{code-cell} ipython3
+sim.output.fields.plot_profile(
+    point0=[1000, 0, 0],
+    point1=[1000, 2000, 0],
+    variable="U",
+    ylabel="$U(m/s)$",
+    title="Velocity Profile",
+    show_line_in_domain=False,
+);
 ```
