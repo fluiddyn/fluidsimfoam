@@ -12,6 +12,8 @@ kernelspec:
   name: python3
 ---
 
++++ {"user_expressions": []}
+
 # Flow over Periodic Hill (`fluidsimfoam-phill` solver)
 
 Fluidsimfoam repository contains a
@@ -19,24 +21,24 @@ Fluidsimfoam repository contains a
 for the flow over Periodic Hill. In a brief simulation, we'll demonstrate how it may be
 utilized.
 
-## Run simulations by executing a scripts
+## Run simulations by executing scripts
 
 There are three different geometeries available for this solver. We will run the
 simulation by executing these three scripts:
 
-- [doc/examples/scripts/tuto_phill_sinus.py](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/scripts/tuto_phill_sinus.py)
-- [doc/examples/scripts/tuto_phill_2d.py](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/scripts/tuto_phill_2d.py)
 - [doc/examples/scripts/tuto_phill_3d.py](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/scripts/tuto_phill_3d.py)
+- [doc/examples/scripts/tuto_phill_2d.py](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/scripts/tuto_phill_2d.py)
+- [doc/examples/scripts/tuto_phill_sinus.py](https://foss.heptapod.net/fluiddyn/fluidsimfoam/-/tree/branch/default/doc/examples/scripts/tuto_phill_sinus.py)
 
 ### 3D PHill
 
-At first, we start with '3d_phill' geometery, which contains:
+At first, we start with '3d_phill' geometery and its scripts which contains:
 
 ```{eval-rst}
 .. literalinclude:: ./examples/scripts/tuto_phill_3d.py
 ```
 
-Generally, we would just execute this script with something like `python tuto_phill_3d.py`. In this case we added some options to script:
+Generally, we would just execute this script with something like `python tuto_phill_3d.py`. In this case we added some options to this script:
 
 * **-nx:** number of mesh grid in x direction
 * **--end-time:** end time
@@ -46,9 +48,9 @@ Generally, we would just execute this script with something like `python tuto_ph
 command = "python3 examples/scripts/tuto_phill_3d.py -nx 20 --end-time 100 -nsave 5"
 ```
 
-However, in this notebook, we need a bit more code. How we execute this command is very
-specific to these tutorials written as notebooks so you can just look at the output of
-this cell.
++++ {"user_expressions": []}
+
+However, we require a little bit more code in this notebook. You may merely glance at the output of this cell since the way we execute this command is extremely peculiar to this tutorial provided as notebook.
 
 ```{code-cell} ipython3
 :tags: [hide-input]
@@ -64,6 +66,8 @@ process = run(
 print(f"Script executed in {perf_counter() - t_start:.2f} s")
 lines = process.stdout.split("\n")
 ```
+
++++ {"user_expressions": []}
 
 To **load the simulation**, i.e. to recreate a simulation object, we now need to extract
 from the output the path of the directory of the simulation. This is also very specific
@@ -90,6 +94,8 @@ path_run
 !ls {path_run}
 ```
 
++++ {"user_expressions": []}
+
 ## Load the simulation
 
 We can now load the simulation and process the output.
@@ -101,6 +107,8 @@ from fluidsimfoam import load
 
 sim = load(path_run)
 ```
+
++++ {"user_expressions": []}
 
 ```{admonition} Quickly start IPython and load a simulation
 First go to simulation directory by `cd path_run` and then command `fluidsimfoam-ipy-load` can be used to start a IPython session and load the
@@ -116,16 +124,20 @@ arr_u = field_u.get_array()
 arr_u.shape
 ```
 
++++ {"user_expressions": []}
+
 Data saved in the OpenFOAM log file can be loaded and plotted with the object
 `sim.output.log`, an instance of the class {class}`fluidsimfoam.output.log.Log`:
 
-+++
++++ {"user_expressions": []}
 
 To know how long does it take to run a simulation, one can use:
 
 ```{code-cell} ipython3
 sim.output.log.plot_clock_times()
 ```
+
++++ {"user_expressions": []}
 
 ## Pyvista output
 
@@ -152,17 +164,23 @@ pv.global_theme.font.title_size = 16
 pv.global_theme.colorbar_orientation = 'vertical'
 ```
 
-First, we can see an overview of the mesh.
++++ {"user_expressions": []}
+
+First, we can see an overview of the mesh by `plot_mesh`.
 
 ```{code-cell} ipython3
 sim.output.fields.plot_mesh(color="black");
 ```
 
-One can see the boundries via this command:
++++ {"user_expressions": []}
+
+The `plot_boundary` can help with mesh explanation or demonstration:
 
 ```{code-cell} ipython3
 sim.output.fields.plot_boundary("bottom", color="grey", mesh_opacity=0.2);
 ```
+
++++ {"user_expressions": []}
 
 One can quickly produce contour plots with `plot_contour`, for example, variable *U* in
 plane *y=0* and *time=20s*:
@@ -176,6 +194,8 @@ sim.output.fields.plot_contour(
     );
 ```
 
++++ {"user_expressions": []}
+
 Same contour in *time=100s*:
 
 ```{code-cell} ipython3
@@ -186,6 +206,8 @@ sim.output.fields.plot_contour(
         time=100,
     );
 ```
+
++++ {"user_expressions": []}
 
 In order to plot other components of a vector, just assign *component* to desired one,
 for example here we added `component=2` for plotting "Uz". In addition, to apply the
@@ -204,6 +226,8 @@ sim.output.fields.plot_contour(
     );
 ```
 
++++ {"user_expressions": []}
+
 One can plot a variable over a straight line, by providing two points. By setting
 `show_line_in_domain=True`, you may first view the line in the domain for simplicity and
 to confirm its location.
@@ -218,6 +242,8 @@ sim.output.fields.plot_profile(
     show_line_in_domain=True,
 );
 ```
+
++++ {"user_expressions": []}
 
 ### 2D PHill
 
@@ -254,10 +280,6 @@ if path_run is None:
 
 ```{code-cell} ipython3
 path_run
-```
-
-```{code-cell} ipython3
-!ls {path_run}
 ```
 
 +++ {"user_expressions": []}
@@ -309,7 +331,7 @@ sim.output.fields.plot_profile(
     variable="U",
     ylabel="$U(m/s)$",
     title="Velocity Profile",
-    show_line_in_domain=True,
+    show_line_in_domain=False,
     show=True
 );
 ```
@@ -379,7 +401,7 @@ sim.output.fields.plot_contour("U", time=200, component=2);
 
 +++ {"user_expressions": []}
 
-Profile of the velocity:
+Velocity profile:
 
 ```{code-cell} ipython3
 sim.output.fields.plot_profile(
