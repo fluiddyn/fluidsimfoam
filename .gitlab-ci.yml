@@ -56,6 +56,7 @@ pages:
     - ls public
     - echo "CI_COMMIT_REF_NAME="$CI_COMMIT_REF_NAME
     - echo See https://fluiddyn.pages.heptapod.net/fluidsimfoam/$CI_COMMIT_REF_NAME
+  needs: []
   artifacts:
     name: "$CI_COMMIT_REF_NAME"
     paths:
