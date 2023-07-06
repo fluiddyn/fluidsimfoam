@@ -205,6 +205,7 @@ class Fields:
         mesh_opacity=1,
         add_legend=False,
         show=True,
+        plotter=None,
         **kwargs,
     ):
         """
@@ -250,7 +251,9 @@ class Fields:
 
         boundary = boundaries[name]
 
-        plotter = pyvista.Plotter()
+        if plotter is None:
+            plotter = pyvista.Plotter()
+
         plotter.add_mesh(
             mesh,
             opacity=mesh_opacity,
@@ -263,6 +266,7 @@ class Fields:
             color=color,
             lighting=lighting,
             label=name,
+            show_edges=show_edges,
             **kwargs,
         )
         if len(dimensions) == 2:
@@ -286,6 +290,7 @@ class Fields:
         mesh_opacity=0,
         show=True,
         contour=False,
+        plotter=None,
         **kwargs,
     ):
         """
@@ -326,8 +331,9 @@ class Fields:
 
         block = data["internalMesh"]
         block.set_active_scalars(variable, preference="point")
+        if plotter is None:
+            plotter = pyvista.Plotter()
 
-        plotter = pyvista.Plotter()
         plotter.add_mesh(data, color="w", opacity=mesh_opacity)
 
         dimensions = get_dimensions(data)
@@ -398,6 +404,7 @@ class Fields:
         color="r",
         show_line_in_domain=False,
         show=True,
+        plotter=None,
         **kwargs,
     ):
         """
@@ -455,13 +462,14 @@ class Fields:
                 plotter.show()
 
         block.plot_over_line(point0, point1, show=show, **kwargs)
-        return plt.gcf()
+        return plotter, plt.gcf()
 
     def plot_mesh(
         self,
         color="w",
         style="wireframe",
         show=True,
+        plotter=None,
         **kwargs,
     ):
         """
@@ -483,8 +491,8 @@ class Fields:
         """
         reader = self._init_pyvista_reader()
         mesh = reader.read()
-
-        plotter = pyvista.Plotter()
+        if plotter is None:
+            plotter = pyvista.Plotter()
         plotter.add_mesh(
             mesh,
             style=style,
