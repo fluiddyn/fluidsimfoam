@@ -40,9 +40,9 @@ At first, we start with '3d_phill' geometery and its scripts which contains:
 
 Generally, we would just execute this script with something like `python tuto_phill_3d.py`. In this case we added some options to this script:
 
-* **-nx:** number of mesh grid in x direction
-* **--end-time:** end time
-* **-nsave:** number of outputs saving during run
+* `-nx`: number of mesh grid in x direction
+* `--end-time`: end time
+* `-nsave`: number of outputs saving during run
 
 ```{code-cell} ipython3
 command = "python3 examples/scripts/tuto_phill_3d.py -nx 20 --end-time 100 -nsave 5"
@@ -99,12 +99,6 @@ from fluidsimfoam import load
 sim = load(path_run)
 ```
 
-```{code-cell} ipython3
-field_u = sim.output.fields.read_field("T")
-arr_u = field_u.get_array()
-arr_u.shape
-```
-
 +++ {"user_expressions": []}
 
 ## Pyvista output
@@ -113,14 +107,16 @@ With the `sim` object, one can simply visualize the simulation with few methods 
 `sim.output.fields`, see [here](https://fluidsimfoam.readthedocs.io/en/latest/tuto_tgv.myst.html#pyvista-output). Some theme configuration for this notebook:
 
 ```{code-cell} ipython3
----
-jupyter:
-  source_hidden: true
-tags: [hide-input]
----
+:tags: [hide-input]
+
 import pyvista as pv
 pv.set_jupyter_backend("static")
-pv.global_theme.anti_aliasing = 'ssaa'
+```
+
+```{code-cell} ipython3
+:tags: [hide-input]
+
+#pv.global_theme.anti_aliasing = 'ssaa'
 pv.global_theme.background = 'white'
 pv.global_theme.font.color = 'black'
 pv.global_theme.font.label_size = 12
@@ -130,7 +126,7 @@ pv.global_theme.colorbar_orientation = 'vertical'
 
 +++ {"user_expressions": []}
 
-First, we can see an overview of the mesh by `plot_mesh`.
+First, we can see an overview of the mesh by  {func}`fluidsimfoam.output.fields.Fields.plot_mesh`.
 
 ```{code-cell} ipython3
 sim.output.fields.plot_mesh(color="black");
@@ -138,10 +134,14 @@ sim.output.fields.plot_mesh(color="black");
 
 +++ {"user_expressions": []}
 
-The `plot_boundary` can help with mesh explanation or demonstration. All these plot methods return plotter object, we can get this object and modify some properties and then plot it. Note that set `show=False` in this situation!
+### Add options to plotter
+
+The {func}`fluidsimfoam.output.fields.Fields.plot_boundary` can help with mesh explanation or demonstration. All these plot methods return plotter object, we can get this object and modify some properties and then plot it.
+
+Note that set `show=False` in this situation!
 
 ```{code-cell} ipython3
-plotter = sim.output.fields.plot_boundary("bottom", color="grey", mesh_opacity=0.2, show=False);
+plotter = sim.output.fields.plot_boundary("bottom", color="grey", mesh_opacity=0.1, show=False);
 plotter.show_grid()
 plotter.camera.zoom(0.9)
 plotter.show()
@@ -149,7 +149,7 @@ plotter.show()
 
 +++ {"user_expressions": []}
 
-One can quickly produce contour plots with `plot_contour`, for example, variable *U* in
+One can quickly produce contour plots with {func}`fluidsimfoam.output.fields.Fields.plot_contour`, for example, variable *U* in
 plane *y=0* and *time=20s*:
 
 ```{code-cell} ipython3
@@ -163,37 +163,69 @@ sim.output.fields.plot_contour(
 
 +++ {"user_expressions": []}
 
-Same contour in *time=100s*:
+### Save plot as a file
 
-```{code-cell} ipython3
-sim.output.fields.plot_contour(
-    equation="y=0",
-    variable="U",
-    mesh_opacity=0.1,
-    time=100,
-);
-```
+You may use `save_graphic(filename)` to save plot as a file in the following formats: '.svg', '.eps', '.ps', '.pdf', and '.tex'. 
 
-+++ {"user_expressions": []}
-
-In order to plot other components of a vector, just assign *component* to desired one,
-for example here we added `component=2` for plotting "Uz". In addition, to apply the
-contour filter over the plot, just use `contour=True`. For different *colormap*, change
-`cmap`, for more information about colormap see
-[here](https://matplotlib.org/stable/tutorials/colors/colormaps.html).
+Same contour in *time=100s*, with grid:
 
 ```{code-cell} ipython3
 plotter = sim.output.fields.plot_contour(
     equation="y=0",
-    mesh_opacity=0.2,
+    variable="U",
+    mesh_opacity=0.1,
+    time=100,
+    show=False,
+);
+# Save file with '.pdf' format:
+# plotter.save_graphic("ufield_100.pdf")
+plotter.show_grid(show_yaxis=False)
+plotter.show()
+```
+
++++ {"user_expressions": []}
+
+### Add several plots to a single plot
+
+Multiple plots can be added with various planes. `Plot_contour` in several planes with/without a contour filter and `plot_boundary` were included to one plot in this example. We passed these methods the `plotter` object to achieve this goal.
+And to plot other components of a vector, just assign *component* to desired one, $\{x:0, y:1, z:2\}$,
+for example here we added `component=2` for plotting "Uz". In addition, to apply the
+contour filter over the plot, just use `contour=True`.
+
+```{code-cell} ipython3
+
+plotter = sim.output.fields.plot_contour(
+    equation="x=-4.9",
+    mesh_opacity=0,
     variable="U",
     component=2,
     cmap="plasma",
     show=False,
 );
+sim.output.fields.plot_contour(
+    equation="y=-4.9",
+    mesh_opacity=0,
+    variable="U",
+    component=2,
+    cmap="plasma",
+    show=False,
+    plotter=plotter,
+);
+sim.output.fields.plot_boundary("bottom", color="#e0e0eb", show_edges=False, mesh_opacity=0, show=False, plotter=plotter);
+
+for y in range(-4,5,2):
+    sim.output.fields.plot_contour(
+        equation=f"y={y}",
+        mesh_opacity=0,
+        variable="U",
+        component=2,
+        cmap="plasma",
+        contour=True,
+        show=False,
+        plotter=plotter,
+    );
+
 plotter.view_isometric()
-plotter.camera.zoom(0.9)
-plotter.show_grid()
 plotter.show()
 ```
 
@@ -211,6 +243,7 @@ sim.output.fields.plot_profile(
     ylabel="$U$(m/s)",
     title="Velocity Profile",
     show_line_in_domain=True,
+    show=True,
 );
 ```
 
@@ -225,6 +258,10 @@ Now we are going to run '2d_phill' geometery simulation, which contains:
 ```
 
 ```{code-cell} ipython3
+---
+jupyter:
+  source_hidden: true
+---
 command = "python3 examples/scripts/tuto_phill_2d.py -nx 200"
 
 from subprocess import run, PIPE, STDOUT
@@ -240,6 +277,10 @@ lines = process.stdout.split("\n")
 ```
 
 ```{code-cell} ipython3
+---
+jupyter:
+  source_hidden: true
+---
 path_run = None
 for line in lines:
     if "path_run: " in line:
@@ -271,7 +312,7 @@ This is the contour plot of variable 'U' with axes:
 
 ```{code-cell} ipython3
 pv.global_theme.colorbar_orientation = 'horizontal'
-plotter = sim.output.fields.plot_contour("U", cmap="plasma", time=20, show=False)
+plotter = sim.output.fields.plot_contour(variable="U", cmap="plasma", time=20, show=False)
 plotter.camera.zoom(1.2)
 plotter.show_grid()
 plotter.show()
@@ -279,25 +320,33 @@ plotter.show()
 
 +++ {"user_expressions": []}
 
+### How to select points for `plot_profile`
+
 For plotting temperature profile in a vertical line located in 'x=3', 'z=0', we can define each point like this:
 
 - x0=3, x1=3
 - z0=0, z1=0
 
-And for **y**, y0 <= ymin and y1 >= ymax
-
+Additionally, for **y**, y0 <= ymin and y1 >= ymax, the segment of the line that is outside of the mesh will not be shown.
 As a result, points can be like this: point0 = [3, 0, 0], point1 = [3, 10, 0]
 
+Notice the line that was plotted from 0 to 2!
+
 ```{code-cell} ipython3
-sim.output.fields.plot_profile(
+plotter, m_plotter = sim.output.fields.plot_profile(
     point0=[3, 0, 0],
     point1=[3, 10, 0],
     variable="T",
     ylabel="$T$(K)",
     title="Temperature Profile",
-    show_line_in_domain=False,
-    show=True
+    show_line_in_domain=True,
+    show=False,
 );
+
+plotter.camera_position = "xy"
+plotter.camera.zoom(1.2)
+plotter.show_grid()
+plotter.show()
 ```
 
 +++ {"user_expressions": []}
@@ -311,11 +360,7 @@ And finally for 'sinus_phill' geometery simulation, which contains:
 ```
 
 ```{code-cell} ipython3
----
-jupyter:
-  source_hidden: true
----
-command = "python3 examples/scripts/tuto_phill_sinus.py -nx 120 --end_time 200"
+command = "python3 examples/scripts/tuto_phill_sinus.py -nx 120 --end_time 400 -nsave 4"
 from subprocess import run, PIPE, STDOUT
 from time import perf_counter
 
@@ -362,24 +407,21 @@ sim.output.fields.plot_mesh(color="black");
 
 +++ {"user_expressions": []}
 
-For plotting 'Uz' component of velocity at `time=200s`:
+### Subplots
+
+For plotting 'Uz' component of velocity at `time=100s` and `time=400s` we can use `subplot`:
 
 ```{code-cell} ipython3
 pv.global_theme.colorbar_orientation = 'vertical'
-sim.output.fields.plot_contour("U", time=200, component=2);
-```
 
-+++ {"user_expressions": []}
+plotter = pv.Plotter(shape=(1, 2))
+plotter.subplot(0, 0)
+plotter.add_title("Time: 100s")
+sim.output.fields.plot_contour(plotter=plotter, variable="U", time=100, component=2, show=False);
 
-Temperature profile:
+plotter.subplot(0, 1)
+plotter.add_title("Time: 400s")
+sim.output.fields.plot_contour(plotter=plotter, variable="U", time=400, component=2, show=False);
 
-```{code-cell} ipython3
-sim.output.fields.plot_profile(
-    point0=[1000, 0, 0],
-    point1=[1000, 2000, 0],
-    variable="T",
-    ylabel="$T$(K)",
-    title="Temperature Profile",
-    show_line_in_domain=False,
-);
+plotter.show()
 ```
