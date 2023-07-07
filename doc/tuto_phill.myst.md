@@ -107,15 +107,21 @@ With the `sim` object, one can simply visualize the simulation with few methods 
 `sim.output.fields`, see [here](https://fluidsimfoam.readthedocs.io/en/latest/tuto_tgv.myst.html#pyvista-output). Some theme configuration for this notebook:
 
 ```{code-cell} ipython3
-:tags: [hide-input]
-
+---
+jupyter:
+  source_hidden: true
+tags: [hide-input]
+---
 import pyvista as pv
 pv.set_jupyter_backend("static")
 ```
 
 ```{code-cell} ipython3
-:tags: [hide-input]
-
+---
+jupyter:
+  source_hidden: true
+tags: [hide-input]
+---
 #pv.global_theme.anti_aliasing = 'ssaa'
 pv.global_theme.background = 'white'
 pv.global_theme.font.color = 'black'
@@ -136,12 +142,12 @@ sim.output.fields.plot_mesh(color="black");
 
 ### Add options to plotter
 
-The {func}`fluidsimfoam.output.fields.Fields.plot_boundary` can help with mesh explanation or demonstration. All these plot methods return plotter object, we can get this object and modify some properties and then plot it.
+All plot methods return plotter object, we can get this object and modify some properties and then plot it.
 
 Note that set `show=False` in this situation!
 
 ```{code-cell} ipython3
-plotter = sim.output.fields.plot_boundary("bottom", color="grey", mesh_opacity=0.1, show=False);
+plotter = sim.output.fields.plot_boundary("bottom", color="grey", mesh_opacity=0, show=False);
 plotter.show_grid()
 plotter.camera.zoom(0.9)
 plotter.show()
@@ -149,23 +155,31 @@ plotter.show()
 
 +++ {"user_expressions": []}
 
+### Save figure as a file
+
+You may use `save_graphic(filename)` to save plot as a file in the following formats: '.svg', '.eps', '.ps', '.pdf', and '.tex'. Save the figure before `show()`. 
+
 One can quickly produce contour plots with {func}`fluidsimfoam.output.fields.Fields.plot_contour`, for example, variable *U* in
 plane *y=0* and *time=20s*:
 
 ```{code-cell} ipython3
-sim.output.fields.plot_contour(
+plotter = sim.output.fields.plot_contour(
     equation="y=0",
     variable="U",
     mesh_opacity=0.1,
     time=20,
+    show=False,
 );
+# Save file with '.pdf' format: (uncomment it to save the file)
+# plotter.save_graphic("ufield_100.pdf")
+plotter.show()
 ```
 
 +++ {"user_expressions": []}
 
-### Save plot as a file
+### Add several plots to figure
 
-You may use `save_graphic(filename)` to save plot as a file in the following formats: '.svg', '.eps', '.ps', '.pdf', and '.tex'. 
+Multiple plots can be added with various planes. As an illustration, suppose we wish to add the *bottom* boundary and *contour filter* to the previous plot. To achieve this, we first obtain the plotter without displaying the plot (`show=False`), and then we give this plotter object to `plot_boundary` to add mesh to this object. The contour filter was applied to the mesh in the next phase. At this stage, the object is ready to display.
 
 Same contour in *time=100s*, with grid:
 
@@ -173,27 +187,32 @@ Same contour in *time=100s*, with grid:
 plotter = sim.output.fields.plot_contour(
     equation="y=0",
     variable="U",
-    mesh_opacity=0.1,
+    mesh_opacity=0.08,
     time=100,
     show=False,
 );
-# Save file with '.pdf' format:
-# plotter.save_graphic("ufield_100.pdf")
+sim.output.fields.plot_boundary("bottom", color="#e0e0eb", show_edges=True, mesh_opacity=0, show=False, plotter=plotter);
+plotter = sim.output.fields.plot_contour(
+    equation="y=0",
+    variable="U",
+    time=100,
+    contour=True,
+    show=False,
+    plotter=plotter,
+);
+
 plotter.show_grid(show_yaxis=False)
 plotter.show()
 ```
 
 +++ {"user_expressions": []}
 
-### Add several plots to a single plot
+We would like to show some "Uz" contours in one figure as another example. `Plot_contour` in several planes with/without contour filter and one `plot_boundary` were included to one figure. We added contours to `plotter` object in a loop to achieve this goal.
 
-Multiple plots can be added with various planes. `Plot_contour` in several planes with/without a contour filter and `plot_boundary` were included to one plot in this example. We passed these methods the `plotter` object to achieve this goal.
-And to plot other components of a vector, just assign *component* to desired one, $\{x:0, y:1, z:2\}$,
-for example here we added `component=2` for plotting "Uz". In addition, to apply the
-contour filter over the plot, just use `contour=True`.
+To plot other components of a vector, just assign *component* to desired one, $\{x:0, y:1, z:2\}$,
+for example here we added `component=2` for plotting "Uz".
 
 ```{code-cell} ipython3
-
 plotter = sim.output.fields.plot_contour(
     equation="x=-4.9",
     mesh_opacity=0,
@@ -213,7 +232,7 @@ sim.output.fields.plot_contour(
 );
 sim.output.fields.plot_boundary("bottom", color="#e0e0eb", show_edges=False, mesh_opacity=0, show=False, plotter=plotter);
 
-for y in range(-4,5,2):
+for y in range(-4,5,1):
     sim.output.fields.plot_contour(
         equation=f"y={y}",
         mesh_opacity=0,
@@ -224,7 +243,7 @@ for y in range(-4,5,2):
         show=False,
         plotter=plotter,
     );
-
+    
 plotter.view_isometric()
 plotter.show()
 ```
@@ -360,7 +379,11 @@ And finally for 'sinus_phill' geometery simulation, which contains:
 ```
 
 ```{code-cell} ipython3
-command = "python3 examples/scripts/tuto_phill_sinus.py -nx 120 --end_time 400 -nsave 4"
+---
+jupyter:
+  source_hidden: true
+---
+command = "python3 examples/scripts/tuto_phill_sinus.py -nx 120 --end_time 300 -nsave 3"
 from subprocess import run, PIPE, STDOUT
 from time import perf_counter
 
@@ -409,19 +432,27 @@ sim.output.fields.plot_mesh(color="black");
 
 ### Subplots
 
-For plotting 'Uz' component of velocity at `time=100s` and `time=400s` we can use `subplot`:
+We can utilize `subplot` to plot "U" of velocity at `time=100s`, `time=200s`, and `time=300s` together:
 
 ```{code-cell} ipython3
-pv.global_theme.colorbar_orientation = 'vertical'
+pv.global_theme.colorbar_orientation = 'horizontal'
+pv.global_theme.colorbar_horizontal.position_x = 0.2
 
-plotter = pv.Plotter(shape=(1, 2))
+plotter = pv.Plotter(shape=(1, 3))
 plotter.subplot(0, 0)
 plotter.add_title("Time: 100s")
-sim.output.fields.plot_contour(plotter=plotter, variable="U", time=100, component=2, show=False);
+sim.output.fields.plot_contour(plotter=plotter, variable="U", time=100, show=False);
+plotter.camera.zoom(1.6)
 
 plotter.subplot(0, 1)
-plotter.add_title("Time: 400s")
-sim.output.fields.plot_contour(plotter=plotter, variable="U", time=400, component=2, show=False);
+plotter.add_title("Time: 200s")
+sim.output.fields.plot_contour(plotter=plotter, variable="U", time=200, show=False);
+plotter.camera.zoom(1.6)
+
+plotter.subplot(0, 2)
+plotter.add_title("Time: 300s")
+sim.output.fields.plot_contour(plotter=plotter, variable="U", time=300, show=False);
+plotter.camera.zoom(1.6)
 
 plotter.show()
 ```
