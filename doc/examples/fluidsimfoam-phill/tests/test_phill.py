@@ -9,11 +9,7 @@ from fluidsimfoam_phill.blockmesh import (
 )
 
 from fluidsimfoam.foam_input_files import dump, parse
-from fluidsimfoam.testing import (
-    check_saved_case,
-    skipif_executable_not_available,
-    skipif_openfoam_too_old,
-)
+from fluidsimfoam.testing import check_saved_case, skipif_executable_not_available
 
 
 @skipif_executable_not_available("postProcess")
@@ -23,13 +19,13 @@ def test_reproduce_case():
     params.block_mesh_dict.nx = 11
     params.block_mesh_dict.ny = 7
     params.block_mesh_dict.n_porosity = 4
+    params.fv_options.atm_coriolis_u_source.active = True
     sim = Simul(params)
     here = Path(__file__).absolute().parent
     check_saved_case(here / "saved_cases/case0", sim.path_run)
 
 
 @skipif_executable_not_available("icoFoam")
-@skipif_openfoam_too_old()
 def test_run():
     params = Simul.create_default_params()
     params.output.sub_directory = "tests_fluidsimfoam/phill"

@@ -136,6 +136,7 @@ class OutputPHill(Output):
             "Omega": "(0 7.2921e-5 0)",
         },
         parameters=["Omega"],
+        only_if_active=True,
     )
 
     _helper_fv_options.add_option(

@@ -7,7 +7,6 @@ parser = argparse.ArgumentParser(
     description="Run a flow over periodic hills simulation",
 )
 
-
 parser.add_argument(
     "-nsave",
     default=2,
@@ -24,7 +23,6 @@ parser.add_argument("--end-time", default=20.0, type=float)
 
 args = parser.parse_args()
 
-
 params = Simul.create_default_params()
 
 params.output.sub_directory = "examples_fluidsimfoam/phill"
@@ -37,7 +35,6 @@ params.constant.transport.pr = 10
 
 params.control_dict.end_time = args.end_time
 params.control_dict.write_interval = args.end_time / args.nsave
-
 
 params.block_mesh_dict.lx = 10
 params.block_mesh_dict.ly = 10
@@ -54,11 +51,12 @@ params.block_mesh_dict.n_porosity = int(args.nx * 15 / 50)
 
 params.constant.g.value = [0, 0, -9.81]
 
-
 params.fv_options.momentum_source.active = False
-params.fv_options.atm_coriolis_u_source.active = True
 params.fv_options.porosity.active = True
-params.fv_options.atm_coriolis_u_source.omega = [0, 0, 7.2921e-5]
+
+# not supported by OpenFOAM 1912...
+# params.fv_options.atm_coriolis_u_source.active = True
+# params.fv_options.atm_coriolis_u_source.omega = [0, 0, 7.2921e-5]
 
 sim = Simul(params)
 

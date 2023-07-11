@@ -35,7 +35,6 @@ params.constant.transport.pr = 10
 params.control_dict.end_time = args.end_time
 params.control_dict.write_interval = args.end_time / args.nsave
 
-
 params.block_mesh_dict.lx = 6
 params.block_mesh_dict.ly = 1
 params.block_mesh_dict.lz = 0.01
@@ -52,9 +51,11 @@ params.block_mesh_dict.n_porosity = int(args.nx * 15 / 200)
 params.block_mesh_dict.nz = 1
 
 params.fv_options.momentum_source.active = False
-params.fv_options.atm_coriolis_u_source.active = True
 params.fv_options.porosity.active = True
-params.fv_options.atm_coriolis_u_source.omega = [0, 0, 7.2921e-5]
+
+# not supported by OpenFOAM 1912...
+# params.fv_options.atm_coriolis_u_source.active = True
+# params.fv_options.atm_coriolis_u_source.omega = [0, 0, 7.2921e-5]
 
 sim = Simul(params)
 
