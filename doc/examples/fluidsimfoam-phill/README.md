@@ -11,10 +11,12 @@ You can install this solver using this command:
 pip install fluidsimfoam-phill
 ```
 
-For more details about how to install and use fluidsimfoam, see https://fluidsimfoam.readthedocs.io/en/latest/install.html
+For more details about how to install and use fluidsimfoam, see
+https://fluidsimfoam.readthedocs.io/en/latest/install.html
 
 ## Tutorial
 
-[Here](https://fluidsimfoam.readthedocs.io/en/latest/tuto_phill.myst.html) is a detailed tutorial that explains how to utilize this solver.
+[Here](https://fluidsimfoam.readthedocs.io/en/latest/tuto_phill.myst.html) is a detailed
+tutorial that explains how to utilize this solver.
 
 [fluidsimfoam]: https://foss.heptapod.net/fluiddyn/fluidsimfoam
