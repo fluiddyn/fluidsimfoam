@@ -64,9 +64,13 @@ from time import perf_counter
 print("Running the script tuto_phill_3d.py... (It can take few minutes.)")
 t_start = perf_counter()
 process = run(
-    command.split(), check=True, text=True, stdout=PIPE,  stderr=STDOUT
+    command.split(), text=True, stdout=PIPE,  stderr=STDOUT
 )
+if process.returncode:
+    print(process.stdout[-10000:])
+    raise RuntimeError(f"Script tuto_phill_3d.py returned non-zero exit status {process.returncode}")
 print(f"Script executed in {perf_counter() - t_start:.2f} s")
+
 lines = process.stdout.split("\n")
 ```
 
@@ -157,7 +161,7 @@ plotter.show()
 
 ### Save figure as a file
 
-You may use `save_graphic(filename)` to save plot as a file in the following formats: '.svg', '.eps', '.ps', '.pdf', and '.tex'. Save the figure before `show()`. 
+You may use `save_graphic(filename)` to save plot as a file in the following formats: '.svg', '.eps', '.ps', '.pdf', and '.tex'. Save the figure before `show()`.
 
 One can quickly produce contour plots with {func}`fluidsimfoam.output.fields.Fields.plot_contour`, for example, variable *U* in
 plane *y=0* and *time=20s*:
@@ -243,7 +247,7 @@ for y in range(-4,5,1):
         show=False,
         plotter=plotter,
     );
-    
+
 plotter.view_isometric()
 plotter.show()
 ```
