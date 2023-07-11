@@ -85,6 +85,7 @@ class FvOption:
         default=None,
         coeffs=None,
         parameters=None,
+        only_if_active=False,
     ):
         self.type = type
         self.name = name
@@ -114,6 +115,7 @@ class FvOption:
 
         self.default = default
         self.parameters = parameters
+        self.only_if_active = only_if_active
 
     def complete_params(self, params_fv_options):
         default_params = {
@@ -133,6 +135,12 @@ class FvOption:
 
     def get_dict_for_tree(self, params_fv_options):
         params_option = params_fv_options[_as_py_name(self.name)]
+        active = params_option.active
+        if isinstance(active, bool):
+            active = ("no", "yes")[int(active)]
+
+        if self.only_if_active and active in ("no", "false"):
+            return False
 
         dict_for_tree = {"type": self.type, "active": None}
 
@@ -155,9 +163,6 @@ class FvOption:
 
         _update_dict_with_params(dict_for_tree, params_option)
 
-        active = params_option.active
-        if isinstance(active, bool):
-            active = ("no", "yes")[int(active)]
         dict_for_tree["active"] = active
         if self.coeffs is not None:
             dict_for_tree[self.name_coeffs_key] = dict_for_tree.pop("coeffs")
@@ -179,6 +184,7 @@ class FvOptionsHelper(FileHelper):
         default=None,
         coeffs=None,
         parameters=None,
+        only_if_active=False,
     ):
         if name is None:
             name = type
@@ -193,6 +199,7 @@ class FvOptionsHelper(FileHelper):
             default,
             coeffs,
             parameters,
+            only_if_active,
         )
 
     def remove_option(self, name):
@@ -214,7 +221,7 @@ class FvOptionsHelper(FileHelper):
             }
         )
         for name, option in self.options.items():
-            tree.init_from_py_objects(
-                {name: option.get_dict_for_tree(params.fv_options)}
-            )
+            dict_option = option.get_dict_for_tree(params.fv_options)
+            if dict_option is not False:
+                tree.init_from_py_objects({name: dict_option})
         return tree

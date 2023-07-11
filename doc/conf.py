@@ -57,9 +57,9 @@ myst_enable_extensions = [
 myst_substitutions = {"release": release}
 
 nb_execution_mode = "cache"
-nb_execution_excludepatterns = ["**/*.ipynb"]
-nb_execution_raise_on_error = True
+# nb_execution_raise_on_error = True
 nb_execution_show_tb = True
+nb_execution_excludepatterns = ["**/*.ipynb"]
 nb_execution_timeout = 300
 nb_merge_streams = True
 

@@ -19,7 +19,7 @@ momentumSource
 atmCoriolisUSource
 {
     type             atmCoriolisUSource;
-    active           no;
+    active           yes;
     selectionMode    all;
     Omega            (0 7.2921e-5 0);
 }
