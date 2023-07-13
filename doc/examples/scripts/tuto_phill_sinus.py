@@ -16,14 +16,14 @@ parser.add_argument(
 
 parser.add_argument(
     "-nx",
-    default=200,
+    default=120,
     type=int,
     help="Number of grids in x-direction",
 )
 
 parser.add_argument(
     "-ny",
-    default=200,
+    default=120,
     type=int,
     help="Number of grids in y-direction",
 )
@@ -38,7 +38,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "-np", "--nb-mpi-procs", type=int, default=4, help="Number of MPI processes"
+    "-np", "--nb-mpi-procs", type=int, default=1, help="Number of MPI processes"
 )
 
 args = parser.parse_args()
@@ -49,13 +49,14 @@ params.output.sub_directory = "examples_fluidsimfoam/phill"
 params.block_mesh_dict.geometry = "sinus"
 params.short_name_type_run = "sinus"
 
-params.parallel.method = "simple"
-params.parallel.nsubdoms = args.nb_mpi_procs
-params.parallel.nsubdoms_xyz = [
-    int(args.nb_mpi_procs / 2),
-    args.nb_mpi_procs - int(args.nb_mpi_procs / 2),
-    1,
-]
+if args.nb_mpi_procs != 1:
+    params.parallel.method = "simple"
+    params.parallel.nsubdoms = args.nb_mpi_procs
+    params.parallel.nsubdoms_xyz = [
+        int(args.nb_mpi_procs / 2),
+        args.nb_mpi_procs - int(args.nb_mpi_procs / 2),
+        1,
+    ]
 
 params.init_fields.buoyancy_frequency = 0.001
 params.constant.transport.nu = 0.01
