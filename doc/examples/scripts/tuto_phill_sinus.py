@@ -9,17 +9,37 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument(
     "-nsave",
-    default=2,
+    default=10,
     type=int,
     help="Number of save output to ﬁle.",
 )
+
 parser.add_argument(
     "-nx",
     default=200,
     type=int,
     help="Number of grids in x-direction",
 )
+
+parser.add_argument(
+    "-ny",
+    default=200,
+    type=int,
+    help="Number of grids in y-direction",
+)
+
 parser.add_argument("--end_time", default=20.0, type=float)
+
+parser.add_argument(
+    "-h_max",
+    default=80,
+    type=int,
+    help="Maximum height of the hill",
+)
+
+parser.add_argument(
+    "-np", "--nb-mpi-procs", type=int, default=4, help="Number of MPI processes"
+)
 
 args = parser.parse_args()
 
@@ -28,6 +48,14 @@ params = Simul.create_default_params()
 params.output.sub_directory = "examples_fluidsimfoam/phill"
 params.block_mesh_dict.geometry = "sinus"
 params.short_name_type_run = "sinus"
+
+params.parallel.method = "simple"
+params.parallel.nsubdoms = args.nb_mpi_procs
+params.parallel.nsubdoms_xyz = [
+    int(args.nb_mpi_procs / 2),
+    args.nb_mpi_procs - int(args.nb_mpi_procs / 2),
+    1,
+]
 
 params.init_fields.buoyancy_frequency = 0.001
 params.constant.transport.nu = 0.01
@@ -40,11 +68,11 @@ params.block_mesh_dict.lx = 2000
 params.block_mesh_dict.ly = 2000
 params.block_mesh_dict.ly_porosity = 3000
 # geometry parameters
-params.block_mesh_dict.h_max = 80
+params.block_mesh_dict.h_max = args.h_max
 
 params.block_mesh_dict.nx = args.nx
-params.block_mesh_dict.ny = int(args.nx * 50 / 200)
-params.block_mesh_dict.n_porosity = int(args.nx * 20 / 200)
+params.block_mesh_dict.ny = int(args.ny * 0.8)
+params.block_mesh_dict.n_porosity = int(args.ny * 0.2)
 
 params.fv_options.momentum_source.active = False
 params.fv_options.porosity.active = True
