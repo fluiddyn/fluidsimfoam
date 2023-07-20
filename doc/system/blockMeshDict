@@ -1,0 +1,72 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   0.1;
+
+vertices
+(
+    (  0  0  0 )  // 0 left_bot
+    (  1  0  0 )  // 1 right_bot
+    (  1  1  0 )  // 2 right_up
+    (  0  1  0 )  // 3 left_up
+    (  0  0  0.1 )  // 4 left_bot_dz
+    (  1  0  0.1 )  // 5 right_bot_dz
+    (  1  1  0.1 )  // 6 right_up_dz
+    (  0  1  0.1 )  // 7 left_up_dz
+);
+
+blocks
+(
+    // main (left_bot right_bot right_up left_up left_bot_dz right_bot_dz right_up_dz left_up_dz)
+    hex (0 1 2 3 4 5 6 7) main (20 20 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    movingWall
+    {
+        type wall;
+        faces
+        (
+            (2 3 7 6)  // f-main-n (right_up left_up left_up_dz right_up_dz)
+        );
+    }
+    fixedWalls
+    {
+        type wall;
+        faces
+        (
+            (0 4 7 3)  // f-main-w (left_bot left_bot_dz left_up_dz left_up)
+            (1 2 6 5)  // f-main-e (right_bot right_up right_up_dz right_bot_dz)
+            (0 1 5 4)  // f-main-s (left_bot right_bot right_bot_dz left_bot_dz)
+        );
+    }
+    frontAndBack
+    {
+        type wall;
+        faces
+        (
+            (0 3 2 1)  // f-main-b (left_bot left_up right_up right_bot)
+            (4 5 6 7)  // f-main-t (left_bot_dz right_bot_dz right_up_dz left_up_dz)
+        );
+    }
+);
+
+// ************************************************************************* //
