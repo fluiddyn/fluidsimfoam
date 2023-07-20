@@ -15,7 +15,7 @@ kernelspec:
 # Mesh generation with the BlockMeshDict utility
 
 One of the *fluidsimfoam solver's* utilities is mesh generation. You may quickly parameterize your mesh and send as many simulations with various meshes using the BlockMeshDict.
-Let's assume that we are generating this blockMeshDict:
+Let's assume that we want generate this blockMeshDict:
 
 ````{code-cell} ipython3
 ```
@@ -98,7 +98,7 @@ boundary
 ## Mesh Parameters
 
 First, we can observe the mesh parameters, such as the number of grids in the x, y, and z dimensions, which are 20, 20, and 1 accordingly. Scale is 0.1 and length of domain in x, y and z directions are 1, 1 and 0.1, respectively.
-In order to generate mesh, we should import `BlockMeshDict`, and each solver has a `Simul` object with all the default parameters. Then we assigne the default parameters to `params`, update some parameters we need to change by ```params.block_mesh_dict._update_attribs()```. 
+`BlockMeshDict` is to be imported in order to build mesh, and each solver comes with a `Simul` object that includes all the default parameters. Then we assign the default parameters to `params` and use ```params.block_mesh_dict._update_attribs()``` to update some of the parameters we need to edit. 
 
 ```{code-cell} ipython3
 from fluidsimfoam.foam_input_files import BlockMeshDict
@@ -188,15 +188,111 @@ with open("./system/blockMeshDict", "w") as file:
 pprint.pprint(mesh)
 ```
 
-+++ {"user_expressions": []}
-
 ```{eval-rst}
 .. literalinclude:: ./system/blockMeshDict
 ```
 
 For more information you can see [here](https://fluidsimfoam.readthedocs.io/en/latest/_generated/fluidsimfoam.foam_input_files.blockmesh.html).
 
-+++ {"user_expressions": []}
++++
+
+## Sinusoidal spline
+
+Let's attempt a somewhat more complicated example next. In this instance, the bottom of the mesh should have a sinusoidal topography. To do this, we add to the parameters the topography's maximum height:
+
+```{code-cell} ipython3
+params.block_mesh_dict._update_attribs(
+    {
+        "h_max": 0.08,
+    }
+)
+```
+
+Now we can use the power of python to get this spline very easily, for this aim we define a function:
+
+```{code-cell} ipython3
+import numpy as np
+
+def make_spline_points_sin(nx, lx, h_max, z):
+    x = np.linspace(0, lx, nx)
+    fx = (h_max / 2) * (1 - np.cos(2 * np.pi * abs((x - (lx / 2)) / lx)))
+    return [(x, y, z) for x, y in zip(x, fx)]
+```
+
+```{code-cell} ipython3
+def _make_code_block_mesh_dict(params):
+    p_bmd = params.block_mesh_dict
+    nx = p_bmd.nx
+    ny = p_bmd.ny
+    nz = p_bmd.nz
+
+    lx = p_bmd.lx
+    ly = p_bmd.ly
+    lz = p_bmd.lz
+    h_max = p_bmd.h_max
+
+    # make the blockmesh object:
+    bmd = BlockMeshDict()
+
+    # define the scale
+    bmd.set_scale(params.block_mesh_dict.scale)
+
+    # add vertices (coordinates, "name")
+    for x_y_z_name in (
+        # back
+        (0, h_max, 0, "left_bot"),
+        (lx, h_max, 0, "right_bot"),
+        (lx, ly, 0, "right_up"),
+        (0, ly, 0, "left_up"),
+    ):
+        bmd.add_vertex(*x_y_z_name)
+
+    # replicate vertices for front with "lz"
+    bmd.replicate_vertices_further_z(lz)
+
+    # make block
+    block_0 = bmd.add_hexblock_from_2d(
+        ["left_bot", "right_bot", "right_up", "left_up"],
+        [nx, ny, nz],
+        "main",
+    )
+
+    # Add splineedge
+    bmd.add_splineedge(
+        ["left_bot", "right_bot"],
+        "spline-z0",
+        make_spline_points_sin(nx, lx, h_max, 0),
+    )
+    bmd.add_splineedge(
+        ["left_bot_dz", "right_bot_dz"],
+        "spline-z",
+        make_spline_points_sin(nx, lx, h_max, lz),
+    )
+    
+    # define boundaries (type, "name", [face])
+    bmd.add_boundary("wall", "movingWall", [block_0.face("n")])
+    bmd.add_boundary(
+        "wall",
+        "fixedWalls",
+        [block_0.face("w"), block_0.face("e"), block_0.face("s")],
+    )
+    bmd.add_boundary(
+        "wall", "frontAndBack", [block_0.face("b"), block_0.face("t")]
+    )
+
+    return bmd.format(sort_vortices="as_added")
+
+
+mesh = _make_code_block_mesh_dict(params)
+with open("./system/blockMeshDict2", "w") as file:
+    file.write(mesh)
+```
+
+```{eval-rst}
+.. literalinclude:: ./system/blockMeshDict2
+```
+
++++
 
 ## Manipulate Mesh
 
@@ -207,10 +303,10 @@ params.block_mesh_dict.nz = 20
 params.block_mesh_dict.lz = 1
 
 mesh = _make_code_block_mesh_dict(params)
-with open("./system/blockMeshDict2", "w") as file:
+with open("./system/blockMeshDict3", "w") as file:
     file.write(mesh)
 ```
 
 ```{eval-rst}
-.. literalinclude:: ./system/blockMeshDict2
+.. literalinclude:: ./system/blockMeshDict3
 ```

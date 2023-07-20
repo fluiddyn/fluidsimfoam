@@ -18,12 +18,12 @@ scale   0.1;
 
 vertices
 (
-    (  0  0.08  0 )  // 0 left_bot
-    (  1  0.08  0 )  // 1 right_bot
+    (  0  0  0 )  // 0 left_bot
+    (  1  0  0 )  // 1 right_bot
     (  1  1  0 )  // 2 right_up
     (  0  1  0 )  // 3 left_up
-    (  0  0.08  1 )  // 4 left_bot_dz
-    (  1  0.08  1 )  // 5 right_bot_dz
+    (  0  0  1 )  // 4 left_bot_dz
+    (  1  0  1 )  // 5 right_bot_dz
     (  1  1  1 )  // 6 right_up_dz
     (  0  1  1 )  // 7 left_up_dz
 );
