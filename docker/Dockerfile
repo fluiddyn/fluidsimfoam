@@ -18,3 +18,4 @@ RUN /usr/bin/python3 -m pip install hg-git hg-evolve
 RUN git config --global pull.rebase false
 
 RUN /usr/bin/python3 -m pip install poetry
+RUN /usr/bin/python3 -m pip install pdm
