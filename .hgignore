@@ -39,3 +39,9 @@ coverage.xml
 
 **/OAR.*
 **/oar_launcher*
+
+.pdm.toml
+.pdm-python
+.pdm-build/
+
+.venv

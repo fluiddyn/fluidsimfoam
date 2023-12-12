@@ -29,14 +29,12 @@ cache:
     - public
 
 before_script:
-  # see https://github.com/pydata/pydata-sphinx-theme/issues/1253
-  - poetry config installer.modern-installation false
-  - poetry install --without dev -E pyvista
+  - pdm install
 
 pytest:
   stage: test
   script:
-    - poetry run pytest tests doc/examples --cov --cov-report term --cov-report xml
+    - pdm run pytest tests doc/examples --cov --cov-report term --cov-report xml
   coverage: /(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/
   artifacts:
     reports:
@@ -47,7 +45,7 @@ pytest:
 pages:
   stage: publish
   script:
-    - poetry run xvfb-run --auto-servernum sphinx-build -W -b html -d doc/_build/doctrees doc doc/_build/html
+    - pdm run xvfb-run --auto-servernum sphinx-build -W -b html -d doc/_build/doctrees doc doc/_build/html
     - mkdir -p public/$CI_COMMIT_REF_NAME
     - rsync -rvc --delete doc/_build/html/* public/$CI_COMMIT_REF_NAME/
     # This directory can become too large leading to error.
