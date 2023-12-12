@@ -19,8 +19,10 @@ def test_info():
 
 
 def test_start_ipython_load_sim(mocker):
-    mocker.patch("IPython.start_ipython")
-    start_ipython_load_sim()
+    argv = ["fluidsimfoam-ipy-load"]
+    with patch.object(sys, "argv", argv):
+        mocker.patch("IPython.start_ipython")
+        start_ipython_load_sim()
 
 
 path_cases = [Path(__file__).absolute().parent / "saved_cases/tiny-tgv"]
