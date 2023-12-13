@@ -11,7 +11,7 @@ cluster.commands_setting_env = [
     "export PATH=$HOME/.local/bin:$PATH",
     "module purge",
     "module load openfoam/2212plus",
-    "export VENV_PATH=$(poetry env info -p)",
+    "export VENV_PATH=$(pdm info --where)/.venv",
     "source $VENV_PATH/bin/activate",
 ]
 

@@ -8,14 +8,11 @@ build:
     - openfoam
   jobs:
     post_create_environment:
-      - pip install poetry
-      - poetry config virtualenvs.create false
-      # see https://github.com/pydata/pydata-sphinx-theme/issues/1253
-      - poetry config installer.modern-installation false
+      - pip install pdm
     post_install:
-      - poetry install --with doc
-      - poetry run pip uninstall vtk -y
-      - poetry run pip install vtk-osmesa --extra-index-url https://gitlab.kitware.com/api/v4/projects/13/packages/pypi/simple
+      - pdm install -G doc
+      - pdm run pip uninstall vtk -y
+      - pdm run pip install vtk-osmesa --extra-index-url https://gitlab.kitware.com/api/v4/projects/13/packages/pypi/simple
 
 sphinx:
   configuration: doc/conf.py

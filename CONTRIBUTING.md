@@ -7,17 +7,17 @@ give you the needed rights on the repo.
 
 ## Installation for development
 
-After installing [Poetry] (for example with something like `pip install poetry`), the
-following commands should install and activate the virtual environment:
+After installing [PDM] (for example with something like `pipx install pdm`, but
+check [the other recommended install
+methods](https://pdm-project.org/latest/#installation)), the following commands
+should install and activate the virtual environment:
 
 ```sh
 hg clone https://foss.heptapod.net/fluiddyn/fluidsimfoam
 cd fluidsimfoam
-poetry install --all-extras
-poetry shell
+pdm install
+pdm venv activate
 ```
-
-The `--all-extras` options installs more utilities for Fluidsimfoam developers.
 
 ```{admonition} Note on installing OpenFOAM on Ubuntu/Debian
 ---
@@ -52,7 +52,7 @@ We use Mercurial and the development is hosted on
 
 ## Testing and coverage
 
-We use pytest and ipdb (which are installed automatically by Poetry). The command
+We use pytest and ipdb (which are installed automatically by pdm). The command
 `make test` run the tests of the project. Here are some examples of other useful
 commands:
 
@@ -127,4 +127,4 @@ python -m build
 twine upload dist/*
 ```
 
-[poetry]: https://python-poetry.org/docs/
+[pdm]: https://pdm-project.org
