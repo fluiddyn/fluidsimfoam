@@ -129,21 +129,18 @@ See more in [Fluidsimfoam documentation](https://fluidsimfoam.readthedocs.org).
 
 Currently, it still makes sense to install Fluidsimfoam like we, the
 fluidsimfoam developers, install it, i.e. in a dedicated controlled virtual
-environment created by [Poetry]. After installing [Poetry] (for example with
-something like `pip install poetry`), the following commands should install and
+environment created by [PDM]. After installing [PDM] (for example with
+something like `pipx install pdm`), the following commands should install and
 activate the virtual environment:
 
 ```sh
 hg clone https://foss.heptapod.net/fluiddyn/fluidsimfoam
 cd fluidsimfoam
-poetry install
-poetry shell
+pdm install
+pdm venv activate
 ```
 
-For better user experience with Matplotlib figures, you can also install with
-`poetry install --extra qt`.
-
-[Poetry]: https://python-poetry.org/docs/
+[pdm]: https://pdm-project.org
 
 <!-- end-install -->
 

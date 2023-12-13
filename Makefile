@@ -18,6 +18,3 @@ isort:
 	isort src tests doc dev
 
 format: black isort
-
-poetry_install_all:
-	poetry install --all-extras
