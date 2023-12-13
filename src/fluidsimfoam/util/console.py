@@ -164,7 +164,7 @@ def initiate_solver():
         "name_short": args.name,
         "name_project": name_project,
         "name_package": name_package,
-        "fluidsimfoam_version": fluidsimfoam_version,
+        "fluidsimfoam_version": fluidsimfoam_version.removesuffix("+editable"),
         "suffix_for_class": camelize(suffix_for_module),
         "name_variables": str(name_files["0"]),
         "name_system_files": str(name_files["system"]),
