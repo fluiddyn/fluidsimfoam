@@ -10,9 +10,10 @@ build:
     post_create_environment:
       - pip install pdm
     post_install:
+      - pdm config python.use_venv True
       - pdm install -G pyvista
-      - pdm run pip uninstall vtk -y
-      - pdm run pip install vtk-osmesa --extra-index-url https://gitlab.kitware.com/api/v4/projects/13/packages/pypi/simple
+      - pip uninstall vtk -y
+      - pip install vtk-osmesa --extra-index-url https://gitlab.kitware.com/api/v4/projects/13/packages/pypi/simple
 
 sphinx:
   configuration: doc/conf.py
