@@ -20,7 +20,7 @@ pyvista.OFF_SCREEN = True
 project = "Fluidsimfoam"
 copyright = "2023, Pierre Augier, Pooria Danaeifar"
 author = "Pierre Augier, Pooria Danaeifar"
-release = fluidsimfoam.__version__
+release = fluidsimfoam.__version__.removesuffix("+editable")
 
 # -- General configuration ---------------------------------------------------
 # Add any Sphinx extension module names here, as strings. They can be
@@ -90,9 +90,7 @@ html_theme = "pydata_sphinx_theme"
 # html_static_path = ["_static"]
 
 # -- Options for Intersphinx -------------------------------------------------
-intersphinx_mapping = runpy.run_path("ls_intersphinx_targets.py")[
-    "intersphinx_mapping"
-]
+intersphinx_mapping = runpy.run_path("ls_intersphinx_targets.py")["intersphinx_mapping"]
 
 # -- Other options ------------------------------------------------------------
 autosummary_generate = True

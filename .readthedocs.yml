@@ -10,8 +10,6 @@ build:
     post_create_environment:
       - pip install pdm
     post_install:
-      - which python
-      - pdm config python.use_venv True
       - pdm use -f $READTHEDOCS_VIRTUALENV_PATH
       - pdm install -G pyvista
       - pip uninstall vtk -y
