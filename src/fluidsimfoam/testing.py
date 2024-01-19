@@ -1,9 +1,14 @@
 """Testing utilities"""
 
 import shutil
+import sys
 from pathlib import Path
 
-import pytest
+try:
+    import pytest
+except ImportError:
+    if "sphinx" not in sys.modules:
+        raise
 
 from fluidsimfoam.foam_input_files import dump, parse
 from fluidsimfoam.util import get_openfoam_version

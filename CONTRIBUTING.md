@@ -15,8 +15,7 @@ should install and activate the virtual environment:
 ```sh
 hg clone https://foss.heptapod.net/fluiddyn/fluidsimfoam
 cd fluidsimfoam
-pdm install
-pdm venv activate
+pdm sync
 ```
 
 ```{admonition} Note on installing OpenFOAM on Ubuntu/Debian

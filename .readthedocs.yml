@@ -11,7 +11,7 @@ build:
       - pip install pdm
     post_install:
       - pdm use -f $READTHEDOCS_VIRTUALENV_PATH
-      - pdm install -G pyvista
+      - pdm sync -G pyvista -G doc
       - pip uninstall vtk -y
       - pip install vtk-osmesa --extra-index-url https://gitlab.kitware.com/api/v4/projects/13/packages/pypi/simple
 
