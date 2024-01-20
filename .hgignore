@@ -22,7 +22,8 @@ doc/**.zip
 build/*
 dist/*.tar.gz
 dist*
-.tox/*
+.nox
+.tox
 .coverage/*
 .pytest_cache/*
 .mypy_cache/*

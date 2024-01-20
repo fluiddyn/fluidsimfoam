@@ -38,8 +38,8 @@ fluidsimfoam-initiate-solver = "fluidsimfoam.util.console:initiate_solver"
 
 [tool.pdm]
 [tool.pdm.dev-dependencies]
-test = [
-    "pytest<8.0.0,>=7.2.1",
+
+solvers = [
     "-e fluidsimfoam-tgv @ file:///${PROJECT_ROOT}/doc/examples/fluidsimfoam-tgv",
     "-e fluidsimfoam-cbox @ file:///${PROJECT_ROOT}/doc/examples/fluidsimfoam-cbox",
     "-e fluidsimfoam-sed @ file:///${PROJECT_ROOT}/doc/examples/fluidsimfoam-sed",
@@ -47,17 +47,19 @@ test = [
     "-e fluidsimfoam-phill @ file:///${PROJECT_ROOT}/doc/examples/fluidsimfoam-phill",
     "-e fluidsimfoam-dam @ file:///${PROJECT_ROOT}/doc/examples/fluidsimfoam-dam",
     "-e fluidsimfoam-multi-region-snappy @ file:///${PROJECT_ROOT}/doc/examples/fluidsimfoam-multi-region-snappy",
+]
+test = [
+    "pytest<8.0.0,>=7.2.1",
     "pytest-mock<4.0.0,>=3.10.0",
     "pytest-cov<5.0.0,>=4.0.0",
     "pip",
+    "fluidsimfoam[solvers]"
 ]
 dev = [
     "black<24.0.0,>=23.1.0",
     "flake8<7.0.0,>=6.0.0",
     "isort<6.0.0,>=5.12.0",
     "ipdb<1.0.0,>=0.13.13",
-    "build<1.0.0,>=0.10.0",
-    "twine<5.0.0,>=4.0.2",
 ]
 doc = [
     "myst-nb<1.0.0,>=0.17.1",
@@ -66,10 +68,14 @@ doc = [
     "pydata-sphinx-theme<1.0.0,>=0.13.1",
     "sphinx-togglebutton<1.0.0,>=0.3.2",
     "pyvista<1.0.0,>=0.39.1",
+    "fluidsimfoam[solvers]",
 ]
 
-[tool.pdm.build]
-includes = []
+[tool.pdm.scripts]
+cov = "pytest tests doc/examples/ --cov --cov-report term --cov-report html"
+black = "black -l 82 src tests doc dev"
+isort = "isort src tests doc dev"
+format = {composite = ["black", "isort"]}
 
 [tool.isort]
 known_first_party = ["fluiddyn", "fluidsim_core", "fluidsimfoam"]
