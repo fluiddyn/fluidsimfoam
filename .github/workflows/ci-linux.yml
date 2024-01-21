@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      WM_PROJECT_DIR: /usr/share/openfoam
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
@@ -26,6 +28,7 @@ jobs:
         pip install pdm nox
     - name: Test
       run: |
+        icoFoam -help
         nox -s test
     - uses: codecov/codecov-action@v3
       with:
