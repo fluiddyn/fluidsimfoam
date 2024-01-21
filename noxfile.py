@@ -13,10 +13,7 @@ def test(session):
     session.run_always(
         "pdm", "sync", "-G", "test", "-G", "pyvista", "--clean", external=True
     )
-    command = (
-        "pdm run pytest tests doc/examples --cov --cov-report term --cov-report xml"
-    )
-    session.run(*command.split(), external=True)
+    session.run("pdm", "run", "cov-xml", external=True)
 
 
 @nox.session
