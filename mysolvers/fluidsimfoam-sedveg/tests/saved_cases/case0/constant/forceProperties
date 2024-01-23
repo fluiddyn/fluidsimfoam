@@ -1,0 +1,34 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      forceProperties;
+}
+
+// mean pressure
+gradPMEAN         gradPMEAN [1 -2 -2 0 0 0 0] (400 0 0);
+
+// If 1, accounts for the reduction of volume due to the presence of vegetation
+phiSwitch         phiSwitch [0 0 0 0 0 0 0] 1;
+
+// To impose same gravity term to both phases
+tilt              tilt [0 0 0 0 0 0 0] 1;
+
+// Virtual/Added Mass coefficient
+Cvm               Cvm [0 0 0 0 0 0 0] 0;
+
+// Lift force coefficient
+Cl                Cl [0 0 0 0 0 0 0] 0;
+
+// Eddy diffusivity coefficient for phase a
+Ct                Ct [0 0 0 0 0 0 0] 0;
+
+debugInfo         true;
+
+writeTau          true;
+
+writeMomentumBudget  true;
+
+ClipUa            ClipUa [0 0 0 0 0 0 0] 1;

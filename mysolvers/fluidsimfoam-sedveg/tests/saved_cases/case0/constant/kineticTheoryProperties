@@ -1,0 +1,42 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      kineticTheoryProperties;
+}
+
+kineticTheory     on;
+
+limitProduction   off;
+
+extended          off;
+
+saltation         on;
+
+e                 e [0 0 0 0 0 0 0] 0.7;
+
+muPart            muPart [0 0 0 0 0 0 0] 0.4;
+
+alphaMax          alphaMax [0 0 0 0 0 0 0] 0.635;
+
+MaxTheta          MaxTheta [0 2 -2 0 0 0 0] 0.5;
+
+phi               phi [0 0 0 0 0 0 0] 32;
+
+psi               psi [0 0 0 0 0 0 0] 0.0;
+
+killJ2_           killJ2_ [0 0 0 0 0 0 0] 1;
+
+quadraticCorrectionJ1_  quadraticCorrectionJ1_ [0 0 0 0 0 0 0] 1;
+
+viscosityModel    GarzoDufty1999;
+
+conductivityModel  GarzoDufty1999;
+
+granularPressureModel  Lun;
+
+saltationModel    none;
+
+radialModel       ChialvoSundaresan;
